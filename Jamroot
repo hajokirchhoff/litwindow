@@ -1,3 +1,29 @@
+# Most parts of this Jamroot file are
+# blatantly copied from the original boost 1.37.0 Jamroot file.
+# which is Copyright Vladimir Prus 2002-2006.
+# and Copyright Dave Abrahams 2005-2006.
+# and Copyright Rene Rivera 2005-2007.
+# and Copyright Douglas Gregor 2005.
+#
+# and Distributed under the Boost Software License, Version 1.0.
+#    (See accompanying file LICENSE_1_0.txt or copy at
+#          http://www.boost.org/LICENSE_1_0.txt)
+
+import generate ;
+import modules ;
+import set ;
+import stage ;
+import package ;
+import path ;
+import common ;
+import os ;
+import regex ;
+import errors ;
+import "class" : new ;
+import common ;
+import sequence ;
+import symlink ;
+
 path-constant LWL_ROOT : . ;
 constant LWL_VERSION : 1.0.0 ;
 constant LWL_JAMROOT_MODULE : $(__name__) ;

@@ -7,9 +7,9 @@
 * $Id: renderer.cpp,v 1.3 2007/04/10 09:35:01 Hajo Kirchhoff Exp $
 */
 #include "stdafx.h"
-#include "../include/litwindow/dataadapter.h"
-#include "../include/litwindow/logging.h"
-#include "../include/litwindow/renderer.hpp"
+#include "litwindow/dataadapter.h"
+#include "litwindow/logging.h"
+#include "litwindow/renderer.hpp"
 #include <boost/format.hpp>
 #include <boost/preprocessor/cat.hpp>
 using namespace std;

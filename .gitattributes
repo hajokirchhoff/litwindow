@@ -38,6 +38,8 @@ libs/lwbase/unittest/stdafx.cpp -text
 libs/lwbase/unittest/stdafx.h -text
 libs/lwbase/unittest/unittest.cpp -text
 libs/lwbase/unittest/wrapping_strstream_test.cpp -text
+/litwindow-VC90.sln -text
+/litwindow-VC90.vcproj -text
 litwindow/algorithm.h -text
 litwindow/check.hpp -text
 litwindow/config.hpp -text
