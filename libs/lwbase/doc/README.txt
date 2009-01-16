@@ -1,0 +1,1 @@
+This directory contains the doxygen source files for the documentation for the lwbase part of the library.

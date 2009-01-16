@@ -1,0 +1,538 @@
+/**\addtogroup data_adapter
+Table of Contents
+<ul>
+<li>\ref data_adapter_intro</li>
+	<ul><li>\ref data_adapter_abstract</li>
+		<li>	\ref data_adapter_purpose</li>
+		<li>\ref advantages_of_the_data_adapter_mechanism </li>
+	</ul>
+<li>	\ref data_adapter_understanding </li>
+	<ul><li>\ref data_adapter_varieties </li>
+		<ul><li>\ref data_adapter_accessor </li>
+		<li>\ref data_adapter_aggregate </li>
+		<li>\ref data_adapter_container </li>
+		</ul>
+	</ul>
+<li>\ref application_programmers_view_defining_data_adapters </li>
+	<ul>
+	<li>\ref create_a_data_adapter</li>
+	</ul>
+</ul>
+@section data_adapter_intro Introduction
+@subsection data_adapter_abstract Abstract
+The 'data adapter' library implements a mechanism to access the type, name and internal structure of objects at runtime. The mechanism bears some resemblance to Java's "reflections" and is akin to what is commonly referred to as "extended RTTI".
+
+Most of the C++ identifier and type information is thrown away when the compiler produces a binary output. What little information remains is available through the C++ runtime type information mechanism. But this allows for no more than equality tests and a unique name for a type. You cannot, for example, iterate all member variables of a @c struct or @c class. This is one of the things data adapters where designed to do.
+
+A data adapter consists of
+- a pointer to an object of an arbitrary type
+- a reference to a short, binary description of the name <em>and the internal structure</em> of the type of that object
+
+A method uses the binary description to access the data of the object in a typesafe manner. This works even if the C++ type definition is not known until a later time. This allows "runtime generic methods" that can be written, compiled and put in a library before the data types they will work with are even designed. They will work with almost any kind of data type, as long as the caller of the method provides the neccessary data adapter.
+
+A "data adapter" is an adapter between a user defined type and an existing library method.
+The application programmer provides a data adapter for each user defined type.
+The library programmer uses data adapters to access the data of the user defined type.
+
+@subsection data_adapter_purpose Motivation and Purpose
+This is a list of programming tasks I had in mind when I created the data adapters:
+-	loading and saving some data (struct or class) to a configuration file or registry
+-	binding the columns of SQL tables to member variables of a struct
+-	transfering data between the widgets of a dialog and the variables of a struct
+
+Traditionally all these tasks require rewriting essentially the same code over and over again for every single data type definition. If you have these data types
+\code
+struct Type1 {
+  int one;
+  int two;
+};
+struct Type2 {
+  int another_one;
+  string another_two;
+};
+\endcode
+you have to write a 'save_to_file' method for each of the data type. If you later introduce a third data type or change the existing ones, you have to write a third method or change the existing methods. The point is, you cannot write a generic method that takes whatever data you pass to it and writes the information to a file. The C++ language does not allow that.
+
+This was the goal when I started creating the data adapters: to create a mechanism that would let me write
+\code
+int main()
+{
+  Type1 t_one;
+  Type2 t_two;
+   save_to_file(t_one);
+   save_to_file(t_two);
+}
+\endcode
+without having to write an extra 'save_to_file' for every new struct I define.
+
+\image html "Data Adapter Diagram.png" "Data Adapter Diagram"
+
+The data adapter library continues to grow and today includes the following features:
+- iterators for members of a class or struct definition
+- convert data to/from std::string
+- allow sequential access to containers that follow STL conventions
+- create a new object by typename
+- allow typesafe access to objects of unknown structure
+- allow typesafe access to members through getter/setter functions of unknown structure
+- preserves compile time information such as member name (source code identifier), array size and others
+
+@subsection advantages_of_the_data_adapter_mechanism Advantages over other existing mechanisms
+The Lit Window Library data adapters have several advantages over other, similar extended RTTI mechanisms.
+\par A data adapter is a completely independent wrapper around an existing type.
+This allows defining data adapters for third party type definitions you cannot change.\n
+		Some other mechanisms require a special macro that must be included inside the struct or class definition or expect specific identifiers and members to exist. If you cannot change the class definition, because it was written by a third party, you cannot use this eRTTI with it. It is limited to your own data types or those who's developers happen to use the same eRTTI mechanism.\n
+		The Lit Window Library mechanism is a wrapper around a type declaration and requires no special members, tags, names or otherwise to be included. You can create data adapters for types you have not written yourself.
+\par Very little sourcecode is required for the data adapter definition - and its typesafe.
+All eRTTI mechanisms require that the user duplicates the existing C++ type definition, adding every member of the type to a list of type entries. This usually takes a form like
+	\code
+	BEGIN_e_RTTI_CLASS2(ClassName, Inherited)
+		e_RTTI_MEMBER(name, type)
+	END_e_RTTI_CLASS()
+	\endcode
+	The Lit Window Library data adapter definition is smaller, requires less typing and eliminates the need to duplicate the type information for members. The example above would look like
+	\code
+	LWL_BEGIN_ADAPTER(name)
+		PROP_I(Inherited)
+		PROP(name)
+	LWL_END_ADAPTER()
+	\endcode
+	Note that inherited classes are listed inside the definition. This avoids an explosion of BEGIN_ADAPTER1, BEGIN_ADAPTER2, BEGIN_ADAPTER3 macros, one for each possible number of superclasses. Note also that you do not have to specify the type of the member 'name'. The data adapter mechanism determines this type automatically. This eliminates difficult to find type errors where you have changed the type of the member, but forgotten to update the eRTTI definition.
+\par The data adapter mechanism supports simple data types, aggregates and containers.
+Other mechanisms often have only limited support for aggregates or simple data types and usually do not support containers at all.
+*/
+
+
+
+	//-----------------------------------------------------------------------------------------------------------//
+	
+	
+	
+/**\addtogroup data_adapter
+@section data_adapter_understanding Understanding data adapters
+
+Data adapters usage falls into two distinct groups
+- @b Application @b programmers create data adapters that describe their data types. They then pass a pointer to an instance of one of their data types together with the data adapter to a library method. The library method will be able to work with their data type, because the data adapter contains all relevant information about the structure and access methods.
+	- @b Example: An application programmer writes a database application. He defines a <tt>struct customer</tt> with five member variables, <tt>id, name, street, zipcode, city</tt> and writes code that selects the data from the customers table with the SQL statement <tt>SELECT * FROM customer</tt>. He now wants to bind the columns of the result to the member variables of his @p customer structure. Traditionally he would have to do this himself, but using the data adapter mechanism he calls a runtime generic method @c bind from a library instead and passes a pointer to his @p customer object and a data adapter to the routine. When he defines another @p struct and selects data from another table, he calls <em>the same method @b bind</em> in the library, but this time @p bind binds a different structure to a different result set.
+		
+- @b Library @b programmers write methods that accept data adapters as parameters. Such libraries let the application programmer define the data type they work with rather than forcing a specific data type on the user.
+	-	@b Example: A library programmer writes an odbc wrapper library (such as the Lit Window ODBC Library, please email me if you are interested in it). Binding columns to a @p struct is such a common task that it is ideally suited for a library method. The library programmer writes a method @b bind that accepts a data adapter and an ODBC SQL Statement handle as parameters. The data adapter preserves the names of the member variables of the struct as they appear in the source code and makes them available at runtime. @b bind uses the data adapter to iterate all members of the object, query their names and find a matching column in the SQL result set. It then binds the column to the member variable of the same name, using the C type given by the data adapter. Since the method uses a data adapter, it can be compiled and put in a library even though the application programmers @c struct has not even been designed yet.
+	
+	In other words: I write the Lit Window ODBC library which contains a generic bind method. You can download this library in binary form and use your own data types with the library.
+	
+The remaining documentation is divided into these two groups.
+-#	Application programmers provide or define data adapters and pass them to library functions.
+-#	Library programmers consume or use data adapters to access objects without having access to the actual C++ source code definition.
+
+@subsection data_adapter_varieties Three different types of data adapters
+Data adapters come in three varieties, depending on the category of the type they were created for.
+
+@subsubsection data_adapter_accessor The accessor - accessing opaque objects
+The most basic form of a data adapter is the litwindow::accessor. An accessor points to an object whose internal structure is unknown and considered opaque. Accessors are used for all plain old data types PODT (int, float, bool, char). Any type you define can be accessed with an accessor. The Accessor is closest to a void* with a type attached to it.
+
+@subsubsection data_adapter_aggregate The aggregate - accessing struct or class
+An litwindow::aggregate data adapter points to objects for which some information about their internal structure exists. @p struct and @p class types can be accessed with aggregate data adapters. The aggregate exposes the names, types and values of the member variables and methods of the struct or class. @note struct and class objects can also be accessed by @p accessor data adapters, but if they are, their internal structure is not available and the objects are treated as 'atomic'.
+
+@subsubsection data_adapter_container The container - accessing containers
+The third kind of data adapter is called a litwindow::container adapter. @p Container adapters point to containers, objects that contain zero or more elements of the same type. They can be STL containers, ODBC data tables, text files, anything that has a sequential iterator. The @p container adapter exposes the container interface, the number of elements in the container, iterates over all elements and inserts and deletes elements.
+*/
+	//-----------------------------------------------------------------------------------------------------------//
+/**\addtogroup data_adapter
+@section application_programmers_view_defining_data_adapters The application programmers view - defining data adapters
+The application programmer uses data adapters to describe his user defined data types, so that library methods can work with them. In particular he
+-# creates a data adapter for every simple type, aggregate or container he wants to pass to a library method.
+-# writes template specializations for the litwindow::converter templates if neccessary to provide specific instructions for
+converting the user defined data types.
+-# creates accessor, aggregate or container objects and passes them to a library method.
+
+@subsection create_a_data_adapter How to create a data adapter for your data types.
+
+The first step is to decide what kind of data adapter you want to create, an accessor, an aggregate or a container adapter. Then you create the data adapter using a couple of macros defined in the data adapter header files. Finally you may have to add a couple of template specializations, if you are not satisfied with the adapter default implementation.
+
+\subsubsection macro_overview Macros used to declare and define data adapters
+
+\par To create an accessor adapter, use
+-	@p LWL_DECLARE_ACCESSOR(name, decl_spec) in a header file
+-	@p LWL_IMPLEMENT_ACCESSOR(name) in a cpp file - or -
+-	@p LWL_IMPLEMENT_INLINE_ACCESSOR(name) in a header file
+
+\par To create an aggregate adapter, use
+-	@p LWL_DECLARE_AGGREGATE(name, decl_spec) in a header file
+-	@p LWL_BEGIN_AGGREGATE(name) to start the aggregate definition, or
+-	@p LWL_BEGIN_AGGREGATE_NO_COPY(name) if your aggregate has no copy semantics, or
+-	@p LWL_BEGIN_AGGREGATE_ABSTRACT(name) if your aggregate is an abstract class
+	-	@p PROP(member) to add a member,
+	-	@p PROP_I(superclass) to add a superclass (inheritance),
+	-	@p PROP_C(member, container) to add member that is a container,
+	-	@p PROP_CSTR(C-string) to add a member that is a C type string (char [])
+	-	@p PROP_GetSet(type, name) to add a property that uses Get<em>name</em>, Set<em>name</em> getter/setter methods that take a @p type.
+-	@p LWL_END_AGGREGATE() to end the aggregate definition
+
+\note Future versions are probably going to use boost::mpl to deduce the correct type, eliminating the need for different versions of the PROP and LWL_BEGIN_AGGREGATE macros.
+
+\par To create a container adapter, use
+-	@p LWL_DECLARE_CONTAINER(name, decl_spec) in a header file
+-	@p LWL_IMPLEMENT_CONTAINER(name) in a cpp file
+
+@subsubsection create_accessor Creating accessor data adapters
+Accessor data adapters are used for enumerations or for struct/class types where you do not want to expose the internal structure. std::string is a good example for this. std::string objects are meant to be 'fundamental' objects. It does not make sense to expose the m_pch member variable that points to the string or any other members.
+
+The Lit Window Library already includes the most commonly used accessor adapters, so you don't usually have to write them yourself. If you do have to, use the macro LWL_DECLARE_ACCESSOR to include the accessor declaration in a header file. Use LWL_IMPLEMENT_ACCESSOR to include the adapter implementation in a source file.
+
+The data adapter mechanism uses template specialization to let you customize the data adapter and add special code for converting the value to or from a string and other tasks. 
+
+The litwindow::converter<> template is responsible for handling the type information and converting the value. Every accessor has its own specialized converter<type> object. You should provide two template specializations for every accessor data type: to_string and from_string. The template specialization has to be included before the LWL_IMPLEMENT_ACCESSOR macro.
+
+The example shows how to create an accessor for the fundamental data type @p std::complex, an STL class for complex values.
+
+\code
+string_adapter.h
+
+LWL_DECLARE_ACCESSOR(std::complex)
+
+string_adapter.cpp
+
+namespace litwindow {
+	// this template specialization converts the numerical 'complex' to a string
+	template<>
+	string converter<std::complex>::to_string(const std::complex &c)
+	{
+		ostringstream out;
+		out << '(' << c.real() << ', ' << c.imag() << ')';
+		return out.str();
+	}
+	
+	// this template specialization converts a string back to a complex
+	template<>
+	size_t converter<std::complex>::from_string(const tstring &value, std::complex &member)
+	{
+		size_t comma_pos=value.find(',');
+		if (value.length()<5 || value[0]!='(' || value[value.length()-1]!=')' || comma_pos==string::npos)
+			throw runtime_error("invalid format: complex format is   (real,imag)   ");
+		double i, j;
+		istringstream in_i(value.substr(1, comma_pos-1));
+		in_i >> i;
+		if (in_i.bad())
+			throw runtime_error("invalid format: real is not a number");
+		istringstream in_j(value.substr(comma_pos, value.length()-comma_pos-2);
+		in_j >> j;
+		if (in_j.bad())
+			throw runtime_error("invalid format: imag is not a number");
+		member=complex(i, j);
+		return sizeof(member);
+	}
+};
+
+
+// finally, this macro implements the accessor adapter
+LWL_IMPLEMENT_ACCESSOR(std::complex)
+\endcode
+
+
+@subsubsection create_aggregate Creating aggregate data adapters
+Aggregate data adapters are used for all struct or class types. They are a lot easier to define than basic accessor adapters. Use the LWL_DECLARE_ADAPTER macro to include an aggregate adapter declaration in your header file. Use LWL_BEGIN_ADAPTER and LWL_END_ADAPTER to include the implementation in a source file.
+
+Aggregates contain - by definition - a list of members and nothing else. You start the list with the LWL_BEGIN_ADAPTER macro, list each member element with the PROP macro and close the list with LWL_END_ADAPTER. The following example shows you how to do this.
+
+\code
+
+Settings.h
+
+// this is the struct you want to define an aggregate adapter for
+struct Settings 
+{
+	int		m_timeout;
+	char	m_name[40];
+	complex m_value;
+	string	m_a_string;
+};
+
+// include the 'Settings' aggregate declaration in the header file
+LWL_DECLARE_AGGREGATE(Settings)
+
+
+Settings.cpp
+
+// define the 'Settings' aggregate adapter
+LWL_BEGIN_AGGREGATE(Settings)
+	PROP(m_timeout)
+		// use PROP_CSTR for old style C strings of type char[]
+	PROP_CSTR(m_name)
+	PROP(m_value)
+		// std::string members do not need special treatment
+	PROP(m_a_string)
+LWL_END_AGGREGATE()
+\endcode
+
+There exist two variants of the LWL_BEGIN_ADAPTER macro
+- Use LWL_BEGIN_ADAPTER_NO_COPY if your struct/class type does not have a copy constructor.
+- Use LWL_BEGIN_ADAPTER_ABSTRACT if you are defining an aggregate adapter for an abstract base class.
+
+There also exist a couple of variants of the PROP macro.
+- Use PROP_I when the member you are including in the list is a base class (see example 2)
+- Use PROP_CSTR when the member is a char vector (old style C string) as in   char m_name[40]
+- Use PROP_C when the member is a container and you want to expose it as a container.
+- PROP_RW_FUNC lets you specify a get and set function for the member (see example 3).
+- PROP_RW_getset and PROP_RW_GetSet are shorthand macros for PROP_RW_FUNC that work with getMember/setMember functions.
+
+Example 2 shows you how you can include inherited types in the aggregate adapter.
+
+\code
+struct DerivedSetting:public Settings
+{
+	bool m_derived_bool;
+};
+
+LWL_BEGIN_AGGREGATE(DerivedSetting)
+	// include the base class
+	PROP_I(Setting)
+	// then continue with this class' members
+	PROP(m_derived_bool)
+LWL_END_AGGREGATE()
+\endcode
+
+Example 3 shows how you can include a property with Get/Set functions as a member of the aggregate. This example defines an aggregate adapter for a window class in a GUI class library. @note There is no member variable 'Label', there are only get and set methods. The data adapter mechanism hides this distinction.
+\code
+
+// declaration of a static text control
+// This control has a property 'Label' and two member functions GetLabel/SetLabel that get/set this property.
+class wxStaticText:public wxWindow
+{
+public:
+	// Get and Set methods for the "Label" property
+	void		SetLabel(const wxString &s);
+	wxString GetLabel() const;
+};
+
+// define the data adapter
+LWL_BEGIN_AGGREGATE(wxStaticText)
+	PROP_I(wxWindow)			// inherit all from wxWindow
+	PROP_GetSet(Label)			// declare the "Label" property
+LWL_END_AGGREGATE()
+\endcode
+
+@subsection pass_data_to_generic_methods How to pass your data to generic methods using data adapters
+Once you have defined a data adapter for a type, you can use it to pass objects to generic methods. A very simple, yet useful generic method is "accessor_as_debug", which creates a debug dump from any object passed to it. This method takes a litwindow::accessor object as its parameter, dumps the contents of the object to a string and returns this string:
+\code
+tstring accessor_as_debug(const const_accessor &e, bool show_type);
+\endcode
+The additional parameter @p show_type selects if the type of a member should be included in the output.
+
+The LWL_ macros explained in the previous section define a data adapter. They contain the neccessary code to create the wrapper class litwindow::converter, which is used by the litwindow::accessor class to hide the details of the object.
+
+To actually create a data adapter - an accessor, aggregate or container object - the library contains several template functions:
+- accessor make_accessor<V>(V &v)
+- aggregate make_aggregate<V>(V &v)
+- container make_container<V>(V &v)
+
+and their const counterparts
+- const_accessor make_const_accessor<V>(const V &v)
+- const_aggregate make_const_aggregate<V>(const V &v)
+- const_container make_const_container<V>(const V &v)
+
+They accept as parameter an object of any type that has a data adapter defined.
+
+The next example shows how you would use const_make_accessor to dump the contents of a DerivedSettings object (see above) to screen:
+
+\code
+void main()
+{
+	DerivedSettings some_settings;
+	const_accessor a( make_const_accessor(some_settings) );
+	string some_settings_as_string=accessor_as_debug(a, true);
+	cout << some_settings_as_string << endl;
+}
+\endcode
+
+This is what the output would look like, LF included for better readability.
+\verbatim
+DerivedSettings : {
+   Settings : {
+      int : m_timeOut = 14;
+      char[] : m_name = SomeName;
+      complex : m_complex = (5,99);
+      string : m_a_string = SomeString
+      };
+   bool : m_derived_bool = false
+};
+\endverbatim
+
+The point of this exercise is, you can pass @b any object to @p accessor_as_debug, as long as you have defined a data adapter for it.
+
+The next example shows you how you can pass a struct definition to an odbc database library to bind all member variables of the struct to the columns of a database table. The example reads all rows from a table named "User".
+
+\code
+struct User {
+	long	m_id;
+	char	m_user_name[65];
+	char	m_email[129];
+};
+
+// The database contains a table "USER" with three columns.
+//   id int,
+//	 user_name char(64),
+//   email(128)
+// Note that the column names are the names of the struct without the m_ prefix.
+
+void print_all_users(odbc::data_source *d)
+{
+	odbc::table user_table(d);	// the odbc table object
+	User a_user;				// a user object
+	
+	// Bind the user object to the table.
+	// The call to 'bind' automagically opens the table "User" (same name as the struct) and binds
+	// the columns to the member variables of a_user.
+	
+	// create an accessor
+	accessor a_user_accessor = make_accessor(a_user);
+	
+	if (bind(user_table, a_user_accessor)==false) {
+	    cerr << "bind failed" << endl;
+	}
+	
+	// now open the table
+	if (user_table.open()==false) {
+		cerr << "open failed" << endl;
+	}
+	
+	// and iterate over the elements in the table. Every call to
+	// get_next retrieves the next row from the table and copies the values
+	// to the a_user member variables.
+	while (user_table.get_next()) {
+	    cout << a_user.m_id << ", " << a_user.m_user_name << ", " << m_email << endl;
+	}
+}
+\endcode
+
+This is actual working code. The 'magic' happens in the call to @p bind. Bind is passed an accessor to the a_user object. The accessor contains all the neccessary information to perform a bind between the table and the User struct. It uses the name of the struct "User" for the name of the table to bind the object to. It uses the names of the member variables of the struct, strips them from the m_ prefix (if they have one) and uses that for the names of the columns that should be bound to the member variable. And it uses the accessor to query the C type of the member variables to find out how the columns should be bound.
+
+These two examples show the power of runtime generic programming, made possible through the data adapter mechanism. The next section shows you how to write your own generic methods.
+
+@subsection writing_generic_methods How to write generic methods and access data through data adapters.
+If you intend to write your own generic methods, study the methods already present in the Lit Window Library. If you search for methods accepting a litwindow::accessor or litwindow::aggregate as a parameter you will find a lot of methods that are a good starting point to understand how to use the data adapters.
+
+@subsubsection write_to_config_example write_to_config Example
+
+The following section explains a write_to_config method that accepts any object and writes its contents to a configuration storage such as a .INI file or the MS-Windows registry. The actual writing of key-value pairs is done using the wxConfig class, which is a wrapper around the native API calls for the OS you are using. But wxConfig accepts only a single string-value pair and cannot write an entire object, much less one with a container as a member.
+
+write_to_config accepts a litwindow::const_accessor object as its parameter. Using a const_accessor you can pass any kind of object to it, a plain old data type such as int, float or bool, an opaque data type such as complex or string, any struct or class you have defined or even a container.
+
+The underlying wxConfig mechanism supports a hierarchical storage layout accepting keys that contain entire paths, much like a file system. wxConfig even supports the notion of a 'current working directory'. Here is an example how wxConfig maps a ("settings/frequency/current", 50.4) key-value pair on different OSes.
+\verbatim
+[settings/frequency]
+current=50.4
+\endverbatim
+when you are using a .INI file or
+\verbatim
+HKEY_LOCAL_MACHINE\SOFTWARE\MyApplication\settings\frequency
+current = 50.4
+\endverbatim
+
+This hierarchical layout is ideally suited to store plain or struct/class data types. The data adapter mechanism exposes the hierarchical structure of the object passed to the method. Here is how this works.
+
+At first all we've got is a const_accessor. The underlying object could be 'atomic' in the sense that it has no usable internal structure. @p bool is the best example for an 'atomic' object. If that is the case, the only thing write_to_config can do with this value is store it at the current position in the config storage using its name as the key and its value as the value. 
+
+litwindow::const_accessor::get_name() returns the name of the object. This is the C++ name of the member variable, as it appears in the PROP() macro of the data adapter definition.
+
+litwindow::const_accessor::to_string() returns a string representation of the object. This method calls the converter<>::to_string template specialization that is part of the data adapter definition.
+
+If the underlying object is an 'aggregate', write_to_config should use the name of the object as the current 'directory' in the configuration storage and store each member of the aggregate under this directory. To do so, write_to_config must iterate over all members of the aggregate.
+
+To test if the object is an aggregate or not, use litwindow::const_accessor::is_aggregate(). Alternatively you can call litwindow::const_accessor::get_aggregate() to return an aggregate data adapter for the current object. If the object is atomic, the aggregate adapter will be marked "invalid".
+
+\code
+void write_to_config(const_accessor a, wxConfig &cfg)
+{
+	// get an aggregate data adapter
+	const_aggregate current_aggregate(a.get_aggregate());
+	
+	if (current_aggregate.is_valid()) {
+		// the object is indeed an aggregate
+		// iterate over all members
+		
+		[... todo ...]
+		
+	} else {
+		// the object is not an aggregate
+		// write the name-value pair
+		// a.get_name() returns the name of the variable
+		// a.to_string() returns a string representation of the value
+		cfg.Write(a.get_name(), a.to_string());
+	}
+}
+\endcode
+
+If the aggregate adapter is valid - if the object is indeed a struct or class - you can use litwindow::const_aggregate::iterator to iterate over all member elements of the object and call write_to_config recursively for all members. wxConfig supports a "working directory", so write_to_config can simply change the current working directory to the name of the aggregate type and call write_to_config again.
+
+\code
+// change working directory to the name of the struct/class
+cfg.cwd(a.get_name());		// this decends the configuration path
+const_aggregate::iterator i;
+for (i=current_aggregate.begin(); i!=current_aggregate.end(); ++i) {
+	write_to_config(*i, cfg);
+}
+// and reset the path again
+cfg.cwd("..");
+\endcode
+
+And that's it. *i returns a const_accessor for the current member object of current_aggregate. write_to_config(*i, cfg) will write this member object to the configuration storage. Since we changed the working directory, the name-value pair for *i will be unique. And should *i itself be an aggregate, the recursive call to write_to_config will take care of that.
+
+The following example shows how the DerivedSettings struct will be stored in a .INI file:
+\verbatim
+[DerivedSettings]
+m_derived_bool=false
+
+[DerivedSettings/Settings]
+m_timeout=14
+m_name=SomeName
+m_complex=(5,99)
+m_a_string=SomeString
+\endverbatim
+
+@subsubsection container_write_to_config Writing containers
+What remains to be done is store the elements of containers to the storage. This requires a little more work, but not much.
+
+litwindow::const_accessor::is_container returns true if the object is a container. And just like get_aggregate(), litwindow::const_accessor::get_container() returns a container data adapter. If the object isn't actually a container, the container adapter will be invalid and litwindow::const_container::is_valid() will return false. Like aggregates, containers have an iterator you can use to iterate over the elements of the container.
+
+The configuration storage has no notion of containers, but we can simply use the index of the element - the position in the container - as the key. The element at position 0 will be stored at key "0", the element at position 487 will be stored at key "487". This will be horribly inefficient when the containers are large, but containers that are part of a settings object are usually very small. The MRU (most recently used) list is a typical container that would be stored with this mechanism. Such a MRU list rarely contains more than ten to twenty files.
+
+Here is the code to store a container
+\code
+// get the container object
+const_container c(a.get_container());
+if (c.is_valid()) {
+	// yup, this is actually a container
+	// change the working directory to the name of the container
+	cfg.cwd(a.get_name());
+	
+	// iterate over all elements
+	const_container::iterator i;
+	size_t count;
+	for (i=c.begin(), count=0; i!=c.end(); ++i,++count) {
+		// change the "working directory" to the current element index
+		cfg.cwd(wxString::Format("%08d", count));
+		write_to_config(*i, cfg);
+		// and change the working directory back to the current level
+		cfg.cwd("..");
+		
+	}
+	// save the number of elements to storage as well
+	// this makes it easier to retrieve the elements again
+	cfg.Write("size", count);
+	// and change the "cwd" back again
+	cfw.cwd("..");
+}
+\endcode
+
+Here is what a container would look like in a .ini format:
+\verbatim
+[DerivedSettings/MRU]
+size=4
+[DerivedSettings/MRU/00000000]
+this=the_file
+[DerivedSettings/MRU/00000001]
+this=another_file
+
+and so on...
+\endverbatim
+*/
+	//-----------------------------------------------------------------------------------------------------------//

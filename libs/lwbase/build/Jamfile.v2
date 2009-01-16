@@ -1,0 +1,20 @@
+# copyright Hajo Kirchhoff
+# Distributed under the Lit Window Library Software License, Version 1.0. 
+
+LWBASE_SOURCES = check
+constraints
+dataadapterimp
+logging
+lwbase
+renderer
+tstring
+;
+
+lib lwbase : ../$(LWBASE_SOURCES).cpp
+    :         
+ 	     <link>shared:<define>LWL_USING_DLL
+   ;
+
+
+# boost-install boost_math_c99 boost_math_c99f boost_math_c99l boost_math_tr1 boost_math_tr1f boost_math_tr1l ;
+
