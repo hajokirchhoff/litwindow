@@ -1,1 +1,4 @@
 * text=auto !eol
+/CHANGELOG.txt -text
+/LICENSE.txt -text
+/README.txt -text

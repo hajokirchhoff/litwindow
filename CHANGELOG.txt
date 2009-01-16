@@ -1,0 +1,4 @@
+January 2009
+	Restarted litwindow development on sourceforge.
+	The library has been improved over the years, but the development was
+	not reflected on the sourceforge page.
