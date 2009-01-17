@@ -14,7 +14,7 @@
 #include <tchar.h>
 
 #ifndef LWL_VERBOSE_BUILD
-//#define LWL_VERBOSE_BUILD
+#define LWL_VERBOSE_BUILD
 #endif
 
 #if defined(_USRDLL) || defined(USING_DLL) || defined(LWBASE_EXPORTS)
@@ -120,7 +120,7 @@
 #endif
 
 #else
-#if SHOWN_LIB
+#if SHOW_LIB
 #pragma message("create import library: " _LWL_LIB_NAME)
 #endif
 #endif

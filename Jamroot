@@ -25,6 +25,7 @@ import sequence ;
 import symlink ;
 
 path-constant LWL_ROOT : . ;
+
 constant LWL_VERSION : 1.0.0 ;
 constant LWL_JAMROOT_MODULE : $(__name__) ;
 
@@ -50,7 +51,7 @@ project litwindow
     : requirements <include>.
       # disable auto-linking for all targets here,
       # primarily because it caused troubles with V2
-      <define>LWL_ALL_NO_LIB=1
+      # <define>LWL_ALL_NO_LIB=1
       # Used to encode variant in target name. See the
       # 'tag' rule below.
       # <tag>@$(__name__).tag

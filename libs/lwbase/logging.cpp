@@ -7,8 +7,8 @@
 * $Id: logging.cpp,v 1.5 2006/11/22 16:21:15 Hajo Kirchhoff Exp $
 */
 #include "stdafx.h"
-#include "../include/litwindow/lwbase.hpp"
-#include "../include/litwindow/logging.h"
+#include "litwindow/lwbase.hpp"
+#include "litwindow/logging.h"
 #include <strstream>
 #include <iostream>
 #include <fstream>

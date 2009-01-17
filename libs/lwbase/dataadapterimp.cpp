@@ -7,8 +7,8 @@
  * $Id: dataadapterimp.cpp,v 1.11 2007/12/18 11:09:35 Merry\Hajo Kirchhoff Exp $
  */
 #include "stdafx.h"
-#include "../include/litwindow/dataadapter.h"
-#include "../include/litwindow/logging.h"
+#include "litwindow/dataadapter.h"
+#include "litwindow/logging.h"
 #include <sstream>
 #include <iostream>
 #include <iomanip>

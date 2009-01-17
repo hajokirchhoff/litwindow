@@ -12,7 +12,8 @@ tstring
 
 lib lwbase : ../$(LWBASE_SOURCES).cpp
     :         
- 	     <link>shared:<define>LWL_USING_DLL
+ 	     <link>shared:<define>LWBASE_EXPORTS
+ 	     <include>d:/prj/r4000-v4/libs/boost
    ;
 
 

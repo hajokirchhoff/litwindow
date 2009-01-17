@@ -4,6 +4,7 @@
 	Version="9,00"
 	Name="litwindow-VC90"
 	ProjectGUID="{C7FF15DB-BD9D-4165-A752-4AD34483DB7A}"
+	RootNamespace="litwindow-VC90"
 	Keyword="MakeFileProj"
 	TargetFrameworkVersion="196613"
 	>
@@ -23,12 +24,12 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="bjam --toolset=msvc-9.0"
-				ReBuildCommandLine="bjam --toolset=msvc-9.0 -a"
-				CleanCommandLine="bjam --clean --toolset=msvc-9.0"
+				BuildCommandLine="bjam --toolset=msvc-9.0 debug"
+				ReBuildCommandLine="bjam --toolset=msvc-9.0 -a debug"
+				CleanCommandLine="bjam --clean --toolset=msvc-9.0 debug"
 				Output=""
 				PreprocessorDefinitions="DEBUG;WIN32;_DEBUG"
-				IncludeSearchPath=""
+				IncludeSearchPath="&quot;($SolutionDir)&quot;"
 				ForcedIncludes=""
 				AssemblySearchPath=""
 				ForcedUsingAssemblies=""

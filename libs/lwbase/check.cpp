@@ -7,10 +7,10 @@
 * $Id: check.cpp,v 1.5 2006/11/28 13:44:03 Hajo Kirchhoff Exp $
 */
 #include "stdafx.h"
-#include "../include/litwindow/lwbase.hpp"
-#include "../include/litwindow/logging.h"
-#include "../include/litwindow/check.hpp"
-#include "../include/litwindow/result.hpp"
+#include "litwindow/lwbase.hpp"
+#include "litwindow/logging.h"
+#include "litwindow/check.hpp"
+#include "litwindow/result.hpp"
 #include <stdexcept>
 
 namespace litwindow {
