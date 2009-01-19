@@ -1,0 +1,386 @@
+/**@page faq FAQ
+@section rapidUI RapidUI questions
+Table of contents
+
+@ref Q__What_is_RapidUI_ @n
+@ref Q__Will_rapidUI_be_able_to_handle_complex_real_world_scenarios_ @n
+@ref Q__What_is_the_performance_overhead_I_have_to_pay_for_using_rapidUI_ @n
+@ref Q__Do_I_have_to_use_special_data_types_such_as_CVariant_to_be_able_to_use_rapidUI_ @n
+@ref Q__Can_I_use_my_own_data_types_with_rapidUI_ @n
+@ref Q__Can_I_use_rapidUI_with_third_party_objects_ @n
+@ref Q__What_is_the_difference_betweeen_RapidUI_and_Data_Binding_ @n
+@ref Q__What_does_the_code_look_like__Can_you_give_me_an_example_ @n
+@ref Q__Hm__this_looks_very_complicated__How_can_this_be_faster_than_traditional_coding_ @n
+@ref Q__Can_you_give_a_longer_example_ @n
+@ref Q__I_could_simply_buy_a_third_party_UI_control_ActiveX_control__plugin__whatever_that_does_what_I_want_to__Why_should_I_bother_with_RapidUI_ @n
+@ref Q__I_can_use_rules_to_describe_99_of_my_User_Interface__but_I_still_need_a_very_special_algorithm_for_the_last_1__Can_RapidUI_cope_with_that_ @n
+@ref Q__Will_RapidUI_work_with_other_GUI_Frameworks_besides_wxWidgets__What_about_Qt__MFC_ @n
+@ref Q__What_license_will_the_Lit_Window_Library_be_released_under_ @n
+@ref Q__I_have_some_suggestions_and_or_more_questions__How_can_I_contact_you_ @n
+@ref Q__I_want_to_contribute__How_can_I_help_ @n
+@ref Q__Who_is_behind_Lit_Window_Productions__Who_are_you_ @n
+-- end table of contents --
+
+@subsection Q__What_is_RapidUI_ Q. What is RapidUI?
+@par Answer:
+RapidUI is the working title for an effort to speed up production quality UI development by a factor of 10. I put emphasis on the 'production quality' to set it apart from application generators and other tools that allow you to create a quick prototype. With them you throw together a couple of controls, put in a little code and create a good mock for demo purposes or as a basis for later work. RapidUI is different. It is a library of objects that make developing a user interface much easier.
+
+@subsubsection traditional_coding Traditional UI coding
+@par Properties, methods and events...
+If you have ever worked with Visual Basic, Delphi or .NET you will have come across the traditional programming paradigm: properties, methods and events. Properties resemble members of a class, methods are - of course - member or global functions. These two items are natively supported by most programming languages. Widespread use of events started when graphical user interfaces gained popularity in the late 1980ies, early 1990s. Programming for an event loop or message loop required different programming techniques than the strictly sequential programming everyone used before. Events are beginning to be supported natively by some programming languages, namely C# and VB and Microsofts Extension to C++. There are also good class libraries such as Boost or Qt that provide a programmer with C++ objects that make handling events a lot easier.
+
+@par    ...and a lot of code to wire them together.
+But to write a user interface, you still have to write a lot of code to 'wire everything together'. That is where most the work has to be done and its also the part that is most difficult to maintain, especially as your user interface gets larger.
+
+@par Wiring it together...
+With 'wiring together' I mean
+- transfering data to and from the controls
+- enabling a control only on certain conditions
+- updating controls when the user selects a different element from a listbox
+- adding/modifying/deleting elements in a list
+
+@par
+All the stuff that needs to be done to code the @b behaviour and @b interactions of the properties, methods and events.
+
+@subsubsection rapidui_coding RapidUI coding
+@par Properties, Methods, Events and Rules...
+RapidUI adds @b rules to the 'properties, methods, events' paradigm. If you think about it, you can describe most of the behaviour in simple rules. Here are a few examples:
+- This button is enabled only when that control has this value and that variable is unequal to that value. 
+- The data in this form is linked to that variable.
+- The data in the form follows the selection of the listbox.
+- The sum of these values must be less than some value.
+
+@par Rules that are always true.
+It is very easy to describe the required behaviour in rules, but difficult to implement and enforce the rules with the traditional sequential programming paradigm. That is where RapidUI helps you. Once you write down the rules, the rapidUI mechanism will take over and ensure that the rules always evaluate to true. It tracks changes to the variables and controls and reevaluates those rules that are affected by the changes, propagating changes to dependent rules if neccessary. In simpler words:
+@par write the rules and forget about them...
+This is how rapidUI aims to reduce the work. 
+- It allows you to program the 'wiring' by writing rules.
+- It takes care of enforcing these rules.
+- It makes rules independent of actual data structures and UI design.
+- It allows creation and reuse of library of rules.
+
+@subsubsection library_of_rules Library of UI behaviour
+@par
+This last point is especially important. Currently you have to rewrite the 'wiring' between controls everytime you create a new UI, even if the behaviour is almost identical except for the data type. How many times have you written the 'Add/Modify/Delete' UI requirement, letting the user select a record from a list, display the record in a form, letting the user modify the values, saving the changes, letting the user add a new record, letting the user delete a record?
+@par
+RapidUI rule libraries are truly independent of the objects they work with. With RapidUI it will be possible to identify frequent UI scenarios and put them in a library. Then, when you have to create a UI you simply reuse the rules and save a lot of time. Such a library of rules can do for UI programming what the STL and similar libraries do for writing code. It could contain rules for:
+- Add/Modify/Delete - including Drag & Drop behaviour
+- letting a form follow the selection of a listbox
+- handling the column order and sort order of a listcontrol and make it persistant
+
+@par
+in short, it could contain many elements you currently have to rewrite again and again.
+
+@subsection Q__Will_rapidUI_be_able_to_handle_complex_real_world_scenarios_ Q. Will rapidUI be able to handle complex real-world scenarios?
+@par Question:
+C++ allows very complex expressions and scenarios. I am afraid that rapidUI is a nice idea, but won't be able to handle real-world complexity.
+
+@par Answer:
+-# rapidUI rules allow almost the same complexity as C++ expressions. If you use C++, you can use C++ expressions as rules and the compiler
+will generate almost the same code as it would for hand-crafted UI code.
+-# The success or failure of rapidUI will greatly be affected by the 'transition points', where the traditional programming practice meets the rapidUI method. The rapidUI design aims at a very smooth transition between the two worlds. The overhead required by rapidUI will be kept to an absolute minimum.
+
+@par Example:
+Here is a rule written in C++ that enables control "w_someControl" only if a checkbox is unchecked @b and the selection index of a list box equals 2.
+<pre>rule<bool>( wnd("w_someControl.Enable"), ! wnd<bool>("w_checkbox.Checked") && (wnd<int>("w_listbox.Selection") == 2) )</pre>
+The same rule written in plain text and parsed by the rapidUI expression parser:
+<pre>bool: w_someControl.Enable= ! w_checkbox.Checked && (w_listbox.Selection:int == 2)</pre>
+
+@subsection Q__I_can_use_rules_to_describe_99_of_my_User_Interface__but_I_still_need_a_very_special_algorithm_for_the_last_1__Can_RapidUI_cope_with_that_ Q. I can use rules to describe 99% of my User Interface, but I still need a very special algorithm for the last 1%. Can RapidUI cope with that?
+@par Answer:
+Yes. This requires what I call a 'transition point' between traditional (sequential) programming and rapidUI. The rapidUI mechanism allows the control flow to seamlessly leave rule based coding, execute code of your own and reenter the rule based world. You can mix and match rules and methods/properties/events and use the best of both worlds simultaneously.
+
+@subsection Q__What_is_the_performance_overhead_I_have_to_pay_for_using_rapidUI_ Q. What is the performance overhead I have to pay for using rapidUI?
+@par Answer:
+In real-world scenarios the performance overhead should be neglible. In some situations the rapidUI may actually perform faster than an OnIdle
+based scheme. OnIdle calls are evaluated everytime the UI becomes idle. This can consume considerable resources, especially when the user interface
+consists of several hundred controls. rapidUI on the other hand only evaluates those properties, rules and controls that have actually changed
+or depend on a value that has changed.
+
+@subsection Q__Do_I_have_to_use_special_data_types_such_as_CVariant_to_be_able_to_use_rapidUI_ Q. Do I have to use special data types such as CVariant to be able to use rapidUI?
+@subsection Q__Can_I_use_my_own_data_types_with_rapidUI_ Q. Can I use my own data types with rapidUI?
+@par Answer:
+You do not have to use special data types such as Variant. RapidUI is able to work with any data type you define. All that is required is that you create a <em>data adapter</em> for your data type. Data adapters are a kind of extended runtime information (reflection, if you prefer
+Java speak). The litwindow data adapter mechanism usually takes only a few lines of code and is very easy to implement.
+@par Example:
+Suppose you have defined a struct
+<pre>struct SomeStruct {
+    bool    m_autoSave;
+    string  m_userName;
+};
+</pre>
+To create a data adapter for this struct, include the following lines in one of your source (not header) files.
+<pre>
+BEGIN_DATA_ADAPTER(SomeStruct)
+    PROP(m_autoSave)
+    PROP(m_userName)
+END_DATA_ADAPTER()
+</pre>
+@note Data adapters have already been implemented and work very well. The example above is a working real-world example. These four lines are really all that is needed.
+@par
+@note If you have used extended runtime information mechanism before you might notice that the macros above do not include any type information. The litwindow data adapter mechanism is especially easy to use because it is unneccessary to duplicate the type information that is already present in the class/struct declaration. The four lines are really all that is needed.@n
+C++ templates are at work behind the scenes to automatically determine the type of the member elements. This works in almost all situations except when Get/Set functions are involved.
+
+@subsection Q__Can_I_use_rapidUI_with_third_party_objects_ Q. Can I use rapidUI with third party objects?
+@par Answer:
+Yes. One of the strengths of the data adapter mechanism is that you don't have to modify the class declaration to be able to use data adapters. A data adapter is simply a wrapper around an existing class interface and is strictly add-on.
+@par Example:
+Suppose you want to use the wxDateTime class, a class handling date and time, with rapidUI. wxDateTime declares the following functions:
+- wxDateTime_t GetSecond() and SetSecond(wxDateTime_t)
+- wxDateTime_t GetMinute() and SetMinute(wxDateTime_t)
+- and so on with Hour, Day, Month and Year.
+To use wxDateTime with rapidUI you must define a data adapter in one of your source files:
+<pre>
+BEGIN_DATA_ADAPTER(wxDateTime)
+    PROP_GetSet(wxDateTime_t, Second)
+    PROP_GetSet(wxDateTime_t, Minute)
+    PROP_GetSet(wxDateTime_t, Hour)
+    PROP_GetSet(wxDateTime_t, Day)
+    PROP_GetSet(wxDateTime::Month, Month)
+    PROP_GetSet(int, Year)
+END_DATA_ADAPTER()
+</pre>
+This data adapter allows access to wxDateTime::Get/Set Second, Minute, Hour, Day, Month, Year. You do not have to include all properties of the wxDateTime class, you can include as many - or as few - properties as you want.
+@note The wxDateTime data adapter is already part of the wxWidgets extension for rapidUI, so you don't actually have to define it yourself.
+
+@subsection Q__What_is_the_difference_betweeen_RapidUI_and_Data_Binding_ Q. What is the difference betweeen RapidUI and Data Binding?
+@par Answer:
+Data Binding is a mechanism that binds a variable to a UI control. The value of the variable is transferred to the control when the control is initialised. The value is transferred back upon certain events, such as 'Apply' or closing a dialog.
+
+@par
+RapidUI contains a data binding mechanism, but has more to offer. RapidUI adds 'rules' or 'contraints' to the 'property, method, event' paradigm. 'Rules' are expressions that are guaranteed to be valid at all times. Data Binding is just a special case of the RapidUI 'rules' mechanism. To bind a variable 'm_someVariable' to a control 'm_someControl', RapidUI uses a two-way rule: m_someVariable == m_someControl. Rules are guaranteed to be valid at all times. The RapidUI mechanism detects changes to either 'm_someVariable' or 'm_someControl' and updates the other object accordingly and @b automatically. The only work required from a programmer to achieve this is writing the rule and adding the variable and control to the rapidUI Mediator object.
+
+@par
+RapidUI rules allow more flexibility and are much more powerful than a simple Data Binding mechanism. Rules can be almost any valid C++ expression.
+
+@par Examples:
+Follwing are a few examples of rules:
+@par Enabling a form
+<pre>m_defectForm.Enabled = g_isRecordLoaded && g_accessRights[g_userLogin.group].m_canModifyData</pre>
+The control Defect Form and all its children are enabled only if the global variable 'g_isRecordLoaded' is true and the current user belongs to a group with 'ModifyData' rights.
+
+@par Validating two input values
+<pre>true = in_range(0, 100, m_value1 + m_value2)</pre>
+This validation rule ensures that the sum of 'value1' and 'value2' is between 0 and 100.
+
+@par Executing an action
+<pre>Add_Action.Fire = ID_ADD.Clicked</pre>
+The action 'Add_Action' is executed when the control 'ID_ADD' is clicked, provided the action is enabled.
+
+@par Enabling/Disabling an action
+<pre>Add_Action.Enable = g_isRecordLoaded</pre>
+The action 'Add_Action' is automatically enabled when g_isRecordLoaded is true and disabled when g_isRecordLoaded is false.
+
+@subsection Q__I_could_simply_buy_a_third_party_UI_control_ActiveX_control__plugin__whatever_that_does_what_I_want_to__Why_should_I_bother_with_RapidUI_ Q. I could simply buy a third party UI control (ActiveX control, plugin, whatever) that does what I want to. Why should I bother with RapidUI?
+@par Answer:
+Visual Basic and .NET programmers are used to having a wide variety of third party ActiveX controls to choose from. These controls are certainly a good step towards reusable UI components. If you can find a control that does what you want to, use it.
+Compared to RapidUI they have several drawbacks.
+@par You have to adopt their fixed interface
+Controls you buy usually have a specific interface. To use them you have to write code that exchanges data between your program and their particular interface. @b You have to adapt <b>your code</b> to <b>their interface</b>. For example, if you buy and use a chart component, it expects data rows in a certain format. This format will be very different from your internal data representation. You have to write a for( ; ; ) loop to copy the data from your internal representation to their format. You can't just pass your own vector<>, list<>, wxList or ODBC data table to the control and expect it to work. But with RapidUI, thats exactly what you do.
+@par
+In RapidUI <b>the control</b> adapts to <b>your data structure</b>. RapidUI contains data adapters even for high level constructs such as containers. If you are using STL containers in your code, defining a data adapter is done in one line of code. RapidUI has data adapters for ODBC data tables and it is quite easy to write your own adapters for text files or just about any other container implementation.
+@par 
+The effect is that you can code (or use) a UI control without any knowledge of the underlying container implementation and later use the control with such diverse implementations as C arrays (vectors), STL containers or even ODBC data tables. You simply pass a different data adapter to the control and thats all.
+
+@subsection Q__What_does_the_code_look_like__Can_you_give_me_an_example_ Q. What does the code look like? Can you give me an example?
+@par Answer:
+Here is some RapidUI code straight out of the tutorial. The code 'assigns' a container to a listbox. All elements in the container are displayed in the listbox.
+
+Define rules.
+@dontinclude rssmainframe.cpp
+@skipline BEGIN_RULE
+@until END_RULE
+
+Use a RapidUI object.
+@skipline m_rapidUI.Add
+@until m_rapidUI.Start
+
+Define data adapters.
+@dontinclude simple_rssreader_app.cpp
+@skipline BEGIN_ADAPTER
+@until END_ADAPTER
+
+The following code fragment enables a panel only if a checkbox is unchecked.
+@dontinclude MyFrame.cpp
+@skipline RULE("m_controls.Enabled"
+
+@subsection Q__Hm__this_looks_very_complicated__How_can_this_be_faster_than_traditional_coding_ Q. Hm, this looks very complicated. How can this be faster than traditional coding?
+@par Answer:
+The examples above use C++ syntax and macros to create rules, which makes the rules look more difficult than they actually are. Learning the C++ syntax is not hard, but writing rules will become even easier when the RapidUI rule parser has been implemented. For example, the rule in C++ syntax
+
+Enable a control if a checkbox is unchecked
+@dontinclude MyFrame.cpp
+@skipline RULE("m_controls.Enabled"
+
+will then simply become
+@code
+m_controls.Enabled = ! wnd::m_enable_controls
+@endcode
+
+Filling a listbox with values from a vector<>
+@dontinclude rssreader\rssmainframe.cpp
+@skipline RULE("m_channelsList.Items"
+
+will become
+@code
+m_channelsList.Items = m_channels
+@endcode
+
+@subsection Q__Can_you_give_a_longer_example_ Q. Can you give a longer example?
+@par Answer:
+Assume you want to create a dialog to let a user select and edit an email address.
+-# First create the email address data structure.
+<pre>struct EMailAddress {
+    string  m_email;    // the email address
+    string  m_name;     // the 'real' user name
+    bool    m_htmlFmt;  // true if the user wants to receive mails in html
+};</pre>
+Put this code in @c emailaddress.h @n@n
+-# Next create the data adapter for the struct and put it in @c emailaddress.cpp
+<pre>BEGIN_DATA_ADAPTER(EMailAddress)
+    PROP(m_email)
+    PROP(m_name)
+    PROP(m_htmlFmt)
+END_DATA_ADAPTER()</pre>
+-# Create a global vector<EMailAddress> g_emailAddresses to store the email addresses and put it in @c emailaddress.cpp.
+<pre> vector<EMailAddress> g_emailAddresses;</pre>
+-# Define a data adapter for the vector<EMailAddress> container and put it in @c emailaddress.cpp.
+<pre>IMPLEMENT_ADAPTER_CONTAINER(vector<EMailAddress>)</pre>
+-# Use a GUI designer such as DialogBlocks (http://www.anthemion.co.uk/dialogblocks) to create a GUI.
+    -#  Put a listbox on the left and name it @c w_emailList
+    -#  Put two edit controls on the right below each other and name them @c w_email and @c w_name
+    -#  Put a checkbox on the right below the edit controls and name it @c w_htmlFmt
+    -# Add three buttons: New, Save, Delete and name them w_add, w_save, w_delete
+    @n@b Note: The names for the controls are similar to the names for the members in the struct except for the prefix: w_ for 
+    windows/controls and m_ for members. This is not a neccessity, simply a convention that rapidUI understands.@n@n
+-# Create rules that describe the behaviour and put them in @c emailaddressdialog.cpp (or any other convenient place):
+    -# <pre>w_save.Enabled = w_emailList.Selected > 0</pre>enables the save button only when there is something to save. (Dirty flag
+        handling is omitted here, but is something rapidUI can do.)
+    -# <pre>w_delete.Enabled = w_emailList.Selected > 0</pre>Same with the delete button. Alternatively you could write:
+    <pre>w_delete.Enabled = w_save.Enabled</pre>
+    -# The Enabled attribute of the add button does not need a rule since it's always enabled.
+    -# Now lets link the list to the vector of email addresses.
+    <pre>w_emailList=g_emailAddresses</pre> This simple rule tells the rapidUI mechanism that the contents of the listbox
+    w_emailList come from a container called g_emailAddresses. It also creates an iterator for the listbox that will always
+    point to the selected element.
+    -# Use this iterator to fill the rest of the controls:
+    <pre>w_email = w_emailList.SelectedElement.m_email
+w_name = w_emailList.SelectedElement.m_name
+w_htmlFmt = w_emailList.SelectedElement.m_htmlFmt</pre>
+    Put all of these rules in @c emailaddress.cpp
+    <pre>
+BEGIN_RULES(emailAddressDlgRules)
+    RULE("w_save.Enabled", _e<int>("w_emailList.Selected") > 0)
+    RULE("w_delete.Enabled", _e<bool>("w_save.Enabled") )
+    RULE("w_emailList", "g_emailAddresses")
+    TWOWAY("w_email", "w_emailList.SelectedElement.m_name")
+    TWOWAY("w_name", "w_emailList.SelectedElement.m_name")
+    TWOWAY("w_htmlFmt", "w_emailList.SelectedElement.m_htmlFmt")
+END_RULES()</pre>
+-# In the method where you want to open and display the dialog, create the dialog window and a rapidUI object:
+<pre>void EMailList::OnShowDialog()
+{
+        // create and load the dialog
+    wxDialog dlg;
+    wxXmlResource::Get()->LoadDialog(this, GetParent(), _T("ID_DIALOG"));
+        //
+        // create the rapidUI object
+    RapidUI m_rapidUI;
+        //
+        // pass the window, the data and the rules to the rapidUI object
+    m_rapidUI << dlg << make_container(g_emailAddresses) << emailAddressDlgRules;
+        //
+        // activate rapidUI
+    m_rapidUI.Start();
+        //
+        // show the dialog
+    dlg.ShowModal();
+}
+</pre>
+
+@par What this does...
+The code above will display the dialog, fill the list box with all elements from the global vector g_emailAddresses and select the first element in the list. Then, because of the linking rules, it will copy the contents of the first element in the vector to the controls email, name and htmlfmt. Finally it will enable the Save and Delete buttons.
+@par
+When the user selects a new element, any changes made to the current element will be saved back and the new element will be selected. The same happens when the user closes the dialog.
+
+@subsection Q__What_license_will_the_Lit_Window_Library_be_released_under_ Q. What license will the "Lit Window Library" be released under?
+@par Answer:
+I have made no final decision about the license yet, but I am leaning towards the wxWidgets license. 
+@par 
+Another possibility is this that the "Lit Window Library" will become two packages. The basic library containing data adapters and other useful stuff is completely independent of wxWidgets. This part, @c lwbase, might be released under a very open license, possibly the same license as the STL or the BOOST library. The GUI framework dependent part, @c lwwxwidgets, would then be released under the wxWidgets license.
+
+@subsection Q__Will_RapidUI_work_with_other_GUI_Frameworks_besides_wxWidgets__What_about_Qt__MFC_ Q. Will RapidUI work with other GUI Frameworks besides wxWidgets? What about Qt? MFC?
+@par Answer:
+Quite possibly, if someone writes the neccessary adapters for it.
+@par
+The Lit Window Library is actual a package of several libraries. The base library, @c lwbase, is completely independent from any GUI stuff. The GUI dependent part, @c lwwxwidgets, is designed in a manner that makes porting to a different UI framework possible.
+
+@subsection Q__I_have_some_suggestions_and_or_more_questions__How_can_I_contact_you_ Q. I have some suggestions and/or more questions. How can I contact you?
+@par Answer:
+Please send ideas, suggestions and encouragement to Hajo at
+
+@par Mailaddress:
+library  (at)  litwindow (dot) com
+
+@subsection Q__I_want_to_contribute__How_can_I_help_ Q. I want to contribute. How can I help?
+@par Answer: Giving feedback
+By giving feedback and encouragement. I would especially like to hear why you think the idea presented might @b not work. Where do you see difficulties? What do you think might hinder using the library in actual projects? Any kind of critisism - as long as it is constructive - is helpful.
+@par
+There have been efforts like this in the past, but I know of none that actually succeeded to the point that many people are actually using it. If you have heard of such an effort and have an idea why it failed, please let me know.
+@par Identifying UI Patterns
+The library shall contain ready-to-use components for common UI patterns. I am compiling a list of common UI patterns and need input. The patterns I am talking about are simply commonly used UI mechanisms. Here are some examples:
+-   Select 1 of n @n
+Letting the user select one element out of a list of elements. Usually done with a
+    -   listbox
+    -   choice / readonly combobox
+    -   listcontrol
+    -   radiobox
+-   Select m of n @n
+Letting the user select 'm' elements out of a list of 'n' elements. Usually done with
+    -   a checklistbox: the user checks the elements he/she wants to select
+    -   a multiselect listbox: the user selects multiple elements
+    -   two listboxes and add/remove buttons: the user 'moves' elements from one listbox to the other
+    -   a listcontrol
+-   Parent-Child link between a listbox and a form (panel) @n
+When the user selects an element in a list, the details of the element are shown in a form. Usually done with
+    -   a listbox and a panel
+    -   a treeview and a panel
+    -   doubleclicking an element in a listbox opens a new dialog with the details
+-   Adding/Modifying/Deleting @n
+The user can add/modify/delete elements from a list. Usually done with
+    - a listbox, a panel and some add/save/delete buttons or a popup menu
+
+I hope you get the picture. What common UI tasks have you solved and what UI pattern was behind it? What would you like to see as a ready-to-use component in a library?
+@par Help with coding, documenting, releasing etc...
+The material presented here is still under heavy development. I think the current stage is already beyond the 'proof of concept', if barely. But there remains a lot to be done.
+
+@subsection Q__Who_is_behind_Lit_Window_Productions__Who_are_you_ Q. Who is behind "Lit Window Productions"? Who are you?
+@par Answer:
+"Lit Window Productions" creates and sells tools for developers. If you are interested, please have a look around:
+- BugLister (http://www.litwindow.com/buglister) @n
+A small tool to enter and organize your bugreports. Installed in a minute and very easy to use. Requires MS-Windows.
+
+- wxVisualSetup (http://www.litwindow.com/wxvisualsetup) @n
+Brings wxWidgets and Microsoft Visual Studio together. Contains
+    - a project wizard
+    - integrated wxWidgets documentation
+    - setup for a couple of tips&tricks (see below)
+    - intellisense for wxWidgets
+    
+On the website you will also find tips&tricks and howtos for wxWidgets and development in general. http://www.litwindow.com
+
+My name is Hajo Kirchhoff. I have been writing software since 1985. In recent years I have added coaching to contract work, teaching "Best Practices" in project management and software development to individuals and groups of developers. http://www.litwindow.com/About/about.html contains the contact details.
+
+<table>
+<tr>
+<th>Conventional</th><th>RapidUI</th>
+</tr>
+<tr><td><pre>
+wxConfigBase &cfg=*wxConfigBase()::Get();
+cfg.Read("/settings/m_timeout", &g_settings.m_timeout);
+cfg.Read("/settings/m_address", &g_settings.m_address);
+</pre></td><td><pre>
+*wxConfigBase::Get() &gt;&gt; make_accessor(g_settings);
+</pre></td></tr>
+</table>
+*/

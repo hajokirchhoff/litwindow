@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<resource version="2.3.0.1" xmlns="http://www.wxwidgets.org/wxxrc">
+    <object class="wxFrame" name="ID_FRAME" subclass="GenericUIMainWindow">
+        <style>wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU</style>
+        <size>600,500</size>
+        <title>generic UI sample</title>
+        <object class="wxMenuBar" name="ID_MENUBAR">
+            <object class="wxMenu">
+                <label>&amp;File</label>
+                <object class="wxMenuItem" name="wxID_EXIT">
+                    <label>E&amp;xit</label>
+                </object>
+            </object>
+        </object>
+    </object>
+    <object class="wxPanel" name="ID_DIALOG" subclass="MainPanel">
+        <style>wxTAB_TRAVERSAL</style>
+        <size>600,500</size>
+        <object class="wxBoxSizer">
+            <orient>wxHORIZONTAL</orient>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxFlexGridSizer">
+                    <cols>2</cols>
+                    <rows>2</rows>
+                    <vgap>0</vgap>
+                    <hgap>0</hgap>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                        <border>5</border>
+                        <object class="wxStaticText" name="wxID_STATIC">
+                            <label>test 1</label>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxButton" name="ID_RUN_1">
+                            <label>run 1</label>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                        <border>5</border>
+                        <object class="wxStaticText" name="wxID_STATIC">
+                            <label>a radio box</label>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxRadioBox" name="m_radioBox">
+                            <style>wxRA_SPECIFY_COLS</style>
+                            <label>Radiobox</label>
+                            <content>
+                                <item>&amp;One</item>
+                                <item>&amp;Two</item>
+                                <item>&amp;3</item>
+                                <item>&amp;Four</item>
+                            </content>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                        <border>5</border>
+                        <object class="wxStaticText" name="wxID_STATIC">
+                            <label>The radio box selection index</label>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxTextCtrl" name="m_strRadioBox">
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                        <border>5</border>
+                        <object class="wxStaticText" name="wxID_STATIC">
+                            <label>a second radio box</label>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxRadioBox" name="m_rbTwo">
+                            <style>wxRA_SPECIFY_COLS</style>
+                            <label>Radiobox</label>
+                            <content>
+                                <item>&amp;One</item>
+                                <item>&amp;Two</item>
+                                <item>&amp;Three</item>
+                                <item>&amp;Four</item>
+                            </content>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                        <border>5</border>
+                        <object class="wxStaticText" name="wxID_STATIC">
+                            <label>The sum of both radioboxes</label>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxTextCtrl" name="m_rbSum">
+                            <style>wxTE_READONLY</style>
+                        </object>
+                    </object>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <flag>wxGROW|wxALL</flag>
+                <border>5</border>
+                <option>1</option>
+                <object class="wxBoxSizer">
+                    <orient>wxVERTICAL</orient>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>5</border>
+                        <object class="wxCheckBox" name="m_enable_controls">
+                            <label>Disable Controls</label>
+                            <checked>0</checked>
+                        </object>
+                    </object>
+                    <object class="sizeritem">
+                        <flag>wxGROW|wxALL</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <object class="wxPanel" name="m_controls">
+                            <size>100,80</size>
+                            <style>wxTAB_TRAVERSAL</style>
+                            <object class="wxStaticBoxSizer">
+                                <orient>wxVERTICAL</orient>
+                                <label>Controls to be enabled</label>
+                                <object class="sizeritem">
+                                    <flag>wxALIGN_LEFT|wxALL</flag>
+                                    <border>5</border>
+                                    <object class="wxButton" name="ID_BUTTON">
+                                        <label>Button</label>
+                                    </object>
+                                </object>
+                                <object class="sizeritem">
+                                    <flag>wxGROW|wxALL</flag>
+                                    <border>5</border>
+                                    <object class="wxListBox" name="ID_LISTBOX">
+                                        <style>wxLB_SINGLE</style>
+                                        <content>
+                                            <item>line 1</item>
+                                            <item>line 2</item>
+                                        </content>
+                                    </object>
+                                </object>
+                            </object>
+                        </object>
+                    </object>
+                </object>
+            </object>
+        </object>
+    </object>
+</resource>

@@ -1,0 +1,29 @@
+# copyright Hajo Kirchhoff
+# Distributed under the Lit Window Library Software License, Version 1.0. 
+
+use-project boost
+  : $(BOOST_ROOT) ;
+
+project lib/lwwx
+	;
+
+LWWX_SOURCES = action_objects
+	base_objects
+	extended_error_dialog
+	lwwx
+	new_widgets
+	rapidUI
+	rapidUI_parser
+	stdwx
+	wxbutton_objects
+	wxio
+	wxList_objects
+	wxmisc_objects
+	wxtext_objects
+;
+
+# lib lwwx : ../$(LWWX_SOURCES).cpp /boost//headers ../../lwbase/build
+#    :         
+# 	     <link>shared:<define>LWWX_EXPORTS
+#   ;
+

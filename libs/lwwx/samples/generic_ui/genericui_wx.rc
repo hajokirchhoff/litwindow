@@ -1,0 +1,6 @@
+//{{NO_DEPENDENCIES}}
+#ifdef APSTUDIO_INVOKED
+#pragma error This file is not editable by Visual Studio
+#else
+#include <wx/msw/wx.rc>
+#endif

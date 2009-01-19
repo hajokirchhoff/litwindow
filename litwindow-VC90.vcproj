@@ -78,8 +78,32 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<Filter
+			Name="lwwx"
+			>
+			<File
+				RelativePath=".\libs\lwwx\build\Jamfile.v2"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="lwbase"
+			>
+			<File
+				RelativePath=".\libs\lwbase\build\Jamfile.v2"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="odbc"
+			>
+			<File
+				RelativePath=".\libs\odbc\build\Jamfile.v2"
+				>
+			</File>
+		</Filter>
 		<File
-			RelativePath=".\readme.txt"
+			RelativePath=".\Jamroot"
 			>
 		</File>
 	</Files>

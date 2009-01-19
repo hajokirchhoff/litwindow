@@ -24,6 +24,8 @@ import common ;
 import sequence ;
 import symlink ;
 
+BOOST_BUILD = $(BOOST_ROOT)/tools/build/v2 ;
+
 path-constant LWL_ROOT : . ;
 
 constant LWL_VERSION : 1.0.0 ;

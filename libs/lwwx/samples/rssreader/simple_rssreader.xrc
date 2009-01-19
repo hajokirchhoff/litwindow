@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<resource version="2.3.0.1" xmlns="http://www.wxwindows.org/wxxrc">
+    <object class="wxFrame" name="ID_FRAME">
+        <style>wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU</style>
+        <size>400,300</size>
+        <title>Simple RSS Reader</title>
+        <object class="wxSplitterWindow" name="ID_SPLITTERWINDOW">
+            <size>100,100</size>
+            <style>wxNO_BORDER</style>
+            <orientation>vertical</orientation>
+            <sashpos>50</sashpos>
+            <object class="wxListBox" name="m_channelsList">
+                <size>-1,-1</size>
+                <style>wxLB_SINGLE</style>
+            </object>
+            <object class="wxSplitterWindow" name="ID_SPLITTERWINDOW1">
+                <size>100,100</size>
+                <style>wxNO_BORDER</style>
+                <orientation>horizontal</orientation>
+                <sashpos>50</sashpos>
+                <object class="wxListBox" name="m_headlinesList">
+                    <size>-1,-1</size>
+                    <style>wxLB_SINGLE</style>
+                </object>
+                <object class="wxHtmlWindow" name="m_newsItem">
+                    <size>200,150</size>
+                    <style>wxHW_SCROLLBAR_AUTO|wxSIMPLE_BORDER</style>
+                </object>
+            </object>
+        </object>
+        <object class="wxMenuBar" name="ID_MENUBAR">
+            <style></style>
+            <object class="wxMenu">
+                <label>&amp;File</label>
+                <object class="wxMenuItem" name="wxID_EXIT">
+                    <label>E&amp;xit</label>
+                </object>
+            </object>
+        </object>
+    </object>
+</resource>

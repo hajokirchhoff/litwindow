@@ -1,0 +1,32 @@
+# copyright Hajo Kirchhoff
+# Distributed under the Lit Window Library Software License, Version 1.0. 
+
+use-project boost
+  : $(BOOST_ROOT) ;
+
+project lib/odbc
+	;
+
+ODBC_SOURCES = binder
+	catalog
+	connection
+	connection_script_parser
+	dbms
+	dbms_ms_access
+	dbms_ms_excel
+	internals
+	lwodbc
+	MD5
+	statement
+	statement_parser
+	stdafx
+	table
+	utility
+;
+
+lib odbc : ../$(ODBC_SOURCES).cpp /boost//headers ../../lwbase/build
+    :         
+ 	     <link>shared:<define>ODBC_EXPORTS
+ 	     <include>../../../litwindow/odbc
+   ;
+
