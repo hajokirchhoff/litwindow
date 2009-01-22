@@ -6,8 +6,20 @@
  * distribution, file LICENCE.TXT
  * $Id: lw_pragma_import.h,v 1.7 2006/07/17 06:30:57 Hajo Kirchhoff Exp $
  */
+
 #ifndef _LITWINDOW_IMPORT_
 #define _LITWINDOW_IMPORT_
+
+#if !defined(LWBASE_DYN_LIB) && (defined(_USRDLL) || defined(USING_DLL) || defined(LWBASE_EXPORTS))
+#define LWBASE_DYN_LIB
+#endif
+
+#ifndef LWBASE_DYN_LIB
+#error STOP
+#endif
+
+// do not include litwindow auto link info, use boost instead (see below)
+#define LWL_NO_AUTO_LINK 1
 
 #ifdef _MSC_VER // microsoft compiler
 
@@ -17,11 +29,13 @@
 #define LWL_VERBOSE_BUILD
 #endif
 
-#if defined(_USRDLL) || defined(USING_DLL) || defined(LWBASE_EXPORTS)
-#define LWL_USING_DLL
+#ifdef LWL_USING_DLL
+#define LWBASE_DYN_LIB
 #endif
 
-#if defined(LWL_USING_DLL)
+#if defined(LWBASE_DYN_LIB)
+#pragma message ("LWBASE DYNAMIC LINKAGE")
+
 #define LWBASE_DLL_EXPORT _declspec(dllexport)
 #define LWBASE_DLL_IMPORT _declspec(dllimport)
 #define _FORCE_DLL_EXPORT _declspec(dllexport)
@@ -63,7 +77,7 @@
 #define _LWL_LIB_PREFIX "lwbase"
 #endif
 
-#if defined(LWL_USING_DLL)
+#if defined(LWBASE_DYN_LIB)
 #define _LWL_LIB_DLL ""
 #define _LWL_LIB_THREAD ""
 #else
@@ -145,6 +159,20 @@
 #define LWBASE_DLL_EXPORT
 #define _FORCE_DLL_EXPORT
 
+#endif
+
+#if !defined(LWL_ALL_NO_LIB) && !defined(LWL_LWBASE_NO_LIB) && !defined(LWBASE_EXPORTS)
+#define BOOST_LIB_NAME _LWL_LIB_PREFIX
+#ifdef LWBASE_DYN_LIB
+#define BOOST_DYN_LINK
+#endif
+#ifdef LWL_VERBOSE_BUILD
+#define BOOST_LIB_DIAGNOSTIC
+#endif
+#ifndef _DLL
+error
+#endif
+#include <boost/config/auto_link.hpp>
 #endif
 
 #endif

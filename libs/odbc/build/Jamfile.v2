@@ -4,7 +4,7 @@
 use-project boost
   : $(BOOST_ROOT) ;
 
-project lib/odbc
+project litwindow/odbc
 	;
 
 ODBC_SOURCES = binder
@@ -19,14 +19,13 @@ ODBC_SOURCES = binder
 	MD5
 	statement
 	statement_parser
-	stdafx
 	table
 	utility
 ;
 
-lib odbc : ../$(ODBC_SOURCES).cpp /boost//headers ../../lwbase/build
+lib odbc : ../$(ODBC_SOURCES).cpp /boost//headers /litwindow/lwbase
     :         
- 	     <link>shared:<define>ODBC_EXPORTS
+ 	     <link>shared:<define>LWBASE_DYN_LIB <define>LWL_LWBASE_NO_LIB <define>ODBC_EXPORTS <define>LWL_VERBOSE_BUILD
  	     <include>../../../litwindow/odbc
    ;
 

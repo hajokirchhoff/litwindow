@@ -32,7 +32,7 @@
  */
 
 //#include <windows.h>
-#include "md5.h"
+#include "../../litwindow/odbc/MD5.H"
 
 typedef struct
 {

@@ -52,7 +52,7 @@ struct sql_primary_keys_result_set
 
 inline SQLTCHAR *to_sql_char_p(const tstring &v)
 {
-	return v.length()==0 ? 0 : const_cast<TCHAR*>(v.c_str());
+	return v.length()==0 ? 0 : reinterpret_cast<SQLTCHAR*>(const_cast<TCHAR*>(v.c_str()));
 }
 
 sqlreturn catalog::using_schema_catalog(const tstring &schema, const tstring &catalog, TCHAR * &use_schema, SQLSMALLINT &use_schema_length, TCHAR * &use_catalog, SQLSMALLINT &use_catalog_length)

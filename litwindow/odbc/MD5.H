@@ -4,10 +4,14 @@
 #ifndef __MD5_H__
 #define __MD5_H__
 
-
-#define LPBYTE unsigned char*
 #ifndef DWORD
 #define DWORD unsigned __int32
+#endif
+#ifndef BYTE
+#define BYTE unsigned char
+#endif
+#ifndef LPBYTE
+#define LPBYTE BYTE*
 #endif
 
 void  MD5(const LPBYTE data,int bytes,LPBYTE hash);

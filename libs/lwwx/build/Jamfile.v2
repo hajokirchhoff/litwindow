@@ -4,7 +4,7 @@
 use-project boost
   : $(BOOST_ROOT) ;
 
-project lib/lwwx
+project litwindow/lwwx
 	;
 
 LWWX_SOURCES = action_objects

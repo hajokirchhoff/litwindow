@@ -2,6 +2,7 @@
 /CHANGELOG.txt -text
 /Jamroot -text
 /LICENSE.txt -text
+libs/lwbase-VC90/lwbase-VC90.vcproj -text
 libs/lwbase/build/Jamfile.v2 -text
 libs/lwbase/check.cpp -text
 libs/lwbase/constraints.cpp -text

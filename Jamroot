@@ -51,12 +51,13 @@ local default-build,complete =
 
 project litwindow
     : requirements <include>.
+    <define>UNICODE;_UNICODE
       # disable auto-linking for all targets here,
       # primarily because it caused troubles with V2
       # <define>LWL_ALL_NO_LIB=1
       # Used to encode variant in target name. See the
       # 'tag' rule below.
-      # <tag>@$(__name__).tag
+      <tag>@$(__name__).tag
       # <conditional>@handle-static-runtime
             
     : usage-requirements <include>.
@@ -136,8 +137,8 @@ path-constant BOOST_STAGE_LOCATE : $(stage-locate) ;
 
 
 # location of python
-local python-root = [ MATCH "^--with-python-root=(.*)" : [ modules.peek : ARGV ] ] ;
-PYTHON_ROOT ?= $(python-root) ;
+# local python-root = [ MATCH "^--with-python-root=(.*)" : [ modules.peek : ARGV ] ] ;
+# PYTHON_ROOT ?= $(python-root) ;
 
 # Select the libraries to install.
 libraries = [ libraries-to-install $(all-libraries) ] ;

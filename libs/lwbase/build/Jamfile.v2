@@ -4,7 +4,7 @@
 use-project boost
   : $(BOOST_ROOT) ;
 
-project lib/lwbase
+project litwindow/lwbase
 	;
 
 LWBASE_SOURCES = check
@@ -19,7 +19,6 @@ tstring
 lib lwbase : ../$(LWBASE_SOURCES).cpp /boost//headers
     :         
  	     <link>shared:<define>LWBASE_EXPORTS
-# 	     <include>d:/prj/r4000-v4/libs/boost
    ;
 
 
