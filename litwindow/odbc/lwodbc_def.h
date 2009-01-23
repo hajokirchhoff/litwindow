@@ -17,14 +17,17 @@
 
 #if defined(LWODBC_EXPORTS)
 	#define LWODBC_API _declspec(dllexport)
-#elif defined(_USRDLL) || defined(USING_DLL)
+#elif defined(_USRDLL) || defined(USING_DLL) || defined(LWODBC_DYN_LIB)
 	#define LWODBC_API _declspec(dllimport)
+    #ifndef LWODBC_DYN_LIB
+    #define LWODBC_DYN_LIB
+    #endif
 #else
     #define LWODBC_API
 #endif
 
 #ifndef LWODBC_EXPORTS
-#pragma comment(lib, LWODBC_LIB_NAME)
+//#pragma comment(lib, LWODBC_LIB_NAME)
 #endif
 
 #ifndef _
@@ -46,6 +49,17 @@
 #define SQLRETURN_GLOBAL_LOG_DEFAULT true
 #else
 #define SQLRETURN_GLOBAL_LOG_DEFAULT false
+#endif
+
+#if !defined(LWODBC_EXPORTS) && !defined(LITWINDOW_ODBC_NO_LIB) && !defined(LITWINDOW_ALL_NO_LIB)
+#define BOOST_LIB_NAME LWODBC_LIB_PREFIX
+#ifdef LWODBC_DYN_LIB
+#define BOOST_DYN_LIB
+#endif
+#ifdef LWL_VERBOSE_BUILD
+#define BOOST_LIB_DIAGNOSTIC
+#endif
+#include <boost/config/auto_link.hpp>
 #endif
 
 #endif

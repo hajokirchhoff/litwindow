@@ -14,10 +14,6 @@
 #define LWBASE_DYN_LIB
 #endif
 
-#ifndef LWBASE_DYN_LIB
-#error STOP
-#endif
-
 // do not include litwindow auto link info, use boost instead (see below)
 #define LWL_NO_AUTO_LINK 1
 
@@ -25,16 +21,11 @@
 
 #include <tchar.h>
 
-#ifndef LWL_VERBOSE_BUILD
-#define LWL_VERBOSE_BUILD
-#endif
-
 #ifdef LWL_USING_DLL
 #define LWBASE_DYN_LIB
 #endif
 
 #if defined(LWBASE_DYN_LIB)
-#pragma message ("LWBASE DYNAMIC LINKAGE")
 
 #define LWBASE_DLL_EXPORT _declspec(dllexport)
 #define LWBASE_DLL_IMPORT _declspec(dllimport)
@@ -114,14 +105,8 @@
     //-----------------------------------------------------------------------------------------------------------//
 #define _LWL_LIB_NAME _LWL_LIB_PREFIX _LWL_LIB_THREAD _LWL_LIB_DLL _LWL_LIB_UNICODE _LWL_LIB_DEBUG "-" LWBASE_VERSION_STRING
 
-#ifdef LWL_VERBOSE_BUILD
-#define SHOW_LIB 1
-#else
-#define SHOW_LIB 0
-#endif
-
 #ifndef LWBASE_EXPORTS
-#if SHOW_LIB
+#if LWL_VERBOSE_BUILD
 #pragma message("using litwindow library: " _LWL_LIB_NAME)
 #endif
 
@@ -134,7 +119,7 @@
 #endif
 
 #else
-#if SHOW_LIB
+#ifdef LWL_VERBOSE_BUILD
 #pragma message("create import library: " _LWL_LIB_NAME)
 #endif
 #endif
@@ -168,9 +153,6 @@
 #endif
 #ifdef LWL_VERBOSE_BUILD
 #define BOOST_LIB_DIAGNOSTIC
-#endif
-#ifndef _DLL
-error
 #endif
 #include <boost/config/auto_link.hpp>
 #endif

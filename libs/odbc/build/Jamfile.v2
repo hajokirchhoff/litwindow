@@ -4,7 +4,7 @@
 use-project boost
   : $(BOOST_ROOT) ;
 
-project litwindow/odbc
+project litwindow/lwodbc
 	;
 
 ODBC_SOURCES = binder
@@ -23,9 +23,13 @@ ODBC_SOURCES = binder
 	utility
 ;
 
-lib odbc : ../$(ODBC_SOURCES).cpp /boost//headers /litwindow/lwbase
+lib libodbc : : <name>odbc32 ;
+lib libodbccp : : <name>odbccp32 ;
+lib libwin32 : : <name>user32 ;
+
+lib lwodbc : ../$(ODBC_SOURCES).cpp /boost//headers /litwindow/lwbase libodbc libodbccp libwin32
     :         
- 	     <link>shared:<define>LWBASE_DYN_LIB <define>LWL_LWBASE_NO_LIB <define>ODBC_EXPORTS <define>LWL_VERBOSE_BUILD
+ 	     <link>shared:<define>LWBASE_DYN_LIB <define>LWL_LWBASE_NO_LIB <define>LWODBC_EXPORTS
  	     <include>../../../litwindow/odbc
    ;
 

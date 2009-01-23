@@ -44,9 +44,9 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="bjam --toolset=msvc-9.0"
-				ReBuildCommandLine="bjam --toolset=msvc-9.0 -a"
-				CleanCommandLine="bjam --clean --toolset=msvc-9.0"
+				BuildCommandLine="bjam --toolset=msvc-9.0 release"
+				ReBuildCommandLine="bjam --toolset=msvc-9.0 -a release"
+				CleanCommandLine="bjam --clean --toolset=msvc-9.0 release"
 				Output=""
 				PreprocessorDefinitions="WIN32;NDEBUG"
 				IncludeSearchPath=""

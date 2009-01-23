@@ -114,6 +114,7 @@ libs/odbc/dbms_ms_access.cpp -text
 libs/odbc/dbms_ms_excel.cpp -text
 libs/odbc/internals.cpp -text
 libs/odbc/lwodbc.cpp -text
+libs/odbc/odbc.vcproj -text
 libs/odbc/statement.cpp -text
 libs/odbc/statement_parser.cpp -text
 libs/odbc/stdafx.cpp -text
