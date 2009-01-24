@@ -54,6 +54,7 @@ libs/lwwx/doc/tutorial_rssreader.doxy -text
 libs/lwwx/extended_error_dialog.cpp -text
 libs/lwwx/lwwx.cpp -text
 libs/lwwx/lwwx.pjd -text
+libs/lwwx/lwwx.vcproj -text
 libs/lwwx/new_widgets.cpp -text
 libs/lwwx/rapidUI.cpp -text
 libs/lwwx/rapidUI_parser.cpp -text
@@ -160,5 +161,4 @@ litwindow/wx/extended_error_dialog.h -text
 litwindow/wx/lwwx.h -text
 litwindow/wx/new_widgets.h -text
 litwindow/wx/rapidUI.h -text
-litwindow/wx/wxWidgetImport.h -text
 litwindow/wx/wxio.h -text

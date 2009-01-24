@@ -7,7 +7,8 @@ use-project boost
 project litwindow/lwwx
 	;
 
-LWWX_SOURCES = action_objects
+LWWX_SOURCES = 
+	# action_objects
 	base_objects
 	extended_error_dialog
 	lwwx
@@ -22,8 +23,9 @@ LWWX_SOURCES = action_objects
 	wxtext_objects
 ;
 
-# lib lwwx : ../$(LWWX_SOURCES).cpp /boost//headers ../../lwbase/build
-#    :         
-# 	     <link>shared:<define>LWWX_EXPORTS
-#   ;
+lib lwwx : ../$(LWWX_SOURCES).cpp /boost//headers /litwindow/lwbase /site-config//wxWidgets
+    :
+		<include>../../..
+ 	    <link>shared:<define>LWWX_EXPORTS <define>LWBASE_DYN_LIB <define>LWL_LWBASE_NO_LIB
+   ;
 

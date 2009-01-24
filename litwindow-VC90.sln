@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lwbase-VC90", "libs\lwbase-
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "odbc", "libs\odbc\odbc.vcproj", "{C4667EDB-00C3-4786-90FC-14877A0FCDF9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lwwx", "libs\lwwx\lwwx.vcproj", "{67C5A0AD-747F-4A92-8A1A-BA7491F26E8D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -21,6 +23,8 @@ Global
 		{3574B45C-ED89-473C-92FC-251BCD966664}.Release|Win32.ActiveCfg = Release|Win32
 		{C4667EDB-00C3-4786-90FC-14877A0FCDF9}.Debug|Win32.ActiveCfg = Debug|Win32
 		{C4667EDB-00C3-4786-90FC-14877A0FCDF9}.Release|Win32.ActiveCfg = Release|Win32
+		{67C5A0AD-747F-4A92-8A1A-BA7491F26E8D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{67C5A0AD-747F-4A92-8A1A-BA7491F26E8D}.Release|Win32.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

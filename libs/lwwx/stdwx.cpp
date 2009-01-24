@@ -6,7 +6,6 @@
 
 // TODO: reference any additional headers you need in STDAFX.H
 // and not in this file
-#include "litwindow/wx/wxwidgetimport.h"
 
 /**@file
 @addtogroup lwwxwidgets_todo Todo list for lwwxwidgets

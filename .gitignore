@@ -1,5 +1,9 @@
 /bin.v2
 /boost-build.jam
+libs/lwbase-VC90/*.user
+libs/lwwx/*.user
+libs/lwwx/Debug
+libs/odbc/*.user
 /litwindow-VC90.ncb
 /litwindow-VC90.suo
 /litwindow-VC90.vcproj.Galadriel.Hajo[!!-~]Kirchhoff.user

@@ -27,17 +27,20 @@
 #ifdef LWWX_EXPORTS
 #define LWWX_API _declspec(dllexport)
 #define LWWX_TEMPLATES_EXTERN
-#elif defined(LWL_USING_DLL)
+#elif defined(LWL_USING_DLL) || defined(LWWX_DYN_LIB)
 #define LWWX_API _declspec(dllimport)
 #define LWWX_TEMPLATES_EXTERN extern
 #ifndef WXUSINGDLL
 #error Using lwwx as a DLL requires using wxWidgets as a DLL. Please #define WXUSINGDLL in your project!
 #endif
+#ifndef LWWX_DYN_LIB
+#define LWWX_DYN_LIB
+#endif
 #else
 #define LWWX_API
 #endif
 
-#if defined(LWWX_EXPORTS) || defined(LWL_USING_DLL)
+#if defined(LWWX_EXPORTS) || defined(LWWX_DYN_LIB)
 
 #define LWWX_STL_VECTOR_EXPORT(type) \
     LWWX_TEMPLATES_EXTERN template class LWWX_API std::allocator<type>; \
@@ -51,12 +54,12 @@
 #define LWWX_LIB_NAME "lwwx" _LWL_LIB_THREAD _LWL_LIB_DLL _LWL_LIB_UNICODE _LWL_LIB_DEBUG
 
 #ifndef LWWX_EXPORTS
-#ifdef VERBOSE_BUILD
+#ifdef LWL_VERBOSE_BUILD
 #pragma message("using library: " LWWX_LIB_NAME)
 #endif
-#pragma comment(lib, LWWX_LIB_NAME)
+//#pragma comment(lib, LWWX_LIB_NAME)
 #else
-#ifdef VERBOSE_BUILD
+#ifdef LWL_VERBOSE_BUILD
 #pragma message("creating library: " LWWX_LIB_NAME)
 #endif
 #endif
@@ -69,5 +72,17 @@ namespace litwindow {
 extern void LWWX_API enable_log_to_wxdebug(bool enabled=true);
 
 };
+
+#if !defined(LWWX_EXPORTS) && !defined(LITWINDOW_LWWX_NO_LIB) && !defined(LITWINDOW_ALL_NO_LIB)
+#define BOOST_LIB_NAME 
+#ifdef LWWX_DYN_LIB
+#define BOOST_DYN_LIB LWWX_LIB_NAME
+#endif
+#ifdef LWL_VERBOSE_BUILD
+#define BOOST_LIB_DIAGNOSTIC
+#endif
+#include <boost/config/auto_link.hpp>
+#endif
+
 
 #endif

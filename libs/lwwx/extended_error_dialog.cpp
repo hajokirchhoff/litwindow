@@ -23,7 +23,7 @@
 ////@begin includes
 ////@end includes
 
-#include "../include/litwindow/wx/extended_error_dialog.h"
+#include "litwindow/wx/extended_error_dialog.h"
 #include <boost/spirit.hpp>
 #include <boost/spirit/phoenix.hpp>
 
