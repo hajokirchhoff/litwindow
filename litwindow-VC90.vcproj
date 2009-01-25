@@ -24,7 +24,7 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="bjam -d+2 -q --toolset=msvc-9.0 debug"
+				BuildCommandLine="bjam -d+2 -q -j$(NUMBER_OF_PROCESSORS) --toolset=msvc-9.0 debug"
 				ReBuildCommandLine="bjam --toolset=msvc-9.0 -a debug"
 				CleanCommandLine="bjam --clean --toolset=msvc-9.0 debug"
 				Output=""

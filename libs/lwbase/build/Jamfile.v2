@@ -17,7 +17,8 @@ tstring
 ;
 
 lib lwbase : ../$(LWBASE_SOURCES).cpp /boost//headers
-    :         
- 	     <link>shared:<define>LWBASE_EXPORTS
+    :
+    <define>UNICODE <define>_UNICODE
+ 	<link>shared:<define>LWBASE_EXPORTS
    ;
 

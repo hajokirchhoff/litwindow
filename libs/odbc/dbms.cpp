@@ -622,7 +622,6 @@ namespace litwindow {
 				sql_type_info_result_set rs;
 				c.get_type_information(rs);
 				while (c.fetch()) {
-					lw_log() << _("Datatype ") << as_debug(rs) << endl;
 					m_type_info.push_back(rs);
 				}
 			}

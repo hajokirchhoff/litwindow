@@ -35,12 +35,22 @@ local version-tag = [ MATCH "^([^.]+)[.]([^.]+)[.]([^.]+)" : $(LWL_VERSION) ] ;
 
 constant LWL_VERSION_TAG : $(version-tag:J="_") ;
 
+# Option to choose how many variants to build. The default is "minimal",
+# which builds only the "release <threading>multi <link>shared" variant.
+local build-type = [ MATCH "^--build-type=(.*)" : [ modules.peek : ARGV ] ] ;
+build-type ?= minimal ;
+if ! ( $(build-type) in minimal complete )
+{
+    build-type = minimal ;
+}
+
 # Specify the build variants keyed on the build-type.
 local default-build,minimal =
     release
     <threading>multi
-    <link>shared <link>static
+    <link>shared
     <runtime-link>shared
+    <debug-symbols>on
     ;
 local default-build,complete =
     debug release
@@ -49,9 +59,13 @@ local default-build,complete =
     <runtime-link>shared <runtime-link>static
     ;
 
+# Set the default build.
+local default-build = $(default-build,$(build-type)) ;
+
 project litwindow
     : requirements <include>.
-    <define>UNICODE;_UNICODE
+    <define>UNICODE <define>_UNICODE
+    <variant>release:<debug-symbols>on
       # disable auto-linking for all targets here,
       # primarily because it caused troubles with V2
       # <define>LWL_ALL_NO_LIB=1

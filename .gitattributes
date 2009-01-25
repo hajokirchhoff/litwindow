@@ -2,6 +2,8 @@
 /CHANGELOG.txt -text
 /Jamroot -text
 /LICENSE.txt -text
+/README.txt -text
+/build_all_vc2008.bat -text
 libs/lwbase-VC90/lwbase-VC90.vcproj -text
 libs/lwbase/build/Jamfile.v2 -text
 libs/lwbase/check.cpp -text
@@ -162,3 +164,4 @@ litwindow/wx/lwwx.h -text
 litwindow/wx/new_widgets.h -text
 litwindow/wx/rapidUI.h -text
 litwindow/wx/wxio.h -text
+/user-config.jam -text

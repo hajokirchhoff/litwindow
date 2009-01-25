@@ -5,6 +5,10 @@ use-project boost
   : $(BOOST_ROOT) ;
 
 project litwindow/lwwx
+	: requirements <source>/boost//headers <source>/litwindow/lwbase <source>/site-config/wxWidgets//wxWidgets
+		<define>UNICODE <define>_UNICODE
+		<include>.. <include>../../..
+ 	    <link>shared:<define>LWWX_EXPORTS <define>LWBASE_DYN_LIB <define>LWL_LWBASE_NO_LIB
 	;
 
 LWWX_SOURCES = 
@@ -15,7 +19,6 @@ LWWX_SOURCES =
 	new_widgets
 	rapidUI
 	rapidUI_parser
-	stdwx
 	wxbutton_objects
 	wxio
 	wxList_objects
@@ -23,9 +26,11 @@ LWWX_SOURCES =
 	wxtext_objects
 ;
 
-lib lwwx : ../$(LWWX_SOURCES).cpp /boost//headers /litwindow/lwbase /site-config//wxWidgets
+cpp-pch stdwx : ../stdwx.h 
+	:
+	;
+	
+lib lwwx : stdwx ../$(LWWX_SOURCES).cpp 
     :
-		<include>../../..
- 	    <link>shared:<define>LWWX_EXPORTS <define>LWBASE_DYN_LIB <define>LWL_LWBASE_NO_LIB
    ;
 

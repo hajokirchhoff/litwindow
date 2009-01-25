@@ -1,3 +1,4 @@
+#include "stdafx.h"
 /*
  ***********************************************************************
  ** md5.c -- the source code for MD5 routines                         **
