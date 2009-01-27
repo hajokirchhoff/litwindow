@@ -9,6 +9,7 @@ project litwindow/lwwx
 		<define>UNICODE <define>_UNICODE
 		<include>.. <include>../../..
  	    <link>shared:<define>LWWX_EXPORTS <define>LWBASE_DYN_LIB <define>LWL_LWBASE_NO_LIB
+		<link>shared,<toolset>msvc,<variant>release:<cxxflags>"/wd4275 /wd4251"
 	;
 
 LWWX_SOURCES = 

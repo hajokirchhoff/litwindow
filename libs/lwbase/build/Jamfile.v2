@@ -4,7 +4,10 @@
 use-project boost
   : $(BOOST_ROOT) ;
 
+explicit boost ;
+
 project litwindow/lwbase
+	: requirements <link>shared,<toolset>msvc,<variant>release:<cxxflags>"/wd4275 /wd4251"
 	;
 
 LWBASE_SOURCES = check

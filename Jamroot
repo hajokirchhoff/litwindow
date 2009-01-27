@@ -27,7 +27,6 @@ import symlink ;
 BOOST_BUILD = $(BOOST_ROOT)/tools/build/v2 ;
 
 path-constant LWL_ROOT : . ;
-
 constant LWL_VERSION : 1.0.0 ;
 constant LWL_JAMROOT_MODULE : $(__name__) ;
 
@@ -66,6 +65,7 @@ project litwindow
     : requirements <include>.
     <define>UNICODE <define>_UNICODE
     <variant>release:<debug-symbols>on
+	<link>shared,<toolset>msvc,<variant>release:<cxxflags>"/wd4275 /wd4251"
       # disable auto-linking for all targets here,
       # primarily because it caused troubles with V2
       # <define>LWL_ALL_NO_LIB=1
@@ -87,17 +87,7 @@ all-libraries =
     
 all-libraries = [ sequence.unique $(all-libraries) ] ;    
 
-for local l in $(all-libraries)
-{
-    if ! $(l) in test graph serialization
-    {
-        alias $(l) : libs/$(l)/build//boost_$(l) ;
-        explicit $(l) ;
-    }
-}
-
 alias headers : : : : <include>. ;
-
 
 # Decides which libraries are to be installed by looking at --with-<library>
 # --without-<library> arguments. Returns the list of directories under "libs"
@@ -147,12 +137,7 @@ layout-$(layout) = true ;
 local stage-locate = [ MATCH "^--stagedir=(.*)" : [ modules.peek : ARGV ] ] ;
 stage-locate ?= stage ;
 
-path-constant BOOST_STAGE_LOCATE : $(stage-locate) ;
-
-
-# location of python
-# local python-root = [ MATCH "^--with-python-root=(.*)" : [ modules.peek : ARGV ] ] ;
-# PYTHON_ROOT ?= $(python-root) ;
+path-constant LITWINDOW_STAGE_LOCATE : $(stage-locate) ;
 
 # Select the libraries to install.
 libraries = [ libraries-to-install $(all-libraries) ] ;
@@ -184,7 +169,7 @@ rule tag ( name : type ? : property-set )
         if $(layout) = versioned
         {
             local result = [ common.format-name
-                <base> <toolset> <threading> <runtime> -$(BOOST_VERSION_TAG)
+                <base> <toolset> <threading> <runtime> -$(LWL_VERSION_TAG)
                 -$(BUILD_ID)
                 : $(name) : $(type) : $(property-set) ] ;
             
@@ -217,19 +202,19 @@ rule tag ( name : type ? : property-set )
 # Install to system location.
 
 local install-requirements =
-    <install-source-root>boost
+    <install-source-root>litwindow
     ;
 if $(layout-versioned)
 {
-    install-requirements += <install-header-subdir>boost-$(BOOST_VERSION_TAG)/boost ;
+    install-requirements += <install-header-subdir>litwindow-$(LWL_VERSION_TAG)/litwindow ;
 }
 else
 {
-    install-requirements += <install-header-subdir>boost ;
+    install-requirements += <install-header-subdir>litwindow ;
 }
 if [ modules.peek : NT ]
 {
-    install-requirements += <install-default-prefix>C:/Boost ;
+    install-requirements += <install-default-prefix>C:/litwindow ;
 }
 else if [ modules.peek : UNIX ]
 {
@@ -237,11 +222,7 @@ else if [ modules.peek : UNIX ]
 }
 
 local headers =
-    # The .SUNWCCh files are present in tr1 include directory and have to be installed,
-    # see http://lists.boost.org/Archives/boost/2007/05/121430.php
-    [ path.glob-tree $(BOOST_ROOT)/boost : *.hpp *.ipp *.h *.inc *.SUNWCCh : CVS .svn ]
-    [ path.glob-tree $(BOOST_ROOT)/boost/compatibility/cpp_c_headers : c* : CVS .svn ] 
-    [ path.glob boost/tr1/tr1 : * : bcc32 sun CVS .svn ]
+    [ path.glob-tree $(LWL_ROOT)/litwindow : *.hpp *.ipp *.h *.inc *.SUNWCCh : CVS .svn ]
           ;
 
 # Complete install
@@ -257,9 +238,10 @@ explicit install-proper ;
 install stage-proper
     :   libs/$(libraries)/build
     :   <location>$(stage-locate)/lib
-        <install-dependencies>on <install-type>LIB 
+        <install-dependencies>off 
         <install-no-version-symlinks>on
     ;
+    
 explicit stage-proper ;
 
 
