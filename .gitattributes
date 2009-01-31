@@ -15,6 +15,7 @@ libs/lwbase/doc/images/Data[!!-~]Adapter[!!-~]Diagram.png -text
 libs/lwbase/doc/images/README.txt -text
 libs/lwbase/logging.cpp -text
 libs/lwbase/lwbase.cpp -text
+libs/lwbase/lwbase.vcproj -text
 libs/lwbase/renderer.cpp -text
 libs/lwbase/stdafx.cpp -text
 libs/lwbase/stdafx.h -text
