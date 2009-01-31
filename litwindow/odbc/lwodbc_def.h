@@ -13,6 +13,7 @@
 #pragma once
 
 #define LWODBC_LIB_PREFIX "lwodbc"
+#define LWODBC_LIB_VERSION_STRING "1_0_0"
 #define LWODBC_LIB_NAME LWODBC_LIB_PREFIX _LWL_LIB_THREAD _LWL_LIB_DLL _LWL_LIB_UNICODE _LWL_LIB_DEBUG
 
 #if defined(LWODBC_EXPORTS)
@@ -59,7 +60,11 @@
 #ifdef LWL_VERBOSE_BUILD
 #define BOOST_LIB_DIAGNOSTIC
 #endif
-#include <boost/config/auto_link.hpp>
+
+#define LWL_LIB_VERSION_STRING LWODBC_LIB_VERSION_STRING
+
+#include "../auto_link.hpp"
+
 #endif
 
 #endif

@@ -24,6 +24,8 @@
 
 #define LWWX_VERSION ((LWWX_VERSION_MAJOR << 16) | LWWX_VERSION_MINOR)
 
+#define LWWX_LIB_VERSION_STRING LWBASE_LIB_VERSION_STRING
+
 #ifdef LWWX_EXPORTS
 #define LWWX_API _declspec(dllexport)
 #define LWWX_TEMPLATES_EXTERN
@@ -81,7 +83,10 @@ extern void LWWX_API enable_log_to_wxdebug(bool enabled=true);
 #ifdef LWL_VERBOSE_BUILD
 #define BOOST_LIB_DIAGNOSTIC
 #endif
-#include <boost/config/auto_link.hpp>
+#define LWL_LIB_VERSION_STRING LWWX_LIB_VERSION_STRING
+
+#include "../auto_link.hpp"
+
 #endif
 
 

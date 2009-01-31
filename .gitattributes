@@ -128,6 +128,7 @@ libs/odbc/utility.cpp -text
 /litwindow-VC90.sln -text
 /litwindow-VC90.vcproj -text
 litwindow/algorithm.h -text
+litwindow/auto_link.hpp -text
 litwindow/check.hpp -text
 litwindow/config.hpp -text
 litwindow/constraints.h -text

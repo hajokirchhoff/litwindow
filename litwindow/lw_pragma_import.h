@@ -154,7 +154,10 @@
 #ifdef LWL_VERBOSE_BUILD
 #define BOOST_LIB_DIAGNOSTIC
 #endif
-#include <boost/config/auto_link.hpp>
+#define LWL_LIB_VERSION_STRING LWBASE_LIB_VERSION_STRING
+
+#include "auto_link.hpp"
+
 #endif
 
 #endif
