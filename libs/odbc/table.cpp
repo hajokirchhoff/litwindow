@@ -123,14 +123,16 @@ const sqlreturn &table::insert_row()
 		statement::insert_row();
 	} else {
 		// build insert statement and execute it
+        if (m_insert_statement.has_been_prepared()==false) {
 		tstring sql;
 		m_insert_statement.set_throw_on_error(get_throw_on_error());
 		m_insert_statement.ignore_once(get_ignore_once());
 		m_last_error=m_binder.build_insert_statement_and_bind(sql, m_table_name, &m_insert_statement);
+        }
 		if (m_last_error)
 			m_last_error=m_insert_statement.execute();
 		SQLINTEGER rowcount;
-		SQLRETURN rc=SQLRowCount(m_insert_statement.handle(), &rowcount);
+		//SQLRETURN rc=SQLRowCount(m_insert_statement.handle(), &rowcount);
 	}
 	return m_last_error;
 }
@@ -271,6 +273,7 @@ const sqlreturn &table::close_cursor()
 {
 	m_update_statement.clear();
 	m_delete_statement.clear();
+    m_insert_statement.clear();
 	statement::close_cursor();
 	return m_last_error;
 }

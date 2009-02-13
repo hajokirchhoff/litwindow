@@ -140,6 +140,9 @@ public:
 	/// Get the SQLHANDLE of the statement.
 	SQLHANDLE   handle() const { return m_handle; }
 
+    /// return true if this statement has an active handle, i.o.w. is_open
+    bool        is_open() const { return handle()!=0; }
+
 	/// set an sql statement
 	sqlreturn   LWODBC_API  set_statement(const tstring &sql_statement);
 	const tstring LWODBC_API &get_statement() const { return m_sql_statement; }

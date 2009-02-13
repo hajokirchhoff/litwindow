@@ -419,7 +419,8 @@ const sqlreturn &statement::execute()
 			return m_last_error;
 	}
 
-	c["SQL_STATEMENT"]=t2string(m_sql_statement);
+    // do NOT use this c["SQL_STATEMENT"] here, its verrrrrrry slow
+	//c["SQL_STATEMENT"]=t2string(m_sql_statement);
 	if (close_cursor().log_errors())
 		return m_last_error;
 	if (bind_parameters().fail() || put_parameters().fail())
