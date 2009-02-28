@@ -56,7 +56,6 @@ Because of that, names are stored as characters. Always. to_string/from_string
 #include "./tstring.hpp"
 
 #ifdef _MSC_VER
-// Turn on warning level 4 for this file.
 #pragma warning(push)
 // turn off unreferenced formal parameter
 #pragma warning(disable:4100)

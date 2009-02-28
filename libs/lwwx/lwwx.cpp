@@ -62,8 +62,8 @@ struct set_lwlog_dumper
             wxRenameFile(fn+wxString::Format(wxT(".%d"), backups-1), fn+wxString::Format(wxT(".%d"), backups));
         }
         wxRenameFile(fn, fn+wxT(".0"));
-        lw_log().set_dumper(new get_lwlog_dumper(fn.c_str(), wxT("lw_log")));
-        lw_err().set_dumper(new get_lwlog_dumper(fn.c_str(), wxT("#### lw_err ####")));
+        //lw_log().set_dumper(new get_lwlog_dumper(fn.c_str(), wxT("lw_log")));
+        //lw_err().set_dumper(new get_lwlog_dumper(fn.c_str(), wxT("#### lw_err ####")));
     }
 
     void send_log_to_wxdebug(bool enabled)

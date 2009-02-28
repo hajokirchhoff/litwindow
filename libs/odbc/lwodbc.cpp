@@ -86,6 +86,14 @@ sqlreturn::sqlreturn(const tstring &msg, error_code error, TCHAR state[5])
 	m_rc=SQL_ERROR;
 }
 
+sqlreturn::sqlreturn(const TCHAR *msg, error_code error, TCHAR state[5])
+{
+    if (state==0)
+        state=g_lwodb_state;
+    copy_on_write()->append_diag(sqldiag(state, error, tstring(msg)));
+    m_rc=SQL_ERROR;
+}
+
 TCHAR sqlreturn::g_lwodb_state[]={_T("LWODB")};
 
 bool sqlreturn::do_log_errors() const
