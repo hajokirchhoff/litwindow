@@ -5,7 +5,12 @@
 #define BOOST_VERSION_HPP
 #endif
 #define BOOST_LIB_VERSION LWL_LIB_VERSION_STRING
+
+#define BOOST_LIB_DIAGNOSTIC
+
 #include <boost/config/auto_link.hpp>
+
+
 #undef BOOST_LIB_VERSION
 #ifdef BOOST_LIB_VERSION_ORG
 #define BOOST_LIB_VERSION BOOST_LIB_VERSION_ORG

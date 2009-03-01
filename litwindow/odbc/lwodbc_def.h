@@ -10,18 +10,20 @@
 #ifndef _LWODBC_DEF_
 #define _LWODBC_DEF_
 
-#pragma once
-
 #define LWODBC_LIB_PREFIX "lwodbc"
 #define LWODBC_LIB_VERSION_STRING "1_0_0"
 #define LWODBC_LIB_NAME LWODBC_LIB_PREFIX _LWL_LIB_THREAD _LWL_LIB_DLL _LWL_LIB_UNICODE _LWL_LIB_DEBUG
 
+#ifdef LITWINDOW_ALL_DYN_LINK
+#define LWODBC_DYN_LINK
+#endif
+
 #if defined(LWODBC_EXPORTS)
 	#define LWODBC_API _declspec(dllexport)
-#elif defined(_USRDLL) || defined(USING_DLL) || defined(LWODBC_DYN_LIB)
+#elif defined(_USRDLL) || defined(USING_DLL) || defined(LWODBC_DYN_LINK)
 	#define LWODBC_API _declspec(dllimport)
-    #ifndef LWODBC_DYN_LIB
-    #define LWODBC_DYN_LIB
+    #ifndef LWODBC_DYN_LINK
+    #define LWODBC_DYN_LINK
     #endif
 #else
     #define LWODBC_API
@@ -54,8 +56,8 @@
 
 #if !defined(LWODBC_EXPORTS) && !defined(LITWINDOW_ODBC_NO_LIB) && !defined(LITWINDOW_ALL_NO_LIB)
 #define BOOST_LIB_NAME LWODBC_LIB_PREFIX
-#ifdef LWODBC_DYN_LIB
-#define BOOST_DYN_LIB
+#ifdef LWODBC_DYN_LINK
+#define BOOST_DYN_LINK
 #endif
 #ifdef LWL_VERBOSE_BUILD
 #define BOOST_LIB_DIAGNOSTIC

@@ -9,8 +9,6 @@
 #ifndef _LWWX_H
 #define _LWWX_H
 
-#pragma once
-
 #include "litwindow/lwbase.hpp"
 
 /// major version number of the lwwx part of the library
@@ -26,23 +24,27 @@
 
 #define LWWX_LIB_VERSION_STRING LWBASE_LIB_VERSION_STRING
 
+#ifdef LITWINDOW_ALL_DYN_LINK
+#define LWWX_DYN_LINK
+#endif
+
 #ifdef LWWX_EXPORTS
 #define LWWX_API _declspec(dllexport)
 #define LWWX_TEMPLATES_EXTERN
-#elif defined(LWL_USING_DLL) || defined(LWWX_DYN_LIB)
+#elif defined(LWL_USING_DLL) || defined(LWWX_DYN_LINK)
 #define LWWX_API _declspec(dllimport)
 #define LWWX_TEMPLATES_EXTERN extern
 #ifndef WXUSINGDLL
 #error Using lwwx as a DLL requires using wxWidgets as a DLL. Please #define WXUSINGDLL in your project!
 #endif
-#ifndef LWWX_DYN_LIB
-#define LWWX_DYN_LIB
+#ifndef LWWX_DYN_LINK
+#define LWWX_DYN_LINK
 #endif
 #else
 #define LWWX_API
 #endif
 
-#if defined(LWWX_EXPORTS) || defined(LWWX_DYN_LIB)
+#if defined(LWWX_EXPORTS) || defined(LWWX_DYN_LINK)
 
 #define LWWX_STL_VECTOR_EXPORT(type) \
     LWWX_TEMPLATES_EXTERN template class LWWX_API std::allocator<type>; \
@@ -53,7 +55,8 @@
 
 #endif
 
-#define LWWX_LIB_NAME "lwwx" _LWL_LIB_THREAD _LWL_LIB_DLL _LWL_LIB_UNICODE _LWL_LIB_DEBUG
+#define LWWX_LIB_PREFIX "lwwx"
+#define LWWX_LIB_NAME LWWX_LIB_PREFIX _LWL_LIB_THREAD _LWL_LIB_DLL _LWL_LIB_UNICODE _LWL_LIB_DEBUG
 
 #ifndef LWWX_EXPORTS
 #ifdef LWL_VERBOSE_BUILD
@@ -76,15 +79,21 @@ extern void LWWX_API enable_log_to_wxdebug(bool enabled=true);
 };
 
 #if !defined(LWWX_EXPORTS) && !defined(LITWINDOW_LWWX_NO_LIB) && !defined(LITWINDOW_ALL_NO_LIB)
-#define BOOST_LIB_NAME 
-#ifdef LWWX_DYN_LIB
-#define BOOST_DYN_LIB LWWX_LIB_NAME
+#define BOOST_LIB_NAME LWWX_LIB_PREFIX
+#undef BOOST_DYN_LINK
+#ifdef LWWX_DYN_LINK
+#define BOOST_DYN_LINK
 #endif
 #ifdef LWL_VERBOSE_BUILD
 #define BOOST_LIB_DIAGNOSTIC
 #endif
 #define LWL_LIB_VERSION_STRING LWWX_LIB_VERSION_STRING
 
+//#ifdef BOOST_DYN_LINK
+//#pragma message("LWWX_DYN_LINK IS SET")
+//#else
+//#error is not set
+//#endif
 #include "../auto_link.hpp"
 
 #endif

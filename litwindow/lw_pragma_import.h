@@ -10,8 +10,12 @@
 #ifndef _LITWINDOW_IMPORT_
 #define _LITWINDOW_IMPORT_
 
-#if !defined(LWBASE_DYN_LIB) && (defined(_USRDLL) || defined(USING_DLL) || defined(LWBASE_EXPORTS))
-#define LWBASE_DYN_LIB
+#ifdef LITWINDOW_ALL_DYN_LINK
+#define LWBASE_DYN_LINK
+#endif
+
+#if !defined(LWBASE_DYN_LINK) && (defined(_USRDLL) || defined(USING_DLL) || defined(LWBASE_EXPORTS))
+#define LWBASE_DYN_LINK
 #endif
 
 // do not include litwindow auto link info, use boost instead (see below)
@@ -22,10 +26,10 @@
 #include <tchar.h>
 
 #ifdef LWL_USING_DLL
-#define LWBASE_DYN_LIB
+#define LWBASE_DYN_LINK
 #endif
 
-#if defined(LWBASE_DYN_LIB)
+#if defined(LWBASE_DYN_LINK)
 
 #define LWBASE_DLL_EXPORT _declspec(dllexport)
 #define LWBASE_DLL_IMPORT _declspec(dllimport)
@@ -68,7 +72,7 @@
 #define _LWL_LIB_PREFIX "lwbase"
 #endif
 
-#if defined(LWBASE_DYN_LIB)
+#if defined(LWBASE_DYN_LINK)
 #define _LWL_LIB_DLL ""
 #define _LWL_LIB_THREAD ""
 #else
@@ -148,7 +152,7 @@
 
 #if !defined(LWL_ALL_NO_LIB) && !defined(LWL_LWBASE_NO_LIB) && !defined(LWBASE_EXPORTS)
 #define BOOST_LIB_NAME _LWL_LIB_PREFIX
-#ifdef LWBASE_DYN_LIB
+#ifdef LWBASE_DYN_LINK
 #define BOOST_DYN_LINK
 #endif
 #ifdef LWL_VERBOSE_BUILD

@@ -24,9 +24,9 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="bjam -d+2 -q -j$(NUMBER_OF_PROCESSORS) --toolset=msvc-9.0 debug"
-				ReBuildCommandLine="bjam --toolset=msvc-9.0 -a debug"
-				CleanCommandLine="bjam --clean --toolset=msvc-9.0 debug"
+				BuildCommandLine="bjam -d+2 -q -j$(NUMBER_OF_PROCESSORS) --toolset=msvc-9.0 debug stage"
+				ReBuildCommandLine="bjam --toolset=msvc-9.0 -a debug stage"
+				CleanCommandLine="bjam --clean --toolset=msvc-9.0 debug stage"
 				Output=""
 				PreprocessorDefinitions="DEBUG;WIN32;_DEBUG"
 				IncludeSearchPath="&quot;($SolutionDir)&quot;"
@@ -44,9 +44,9 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="bjam --toolset=msvc-9.0 release"
-				ReBuildCommandLine="bjam --toolset=msvc-9.0 -a release"
-				CleanCommandLine="bjam --clean --toolset=msvc-9.0 release"
+				BuildCommandLine="bjam --toolset=msvc-9.0 release stage"
+				ReBuildCommandLine="bjam --toolset=msvc-9.0 -a release stage"
+				CleanCommandLine="bjam --clean --toolset=msvc-9.0 release stage"
 				Output=""
 				PreprocessorDefinitions="WIN32;NDEBUG"
 				IncludeSearchPath=""
