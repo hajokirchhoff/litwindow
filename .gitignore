@@ -1,5 +1,6 @@
 /bin.v2
 /boost-build.jam
+/html
 libs/lwbase-VC90/*.user
 libs/lwbase-VC90/Debug
 libs/lwbase-VC90/Release

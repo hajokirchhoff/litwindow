@@ -1,5 +1,6 @@
 * text=auto !eol
 /CHANGELOG.txt -text
+/Doxyfile -text
 /Jamroot -text
 /LICENSE.txt -text
 /README.txt -text

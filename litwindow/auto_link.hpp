@@ -8,7 +8,6 @@
 #undef BOOST_LIB_VERSION
 
 #define BOOST_LIB_VERSION LWL_LIB_VERSION_STRING
-#define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/config/auto_link.hpp>
 
