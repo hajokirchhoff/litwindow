@@ -10,6 +10,11 @@
 #ifndef _LITWINDOW_IMPORT_
 #define _LITWINDOW_IMPORT_
 
+#include "./config.hpp"
+
+#if defined(LWL_USING_DLL) && !defined(LITWINDOW_ALL_DYN_LINK)
+#define LITWINDOW_ALL_DYN_LINK
+#endif
 #ifdef LITWINDOW_ALL_DYN_LINK
 #define LWBASE_DYN_LINK
 #endif
@@ -159,8 +164,7 @@
 #define BOOST_LIB_DIAGNOSTIC
 #endif
 #define LWL_LIB_VERSION_STRING LWBASE_LIB_VERSION_STRING
-
-#include "auto_link.hpp"
+#include "./auto_link.hpp"
 
 #endif
 
