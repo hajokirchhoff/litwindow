@@ -2,11 +2,14 @@
 /boost-build.jam
 libs/lwbase-VC90/*.user
 libs/lwbase-VC90/Debug
+libs/lwbase-VC90/Release
 libs/lwbase/*.user
 libs/lwwx/*.user
 libs/lwwx/Debug
+libs/lwwx/Release
 libs/odbc/*.user
 libs/odbc/Debug
+libs/odbc/Release
 /litwindow-VC90.ncb
 /litwindow-VC90.suo
 /litwindow-VC90.vcproj.Galadriel.Hajo[!!-~]Kirchhoff.user

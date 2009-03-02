@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="lwbase-VC90"
+	Name="lwbase-vc90"
 	ProjectGUID="{3574B45C-ED89-473C-92FC-251BCD966664}"
 	RootNamespace="lwbaseVC90"
 	Keyword="Win32Proj"
@@ -49,6 +49,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+				DisableSpecificWarnings="4275;4251"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -119,6 +120,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4275;4251"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

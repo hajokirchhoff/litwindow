@@ -18,9 +18,10 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\stage\lib"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets="..\..\litwindow.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -42,13 +43,14 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\..\boost&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include&quot;;&quot;$(ProjectDir)..\..&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WXUSINGDLL;LWWX_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WXUSINGDLL;LWWX_EXPORTS;LITWINDOW_ALL_DYN_LINK"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+				DisableSpecificWarnings="4275"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -61,6 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\$(ProjectName)-vc90-mt-gd-1_0_0.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -86,9 +89,10 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\stage\lib"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets="..\..\litwindow.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -112,12 +116,13 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\..\boost&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include&quot;;&quot;$(ProjectDir)..\..&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WXUSINGDLL;LWWX_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WXUSINGDLL;LWWX_EXPORTS;;LITWINDOW_ALL_DYN_LINK"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4275"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -130,6 +135,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\$(ProjectName)-vc90-mt-1_0_0.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -165,6 +171,22 @@
 			<File
 				RelativePath=".\action_objects.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\base_objects.cpp"

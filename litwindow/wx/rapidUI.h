@@ -10,6 +10,8 @@
 #define _RAPIDUI_
 
 #pragma once
+#pragma warning(push)
+#pragma warning(disable: 4275)
 
 #include "litwindow/lwbase.hpp"
 #include "litwindow/tstring.hpp"
@@ -28,13 +30,11 @@ using namespace std;
 LWWX_STL_VECTOR_EXPORT(wxWindow*);
 #pragma warning(disable:4660)
 LWWX_STL_VECTOR_EXPORT(tstring);
-#pragma warning(default:4660)
 
 class LWWX_API RapidUI;
 
 typedef void (*rules_function_t)(RapidUI &);
 LWWX_STL_VECTOR_EXPORT(rules_function_t);
-#pragma warning(default:4231)
 
 class LWWX_API RapidUI:public symbol_table_interface
 {
@@ -305,4 +305,5 @@ wxString LWWX_API GetWindowFormatProperties(wxWindow *w);
 
 };
 
+#pragma warning(pop)
 #endif

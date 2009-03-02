@@ -18,7 +18,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\stage\lib"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\..\boost&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include&quot;;&quot;$(ProjectDir)..\..&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LWODBC_EXPORTS"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\litwindow\odbc&quot;;&quot;$(ProjectDir)..\..\..\boost&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include&quot;;&quot;$(ProjectDir)..\..&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LWODBC_EXPORTS;LWBASE_DYN_LINK"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -61,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\lwodbc-vc90-mt-gd-1_0_0.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -86,7 +87,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\stage\lib"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
@@ -111,8 +112,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\..\boost&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include&quot;;&quot;$(ProjectDir)..\..&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;LWODBC_EXPORTS"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\litwindow\odbc&quot;;&quot;$(ProjectDir)..\..\..\boost&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include&quot;;&quot;$(ProjectDir)..\..&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;LWODBC_EXPORTS;LWBASE_DYN_LINK"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -130,6 +131,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\lwodbc-vc90-mt-1_0_0.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"

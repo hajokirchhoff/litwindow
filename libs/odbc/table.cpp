@@ -131,7 +131,7 @@ const sqlreturn &table::insert_row()
         }
 		if (m_last_error)
 			m_last_error=m_insert_statement.execute();
-		SQLINTEGER rowcount;
+		//SQLINTEGER rowcount;
 		//SQLRETURN rc=SQLRowCount(m_insert_statement.handle(), &rowcount);
 	}
 	return m_last_error;

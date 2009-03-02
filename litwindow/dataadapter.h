@@ -9,6 +9,8 @@
 #ifndef _LITWINDOW_DATAADAPTER_
 #define _LITWINDOW_DATAADAPTER_
 
+#pragma warning(push)
+
 #include "lwbase.hpp"
 #include <string>
 #include "dataadapterimp.h"
@@ -1271,14 +1273,13 @@ namespace litwindow {
 	}
 
 	// export commonly used templates
-#pragma warning(disable:4231)
+#pragma warning(disable:4231 4275)
 	STL_EXPORT_VECTOR(const accessor*);
 	STL_EXPORT_VECTOR(accessor);
 	STL_EXPORT_VECTOR(const const_accessor*);
 	STL_EXPORT_VECTOR(litwindow::const_accessor);
 	STL_EXPORT_VECTOR(aggregate);
 	STL_EXPORT_VECTOR(const_aggregate);
-#pragma warning(default:4231)
 
 };
 
@@ -1726,5 +1727,5 @@ namespace litwindow {
 
 #ifdef _MSC_VER
 #pragma once
+#pragma warning(pop)
 #endif
-
