@@ -180,6 +180,10 @@ namespace litwindow {
                     (*pFn)(_owner._outstream);
                     return *this;
                 }
+                inserter &operator<<(std::basic_ostream<_Elem> &(*pFn)(std::basic_ostream<_Elem> &))
+                {
+                    return operator&(pFn);
+                }
                 template <typename Value>
                 inserter &operator <<(const Value &v)
                 {
@@ -230,6 +234,10 @@ namespace litwindow {
                 return operator&(pFn);
             }
             inline inserter &operator&(std::basic_ostream<_Elem> &(*pFn)(std::basic_ostream<_Elem> &_Ostr))
+            {
+                return inserter(*this, _enabled) & pFn;
+            }
+            inline inserter &operator<<(std::basic_ostream<_Elem> &(*pFn)(std::basic_ostream<_Elem> &_Ostr))
             {
                 return inserter(*this, _enabled) & pFn;
             }
