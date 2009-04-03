@@ -177,7 +177,7 @@ namespace litwindow {
                     if (pFn==std::endl) {
 
                     }
-                    (*pFn)(_owner._outstream);
+                    //(*pFn)(_owner._outstream);
                     return *this;
                 }
                 inserter &operator<<(std::basic_ostream<_Elem> &(*pFn)(std::basic_ostream<_Elem> &))
