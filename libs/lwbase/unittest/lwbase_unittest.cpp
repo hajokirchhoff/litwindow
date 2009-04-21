@@ -3,18 +3,33 @@
 #include <boost/test/auto_unit_test.hpp>
 #include "litwindow/logger.hpp"
 
+#define new DEBUG_NEW
+
 using namespace litwindow;
 using namespace std;
 
-BOOST_AUTO_TEST_CASE(basic_logging)
+struct test_caller
 {
-    struct test_caller
-    {
-        mutable size_t call_count;
-        size_t dont_call_me() const { return ++call_count; }
-        test_caller():call_count(0){}
-    };
+    mutable size_t call_count;
+    size_t dont_call_me() const { return ++call_count; }
+    test_caller():call_count(0){}
+};
+
+BOOST_AUTO_TEST_CASE(logging_syntax_check)
+{
     logger::basic_events<wchar_t, basic_stringbuf<wchar_t> > test;
+    {
+        test_caller a;
+        test && "Hello" && endl;
+        wstring rc=test.rdbuf()->str();
+        BOOST_CHECK(rc==wstring(L"Hello"));
+    }
+    {
+        test && logger::warning;
+        test && L"Ups" && std::endl;
+        wstring rc=test.rdbuf()->str();
+        BOOST_CHECK(rc==L"HelloUps");
+    }
     //test << /*"Hello" << */logger::error << L"This is a test error. Value is " << 15 << endl;
     //test & logger::error; // & L"This error is." & endl;
     //test << 10;
@@ -24,6 +39,7 @@ BOOST_AUTO_TEST_CASE(basic_logging)
     //test & 10;
     //test & L"This is a test";
     //test & logger::error;
+#ifdef not
     {
         test_caller a;
         test & logger::error & 10 & logger::warning & 15 & a.dont_call_me();
@@ -42,4 +58,13 @@ BOOST_AUTO_TEST_CASE(basic_logging)
         //BOOST_CHECK_EQUAL(b.call_count, 0);
     }
     test & endl;
+#endif
+}
+
+BOOST_AUTO_TEST_CASE(simple_log_streambuf)
+{
+    logger::wlog test_log;
+    test_log && L"This is a log entry with value " && 15;
+    wstring rc(test_log.rdbuf()->str());
+    BOOST_CHECK(rc==wstring(L"This is a log entry with value 15"));
 }

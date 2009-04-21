@@ -64,6 +64,7 @@
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\$(ProjectName)-vc90-mt-gd-1_0_0.dll"
 				AdditionalLibraryDirectories="&quot;$(ProjectDir)..\..\..\wxWidgets\lib\vc_dll&quot;"
+				GenerateDebugInformation="true"
 			/>
 			<Tool
 				Name="VCALinkTool"

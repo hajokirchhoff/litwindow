@@ -5,6 +5,7 @@ libs/lwbase-VC90/*.user
 libs/lwbase-VC90/Debug
 libs/lwbase-VC90/Release
 libs/lwbase/*.user
+libs/lwbase/unittest/Debug
 libs/lwwx/*.user
 libs/lwwx/Debug
 libs/lwwx/Release

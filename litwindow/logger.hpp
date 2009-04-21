@@ -106,9 +106,6 @@ namespace litwindow {
             //Category m_category;
         };
 
-        const basic_level<levels::critical, wchar_t> wcritical=basic_level<levels::critical, wchar_t>();
-        const basic_level<levels::error, wchar_t> werror=basic_level<levels::error, wchar_t>();
-
         template <typename _Streambuf >
         class basic_log_streambuf:public _Streambuf
         {
@@ -142,15 +139,22 @@ namespace litwindow {
             int_type end_of_log_entry;
         };
 
-        template <typename _Elem, typename Streambuf=basic_log_streambuf<std::basic_streambuf<_Elem> >, typename _Outstream=std::basic_ostream<_Elem, std::char_traits<_Elem> > >
+        // ---------------------------------------------------------------------------------------------
+        
+        /// Base class for logging events
+        template <
+            typename _Elem, 
+            typename Streambuf=basic_log_streambuf<std::basic_streambuf<_Elem> >, 
+            typename Outstream=std::basic_ostream<_Elem, std::char_traits<_Elem> > 
+        >
         class basic_events:public Streambuf
         {
             typedef basic_events<_Elem, Streambuf> _Myt;
-            typedef _Outstream outstream_type;
+            typedef Outstream outstream_type;
             typedef std::basic_ostream<_Elem>& (*iomanipulator)(std::basic_ostream<_Elem>&);
             typedef _Myt& (*logmanipulator)(_Myt&);
-            outstream_type _outstream;
-            bool _enabled;
+            outstream_type m_outstream;
+            bool m_enabled;
         public:
             class inserter
             {
@@ -161,18 +165,18 @@ namespace litwindow {
 
                 inserter(events_type &owner, bool is_enabled):_owner(owner),_enabled(is_enabled){}
                 template <typename Value>
-                inserter &operator &(const Value &v)
+                inserter &operator &&(const Value &v)
                 {
                     if (_enabled) {
                         _owner.put(v);
                     }
                     return *this;
                 }
-                events_type &operator&(logmanipulator pFn)
+                events_type &operator&&(logmanipulator pFn)
                 {
                     return (*pFn)(_owner);
                 }
-                inserter &operator&(iomanipulator pFn)
+                inserter &operator&&(iomanipulator pFn)
                 {
                     if (pFn==std::endl) {
 
@@ -182,94 +186,91 @@ namespace litwindow {
                 }
                 inserter &operator<<(std::basic_ostream<_Elem> &(*pFn)(std::basic_ostream<_Elem> &))
                 {
-                    return operator&(pFn);
+                    return operator&&(pFn);
                 }
                 template <typename Value>
                 inserter &operator <<(const Value &v)
                 {
-                    return operator&(v);
+                    return operator&&(v);
                 }
             };
 
 
-            basic_events():_outstream(rdbuf()),_enabled(true)
+            basic_events():m_outstream(rdbuf()),m_enabled(true)
             {
             }
-            basic_events(const std::basic_string<_Elem> &name):_outstream(rdbuf())
-                ,m_instance(name),_enabled(true)
+            basic_events(const std::basic_string<_Elem> &name):m_outstream(rdbuf())
+                ,m_instance(name),m_enabled(true)
             {
             }
             void open(const std::basic_string<_Elem> &name) { m_instance.open(name); }
             void close() { m_instance.close(); }
-            void enabled(bool is_enabled) { _enabled=is_enabled; }
-            bool enabled() const { return _enabled; }
+            void enabled(bool is_enabled) { m_enabled=is_enabled; }
+            void enable() { enabled(true); }
+            void disable() { enabled(false); }
+            bool enabled() const { return m_enabled; }
+
+            Outstream &stream() { return m_outstream; }
+
+            operator bool() const { return m_enabled; }
 
             template <typename Value>
-            inserter &operator<<(const Value &v)
+            inserter operator && (const Value &v)
+            {
+                return inserter(*this, true) && v;
+            }
+            template <typename Value>
+            inserter operator<<(const Value &v)
             {
                 return inserter(*this, true) << v;
             }
-            //_Myt &operator << (basic_ostream<_Elem> &(*fnc)(basic_ostream<_Elem>&)) 
-            //{ 
-            //    return *this;
-            //}
-            //_Myt &operator << (_Myt& (*m)(_Myt &))
-            //{ 
-            //    return (*m)(*this); 
-            //}
             virtual void do_begin() {}      ///< begin a new entry
             virtual void do_end() {}        ///< end an entry
 
-            template <typename Value>
-            inline inserter &operator&(const Value &v)
+            const Streambuf *rdbuf() const { return static_cast<const Streambuf*>(this); }
+            Streambuf *rdbuf() { return static_cast<Streambuf*>(this); }
+
+            inserter operator && (logmanipulator l)
             {
-                return inserter(*this, _enabled) & v;
+                _Myt &r((*l)(*this));
+                return inserter(r, r.enabled());
             }
-            inline _Myt &operator&(logmanipulator pFn)
+            void level(levels::default_level_enum l)
             {
-                return inserter(*this, _enabled) & pFn;
-            }
-            inline _Myt &operator<<(logmanipulator pFn)
-            {
-                return operator&(pFn);
-            }
-            inline inserter &operator&(std::basic_ostream<_Elem> &(*pFn)(std::basic_ostream<_Elem> &_Ostr))
-            {
-                return inserter(*this, _enabled) & pFn;
-            }
-            inline inserter &operator<<(std::basic_ostream<_Elem> &(*pFn)(std::basic_ostream<_Elem> &_Ostr))
-            {
-                return inserter(*this, _enabled) & pFn;
-            }
-            template <typename Value>
-            inline void put(const Value &v)
-            {
-                _outstream << v;
             }
         private:
-            Streambuf *rdbuf() { return static_cast<Streambuf*>(this); }
+            friend class inserter;
+            template <typename Value>
+            void put(const Value &v)
+            {
+                m_outstream << v;
+            }
             basic_instance<_Elem> m_instance;
         };
 
 
         template <typename _Elem, typename Streambuf>
-        inline basic_events<_Elem, Streambuf> &information(basic_events<_Elem, Streambuf> &in) { return in; }
+        inline basic_events<_Elem, Streambuf> &debug(basic_events<_Elem, Streambuf> &in) { in.level(levels::debug_level); return in; }
+        template <typename _Elem, typename Streambuf>
+        inline basic_events<_Elem, Streambuf> &information(basic_events<_Elem, Streambuf> &in) { in.level(levels::information); return in; }
+        template <typename _Elem, typename Streambuf>
+        inline basic_events<_Elem, Streambuf> &warning(basic_events<_Elem, Streambuf> &in) { in.level(levels::warning); return in; }
+        template <typename _Elem, typename Streambuf>
+        inline basic_events<_Elem, Streambuf> &error(basic_events<_Elem, Streambuf> &in) { in && basic_level<levels::error, _Elem>(); return in; }
+        template <typename _Elem, typename Streambuf>
+        inline basic_events<_Elem, Streambuf> &critical(basic_events<_Elem, Streambuf> &in) { in && basic_level<levels::critical, _Elem>(); return in; }
 
         template <typename _Elem, typename Streambuf>
-        inline basic_events<_Elem, Streambuf> &warning(basic_events<_Elem, Streambuf> &in) { return in; }
-
+        inline basic_events<_Elem, Streambuf> &disable(basic_events<_Elem, Streambuf> &in) { in.disable(); return in; }
         template <typename _Elem, typename Streambuf>
-        inline basic_events<_Elem, Streambuf> &error(basic_events<_Elem, Streambuf> &in) { return in; }
-
-        template <typename _Elem, typename Streambuf>
-        inline basic_events<_Elem, Streambuf> &disable(basic_events<_Elem, Streambuf> &in) { in.enabled(false); return in; }
-        template <typename _Elem, typename Streambuf>
-        inline basic_events<_Elem, Streambuf> &enable(basic_events<_Elem, Streambuf> &in) { in.enabled(true); return in; }
+        inline basic_events<_Elem, Streambuf> &enable(basic_events<_Elem, Streambuf> &in) { in.enable(); return in; }
         template <typename _Elem, typename Streambuf>
         inline basic_events<_Elem, Streambuf> &endl(basic_events<_Elem, Streambuf> &in) { in.put('\n'); return in; }
 
         typedef basic_events<char> events;
         typedef basic_events<wchar_t> wevents;
+        typedef events log;
+        typedef wevents wlog;
 
     }
 }

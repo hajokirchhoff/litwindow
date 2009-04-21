@@ -63,6 +63,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\lwbase-vc90-mt-gd-1_0_0.dll"
+				GenerateDebugInformation="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
