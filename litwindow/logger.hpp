@@ -106,20 +106,41 @@ namespace litwindow {
             //Category m_category;
         };
 
-        template <typename _Streambuf >
-        class basic_log_streambuf:public _Streambuf
+
+        //---------------------------------------------------------------------------------------------
+        // 
+        template <typename _Elem>
+        class basic_logsink
+        {
+
+        };
+
+        template <typename _Elem>
+        inline basic_logsink<_Elem> *global_sink()
+        {
+            static basic_logsink<_Elem> g_sink;
+            return &g_sink;
+        }
+
+        template <typename _Elem, typename _Streambuf=std::basic_stringbuf<_Elem> >
+        class basic_logbuf:public _Streambuf
         {
             typedef typename _Streambuf::traits_type traits_type;
             typedef typename _Streambuf::int_type int_type;
             typedef typename _Streambuf::char_type char_type;
+            typedef basic_logsink<_Elem> sink_type;
         public:
-            basic_log_streambuf():end_of_log_entry(0){}
+            basic_logbuf():end_of_log_entry(0), m_sink(global_sink<_Elem>()) {}
+            void sink(sink_type *new_sink) { m_sink=new_sink; }
+            sink_type *sink() const { return m_sink; }
             void set_level(int lvl) {}
             virtual int sync()
             {
+                _Streambuf::sync();
                 //TODO: Write buffer to log stream
                 return 0;
             }
+#ifdef not
             virtual int_type overflow(int_type _Meta = traits_type::eof() )
             {
                 int_type rc;
@@ -131,30 +152,68 @@ namespace litwindow {
                 }
                 return rc;
             }
+#endif // not
             void set_end_of_log_entry(int_type new_end_of_Log_entry)
             {
                 end_of_log_entry=new_end_of_Log_entry;
             }
         private:
             int_type end_of_log_entry;
+            sink_type *m_sink;
         };
 
+        template <typename _Elem, typename _Traits=std::char_traits<_Elem> >
+        class basic_logstream:public std::basic_ostream<_Elem, _Traits>
+        {
+            typedef std::basic_ostream<_Elem, _Traits> inherited;
+        public:
+            typedef basic_logbuf<_Elem> _Streambuf;
+            basic_logstream()
+                :inherited(&m_rdbuf)
+            {
+            }
+            _Streambuf *rdbuf() { return &m_rdbuf; }
+            void put_ts();
+            void put_level(levels::default_level_enum l)
+            {
+            }
+            void put_topic();
+        protected:
+            _Streambuf m_rdbuf;
+            
+        };
+        typedef basic_logstream<char> logstream;
+        typedef basic_logstream<wchar_t> wlogstream;
+
+        template <typename _Stream>
+        struct stream_traits
+        {
+            typedef _Stream stream_type;
+            void putlevel(_Stream &stream, levels::default_level_enum l) { }
+        };
+        template <typename _Elem>
+        struct stream_traits<basic_logstream<_Elem> >
+        {
+            typedef basic_logstream<_Elem> stream_type;
+            void putlevel(stream_type &stream, levels::default_level_enum l) { stream.put_level(l); }
+        };
         // ---------------------------------------------------------------------------------------------
         
         /// Base class for logging events
         template <
-            typename _Elem, 
-            typename Streambuf=basic_log_streambuf<std::basic_streambuf<_Elem> >, 
-            typename Outstream=std::basic_ostream<_Elem, std::char_traits<_Elem> > 
+            typename _Elem,
+            typename _Outstream=basic_logstream<_Elem> ,
+            typename _Streamtraits=logger::stream_traits<_Outstream>
         >
-        class basic_events:public Streambuf
+        class basic_events:public _Outstream
         {
-            typedef basic_events<_Elem, Streambuf> _Myt;
-            typedef Outstream outstream_type;
+            typedef basic_events<_Elem, _Outstream, _Streamtraits> _Myt;
+            typedef _Outstream outstream_type;
+            typedef _Streamtraits outstream_traits;
             typedef std::basic_ostream<_Elem>& (*iomanipulator)(std::basic_ostream<_Elem>&);
             typedef _Myt& (*logmanipulator)(_Myt&);
-            outstream_type m_outstream;
             bool m_enabled;
+            _Streamtraits m_stream_traits;
         public:
             class inserter
             {
@@ -196,11 +255,11 @@ namespace litwindow {
             };
 
 
-            basic_events():m_outstream(rdbuf()),m_enabled(true)
+            basic_events():m_enabled(true)
             {
             }
-            basic_events(const std::basic_string<_Elem> &name):m_outstream(rdbuf())
-                ,m_instance(name),m_enabled(true)
+            basic_events(const std::basic_string<_Elem> &name)
+                :m_instance(name),m_enabled(true)
             {
             }
             void open(const std::basic_string<_Elem> &name) { m_instance.open(name); }
@@ -210,7 +269,7 @@ namespace litwindow {
             void disable() { enabled(false); }
             bool enabled() const { return m_enabled; }
 
-            Outstream &stream() { return m_outstream; }
+            _Outstream &stream() { return *this; }
 
             operator bool() const { return m_enabled; }
 
@@ -227,8 +286,8 @@ namespace litwindow {
             virtual void do_begin() {}      ///< begin a new entry
             virtual void do_end() {}        ///< end an entry
 
-            const Streambuf *rdbuf() const { return static_cast<const Streambuf*>(this); }
-            Streambuf *rdbuf() { return static_cast<Streambuf*>(this); }
+            //const Streambuf *rdbuf() const { return static_cast<const Streambuf*>(this); }
+            //Streambuf *rdbuf() { return static_cast<Streambuf*>(this); }
 
             inserter operator && (logmanipulator l)
             {
@@ -237,14 +296,15 @@ namespace litwindow {
             }
             void level(levels::default_level_enum l)
             {
+                m_stream_traits.putlevel(*this, l);
             }
-        private:
-            friend class inserter;
             template <typename Value>
             void put(const Value &v)
             {
-                m_outstream << v;
+                stream() << v;
             }
+        private:
+            friend class inserter;
             basic_instance<_Elem> m_instance;
         };
 

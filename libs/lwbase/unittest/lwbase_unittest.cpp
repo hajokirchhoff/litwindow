@@ -17,7 +17,7 @@ struct test_caller
 
 BOOST_AUTO_TEST_CASE(logging_syntax_check)
 {
-    logger::basic_events<wchar_t, basic_stringbuf<wchar_t> > test;
+    logger::basic_events<wchar_t, basic_stringstream<wchar_t> > test;
     {
         test_caller a;
         test && "Hello" && endl;
@@ -63,8 +63,16 @@ BOOST_AUTO_TEST_CASE(logging_syntax_check)
 
 BOOST_AUTO_TEST_CASE(simple_log_streambuf)
 {
-    logger::wlog test_log;
-    test_log && L"This is a log entry with value " && 15;
-    wstring rc ;//TODO: (test_log.rdbuf()->str());
-    //TODO: BOOST_CHECK(rc==wstring(L"This is a log entry with value 15"));
+    using namespace logger;
+    basic_logstream<wchar_t> logstream;
+    logstream << L"This is a test of " << 15 << " and numbers" << endl;
+    std::wstring rc(logstream.rdbuf()->str());
+    BOOST_CHECK(rc==std::wstring(L"This is a test of 15 and numbers\n"));
+}
+
+BOOST_AUTO_TEST_CASE(simple_log_level)
+{
+    using namespace logger;
+    wevents e;
+    e && debug && L"This is a test with number " && 800 && logger::endl;
 }
