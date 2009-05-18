@@ -65,14 +65,25 @@ BOOST_AUTO_TEST_CASE(simple_log_streambuf)
 {
     using namespace logger;
     basic_logstream<wchar_t> logstream;
-    logstream << L"This is a test of " << 15 << " and numbers" << endl;
+    logstream << L"This is a test of " << 15 << " and numbers";
     std::wstring rc(logstream.rdbuf()->str());
-    BOOST_CHECK(rc==std::wstring(L"This is a test of 15 and numbers\n"));
+    BOOST_CHECK(rc==std::wstring(L"This is a test of 15 and numbers"));
+}
+
+BOOST_AUTO_TEST_CASE(simple_log_sink)
+{
+    using namespace logger;
+    logsink sink;
+    events e(&sink);
+    e && "Test 1" && endl;
+    e.flush();
+    string rc(sink.str());
+    BOOST_CHECK_EQUAL(rc, string("Test 1"));
 }
 
 BOOST_AUTO_TEST_CASE(simple_log_level)
 {
     using namespace logger;
     wevents e;
-    e && debug && L"This is a test with number " && 800 && logger::endl;
+    e && debug && L"This is a test with number " && 800 && endl;
 }
