@@ -117,17 +117,38 @@ namespace litwindow {
         typedef basic_logsink<char> logsink;
         typedef basic_logsink<wchar_t> wlogsink;
 
-        template <typename _Elem, typename _Streambuf=std::basic_stringbuf<_Elem> >
-        class basic_logbuf:public _Streambuf
+        template <typename _Elem, typename _Traits, typename _Alloc >
+        class basic_logbuf:public std::basic_streambuf<_Elem, _Traits>
         {
+            friend class basic_logsink<_Elem>;
         public:
-            typedef typename _Streambuf::traits_type traits_type;
-            typedef typename _Streambuf::int_type int_type;
-            typedef typename _Streambuf::char_type char_type;
+            enum {
+                _Allocated = 1  ///< set if character array storage has been allocated
+            };
+            typedef int _Strstate;
+            typedef typename _Traits::int_type int_type;
+            typedef typename _Traits::pos_type pos_type;
+            typedef typename _Traits::off_type off_type;
+            typedef basic_streambuf<_Elem, _Traits> _Mysb;
+            typedef _Alloc allocator_type;
             typedef basic_logsink<_Elem> sink_type;
             typedef time_t timestamp_type;
-            basic_logbuf():end_of_log_entry(0), m_sink(global_sink<_Elem>()) {}
-
+        private:
+            struct entry
+            {
+                timestamp_type  m_ts;
+                unsigned int    m_instance;
+                unsigned int    m_source:16;
+                unsigned int    m_topic:16;
+                unsigned int    m_level:16;
+                unsigned int    m_length:16;
+            };
+            enum {
+                GROW_INCREMENT = 4096   ///< number of elements the log buffer is grown per overflow request
+            };
+        public:
+            basic_logbuf():end_of_log_entry(0), m_sink(global_sink<_Elem>()) { init(); }
+            ~basic_logbuf() { clear(); sink(0); }
             void sink(sink_type *new_sink) { m_sink=new_sink; }
             sink_type *sink() const     { return m_sink; }
 
@@ -139,32 +160,81 @@ namespace litwindow {
             size_t  source() const      { return m_source; }
             virtual int sync()
             {
-                int rc=_Streambuf::sync();
+                int rc=_Mysb::sync();
                 //TODO: Optimize this
                 if (sink()) {
-                    sink()->put(str().c_str());
-                    str(basic_string<_Elem>());
+                    sink()->put(_Mysb::pbase(), _Mysb::pptr()-_Mysb::pbase());
+                    _Mysb::setp(_Mysb::pbase(), _Mysb::pbase(), _Mysb::epptr());
+                    m_begin_entry=0;
                 }
                 return rc;
             }
-#ifdef not
+
             virtual int_type overflow(int_type _Meta = traits_type::eof() )
             {
-                int_type rc;
-                if (_Meta = end_of_log_entry ) {
-                    pubsync();
-                    rc = traits_type::not_eof(_Meta);
-                } else {
-                    rc = _Streambuf::overflow(_Meta);
+                if (traits_type::eq_int_type(traits_type::eof(), _Meta))
+                    return traits_type::not_eof(_Meta);
+                // if room in buffer, then store element
+                if (_Mysb::pptr()!=0 && _Mysb::pptr() < _Mysb::epptr()) {
+                    *_Mysb::pptr() = traits_type::to_char_type(_Meta);
+                    _Mysb::pbump(1);
+                    return _Meta;
                 }
-                return rc;
+                // grow buffer
+                size_t _Oldsize = _Mysb::pptr() == 0 ? 0 : _Mysb::epptr() - _Mysb::pbase();
+                size_t _Newsize = _Oldsize + GROW_INCREMENT;
+                _Elem *_Newptr = m_allocator.allocate(_Newsize);
+                if (_Oldsize == 0) {
+                    // first growth, set up buffer and pointers
+                    _Mysb::setp(_Newptr, _Newptr+_Newsize);
+                } else {
+                    _Elem *_Oldptr = _Mysb::pbase();
+#ifdef _MSC_VER
+                    _Traits_helper::copy_s<_Traits>(_Newptr, _Newsize, _Oldptr, _Oldsize);
+#else
+                    std::copy(_Oldptr, _Oldptr+_Oldsize, _Newptr);
+#endif
+                    _Mysb::setp(_Newptr, _Newptr + (_Mysb::pptr()-_Oldptr), _Newptr+_Newsize);
+                    if (m_state & _Allocated)
+                        m_allocator.deallocate(_Oldptr, _Oldsize);
+                }
+                m_state |= _Allocated;
+                *_Mysb::pptr() = traits_type::to_char_type(_Meta);
+                _Mysb::pbump(1);
+                return _Meta;
             }
-#endif // not
             void set_end_of_log_entry(int_type new_end_of_Log_entry)
             {
                 end_of_log_entry=new_end_of_Log_entry;
             }
+            void begin_entry()
+            {
+                puttime(); putsource(); puttopic(); putlevel();                
+                m_begin_entry=pptr();
+            }
+            void end_entry()
+            {
+                off_t total=count();
+                do_put(total);
+            }
+            void clear()
+            {
+                if (m_state & _Allocated) {
+                    m_allocator.deallocate(_Mysb::pbase(), _Mysb::epptr()-_Mysb::pbase());
+                    m_state&=~_Allocated;
+                }
+                _Mysb::setp(0,0);
+            }
+            std::basic_string<_Elem> str() const
+            {
+                return _Mysb::pptr() ? std::basic_string<_Elem>(_Mysb::pbase(), _Mysb::pptr()) : std::basic_string<_Elem>();
+            }
         private:
+            void    init()
+            {
+                m_state=0;
+                clear();
+            }
             size_t m_level;
             size_t m_source;
             size_t m_topic;
@@ -174,16 +244,6 @@ namespace litwindow {
                 sputn((const char_type*)&v, sizeof(v)/sizeof(char_type));
             }
             size_t count() const { return pptr()-m_begin_entry; }
-            void begin_entry()
-            {
-                m_begin_entry=pptr();
-                puttime(); putsource(); puttopic(); putlevel();                
-            }
-            void end_entry()
-            {
-                off_t total=count();
-                do_put(total);
-            }
             timestamp_type timestamp() const { return time_t(0); }
             void puttime()      { do_put(timestamp()); }
             void putsource()    { do_put(m_source); }
@@ -193,15 +253,19 @@ namespace litwindow {
             char_type *m_begin_entry;
             int_type end_of_log_entry;
             sink_type *m_sink;
+            allocator_type m_allocator;
+            _Strstate m_state;
         };
 
-        template <typename _Elem, typename _Traits=std::char_traits<_Elem> >
+        template <typename _Elem, typename _Traits=std::char_traits<_Elem>, typename _Alloc=std::allocator<_Elem> >
         class basic_logstream:public std::basic_ostream<_Elem, _Traits>
         {
             typedef std::basic_ostream<_Elem, _Traits> inherited;
         public:
-            typedef basic_logbuf<_Elem> _Streambuf;
+            typedef basic_logbuf<_Elem, _Traits, _Alloc> _Streambuf;
+            typedef basic_logstream<_Elem, _Traits> _Myt;
             typedef typename _Streambuf::sink_type sink_type;
+            typedef _Myt& (*logmanipulator)(_Myt&);
             basic_logstream()
                 :inherited(&m_rdbuf)
             {
@@ -214,6 +278,20 @@ namespace litwindow {
             void put_topic();
             void sink(sink_type *newsink) { rdbuf()->sink(newsink); }
             sink_type *sink() const { return rdbuf()->sink(); }
+
+            _Myt &operator &&(logmanipulator l)
+            {
+                return (*l)(*this);
+            }
+
+            _Myt &begin_entry()
+            {
+                m_rdbuf.begin_entry(); return *this;
+            }
+            _Myt &end_entry()
+            {
+                m_rdbuf.end_entry(); return *this;
+            }
         protected:
             _Streambuf m_rdbuf;
             
@@ -227,6 +305,8 @@ namespace litwindow {
             typedef _Stream stream_type;
             void put_level(_Stream &stream, levels::default_level_enum l) { }
             void set_sink(_Stream &stream, basic_logsink<typename _Stream::char_type> *s) { }
+            void lbegin(_Stream &stream) { }
+            void lend(_Stream &stream) { }
         };
         template <typename _Elem>
         struct stream_traits<basic_logstream<_Elem> >
@@ -234,6 +314,8 @@ namespace litwindow {
             typedef basic_logstream<_Elem> stream_type;
             void put_level(stream_type &stream, levels::default_level_enum l) { stream.put_level(l); }
             void set_sink(stream_type &stream, typename stream_type::sink_type *s) { stream.sink(s); }
+            void lbegin(stream_type &stream) { stream.begin_entry(); }
+            void lend(stream_type &stream) { stream.end_entry(); }
         };
         // ---------------------------------------------------------------------------------------------
         
@@ -260,7 +342,16 @@ namespace litwindow {
                 bool _enabled;
                 events_type &_owner;
 
-                inserter(events_type &owner, bool is_enabled):_owner(owner),_enabled(is_enabled){}
+                inserter(events_type &owner, bool is_enabled)
+                    :_owner(owner)
+                    ,_enabled(is_enabled)
+                {
+                    _owner.do_begin();
+                }
+                ~inserter()
+                {
+                    _owner.do_end();
+                }
                 template <typename Value>
                 inserter &operator &&(const Value &v)
                 {
@@ -325,8 +416,8 @@ namespace litwindow {
             {
                 return inserter(*this, true) << v;
             }
-            virtual void do_begin() {}      ///< begin a new entry
-            virtual void do_end() {}        ///< end an entry
+            void do_begin() { m_stream_traits.lbegin(*this); }      ///< begin a new entry
+            void do_end() { m_stream_traits.lend(*this); }        ///< end an entry
 
             //const Streambuf *rdbuf() const { return static_cast<const Streambuf*>(this); }
             //Streambuf *rdbuf() { return static_cast<Streambuf*>(this); }
@@ -383,9 +474,9 @@ namespace litwindow {
         class basic_logsink
         {
         public:
-            void put(const _Elem *buffer)
+            void put(const _Elem *buffer, size_t count)
             {
-                m_buffer+=buffer;
+                m_buffer+=basic_string<_Elem>(buffer, count);
             }
             void clear()
             {

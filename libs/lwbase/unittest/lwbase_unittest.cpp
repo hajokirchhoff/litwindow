@@ -86,4 +86,5 @@ BOOST_AUTO_TEST_CASE(simple_log_level)
     using namespace logger;
     wevents e;
     e && debug && L"This is a test with number " && 800 && endl;
+    e && warning && L"Some more tests." && endl;
 }
