@@ -168,7 +168,7 @@ namespace litwindow {
 		template <typename _Elem>
 		std::basic_ostream<_Elem> &operator<<(std::basic_ostream<_Elem> &o, const basic_name<_Elem> &n)
 		{
-			return o << n.str() << n.name_sep() << n.index();
+			return o << n.str();
 		}
 		typedef basic_name<char> name;
 		typedef basic_name<wchar_t> wname;
@@ -329,11 +329,13 @@ namespace litwindow {
 				std::basic_string<_Elem> str() const { return std::basic_string<_Elem>(raw_data(), length()); }
 				basic_name<_Elem> component() const { return basic_name<_Elem>(m_component); }
 				basic_name<_Elem> topic() const { return basic_name<_Elem>(m_topic); }
-				size_t				level() const { return m_level; }
+				size_t			  level() const { return m_level; }
+				timestamp_type	timestamp() const { return m_timestamp; }
 			};
 			class entries
 			{
 			public:
+				typedef typename basic_logbuf<_Elem, _Traits, _Alloc>::entry entry;
 				entries(const char_type *begin, const char_type *end)
 					:m_begin(begin), m_end(end)
 				{
@@ -360,6 +362,7 @@ namespace litwindow {
 					//size_t length() const { return get_entry()->length(); }
 					//std::basic_string<char_type> str() const { return std::basic_string<char_type>(raw_data(), raw_data()+length()); }
 					const entry *operator->() const { return get_entry(); }
+					const entry &operator*() const { return *get_entry(); }
 				};
 				const_iterator begin() const { return const_iterator(m_begin); }
 				const_iterator end() const { return const_iterator(m_end); }

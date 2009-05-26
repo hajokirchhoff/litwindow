@@ -114,6 +114,8 @@ BOOST_AUTO_TEST_CASE(simple_log_sink)
     using namespace logger;
 	std::stringstream s;
     ostream_logsink sink(s);
+	sink.format().timestamp=false;
+	sink.format().level=false;
     events e("aComponent", "aTopic", &sink);
     e && "Test 1";
 	string rc(s.str());
@@ -125,6 +127,8 @@ BOOST_AUTO_TEST_CASE(simple_log_level)
     using namespace logger;
 	std::wstringstream s;
 	wostream_logsink sink(s);
+	sink.format().timestamp=false;
+	sink.format().level=false;
     wevents e;
 	e.sink(&sink);
     e && debug && L"This is a test with number " && 800;

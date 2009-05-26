@@ -17,6 +17,7 @@ namespace litwindow {
 			typedef basic_logsink<_Elem> logsink_type;
 			typedef std::list<logsink_type*> sink_chain_type;
 			typedef typename logbuf_type::entries entries;
+			typedef typename entries::entry entry;
             void put(const entries &e)
             {
 				mutex_lock_type l(m_lock);
@@ -69,28 +70,49 @@ namespace litwindow {
 		{
 			global_sink_data<_Elem>::instance().set(new_default_sink);
 		}
+		template <typename _Stream, typename _Entry>
+		struct entry_formatter
+		{
+			bool timestamp, level, component, topic;
+			typename _Stream::char_type sep;
+			entry_formatter()
+				:timestamp(true),level(true),component(true),topic(true),sep(details::sep<_Stream::char_type>())
+			{}
+			void operator()(_Stream &o, const _Entry &e) const
+			{
+				if (timestamp)
+					o << e.timestamp() << sep;
+				if (level)
+					o << e.level() << sep;
+				if (component)
+					o << e.component() << sep;
+				if (topic)
+					o << e.topic() << sep;
+				o << e.str() << endl;
+			}
+		};
 
-		template <typename _OStream>
+		template <typename _OStream, typename _Formatter=entry_formatter<_OStream, typename basic_logsink<typename _OStream::char_type>::entry> >
 		class basic_ostream_logsink:public basic_logsink<typename _OStream::char_type>
 		{
 		public:
 			typedef _OStream stream_type;
 			typedef typename _OStream::char_type char_type;
+			typedef _Formatter formatter_type;
 			basic_ostream_logsink(stream_type &o)
 				:m_out(&o)
-				,m_sep(details::sep<char_type>())
 			{
 			}
-			void sep(char_type new_separator) { m_sep=new_separator; }
-			char_type sep() const { return m_sep; }
+			void format(const formatter_type &e) { m_formatter=e; }
+			formatter_type &format() { return m_formatter; }
 		protected:
+			formatter_type m_formatter;
 			stream_type *m_out;
-			char_type	m_sep;
 			virtual void do_put(const entries &e)
 			{
 				entries::const_iterator i;
 				for (i=e.begin(); i!=e.end(); ++i) {
-					(*m_out) << i->component().str() << sep() << i->topic().str() << sep() << i->str() << endl;
+					m_formatter(*m_out, *i);
 				}
 			}
 		};
