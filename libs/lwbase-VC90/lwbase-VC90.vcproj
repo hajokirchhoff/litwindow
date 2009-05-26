@@ -266,6 +266,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\litwindow\logger\sink.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\lwbase\stdafx.h"
 				>
 			</File>

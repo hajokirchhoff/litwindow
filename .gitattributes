@@ -138,6 +138,7 @@ litwindow/dataadaptercontainerimp.h -text
 litwindow/dataadapterimp.h -text
 litwindow/expr.h -text
 litwindow/logger.hpp -text
+litwindow/logger/sink.hpp -text
 litwindow/logging.h -text
 litwindow/lw_pragma_import.h -text
 litwindow/lwbase.hpp -text
