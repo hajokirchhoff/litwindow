@@ -53,6 +53,16 @@ BOOST_AUTO_TEST_CASE(simple_log_name)
         name complex_by_index(two_point_three_direct.index());
         BOOST_CHECK_EQUAL(two_point_three, complex_by_index);
     }
+    {
+        struct excp {
+            static void invalid_index()
+            {
+                size_t invalid_i=name::end();
+                name x(invalid_i);
+            }
+        };
+        BOOST_CHECK_THROW(excp::invalid_index(), std::out_of_range);
+    }
 }
 
 struct test_caller
@@ -77,35 +87,6 @@ BOOST_AUTO_TEST_CASE(logging_syntax_check)
         wstring rc=test.rdbuf()->str();
         BOOST_CHECK(rc==L"\t\tHello\t\tUps");
     }
-    //test << /*"Hello" << */logger::error << L"This is a test error. Value is " << 15 << endl;
-    //test & logger::error; // & L"This error is." & endl;
-    //test << 10;
-    //test << L"This is a test";
-    ////test << endl;
-
-    //test & 10;
-    //test & L"This is a test";
-    //test & logger::error;
-#ifdef not
-    {
-        test_caller a;
-        test & logger::error & 10 & logger::warning & 15 & a.dont_call_me();
-        BOOST_CHECK_EQUAL(a.call_count, 1);
-    }
-    {
-        test_caller c;
-        if (false && c.dont_call_me()==0) {
-
-        }
-        BOOST_CHECK_EQUAL(c.call_count, 0);
-    }
-    {
-        test_caller b;
-        test & logger::disable & logger::error & 10 & logger::warning & 15 & b.dont_call_me();
-        //BOOST_CHECK_EQUAL(b.call_count, 0);
-    }
-    test & endl;
-#endif
 }
 
 

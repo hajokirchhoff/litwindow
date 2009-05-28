@@ -4,6 +4,7 @@
 namespace litwindow {
 	/// encapsules the litwindow logging library
     namespace logger {
+        using boost::shared_ptr;
 
 		//------------------------------------------------------------------------
 		// 
@@ -15,9 +16,14 @@ namespace litwindow {
 			typedef typename details::defaults<_Elem>::mutex_type mutex_type;
 			typedef typename details::defaults<_Elem>::mutex_lock_type<mutex_type> mutex_lock_type;
 			typedef basic_logsink<_Elem> logsink_type;
-			typedef std::list<logsink_type*> sink_chain_type;
 			typedef typename logbuf_type::entries entries;
 			typedef typename entries::entry entry;
+            typedef shared_ptr<logsink_type> logsink_type_ptr;
+            typedef std::list<logsink_type_ptr> sink_chain_type;
+
+            virtual ~basic_logsink()
+            {
+            }
             void put(const entries &e)
             {
 				mutex_lock_type l(m_lock);
@@ -28,12 +34,12 @@ namespace litwindow {
             void clear()
             {
             }
-			void add_sink(logsink_type *s)
+			void add_sink(logsink_type_ptr s)
 			{
 				mutex_lock_type l(m_lock);
 				m_sink_chain.push_back(s);
 			}
-			void remove_sink(logsink_type *s)
+			void remove_sink(const logsink_type_ptr &s)
 			{
 				mutex_lock_type l(m_lock);
 				m_sink_chain.remove(s);
@@ -44,6 +50,9 @@ namespace litwindow {
 			sink_chain_type				m_sink_chain;
         };
 
+
+        typedef basic_logsink<char> sink;
+        typedef basic_logsink<wchar_t> wsink;
 		template <typename _Elem>
 		struct global_sink_data
 		{
@@ -56,15 +65,23 @@ namespace litwindow {
 				return g_the_instance;
 			}
 		protected:
+            ~global_sink_data()
+            {
+            }
 			basic_logsink<_Elem> *g_the_sink;
 			global_sink_data(basic_logsink<_Elem> *i=0) { g_the_sink=i; }
 		};
 
+        ///\return a pointer to the global default sink
         template <typename _Elem>
         inline basic_logsink<_Elem> *default_sink()
         {
 			return global_sink_data<_Elem>::instance().get();
         }
+
+        ///Set a new default sink. All logging instances created _after_ a call
+        ///to this method will use the new sink as their default sink.
+        ///This will not change the sink of existing logging instances.
 		template <typename _Elem>
 		inline void default_sink(basic_logsink<_Elem> *new_default_sink)
 		{

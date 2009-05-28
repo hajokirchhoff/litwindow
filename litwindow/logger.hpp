@@ -18,45 +18,45 @@ namespace litwindow {
 
 		//---------------------------------------------------------------------------------------------
 		// 
-		namespace details {
-			template <typename _Elem>
-			struct defaults
-			{
-				typedef size_t index_type;
-				typedef std::basic_string<_Elem> string_type;
+        namespace details {
+            template <typename _Elem>
+            struct defaults
+            {
+                typedef size_t index_type;
+                typedef std::basic_string<_Elem> string_type;
 #if defined(LITWINDOW_LOGGER_HASHMAP) 
-				typedef stdext::hash_map<string_type, index_type> basic_name_map;
+                typedef stdext::hash_map<string_type, index_type> basic_name_map;
 #else
-				typedef map<string_type, index_type> basic_name_map;
+                typedef map<string_type, index_type> basic_name_map;
 #endif
 #if defined(_MT) && defined(LITWINDOW_LOGGER_MUTEX)
-				typedef boost::mutex mutex_type;
-				template <typename _L>
-				struct mutex_lock_type:public boost::lock_guard<_L>
-				{
-					mutex_lock_type(_L &l):boost::lock_guard<_L>(l) {}
-				};
+                typedef boost::mutex mutex_type;
+                template <typename _L>
+                struct mutex_lock_type:public boost::lock_guard<_L>
+                {
+                    mutex_lock_type(_L &l):boost::lock_guard<_L>(l) {}
+                };
 #else
-				struct mutex_type
-				{
-					void lock() {}
-					void unlock() {}
-				};
-				template <typename _Lock>
-				struct mutex_lock_type
-				{
-					mutex_lock_type(_Lock &){}
-				};
+                struct mutex_type
+                {
+                    void lock() {}
+                    void unlock() {}
+                };
+                template <typename _Lock>
+                struct mutex_lock_type
+                {
+                    mutex_lock_type(_Lock &){}
+                };
 #endif
-			};
-			template <typename _Elem>
-			inline _Elem sep();
-			template<>
-			inline char sep<char>() { return '\t'; }
-			template <>
-			inline wchar_t sep<wchar_t>() { return L'\t'; }
+            };
+            template <typename _Elem>
+            inline _Elem sep();
+            template<>
+            inline char sep<char>() { return '\t'; }
+            template <>
+            inline wchar_t sep<wchar_t>() { return L'\t'; }
 
-		}
+        }
 
 		//---------------------------------------------------------------------------------------------
 		// 
@@ -78,6 +78,8 @@ namespace litwindow {
 			typedef _Index index_type;
 			typedef typename container_type::key_type name_type;
 			typedef std::vector<typename container_type::const_iterator> index_container_type;
+
+            typedef _Index const_iterator;
 			/// Construct a basic_name from a char string
 			basic_name(const _Elem *n)
 			{
@@ -98,7 +100,7 @@ namespace litwindow {
 			///\return this names index
 			_Index index() const { return m_index; }
 			///\return this names string
-			const name_type &str() const { return *m_name; }
+			const name_type &str() const { return *find_by_index(index()); }
 			static _Elem name_sep() { return _Elem(0); }
 			///\addtogroup Operators
 			//{
@@ -110,11 +112,20 @@ namespace litwindow {
 			bool operator>= (const _Myt &right) const   {return str()>=right.str();}
 			_Myt operator+  (const _Myt &right) const   {return _Myt(str()+name_sep()+right.str());}
 			//}
+            ///\return an iterator pointing to the beginning of the string table
+            static const_iterator begin()
+            {
+                return const_iterator(0);
+            }
+            ///\return an index beyond the last valid index
+            static const_iterator end()
+            {
+                return const_iterator(size());
+            }
 		protected:
 			void set(const name_type &n)
 			{
 				typename container_type::const_iterator i=find_name(n);
-				m_name=&i->first;
 				m_index=i->second;
 			}
 			static _Lock &g_lock()
@@ -133,19 +144,33 @@ namespace litwindow {
 				}
 				return i.first;
 			}
+            
 			void set(_Index idx)
 			{
-				try {
-					g_lock().lock();
-					m_name=&index_container().at(idx)->first;
-					m_index=idx;
-					g_lock().unlock();
-				}
-				catch (...) {
-					g_lock().unlock();
-					throw;
-				}
+                const name_type *n=find_by_index(idx);
+                if (n)
+                    m_index=idx;
+                else
+                    throw std::out_of_range("logger::basic_name - no name registered for index");
 			}
+            static const name_type *find_by_index(_Index idx)
+            {
+                const name_type *rc=0;
+                g_lock().lock();
+                if (idx<index_container().size()) {
+                    rc=&index_container()[idx]->first;
+                }
+                g_lock().unlock();
+                return rc;
+            }
+            static _Index size()
+            {
+                _Index rc;
+                g_lock().lock();
+                rc=index_container().size();
+                g_lock().unlock();
+                return rc;
+            }
 			static container_type &name_container()
 			{
 				static container_type theNames;
@@ -156,7 +181,6 @@ namespace litwindow {
 				static index_container_type theIndex;
 				return theIndex;
 			}
-			const name_type   * m_name;
 			index_type          m_index;
 		};
 
