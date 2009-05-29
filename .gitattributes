@@ -14,6 +14,7 @@ libs/lwbase/doc/README.txt -text
 libs/lwbase/doc/dataadapter.doxy -text
 libs/lwbase/doc/images/Data[!!-~]Adapter[!!-~]Diagram.png -text
 libs/lwbase/doc/images/README.txt -text
+libs/lwbase/logger/default_sink.cpp -text
 libs/lwbase/logging.cpp -text
 libs/lwbase/lwbase.cpp -text
 libs/lwbase/lwbase.vcproj -text

@@ -63,6 +63,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\lwbase-vc90-mt-gd-1_0_0.dll"
+				AdditionalLibraryDirectories="..\..\..\boost\stage\lib"
 				GenerateDebugInformation="true"
 			/>
 			<Tool
@@ -135,6 +136,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\lwbase-vc90-mt-1_0_0.dll"
+				AdditionalLibraryDirectories="..\..\..\boost\stage\lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -177,6 +179,10 @@
 			</File>
 			<File
 				RelativePath="..\lwbase\dataadapterimp.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\lwbase\logger\default_sink.cpp"
 				>
 			</File>
 			<File

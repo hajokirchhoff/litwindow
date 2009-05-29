@@ -4,6 +4,20 @@
 #define LITWINDOW_LOGGER_MUTEX
 #define LITWINDOW_LOGGER_HASHMAP
 
+#ifdef LWBASE_EXPORTS
+#define LITWINDOW_LOGGER_EXPORTS
+#elif defined(LITWINDOW_ALL_DYN_LINK) || defined(LWBASE_DYN_LINK)
+#define LITWINDOW_LOGGER_DYN_LINK
+#endif
+
+#ifdef LITWINDOW_LOGGER_EXPORTS
+#define LITWINDOW_LOGGER_API _declspec(dllexport)
+#elif defined(LITWINDOW_LOGGER_DYN_LINK)
+#define LITWINDOW_LOGGER_API _declspec(dllimport)
+#else
+#define LITWINDOW_LOGGER_API
+#endif
+
 #include <iostream>
 #ifdef LITWINDOW_LOGGER_HASHMAP
 #include <hash_map>
@@ -171,12 +185,12 @@ namespace litwindow {
                 g_lock().unlock();
                 return rc;
             }
-			static container_type &name_container()
+			static container_type LITWINDOW_LOGGER_API &name_container()
 			{
 				static container_type theNames;
 				return theNames;
 			}
-			static index_container_type &index_container()
+			static index_container_type LITWINDOW_LOGGER_API &index_container()
 			{
 				static index_container_type theIndex;
 				return theIndex;
@@ -485,7 +499,7 @@ namespace litwindow {
 				} else {
 					_Elem *_Oldptr = _Mysb::pbase();
 #ifdef _MSC_VER
-					_Traits_helper::copy_s<_Traits>(_Newptr, _Newsize, _Oldptr, _Oldsize);
+					std::_Traits_helper::copy_s<_Traits>(_Newptr, _Newsize, _Oldptr, _Oldsize);
 #else
 					std::copy(_Oldptr, _Oldptr+_Oldsize, _Newptr);
 #endif
@@ -691,7 +705,7 @@ namespace litwindow {
 			};
 
 
-			basic_events(const name_type &component=default_component<_Elem>(), const name_type &topic=default_topic<_Elem>(),sink_type *target=default_sink<_Elem>())
+			basic_events(const name_type &component=default_component<_Elem>(), const name_type &topic=default_topic<_Elem>(), sink_type *target=default_sink<_Elem>())
 				:m_default_component(component)
 				,m_default_topic(topic)
 				,m_enabled(true)

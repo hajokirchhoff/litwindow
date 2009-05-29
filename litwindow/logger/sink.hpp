@@ -1,6 +1,11 @@
 #ifndef litwindow_logger_sink_h__151208
 #define litwindow_logger_sink_h__151208
 
+#include <boost/shared_ptr.hpp>
+#include <iostream>
+#include <string>
+#include "../logger.hpp"
+
 namespace litwindow {
 	/// encapsules the litwindow logging library
     namespace logger {
@@ -53,12 +58,13 @@ namespace litwindow {
 
         typedef basic_logsink<char> sink;
         typedef basic_logsink<wchar_t> wsink;
+
 		template <typename _Elem>
 		struct global_sink_data
 		{
 			void set(basic_logsink<_Elem> *new_sink) { g_the_sink=new_sink; }
 			basic_logsink<_Elem> *get() const { return g_the_sink; }
-			static global_sink_data<_Elem> &instance()
+			static global_sink_data<_Elem> LITWINDOW_LOGGER_API &instance()
 			{
 				static basic_logsink<_Elem> g_global_log_sink;
 				static global_sink_data<_Elem> g_the_instance(&g_global_log_sink);

@@ -117,3 +117,12 @@ BOOST_AUTO_TEST_CASE(simple_log_level)
 	wstring rc(s.str());
 	BOOST_CHECK(rc==wstring(L"\t\tThis is a test with number 800\n\t\tSome more tests.\n"));
 }
+
+BOOST_AUTO_TEST_CASE(simple_stderr_log)
+{
+	using namespace logger;
+	ostream_logsink s(std::cerr);
+	events evt("Testkomponente", "Topic", &s);
+	evt && "Zeile 1";
+	evt << "Zeile 2";
+}
