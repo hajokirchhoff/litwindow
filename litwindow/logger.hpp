@@ -358,17 +358,25 @@ namespace litwindow {
 			{
 				timestamp_type  m_timestamp;
 				unsigned int    m_instance;
-				unsigned int    m_component:16;
-				unsigned int    m_topic:16;
-				unsigned int    m_level:16;
-				unsigned int    m_length:16;
-				const _Elem	   *raw_data() const { return reinterpret_cast<const _Elem*>(reinterpret_cast<const char*>(this)+sizeof(*this)); }
+				unsigned short  m_component;
+				unsigned short  m_topic;
+				unsigned short  m_level;
+				unsigned short  m_length;
+                size_t          header_size() const { return reinterpret_cast<const char*>(this+1)-reinterpret_cast<const char*>(this); }
+                const _Elem     *begin_data() const { return reinterpret_cast<const _Elem*>(this+1); }
+                const _Elem     *end_data() const { return begin_data()+length(); }
+				const _Elem	   *raw_data() const { return begin_data(); }
 				size_t			length() const { return m_length; }
 				std::basic_string<_Elem> str() const { return std::basic_string<_Elem>(raw_data(), length()); }
 				basic_name<_Elem> component() const { return basic_name<_Elem>(m_component); }
 				basic_name<_Elem> topic() const { return basic_name<_Elem>(m_topic); }
 				size_t			  level() const { return m_level; }
 				timestamp_type	timestamp() const { return m_timestamp; }
+                size_t          full_size_in_bytes() const 
+                {
+                    const char *end=end_data();
+                    return reinterpret_cast<const char*>(end_data())-reinterpret_cast<const char*>(this); 
+                }
 			};
 			class entries
 			{

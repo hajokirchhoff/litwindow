@@ -142,15 +142,80 @@ namespace litwindow {
 		typedef basic_ostream_logsink<std::basic_ostream<char> > ostream_logsink;
 		typedef basic_ostream_logsink<std::basic_ostream<wchar_t> > wostream_logsink;
 
-#ifdef not
-		template <typename _Elem>
+		template <typename _Elem, size_t _Pagesize=64U*1024U>
 		class basic_memory_logsink:public basic_logsink<_Elem>
 		{
+            static const size_t page_size=_Pagesize;
 		public:
 			typedef typename basic_logsink<_Elem>::entries entries;
+            typedef typename entries::entry entry;
+            basic_memory_logsink():m_page_count(0)
+            {
+            }
+        protected:
+            struct page;
+            typedef shared_ptr<page> page_ptr;
+            struct page
+            {
+                page_ptr    m_next_page;
+                unsigned char m_page[_Pagesize];
+                const unsigned char *end_ptr() const { return m_page+_Pagesize; }
+                unsigned char *end_ptr() { return m_page+_Pagesize; }
+                unsigned char *begin_ptr() { return m_page; }
+                size_t  available() const
+                {
+                    return end_ptr()-m_next;
+                }
+                page()
+                    :m_next(begin_ptr())
+                {
+                }
+                unsigned char *m_next;
+                unsigned char *increment(unsigned char *from, size_t offset)
+                {
+                    // correct alignment if neccessary
+                    size_t aligned_on=sizeof(unsigned long);
+                    size_t mismatch=offset % aligned_on;
+                    if (mismatch)
+                        offset+=aligned_on-mismatch;
+                    return from+offset;
+                }
+                bool    put(const entry &e)
+                {
+                    unsigned char *new_next=increment(m_next, e.full_size_in_bytes());
+                    if (new_next>end_ptr()) {
+                        if (end_ptr()-m_next<sizeof(entry)) {
+                            // Error, not enough room
+                            return false;
+                        }
+                        entry &copy_e(*reinterpret_cast<entry*>(m_next));
+                        copy_e=e;
+                        _Elem *n=reinterpret_cast<_Elem*>(&copy_e+1);
+                        const _Elem *f=e.begin_data();
+                        while (reinterpret_cast<const unsigned char*>(n)+sizeof(_Elem)<=end_ptr()) {
+                            *n++=*f++;
+                        }
+                        copy_e.m_length=f-e.begin_data();
+                        m_next=end_ptr();
+                    } else {
+                        memcpy(m_next, &e, e.full_size_in_bytes());
+                        m_next=new_next;
+                    }
+                    return true;
+                }
+                void close()
+                {
+                    entry close_e;
+                    close_e.m_timestamp=0;
+                    close_e.m_length=0;
+                    put(close_e);
+                }
+            };
+            page_ptr    m_head;
+            page_ptr    m_tail;
+            size_t      m_page_count;
 			typedef std::list<boost::shared_ptr<entries> > entry_list_type;
 			typedef basic_memory_logsink<_Elem> logsink_type;
-			std::basic_string<_Elem> str() const { return std::basic_string<_Elem>(); }
 
 			class iterator
 			{
@@ -177,16 +242,51 @@ namespace litwindow {
 			iterator begin() const { return m_entries.size()>0 ? iterator(m_entries.begin()) : end(); }
 			iterator end() const { return iterator(); }
 		protected:
+            void alloc_new_page()
+            {
+                ++m_page_count;
+                if (m_tail==0) {
+                    m_head.reset(new page);
+                    m_tail=m_head;
+                } else {
+                    m_tail->close();
+                    m_tail->m_next_page.reset(new page);
+                    m_tail=m_tail->m_next_page;
+                }
+            }
+            void drop_from_begin(size_t page_count)
+            {
+                while (page_count-- && m_head) {
+                    // shared_ptr will free the pages when they
+                    // are no longer in use
+                    m_head=m_head->m_next_page;
+                    --m_page_count;
+                }
+            }
+            void drop_first_page()
+            {
+                drop_from_begin(1);
+            }
+            void put_entry(const entry &e)
+            {
+                if (m_tail->available()<e.full_size_in_bytes()) {
+                    alloc_new_page();
+                }
+                m_tail->put(e);
+            }
 			void do_put(const entries &e)
 			{
-				m_entries.push_back(entry_list_type::value_type(new entries(e)));
+                if (m_tail==0)
+                    alloc_new_page();
+                entries::const_iterator i;
+                for (i=e.begin(); i!=e.end(); ++i)
+                    put_entry(*i);
 			}
 			entry_list_type m_entries;
 		};
 
 		typedef basic_memory_logsink<char> memory_logsink;
 		typedef basic_memory_logsink<wchar_t> wmemory_logsink;
-#endif // not
 
     }
 }
