@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(simple_log_sink)
     ostream_logsink sink(s);
 	sink.format().timestamp=false;
 	sink.format().level=false;
-    events e("aComponent", "aTopic", &sink);
+    events e("aComponent", "aTopic", sink);
     e && "Test 1";
 	string rc(s.str());
 	BOOST_CHECK_EQUAL(rc, string("aComponent\taTopic\tTest 1\n"));
@@ -122,7 +122,57 @@ BOOST_AUTO_TEST_CASE(simple_stderr_log)
 {
 	using namespace logger;
 	ostream_logsink s(std::cerr);
-	events evt("Testkomponente", "Topic", &s);
+	events evt("Testkomponente", "Topic", s);
 	evt && "Zeile 1";
 	evt << "Zeile 2";
+}
+
+BOOST_AUTO_TEST_CASE(simple_memory_sink)
+{
+	using namespace logger;
+	basic_memory_logsink<wchar_t, 1024> sink;
+	const size_t first_count=200;
+	const size_t second_count=900;
+	{
+		wevents evt(sink);
+		evt << L"Event 1";
+		evt << L"Event 2";
+		for (size_t i=5; i<first_count; ++i)
+			evt << L"Event #" << i;
+		for (size_t i=0; i<second_count; ++i) {
+			wostringstream o;
+			for (size_t j=0; j<i; ++j) {
+				o << (j%10);
+			}
+			evt << L"long: " << o.str();
+		}
+	}
+	{
+		basic_memory_logsink<wchar_t, 1024>::const_iterator i=sink.begin();
+		size_t count=1;
+		while (i!=sink.end() && count<first_count) {
+			const wsink::entry &current(*i);
+			wostringstream str;
+			str << (count<=2 ? L"Event " : L"Event #") << count;
+			BOOST_CHECK(str.str()==current.str());
+			++count;
+			if (count==3)
+				count=5;
+			++i;
+		}
+		count=0;
+		while (i!=sink.end() && count<second_count) {
+			wostringstream o;
+			o << L"long: ";
+			for (size_t j=0; j<count; ++j) {
+				o << (j%10);
+			}
+			wstring rc(i->str());
+			BOOST_CHECK(rc==o.str());
+			++i;
+			++count;
+		}
+		BOOST_CHECK_EQUAL(count, second_count);
+		BOOST_CHECK(i==sink.end());
+	}
 }

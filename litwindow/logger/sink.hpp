@@ -152,25 +152,32 @@ namespace litwindow {
             basic_memory_logsink():m_page_count(0)
             {
             }
+			~basic_memory_logsink()
+			{
+
+			}
         protected:
             struct page;
             typedef shared_ptr<page> page_ptr;
             struct page
             {
-                page_ptr    m_next_page;
+				basic_memory_logsink<_Elem> *m_owner;
                 unsigned char m_page[_Pagesize];
                 const unsigned char *end_ptr() const { return m_page+_Pagesize; }
                 unsigned char *end_ptr() { return m_page+_Pagesize; }
-                unsigned char *begin_ptr() { return m_page; }
+				const unsigned char *begin_ptr() const { return m_page; }
+				unsigned char *begin_ptr() { return m_page; }
                 size_t  available() const
                 {
                     return end_ptr()-m_next;
                 }
-                page()
+                page(basic_memory_logsink<_Elem> *owner)
                     :m_next(begin_ptr())
+					,m_owner(owner)
                 {
                 }
                 unsigned char *m_next;
+				const unsigned char *next_ptr() const { return m_next; }
                 unsigned char *increment(unsigned char *from, size_t offset)
                 {
                     // correct alignment if neccessary
@@ -205,43 +212,56 @@ namespace litwindow {
                 }
                 void close()
                 {
-                    entry close_e;
-                    close_e.m_timestamp=0;
-                    close_e.m_length=0;
-                    put(close_e);
+                    //entry close_e;
+                    //close_e.m_timestamp=0;
+                    //close_e.m_length=0;
+                    //put(close_e);
                 }
-            };
-            page_ptr    m_head;
-            page_ptr    m_tail;
-            size_t      m_page_count;
-			typedef std::list<boost::shared_ptr<entries> > entry_list_type;
+				typename entries::const_iterator begin() const { return entries((const _Elem*)begin_ptr(), (const _Elem*)next_ptr()).begin(); }
+				typename entries::const_iterator end() const { return entries((const _Elem*)begin_ptr(), (const _Elem*)next_ptr()).end(); }
+			};
+			typedef std::deque<page_ptr> page_list_t;
+			page_list_t m_pages;
 			typedef basic_memory_logsink<_Elem> logsink_type;
 
-			class iterator
+		public:
+			class const_iterator
 			{
 				friend class logsink_type;
+				page_ptr m_page;
 				typename entries::const_iterator m_i;
-				typename entry_list_type::const_iterator m_entry_iterator;
 			public:
-				iterator(){}
-				iterator(typename entry_list_type::const_iterator &i):m_entry_iterator(i),m_i(i->begin()){}
-				bool operator==(const iterator &i) const { return m_entry_iterator==i.m_entry_iterator && m_i==i.m_i; }
-				bool operator!=(const iterator &i) const { return !operator==(i); }
-				const iterator &operator++()
+				const_iterator(){}
+				const_iterator(page_ptr p):m_page(p),m_i(p->begin()){}
+				bool operator==(const const_iterator &i) const { return m_page==i.m_page && m_i==i.m_i; }
+				bool operator!=(const const_iterator &i) const { return !operator==(i); }
+				const const_iterator &operator++()
 				{
 					++m_i;
-					if (m_i==(*m_entry_iterator)->end()) {
-						++m_entry_iterator;
+					if (m_i==m_page->end()) {
+						m_page=m_page->m_owner->next_page(m_page);
+						if (m_page)
+							m_i=m_page->begin();
+						else
+							m_i=entries::const_iterator();
 					}
+					return *this;
 				}
-				const typename entries::const_iterator *operator->() const
+				const entry *operator->() const
 				{
-					return **m_i;
+					return &(*m_i);
+				}
+				const entry &operator*() const
+				{
+					return *m_i;
 				}
 			};
-			iterator begin() const { return m_entries.size()>0 ? iterator(m_entries.begin()) : end(); }
-			iterator end() const { return iterator(); }
+			const_iterator begin() const { return const_iterator(m_head); }
+			const_iterator end() const { return const_iterator(); }
 		protected:
+			page_ptr next_page(const page_ptr &p) const
+			{
+			}
             void alloc_new_page()
             {
                 ++m_page_count;
@@ -282,7 +302,6 @@ namespace litwindow {
                 for (i=e.begin(); i!=e.end(); ++i)
                     put_entry(*i);
 			}
-			entry_list_type m_entries;
 		};
 
 		typedef basic_memory_logsink<char> memory_logsink;

@@ -33,6 +33,21 @@ namespace litwindow {
 		//---------------------------------------------------------------------------------------------
 		// 
         namespace details {
+			static const size_t word_alignment = sizeof (unsigned long);
+			template <typename _Val>
+			inline _Val *aligned_ptr(void *p)
+			{
+				char *ptr=reinterpret_cast<char*>(p);
+				size_t misalign= (ptr-reinterpret_cast<char*>(0)) % word_alignment;
+				return reinterpret_cast<_Val*>( ptr + (misalign ? word_alignment-misalign : 0));
+			}
+			template <typename _Val>
+			inline const _Val *aligned_ptr(const void *p)
+			{
+				const char *ptr=reinterpret_cast<const char*>(p);
+				size_t misalign= (ptr-reinterpret_cast<const char*>(0)) % word_alignment;
+				return reinterpret_cast<const _Val*>( ptr + (misalign ? word_alignment-misalign : 0));
+			}
             template <typename _Elem>
             struct defaults
             {
@@ -374,9 +389,20 @@ namespace litwindow {
 				timestamp_type	timestamp() const { return m_timestamp; }
                 size_t          full_size_in_bytes() const 
                 {
-                    const char *end=end_data();
                     return reinterpret_cast<const char*>(end_data())-reinterpret_cast<const char*>(this); 
                 }
+				entry *next_entry() const
+				{
+					return const_cast<entry*>(details::aligned_ptr<entry>(end_data()));
+					//const unsigned char *next=reinterpret_cast<const unsigned char *>(end_data());
+					//size_t sz=next-reinterpret_cast<const unsigned char*>(this);
+					//size_t align=sizeof(unsigned long);
+					//size_t misalign=sz%align;
+					//if (misalign) {
+					//	next=next + align-misalign;
+					//}
+					//return const_cast<entry*>(reinterpret_cast<const entry*>(next));
+				}
 			};
 			class entries
 			{
@@ -388,16 +414,16 @@ namespace litwindow {
 				}
 				class const_iterator
 				{
-					const char_type *m_ptr;
-					const entry *get_entry() const { return reinterpret_cast<const entry*>(m_ptr); }
+					const entry *m_ptr;
+					const entry *get_entry() const { return m_ptr; }
 				public:
 					const_iterator(const char_type *p=0)
-						:m_ptr(p){}
+						:m_ptr(reinterpret_cast<const entry*>(p)){}
 					const_iterator(const const_iterator &i)
 						:m_ptr(i.m_ptr){}
 					const const_iterator &operator++()
 					{
-						const char_type *next=get_entry()->raw_data()+get_entry()->length();
+						const entry *next=get_entry()->next_entry();
 						m_ptr=next;
 						return *this;
 					}
@@ -434,7 +460,7 @@ namespace litwindow {
 			template <typename Value>
 			void do_put(const Value &v)
 			{
-				sputn((const char_type*)&v, sizeof(v)/sizeof(char_type));
+				sputn((const char_type*)&v, (sizeof(v)+sizeof(char_type)-1)/sizeof(char_type));
 			}
 			size_t count() const { return pptr()-m_begin_data; }
 			timestamp_type timestamp() const { return time(0); }
@@ -549,10 +575,13 @@ namespace litwindow {
 					off_t total=count();
 					if (total>0) {
 						++m_log_count_since_last_sync;
-						//TODO: pad to fill word alignment
-						m_current_entry->m_length=total;
+						m_current_entry->m_length=(unsigned short)total;
 						m_current_entry=0;
-						//do_put(total);
+						// pad to fill word alignment
+						_Elem *next_free=details::aligned_ptr<_Elem>(pptr());
+						size_t padding=next_free-pptr();
+						while (padding--)
+							sputc(0);
 						if (need_sync())
 							sync();
 					}
@@ -713,23 +742,23 @@ namespace litwindow {
 			};
 
 
-			basic_events(const name_type &component=default_component<_Elem>(), const name_type &topic=default_topic<_Elem>(), sink_type *target=default_sink<_Elem>())
+			basic_events(const name_type &component=default_component<_Elem>(), const name_type &topic=default_topic<_Elem>(), sink_type &target=*default_sink<_Elem>())
 				:m_default_component(component)
 				,m_default_topic(topic)
 				,m_enabled(true)
 				,m_ignore_begin_end_count(0)
 				,m_open_count(0)
 			{
-				sink(target);
+				sink(&target);
 			}
-			basic_events(sink_type *target)
+			basic_events(sink_type &target)
 				:m_default_component(default_component<_Elem>())
 				,m_default_topic(default_topic<_Elem>())
 				,m_enabled(true)
 				,m_ignore_begin_end_count(0)
 				,m_open_count(0)
 			{
-				sink(target);
+				sink(&target);
 			}
 			void enabled(bool is_enabled) { m_enabled=is_enabled; }
 			void enable() { enabled(true); }
