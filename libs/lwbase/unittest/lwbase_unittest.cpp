@@ -127,33 +127,35 @@ BOOST_AUTO_TEST_CASE(simple_stderr_log)
 	evt << "Zeile 2";
 }
 
-BOOST_AUTO_TEST_CASE(simple_memory_sink)
+template <class _Elem>
+void simple_memory_sink_test(const _Elem *prefix1, const _Elem *prefix2)
 {
 	using namespace logger;
-	basic_memory_logsink<wchar_t, 1024> sink;
+	basic_memory_logsink<_Elem, 1024> sink;
 	const size_t first_count=200;
 	const size_t second_count=900;
+	const size_t max_length=377;
 	{
-		wevents evt(sink);
-		evt << L"Event 1";
-		evt << L"Event 2";
+		basic_events<_Elem> evt(sink);
+		evt << prefix1 << 1;
+		evt << prefix1 << 2;
 		for (size_t i=5; i<first_count; ++i)
-			evt << L"Event #" << i;
+			evt << prefix1 << i;
 		for (size_t i=0; i<second_count; ++i) {
-			wostringstream o;
-			for (size_t j=0; j<i; ++j) {
+			basic_ostringstream<_Elem> o;
+			for (size_t j=0; j<i%max_length; ++j) {
 				o << (j%10);
 			}
-			evt << L"long: " << o.str();
+			evt << prefix2 << o.str();
 		}
 	}
 	{
-		basic_memory_logsink<wchar_t, 1024>::const_iterator i=sink.begin();
+		basic_memory_logsink<_Elem, 1024>::const_iterator i=sink.begin();
 		size_t count=1;
 		while (i!=sink.end() && count<first_count) {
-			const wsink::entry &current(*i);
-			wostringstream str;
-			str << (count<=2 ? L"Event " : L"Event #") << count;
+			const basic_memory_logsink<_Elem, 1024>::entry &current(*i);
+			basic_ostringstream<_Elem> str;
+			str << prefix1 << count;
 			BOOST_CHECK(str.str()==current.str());
 			++count;
 			if (count==3)
@@ -162,12 +164,12 @@ BOOST_AUTO_TEST_CASE(simple_memory_sink)
 		}
 		count=0;
 		while (i!=sink.end() && count<second_count) {
-			wostringstream o;
-			o << L"long: ";
-			for (size_t j=0; j<count; ++j) {
+			basic_ostringstream<_Elem> o;
+			o << prefix2;
+			for (size_t j=0; j<count%max_length; ++j) {
 				o << (j%10);
 			}
-			wstring rc(i->str());
+			basic_string<_Elem> rc(i->str());
 			BOOST_CHECK(rc==o.str());
 			++i;
 			++count;
@@ -175,4 +177,10 @@ BOOST_AUTO_TEST_CASE(simple_memory_sink)
 		BOOST_CHECK_EQUAL(count, second_count);
 		BOOST_CHECK(i==sink.end());
 	}
+}
+
+BOOST_AUTO_TEST_CASE(simple_memory_sink)
+{
+	simple_memory_sink_test("Event ", "long: ");
+	simple_memory_sink_test(L"Eventl ", L"longl: ");
 }

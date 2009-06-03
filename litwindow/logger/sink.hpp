@@ -51,7 +51,7 @@ namespace litwindow {
 			}
         protected:
 			virtual void do_put(const entries &e) {}
-			mutex_type					m_lock;
+			mutable mutex_type			m_lock;
 			sink_chain_type				m_sink_chain;
         };
 
@@ -149,7 +149,7 @@ namespace litwindow {
 		public:
 			typedef typename basic_logsink<_Elem>::entries entries;
             typedef typename entries::entry entry;
-            basic_memory_logsink():m_page_count(0)
+            basic_memory_logsink():m_page_count(0),m_first_entry_index(0),m_next_entry_index(0)
             {
             }
 			~basic_memory_logsink()
@@ -161,7 +161,9 @@ namespace litwindow {
             typedef shared_ptr<page> page_ptr;
             struct page
             {
-				basic_memory_logsink<_Elem> *m_owner;
+				size_t	m_page_number;
+				size_t	m_first_index_in_page;
+				basic_memory_logsink<_Elem, _Pagesize> *m_owner;
                 unsigned char m_page[_Pagesize];
                 const unsigned char *end_ptr() const { return m_page+_Pagesize; }
                 unsigned char *end_ptr() { return m_page+_Pagesize; }
@@ -171,9 +173,11 @@ namespace litwindow {
                 {
                     return end_ptr()-m_next;
                 }
-                page(basic_memory_logsink<_Elem> *owner)
+                page(basic_memory_logsink<_Elem, _Pagesize> *owner, size_t number, size_t first_index)
                     :m_next(begin_ptr())
 					,m_owner(owner)
+					,m_page_number(number)
+					,m_first_index_in_page(first_index)
                 {
                 }
                 unsigned char *m_next;
@@ -187,16 +191,19 @@ namespace litwindow {
                         offset+=aligned_on-mismatch;
                     return from+offset;
                 }
-                bool    put(const entry &e)
+                bool    put(const entry &e, size_t index)
                 {
-                    unsigned char *new_next=increment(m_next, e.full_size_in_bytes());
+					unsigned char *new_next=increment(m_next, e.full_size_in_bytes());
                     if (new_next>end_ptr()) {
+						//TODO: split entry in two if it is longer than the available room
+						// presently it is truncated.
                         if (end_ptr()-m_next<sizeof(entry)) {
                             // Error, not enough room
                             return false;
                         }
                         entry &copy_e(*reinterpret_cast<entry*>(m_next));
                         copy_e=e;
+						copy_e.index(index);
                         _Elem *n=reinterpret_cast<_Elem*>(&copy_e+1);
                         const _Elem *f=e.begin_data();
                         while (reinterpret_cast<const unsigned char*>(n)+sizeof(_Elem)<=end_ptr()) {
@@ -206,6 +213,7 @@ namespace litwindow {
                         m_next=end_ptr();
                     } else {
                         memcpy(m_next, &e, e.full_size_in_bytes());
+						reinterpret_cast<entry*>(m_next)->index(index);
                         m_next=new_next;
                     }
                     return true;
@@ -222,6 +230,11 @@ namespace litwindow {
 			};
 			typedef std::deque<page_ptr> page_list_t;
 			page_list_t m_pages;
+			page_ptr	m_current;
+			size_t	m_first_page_number;
+			size_t	m_page_count;
+			size_t	m_next_entry_index;
+			size_t	m_first_entry_index;
 			typedef basic_memory_logsink<_Elem> logsink_type;
 
 		public:
@@ -256,32 +269,67 @@ namespace litwindow {
 					return *m_i;
 				}
 			};
-			const_iterator begin() const { return const_iterator(m_head); }
+			const_iterator begin() const { return const_iterator(get_page(m_first_page_number)); }
 			const_iterator end() const { return const_iterator(); }
+			const_iterator find(size_t idx) const
+			{
+				mutex_lock_type l(m_lock);
+				typename page_list_t::const_iterator page_i;
+				page_i=do_find_page(idx);
+
+				const_iterator rc(*page_i);
+				while (rc->index()<idx && rc!=end()) {
+					++rc;
+				}
+				return rc;
+			}
+
+			size_t	size() const { return m_next_entry_index-m_first_entry_index; }
+			size_t	last_index() const { return m_next_entry_index-1; }
+			size_t	first_index() const { return m_first_entry_index; }
+			size_t	next_index() const { return m_next_entry_index; }
 		protected:
+			typename page_list_t::const_iterator do_find_page(size_t idx) const
+			{
+				if (m_pages.empty() || idx-m_first_entry_index>=m_next_entry_index)
+					return m_pages.end();	// no such index
+				typename page_list_t::const_iterator page_i;
+				typename page_list_t::const_iterator rc;
+				for (page_i=m_pages.begin(); page_i!=m_pages.end() && (*page_i)->m_first_index_in_page<=idx; ++page_i)
+					rc=page_i;
+				return rc;
+			}
+			page_ptr	get_page(size_t number) const
+			{
+				mutex_lock_type l(m_lock);
+				number-=m_first_page_number;
+				return number<m_pages.size() ? m_pages[number] : page_ptr();
+			}
 			page_ptr next_page(const page_ptr &p) const
 			{
+				size_t next_number=p->m_page_number;
+				return get_page(next_number+1);
 			}
             void alloc_new_page()
             {
-                ++m_page_count;
-                if (m_tail==0) {
-                    m_head.reset(new page);
-                    m_tail=m_head;
-                } else {
-                    m_tail->close();
-                    m_tail->m_next_page.reset(new page);
-                    m_tail=m_tail->m_next_page;
+				//The object already ownes the mutex at this point
+				//mutex_lock_type l(m_lock);
+                if (m_pages.empty()) {
+					m_first_page_number=m_page_count;
                 }
+				m_current.reset(new page(this, m_page_count, m_next_entry_index));
+				++m_page_count;
+				m_pages.push_back(m_current);
             }
             void drop_from_begin(size_t page_count)
             {
-                while (page_count-- && m_head) {
+                while (page_count-- && m_pages.size()>0) {
                     // shared_ptr will free the pages when they
                     // are no longer in use
-                    m_head=m_head->m_next_page;
-                    --m_page_count;
-                }
+					++m_first_page_number;
+					m_pages.pop_front();
+				}
+				m_first_entry_index=m_pages.empty() ? m_next_entry_index : m_pages.begin()->m_first_index_in_page;
             }
             void drop_first_page()
             {
@@ -289,14 +337,14 @@ namespace litwindow {
             }
             void put_entry(const entry &e)
             {
-                if (m_tail->available()<e.full_size_in_bytes()) {
+                if (m_current->available()<e.full_size_in_bytes()) {
                     alloc_new_page();
                 }
-                m_tail->put(e);
+                m_current->put(e, m_next_entry_index++);
             }
 			void do_put(const entries &e)
 			{
-                if (m_tail==0)
+                if (m_current==0)
                     alloc_new_page();
                 entries::const_iterator i;
                 for (i=e.begin(); i!=e.end(); ++i)

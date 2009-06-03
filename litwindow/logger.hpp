@@ -32,7 +32,7 @@ namespace litwindow {
 
 		//---------------------------------------------------------------------------------------------
 		// 
-        namespace details {
+		namespace details {
 			static const size_t word_alignment = sizeof (unsigned long);
 			template <typename _Val>
 			inline _Val *aligned_ptr(void *p)
@@ -48,44 +48,44 @@ namespace litwindow {
 				size_t misalign= (ptr-reinterpret_cast<const char*>(0)) % word_alignment;
 				return reinterpret_cast<const _Val*>( ptr + (misalign ? word_alignment-misalign : 0));
 			}
-            template <typename _Elem>
-            struct defaults
-            {
-                typedef size_t index_type;
-                typedef std::basic_string<_Elem> string_type;
+			template <typename _Elem>
+			struct defaults
+			{
+				typedef size_t index_type;
+				typedef std::basic_string<_Elem> string_type;
 #if defined(LITWINDOW_LOGGER_HASHMAP) 
-                typedef stdext::hash_map<string_type, index_type> basic_name_map;
+				typedef stdext::hash_map<string_type, index_type> basic_name_map;
 #else
-                typedef map<string_type, index_type> basic_name_map;
+				typedef map<string_type, index_type> basic_name_map;
 #endif
 #if defined(_MT) && defined(LITWINDOW_LOGGER_MUTEX)
-                typedef boost::mutex mutex_type;
-                template <typename _L>
-                struct mutex_lock_type:public boost::lock_guard<_L>
-                {
-                    mutex_lock_type(_L &l):boost::lock_guard<_L>(l) {}
-                };
+				typedef boost::mutex mutex_type;
+				template <typename _L>
+				struct mutex_lock_type:public boost::lock_guard<_L>
+				{
+					mutex_lock_type(_L &l):boost::lock_guard<_L>(l) {}
+				};
 #else
-                struct mutex_type
-                {
-                    void lock() {}
-                    void unlock() {}
-                };
-                template <typename _Lock>
-                struct mutex_lock_type
-                {
-                    mutex_lock_type(_Lock &){}
-                };
+				struct mutex_type
+				{
+					void lock() {}
+					void unlock() {}
+				};
+				template <typename _Lock>
+				struct mutex_lock_type
+				{
+					mutex_lock_type(_Lock &){}
+				};
 #endif
-            };
-            template <typename _Elem>
-            inline _Elem sep();
-            template<>
-            inline char sep<char>() { return '\t'; }
-            template <>
-            inline wchar_t sep<wchar_t>() { return L'\t'; }
+			};
+			template <typename _Elem>
+			inline _Elem sep();
+			template<>
+			inline char sep<char>() { return '\t'; }
+			template <>
+			inline wchar_t sep<wchar_t>() { return L'\t'; }
 
-        }
+		}
 
 		//---------------------------------------------------------------------------------------------
 		// 
@@ -108,7 +108,7 @@ namespace litwindow {
 			typedef typename container_type::key_type name_type;
 			typedef std::vector<typename container_type::const_iterator> index_container_type;
 
-            typedef _Index const_iterator;
+			typedef _Index const_iterator;
 			/// Construct a basic_name from a char string
 			basic_name(const _Elem *n)
 			{
@@ -141,16 +141,16 @@ namespace litwindow {
 			bool operator>= (const _Myt &right) const   {return str()>=right.str();}
 			_Myt operator+  (const _Myt &right) const   {return _Myt(str()+name_sep()+right.str());}
 			//}
-            ///\return an iterator pointing to the beginning of the string table
-            static const_iterator begin()
-            {
-                return const_iterator(0);
-            }
-            ///\return an index beyond the last valid index
-            static const_iterator end()
-            {
-                return const_iterator(size());
-            }
+			///\return an iterator pointing to the beginning of the string table
+			static const_iterator begin()
+			{
+				return const_iterator(0);
+			}
+			///\return an index beyond the last valid index
+			static const_iterator end()
+			{
+				return const_iterator(size());
+			}
 		protected:
 			void set(const name_type &n)
 			{
@@ -173,33 +173,33 @@ namespace litwindow {
 				}
 				return i.first;
 			}
-            
+
 			void set(_Index idx)
 			{
-                const name_type *n=find_by_index(idx);
-                if (n)
-                    m_index=idx;
-                else
-                    throw std::out_of_range("logger::basic_name - no name registered for index");
+				const name_type *n=find_by_index(idx);
+				if (n)
+					m_index=idx;
+				else
+					throw std::out_of_range("logger::basic_name - no name registered for index");
 			}
-            static const name_type *find_by_index(_Index idx)
-            {
-                const name_type *rc=0;
-                g_lock().lock();
-                if (idx<index_container().size()) {
-                    rc=&index_container()[idx]->first;
-                }
-                g_lock().unlock();
-                return rc;
-            }
-            static _Index size()
-            {
-                _Index rc;
-                g_lock().lock();
-                rc=index_container().size();
-                g_lock().unlock();
-                return rc;
-            }
+			static const name_type *find_by_index(_Index idx)
+			{
+				const name_type *rc=0;
+				g_lock().lock();
+				if (idx<index_container().size()) {
+					rc=&index_container()[idx]->first;
+				}
+				g_lock().unlock();
+				return rc;
+			}
+			static _Index size()
+			{
+				_Index rc;
+				g_lock().lock();
+				rc=index_container().size();
+				g_lock().unlock();
+				return rc;
+			}
 			static container_type LITWINDOW_LOGGER_API &name_container()
 			{
 				static container_type theNames;
@@ -281,7 +281,7 @@ namespace litwindow {
 			enum default_level_enum
 			{
 				debug_level,
-				info,
+				information,
 				warning,
 				error,
 				critical
@@ -299,7 +299,7 @@ namespace litwindow {
 				switch (v)
 				{
 				case debug_level: return "debug";
-				case info: return "info";
+				case information: return "information";
 				case warning: return "warning";
 				case error: return "error";
 				case critical: return "critical";
@@ -315,7 +315,7 @@ namespace litwindow {
 				switch (v)
 				{
 				case debug_level: return L"debug";
-				case info: return L"info";
+				case information: return L"information";
 				case warning: return L"warning";
 				case error: return L"error";
 				case critical: return L"critical";
@@ -372,25 +372,28 @@ namespace litwindow {
 			struct entry
 			{
 				timestamp_type  m_timestamp;
+				unsigned long	m_index;
 				unsigned int    m_instance;
 				unsigned short  m_component;
 				unsigned short  m_topic;
 				unsigned short  m_level;
 				unsigned short  m_length;
-                size_t          header_size() const { return reinterpret_cast<const char*>(this+1)-reinterpret_cast<const char*>(this); }
-                const _Elem     *begin_data() const { return reinterpret_cast<const _Elem*>(this+1); }
-                const _Elem     *end_data() const { return begin_data()+length(); }
+				size_t          header_size() const { return reinterpret_cast<const char*>(this+1)-reinterpret_cast<const char*>(this); }
+				const _Elem     *begin_data() const { return reinterpret_cast<const _Elem*>(this+1); }
+				const _Elem     *end_data() const { return begin_data()+length(); }
 				const _Elem	   *raw_data() const { return begin_data(); }
 				size_t			length() const { return m_length; }
 				std::basic_string<_Elem> str() const { return std::basic_string<_Elem>(raw_data(), length()); }
 				basic_name<_Elem> component() const { return basic_name<_Elem>(m_component); }
 				basic_name<_Elem> topic() const { return basic_name<_Elem>(m_topic); }
-				size_t			  level() const { return m_level; }
+				size_t			level() const { return m_level; }
+				void			index(size_t new_index) { m_index=new_index; }
+				size_t			index() const { return m_index; }
 				timestamp_type	timestamp() const { return m_timestamp; }
-                size_t          full_size_in_bytes() const 
-                {
-                    return reinterpret_cast<const char*>(end_data())-reinterpret_cast<const char*>(this); 
-                }
+				size_t          full_size_in_bytes() const 
+				{
+					return reinterpret_cast<const char*>(end_data())-reinterpret_cast<const char*>(this); 
+				}
 				entry *next_entry() const
 				{
 					return const_cast<entry*>(details::aligned_ptr<entry>(end_data()));
@@ -453,6 +456,7 @@ namespace litwindow {
 				m_sync_frequency=1;	// sync after every log entry
 				m_sync_period=0;
 				m_log_count_since_last_sync=0;
+				m_next_index=0;
 				m_time_of_last_sync=timestamp();
 				clear();
 			}
@@ -475,6 +479,7 @@ namespace litwindow {
 			timestamp_type m_sync_period;
 			size_t		m_log_count_since_last_sync;
 			timestamp_type m_time_of_last_sync;
+			size_t		m_next_index;
 			bool		need_sync() const
 			{
 				return m_sync_frequency>0 && m_log_count_since_last_sync>=m_sync_frequency
@@ -563,6 +568,7 @@ namespace litwindow {
 			void begin_entry()
 			{
 				m_entry.m_timestamp=timestamp();
+				m_entry.index(m_next_index++);
 				if (m_current_entry==0) {
 					do_put(m_entry);
 					m_begin_data=pptr();
@@ -855,6 +861,8 @@ namespace litwindow {
 		template <typename _Elem, typename Streambuf>
 		inline basic_events<_Elem, Streambuf> &information(basic_events<_Elem, Streambuf> &in) { in.level(levels::information); return in; }
 		template <typename _Elem, typename Streambuf>
+		inline basic_events<_Elem, Streambuf> &info(basic_events<_Elem, Streambuf> &in) { return information(in); }
+		template <typename _Elem, typename Streambuf>
 		inline basic_events<_Elem, Streambuf> &warning(basic_events<_Elem, Streambuf> &in) { in.level(levels::warning); return in; }
 		template <typename _Elem, typename Streambuf>
 		inline basic_events<_Elem, Streambuf> &error(basic_events<_Elem, Streambuf> &in) { in && basic_level<levels::error, _Elem>(); return in; }
@@ -876,6 +884,198 @@ namespace litwindow {
 		typedef events log;
 		typedef wevents wlog;
 
+		/*!\page litwindow_logger Logging: recording events and states.
+		* Copyright 2009 Hajo Kirchhoff, Lit Window Productions - Kirchhoff-IT Consulting, www.litwindow.com
+		* \section logging_intro Introduction and Overview
+
+		* Litwindow.logging is a library for generating and recording information about
+		* a programs runtime environment and execution. The methods and procedures presented
+		* here are commonly refered to as 'logging'. The library aims to give programmers a 
+		* simple, flexible and scalable framework to 'log' information for diagnostics,
+		* debugging and UI purposes and collect the information during program execution.
+
+		* - \subpage logger_quick_intro gives you some code samples and a very short introduction
+
+		* \subsection rationale Rationale
+		* Logging is often thought of as a slightly improved 'printf' with which one peppers the 
+		* source code with in hope of finding that problematic bug. More experienced software
+		* developers however see logging in a greater perspective, especially if they have ever
+		* had to diagnose defects that only occurred under very specific circumstances and only
+		* on the customers system. As systems become more complex, good diagnostics information
+		* is ever more important. This library treats the task of logging as an integral part of software development.
+
+		* \subsection design_philosophy Design philosophy
+		* The library distinguishes between logging events and logging states.
+
+		* \par Events
+		* Events essentially say: "The program execution reached this point at that time with the following information".
+		* The classical log file is simply a list of events, usually in the order in which they occurred.
+
+		* 		Events are characterized by several attributes.
+		* 		<table>
+		* 		<tr><td>Time<td>When did the event occur?
+		* 		<tr><td>Level<td>What level (severity) does the event have?
+		* 		<tr><td>Component<td>What (software) component reported the event?
+		* 		<tr><td>Topic<td>What kind of information does it contain?
+		* 		<tr><td>Instance<td>Where in the runtime environment did it happen?
+		* 		<tr><td>Id<td>A unique identifier of the event
+		* 		<tr><td>Text<td>The actual text of the event
+		* 		</td></tr></table>
+
+		* 	\par States
+		*	States are very similar to events, with one distiction. While events have no memory - they are 
+		* 	simply recorded and forgotten - states have a 'current' value. The collection of states can give
+		* 	a programmer or a user information about the state the program is in.
+		*
+		* \par Sinks and filters
+		* All logging information is written to a logging stream, which is connected to a sink. A sink combines
+		* the output from several separate streams into one. Sinks can be chained and multiple sinks can be
+		* connected to a single master sink. Filters reduce the amount of information that is passed into a sink.
+		*
+		* \par Muting and deactivating log information
+		* Events and states can be selectively disabled at runtime so that more chatty
+		* logging sources can be muted until their information is actually helpful.
+		* Or they can be completely deactivated at compile time so that no code is generated for them, but 
+		* their respective logging statements remain in the source code, should they be needed again.
+
+		* \subsection logging_design Design goals
+		* -# simplicity
+		* 	- Inexperienced programmers shall be able to learn it within minutes.
+		* 	- Logging program events and states shall be possible without constantly looking up the documentation.
+		* -# flexibility
+		* 	- Allow programmers to adapt to their specific programming scenario.
+		* 	- Shall selectively en- or disable programmer specified parts of logging information.
+		* 		- This shall be possible at compile time and at runtime.
+		* -# scalability\n
+		* 		Shall be suitable for ...
+		* 	- single thread command line tools
+		* 	- single process, multi-threaded GUI applications
+		* 	- multi-process, multi-homed distributed systems (client-server)
+		* -# performance
+		* 	- Must work in multithreaded environments.
+		* 	- Have very low logging overhead.
+		* 	- Have the ability to defer more costly operations to a low priority thread.
+		* -# cleanliness\n
+		* 		Traditional logging mechanisms make heavy use of macros and sometimes require unorthodox
+		* 		calling conventions. This tends to obfuscate the source code or interrupt readability.
+		* 		Also macros come with their own set of problems (namespace collisions, side effects).
+		* 		The library presented here avoids the use of macros alltogether.
+		* \subsection library_architecture Architecture
+		* The library is split into two parts:
+		* \par generating event and state information
+		* This part is used by all programmers in their source code to report information.
+		* 	- \ref basic_events and basic_states are streams to report information.
+		* 	- basic_level, basic_component, basic_topic, basic_instance and basic_id encapsulate
+		* 		the attributes that describe an event or state.
+		* 	- basic_tag is a low-level class implementing a global string table used by basic_component
+		* 		and other classes.
+
+		* \par collecting and storing event and state information
+		* This part will be used only by some programmers to collect and possibly store the information 
+		* generated by the other part of the library.
+		* 	- basic_logbuf and basic_logstream are used by basic_events and basic_states to compile
+		* 		event and state information and send them to a basic_logsink.
+		* 	- basic_logsink collects information from logging sources. It is thread safe
+		* 		and combines several logging sources into one stream.
+		* 	- basic_memory_logsink, basic_file_logsink and others store the logging information and
+		* 		have an interface to query the logging information.
+		*/
+
+		/*! \page logger_quick_intro Logger: A quick introduction
+		* This section gives you a quick introduction.
+		* \section quick_intro_logging Logging in the source code.
+		* Use events and wevents, derived from basic_events much as you would use an std::stream.
+		* This example writes logging information to the global log sink, which needs to be
+		* initialized elsewhere.
+
+		* \par Simple case, no component or topic
+		* \code
+		* #include <litwindow/logger.hpp>
+		* using namespace litwindow::logger;
+		*
+		* // define an events object
+		* events ol;
+		* // write to the events object
+		* ol << "This gets written to the log";	// default level
+		* ol << logger::error << "This is an error";	// error level
+		* \endcode
+		* The output in a simple log file would look like this.
+		* \verbatim
+12:52	info	This gets written to the log
+12:53	error	This is an error \endverbatim
+
+		* \par Using components and topics, Part I
+		* \code
+		* class my_sub_system
+		* {
+		*    logger::events ol_connect, ol;	// declare two events streams
+		*
+		*	 // initialise them and set up component and topic
+		*    my_sub_system():ol_connect("communication.subsystem1", "connections")
+		*    {
+		*        // or change the component after initialisation
+		*        ol.component("communication.subsystem1");
+		*    }
+		*    void connect_established(size_t portNo)
+		*    {
+		*        // log information
+		*        ol_connect << "connection established at port: " << portNo;
+		*    }
+		* };
+		* \endcode
+		* \par Using components and topics, Part II
+		* \code
+		* // define two components
+		* component com_sub1("communication.subsystem1");
+		* component flat("flat");
+		* // define a topics
+		* topic t_connections("connections");
+		* events ol;
+		*
+		* ol && com_sub1 && t_connections && "connection established at port: " && port_no;
+		*
+		* ol && logger::debug && flat && "This uses the default topic";
+		* \endcode
+		* This is what the output including component and topic would look like.
+		* \verbatim
+13:10	info	communication.subsystem1	connections	connection established at port: 9731
+13:13	debug0	flat						This uses the default topic.\endverbatim
+		*
+		* \par Deactivate a log stream but leave its statement in the source code.
+		* \code
+		* // Change events to deactivated_events
+		* deactivated_events ol;
+		* ol && com_sub1 && t_tcp && "connection established at port: " && port_no;
+		* \endcode
+		* \note The compiler will not generate any code for this statement in release builds. deactivated_events
+		* are implicitly convertible to bool and will always return false. Thus the statement will be
+		* false && com_sub1 && t_tcp ... which always evaluates to false and will be short-circuited. The compiler
+		* will optimize this and remove the entire statement.
+		* \note This is the reason why logging streams (events or states) define the && operator to stream
+		* information. The << operator is used for compatibility with iostreams but does not have the capability
+		* to deactivate the log stream at compile time.
+		* \section quick_intro_sink Specifying and using sinks.
+		* \par Using a stringstream as the destination.
+		* - define a stringstream
+		* - define a logsink with the stringstream as its target
+		* - modify the formatter
+		* - define an events object with the logsink as its target
+		* - write event information to the events object
+		* - query the stringstream for the output
+		*.
+		* \code
+		* std::wstringstream s;
+		* wostream_logsink sink(s);
+		* sink.format().timestamp=false;	// no timestamp
+		* sink.format().level=false;		// no level
+		* wevents e(&sink);
+		* e.sink(&sink);
+		* e && debug && L"This is a test with number " && 800;
+		* e && warning && L"Some more tests.";
+		* wstring rc(s.str());
+		* BOOST_CHECK(rc==wstring(L"\t\tThis is a test with number 800\n\t\tSome more tests.\n"));
+		* \endcode
+		*/
 	}
 }
 
@@ -886,3 +1086,4 @@ namespace litwindow {
 #endif
 
 #endif // litwindow_logger_h__151208
+
