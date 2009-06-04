@@ -1,7 +1,9 @@
 #ifndef litwindow_logger_h__151208
 #define litwindow_logger_h__151208
 
+/// define this to use boost::mutex
 #define LITWINDOW_LOGGER_MUTEX
+/// define this to use hashmap for basic_tag
 #define LITWINDOW_LOGGER_HASHMAP
 
 #ifdef LWBASE_EXPORTS
@@ -19,12 +21,18 @@
 #endif
 
 #include <iostream>
+
 #ifdef LITWINDOW_LOGGER_HASHMAP
 #include <hash_map>
 #endif
 #ifdef LITWINDOW_LOGGER_MUTEX
 #include <boost/thread/mutex.hpp>
 #endif
+
+#ifdef max
+#undef max
+#endif
+#include <limits>
 
 namespace litwindow {
 	/// encapsules the litwindow logging library
@@ -89,39 +97,45 @@ namespace litwindow {
 
 		//---------------------------------------------------------------------------------------------
 		// 
-		/// basic_name is a small, lightweight class that contains names for sources and topics.
-		/// The names are stored in a global string table and are associated with a numerical index.
-		/// Every instance of basic_name searches the global string table for the name passed.
-		/// If the name is contained in the string table, it will be reused. Otherwise it will be inserted.
+		///\brief Small, lightweight class containing strings as tags for basic_component, basic_level, basic_topic, basic_instance.
+		///
+		/// The strings are stored in a global string table and associated with a unique numerical value.
+		/// Every instance of basic_tag searches the global string table for its string parameter.
+		/// If the string is contained in the string table, it will be reused. Otherwise it will be inserted.
 		/// Once inserted it will never be removed.
+		///
 		/// The indexes are guaranteed to be stable during one application run.
+		/// \threadsafe
 		template <typename _Elem, 
 			typename _Index=typename details::defaults<_Elem>::index_type, 
 			typename _Lock=typename details::defaults<_Elem>::mutex_type, 
 			typename _Container=typename details::defaults<_Elem>::basic_name_map >
-		class basic_name
+		class basic_tag
 		{
-		public:
-			typedef basic_name<_Elem, _Index, _Lock, _Container> _Myt;
+			typedef basic_tag<_Elem, _Index, _Lock, _Container> _Myt;
 			typedef _Container container_type;
-			typedef _Index index_type;
 			typedef typename container_type::key_type name_type;
 			typedef std::vector<typename container_type::const_iterator> index_container_type;
+		public:
+			typedef _Index index_type;
 
 			typedef _Index const_iterator;
-			/// Construct a basic_name from a char string
-			basic_name(const _Elem *n)
+			/// Default constructs an empty tag
+			basic_tag():m_index(std::numeric_limits<index_type>::max()){}
+			/// Construct from a pointer to char
+			basic_tag(const _Elem *n)
 			{
 				set(name_type(n));
 			}
-			/// Construct a basic_name from a string, usually a basic_string<_Elem>
-			basic_name(const name_type &n)
+			/// Construct from a string, usually a basic_string<_Elem>
+			basic_tag(const name_type &n)
 			{
 				set(n);
 			}
-			/// Construct a basic_name from an index. The index must exist. The constructor
-			/// throws an error if the index does not exist.
-			basic_name(_Index idx)
+			/// Construct from an index.
+			///
+			///\throw an error if the index does not exist.
+			basic_tag(_Index idx)
 			{
 				set(idx);
 			}
@@ -130,7 +144,7 @@ namespace litwindow {
 			_Index index() const { return m_index; }
 			///\return this names string
 			const name_type &str() const { return *find_by_index(index()); }
-			static _Elem name_sep() { return _Elem(0); }
+			static _Elem tag_sep() { return _Elem(0); }
 			///\addtogroup Operators
 			//{
 			bool operator== (const _Myt &right) const   {return index()==right.index();}
@@ -139,7 +153,7 @@ namespace litwindow {
 			bool operator<= (const _Myt &right) const   {return str()<=right.str();}
 			bool operator>  (const _Myt &right) const   {return str()>right.str();}
 			bool operator>= (const _Myt &right) const   {return str()>=right.str();}
-			_Myt operator+  (const _Myt &right) const   {return _Myt(str()+name_sep()+right.str());}
+			_Myt operator+  (const _Myt &right) const   {return _Myt(str()+tag_sep()+right.str());}
 			//}
 			///\return an iterator pointing to the beginning of the string table
 			static const_iterator begin()
@@ -214,30 +228,17 @@ namespace litwindow {
 		};
 
 		template <>
-		char basic_name<char>::name_sep() { return '/'; }
+		char basic_tag<char>::tag_sep() { return '/'; }
 		template <>
-		wchar_t basic_name<wchar_t>::name_sep() { return L'/'; }
+		wchar_t basic_tag<wchar_t>::tag_sep() { return L'/'; }
 
 		template <typename _Elem>
-		std::basic_ostream<_Elem> &operator<<(std::basic_ostream<_Elem> &o, const basic_name<_Elem> &n)
+		std::basic_ostream<_Elem> &operator<<(std::basic_ostream<_Elem> &o, const basic_tag<_Elem> &n)
 		{
 			return o << n.str();
 		}
-		typedef basic_name<char> name;
-		typedef basic_name<wchar_t> wname;
-
-		template <typename _Elem>
-		inline const basic_name<_Elem> &default_component();
-		template <>
-		inline const basic_name<char> &default_component() { static basic_name<char> g_default(""); return g_default; }
-		template <>
-		inline const basic_name<wchar_t> &default_component() { static basic_name<wchar_t> g_default(L""); return g_default; }
-		template <typename _Elem>
-		inline const basic_name<_Elem> &default_topic();
-		template <>
-		inline const basic_name<char> &default_topic() { static basic_name<char> g_default(""); return g_default; }
-		template <>
-		inline const basic_name<wchar_t> &default_topic() { static basic_name<wchar_t> g_default(L""); return g_default; }
+		typedef basic_tag<char> tag;
+		typedef basic_tag<wchar_t> wtag;
 
 		//---------------------------------------------------------------------------------------------
 		/// basic_instance records information about the instance of a log object
@@ -269,77 +270,112 @@ namespace litwindow {
 			const thread_process_id *m_source_id;
 		};
 
-		template <typename _Elem>
-		class category
+		template <unsigned category, typename _Elem>
+		class basic_tag_with_category:public basic_tag<_Elem>
 		{
+			typedef basic_tag<_Elem> inherited;
 		public:
-			std::basic_string<_Elem> value_name(int v) const { return boost::lexical_cast<std::basic_string<_Elem> >(v); }
-			std::basic_string<_Elem> category_name() const { return std::basic_string<_Elem>(); }
+			basic_tag_with_category():inherited(){}
+			basic_tag_with_category(const _Elem *s):inherited(s){}
+			basic_tag_with_category(const std::basic_string<_Elem> &s):inherited(s){}
+			basic_tag_with_category(typename inherited::index_type i):inherited(i){}
 		};
 
-		namespace levels {
-			enum default_level_enum
-			{
-				debug_level,
-				information,
-				warning,
+		namespace {
+			enum {
+				cat_component,
+				cat_topic,
+				cat_level,
+				cat_instance
+			};
+		};
+		template <typename _Elem>
+		struct basic_component:public basic_tag_with_category<cat_component, _Elem>
+		{
+			basic_component():basic_tag_with_category<cat_component, _Elem>(){}
+			explicit basic_component(const _Elem *s):basic_tag_with_category<cat_component, _Elem>(s){}
+			explicit basic_component(const std::basic_string<_Elem> &s):basic_tag_with_category<cat_component, _Elem>(s){}
+			explicit basic_component(typename basic_tag_with_category<cat_component, _Elem>::index_type i):basic_tag_with_category<cat_component, _Elem>(i){}
+		};
+		template <typename _Elem>
+		struct basic_topic:public basic_tag_with_category<cat_topic, _Elem>
+		{
+			basic_topic():basic_tag_with_category<cat_topic, _Elem>(){}
+			explicit basic_topic(const _Elem *s):basic_tag_with_category<cat_topic, _Elem>(s){}
+			explicit basic_topic(const std::basic_string<_Elem> &s):basic_tag_with_category<cat_topic, _Elem>(s){}
+			explicit basic_topic(typename basic_tag_with_category<cat_topic, _Elem>::index_type i):basic_tag_with_category<cat_topic, _Elem>(i){}
+		};
+		typedef basic_component<char> component;
+		typedef basic_component<wchar_t> wcomponent;
+		typedef basic_topic<char> topic;
+		typedef basic_topic<wchar_t> wtopic;
+		template <typename _Elem>
+		class basic_level:public basic_tag_with_category<cat_level, _Elem> 
+		{
+			typedef basic_tag_with_category<cat_level, _Elem> inherited;
+		public:
+			enum preset {
+				unknown,
+				critical,
 				error,
-				critical
-			};
-			template <typename _Elem>
-			class default_level_category:public category<_Elem>
-			{
-				inline std::basic_string<_Elem> value_name(int v) const;
-				inline std::basic_string<_Elem> category_name() const;
-			};
+				warning,
+				information,
+				info = information,
+				debug0,
+				debug = debug0,
+				debug1,
+				debug2,
+				debug3,
+				debug4,
 
-			template<>
-			inline std::basic_string<char> default_level_category<char>::value_name(int v) const
+				end_marker_for_preset_levels
+			};
+			typedef inherited tag_type;
+			inline static const tag_type &get(preset p);
+			basic_level(preset p):inherited(get(p)){}
+			explicit basic_level(const tag_type &t):inherited(t){}
+			explicit basic_level(const _Elem *s):inherited(s){}
+			explicit basic_level(const std::basic_string<_Elem> &s):inherited(s){}
+		};
+		template <>
+		inline static const typename basic_level<char>::tag_type &basic_level<char>::get(basic_level<char>::preset p)
+		{
+			static const tag_type g_tags[]=
 			{
-				switch (v)
-				{
-				case debug_level: return "debug";
-				case information: return "information";
-				case warning: return "warning";
-				case error: return "error";
-				case critical: return "critical";
-				}
-				return "unknown";
-			}
-			template<>
-			inline std::basic_string<char> default_level_category<char>::category_name() const { return "default"; }
-
-			template<>
-			inline std::basic_string<wchar_t> default_level_category<wchar_t>::value_name(int v) const
+				tag_type("unknown"), tag_type("critical"), tag_type("error"), tag_type("warning"), tag_type("info"), 
+				tag_type("debug"), tag_type("debug1"), tag_type("debug2"), tag_type("debug3"), tag_type("debug4")
+			};
+			return g_tags[p<sizeof(g_tags)/sizeof(g_tags[0]) ? p : 0];
+		}
+		template <>
+		inline static const typename basic_level<wchar_t>::tag_type &basic_level<wchar_t>::get(basic_level<wchar_t>::preset p)
+		{
+			static const tag_type g_tags[]=
 			{
-				switch (v)
-				{
-				case debug_level: return L"debug";
-				case information: return L"information";
-				case warning: return L"warning";
-				case error: return L"error";
-				case critical: return L"critical";
-				}
-				return L"unknown";
-			}
-			template<>
-			inline std::basic_string<wchar_t> default_level_category<wchar_t>::category_name() const { return L"default"; }
+				tag_type(L"unknown"), tag_type(L"critical"), tag_type(L"error"), tag_type(L"warning"), tag_type(L"info"), 
+				tag_type(L"debug"), tag_type(L"debug1"), tag_type(L"debug2"), tag_type(L"debug3"), tag_type(L"debug4")
+			};
+			return g_tags[p<sizeof(g_tags)/sizeof(g_tags[0]) ? p : 0];
 		}
 
-		template <int Value, typename _Elem/*, typename Category=levels::default_level_category<_Elem>()*/>
-		class basic_level
-		{
-		public:
-			//typedef Category category_type;
-			//basic_level(Category c=Category())
-			//    :m_category(c)
-			//{
-			//}
-			int get() const { return Value; }
-		private:
-			//Category m_category;
-		};
+		typedef basic_level<char> level;
+		typedef basic_level<wchar_t> wlevel;
 
+		template <typename _Elem>
+		inline const basic_component<_Elem> &default_component();
+		template <>
+		inline const basic_component<char> &default_component() { static basic_component<char> g_default(""); return g_default; }
+		template <>
+		inline const basic_component<wchar_t> &default_component() { static basic_component<wchar_t> g_default(L""); return g_default; }
+		template <typename _Elem>
+		inline const basic_topic<_Elem> &default_topic();
+		template <>
+		inline const basic_topic<char> &default_topic() { static basic_topic<char> g_default(""); return g_default; }
+		template <>
+		inline const basic_topic<wchar_t> &default_topic() { static basic_topic<wchar_t> g_default(L""); return g_default; }
+
+		template <typename _Elem>
+		inline const basic_level<_Elem> &default_level() { static basic_level<_Elem> g_default(basic_level<_Elem>::info); return g_default; }
 
 		//---------------------------------------------------------------------------------------------
 		// 
@@ -364,9 +400,11 @@ namespace litwindow {
 			typedef typename _Traits::off_type off_type;
 			typedef basic_streambuf<_Elem, _Traits> _Mysb;
 			typedef _Alloc allocator_type;
-			typedef basic_logsink<_Elem>	sink_type;
-			typedef basic_name<_Elem>		name_type;
-			typedef basic_instance<_Elem>	instance_type;
+			typedef basic_level<_Elem> level_type;
+			typedef basic_component<_Elem> component_type;
+			typedef basic_topic<_Elem> topic_type;
+			typedef basic_logsink<_Elem> sink_type;
+			typedef basic_instance<_Elem> instance_type;
 			typedef time_t timestamp_type;
 		private:
 			struct entry
@@ -384,9 +422,9 @@ namespace litwindow {
 				const _Elem	   *raw_data() const { return begin_data(); }
 				size_t			length() const { return m_length; }
 				std::basic_string<_Elem> str() const { return std::basic_string<_Elem>(raw_data(), length()); }
-				basic_name<_Elem> component() const { return basic_name<_Elem>(m_component); }
-				basic_name<_Elem> topic() const { return basic_name<_Elem>(m_topic); }
-				size_t			level() const { return m_level; }
+				component_type	component() const { return component_type(m_component); }
+				topic_type		topic() const { return topic_type(m_topic); }
+				level_type		level() const { return level_type(m_level); }
 				void			index(size_t new_index) { m_index=new_index; }
 				size_t			index() const { return m_index; }
 				timestamp_type	timestamp() const { return m_timestamp; }
@@ -397,14 +435,6 @@ namespace litwindow {
 				entry *next_entry() const
 				{
 					return const_cast<entry*>(details::aligned_ptr<entry>(end_data()));
-					//const unsigned char *next=reinterpret_cast<const unsigned char *>(end_data());
-					//size_t sz=next-reinterpret_cast<const unsigned char*>(this);
-					//size_t align=sizeof(unsigned long);
-					//size_t misalign=sz%align;
-					//if (misalign) {
-					//	next=next + align-misalign;
-					//}
-					//return const_cast<entry*>(reinterpret_cast<const entry*>(next));
 				}
 			};
 			class entries
@@ -433,9 +463,6 @@ namespace litwindow {
 					bool operator==(const const_iterator &r) const { return m_ptr==r.m_ptr; }
 					bool operator!=(const const_iterator &r) const { return !operator==(r); }
 					const const_iterator &operator=(const const_iterator &i) { m_ptr=i.m_ptr; return *this; }
-					//const char_type *raw_data() const { return get_entry()->raw_data(); }
-					//size_t length() const { return get_entry()->length(); }
-					//std::basic_string<char_type> str() const { return std::basic_string<char_type>(raw_data(), raw_data()+length()); }
 					const entry *operator->() const { return get_entry(); }
 					const entry &operator*() const { return *get_entry(); }
 				};
@@ -471,6 +498,8 @@ namespace litwindow {
 
 			char_type	*m_begin_data;
 			entry		*m_current_entry;
+			entry		*current_entry() { if (m_current_entry==0) begin_entry(); return m_current_entry; }
+			void		current_entry(entry * val) { m_current_entry = val; }
 			sink_type	*m_sink;
 			allocator_type m_allocator;
 			_Strstate m_state;
@@ -495,13 +524,13 @@ namespace litwindow {
 			/// specify flush period: write to sink after a timespan of \p p
 			void sync_period(timestamp_type p)		{ m_sync_period=p; }
 
-			void    level(size_t lvl)				{ m_current_entry->m_level=lvl; }
+			void    level(const level_type &lvl)		{ current_entry()->m_level=lvl.index(); }
 			size_t  level() const					{ return m_current_entry->m_level; }
-			void    topic(const name_type &t)		{ m_current_entry->m_topic=t.index(); }
+			void    topic(const topic_type &t)		{ current_entry()->m_topic=t.index(); }
 			size_t  topic() const					{ return m_current_entry->m_topic; }
-			void	component(const name_type &c)	{ m_current_entry->m_component=c.index(); }
+			void	component(const component_type &c)	{ current_entry()->m_component=c.index(); }
 			size_t	component() const				{ return m_current_entry->m_component; }
-			void	instance(const instance_type &i){ m_current_entry->m_instance=i.index(); }
+			void	instance(const instance_type &i){ current_entry()->m_instance=i.index(); }
 
 			virtual int sync()
 			{
@@ -602,17 +631,17 @@ namespace litwindow {
 		public:
 			typedef basic_logbuf<_Elem, _Traits, _Alloc> _Streambuf;
 			typedef basic_logstream<_Elem, _Traits> _Myt;
-			typedef typename _Streambuf::sink_type sink_type;
-			typedef basic_name<_Elem> name_type;
+			typedef basic_level<_Elem> level_type;
+			typedef basic_component<_Elem> component_type;
+			typedef basic_topic<_Elem> topic_type;
+			typedef basic_logsink<_Elem> sink_type;
+			typedef basic_instance<_Elem> instance_type;
 			typedef _Myt& (*logmanipulator)(_Myt&);
 			basic_logstream()
 				:inherited(&m_rdbuf)
 			{
 			}
 			_Streambuf *rdbuf() { return &m_rdbuf; }
-			void put_level(levels::default_level_enum l)
-			{
-			}
 			void sink(sink_type *newsink) { rdbuf()->sink(newsink); }
 			sink_type *sink() const { return rdbuf()->sink(); }
 
@@ -629,11 +658,15 @@ namespace litwindow {
 			{
 				m_rdbuf.end_entry(); return *this;
 			}
-			_Myt &put_topic(const name_type &topic)
+			_Myt &put_level(const level_type &lvl)
+			{
+				m_rdbuf.level(lvl); return *this;
+			}
+			_Myt &put_topic(const topic_type &topic)
 			{
 				m_rdbuf.topic(topic); return *this;
 			}
-			_Myt &put_component(const name_type &component)
+			_Myt &put_component(const component_type &component)
 			{
 				m_rdbuf.component(component); return *this;
 			}
@@ -649,27 +682,35 @@ namespace litwindow {
 		{
 			typedef _Stream stream_type;
 			typedef typename stream_type::char_type char_type;
-			typedef basic_name<char_type> name_type;
-			void put_level(_Stream &stream, levels::default_level_enum l) { }
+			typedef basic_level<char_type> level_type;
+			typedef basic_component<char_type> component_type;
+			typedef basic_topic<char_type> topic_type;
+			typedef basic_logsink<char_type> sink_type;
+			typedef basic_instance<char_type> instance_type;
 			void set_sink(_Stream &stream, basic_logsink<char_type> *s) { }
 			void lbegin(_Stream &stream) { }
 			void lend(_Stream &stream) { }
 
-			void put_component(_Stream &stream, const name_type &c) { stream << c.str() << details::sep<char_type>(); }
-			void put_topic(_Stream &stream, const name_type &t) { stream << t.str() << details::sep<char_type>(); }
+			void put_level(_Stream &stream, const level_type &l) { stream << l.str() << details::sep<char_type>(); }
+			void put_component(_Stream &stream, const component_type &c) { stream << c.str() << details::sep<char_type>(); }
+			void put_topic(_Stream &stream, const topic_type &t) { stream << t.str() << details::sep<char_type>(); }
 		};
 		template <typename _Elem>
 		struct stream_traits<basic_logstream<_Elem> >
 		{
 			typedef basic_logstream<_Elem> stream_type;
 			typedef typename stream_type::char_type char_type;
-			typedef basic_name<char_type> name_type;
-			void put_level(stream_type &stream, levels::default_level_enum l) { stream.put_level(l); }
+			typedef basic_level<char_type> level_type;
+			typedef basic_component<char_type> component_type;
+			typedef basic_topic<char_type> topic_type;
+			typedef basic_logsink<char_type> sink_type;
+			typedef basic_instance<char_type> instance_type;
 			void set_sink(stream_type &stream, typename stream_type::sink_type *s) { stream.sink(s); }
 			void lbegin(stream_type &stream) { stream.begin_entry(); }
 			void lend(stream_type &stream) { stream.end_entry(); }
-			void put_component(stream_type &stream, const name_type &c) { stream.put_component(c); }
-			void put_topic(stream_type &stream, const name_type &t) { stream.put_topic(t); }
+			void put_level(stream_type &stream, const level_type &l) { stream.put_level(l); }
+			void put_component(stream_type &stream, const component_type &c) { stream.put_component(c); }
+			void put_topic(stream_type &stream, const topic_type &t) { stream.put_topic(t); }
 		};
 		// ---------------------------------------------------------------------------------------------
 
@@ -682,15 +723,19 @@ namespace litwindow {
 		class basic_events:public _Outstream
 		{
 			typedef basic_events<_Elem, _Outstream, _Streamtraits> _Myt;
+			typedef _Elem char_type;
 			typedef _Outstream outstream_type;
 			typedef _Streamtraits outstream_traits;
-			typedef std::basic_ostream<_Elem>& (*iomanipulator)(std::basic_ostream<_Elem>&);
+			typedef std::basic_ostream<char_type>& (*iomanipulator)(std::basic_ostream<char_type>&);
 			typedef _Myt& (*logmanipulator)(_Myt&);
-			typedef basic_name<_Elem> name_type;
-			typedef basic_logsink<_Elem> sink_type;
-			typedef basic_instance<_Elem> instance_type;
+			typedef basic_tag<char_type> tag_type;
+			typedef basic_level<char_type> level_type;
+			typedef basic_component<char_type> component_type;
+			typedef basic_topic<char_type> topic_type;
+			typedef basic_logsink<char_type> sink_type;
+			typedef basic_instance<char_type> instance_type;
 			bool m_enabled;
-			_Streamtraits m_stream_traits;
+			outstream_traits m_stream_traits;
 		public:
 			class inserter
 			{
@@ -730,10 +775,10 @@ namespace litwindow {
 				}
 				inserter &operator&&(iomanipulator pFn)
 				{
-					if (pFn==std::endl) {
+					//if (pFn==std::endl) {
 
-					}
-					//(*pFn)(_owner._outstream);
+					//}
+					////(*pFn)(_owner._outstream);
 					return *this;
 				}
 				inserter &operator<<(std::basic_ostream<_Elem> &(*pFn)(std::basic_ostream<_Elem> &))
@@ -748,25 +793,47 @@ namespace litwindow {
 			};
 
 
-			basic_events(const name_type &component=default_component<_Elem>(), const name_type &topic=default_topic<_Elem>(), sink_type &target=*default_sink<_Elem>())
-				:m_default_component(component)
-				,m_default_topic(topic)
+			basic_events(
+				const component_type &c=default_component<char_type>(),
+				const topic_type &t=default_topic<char_type>(), 
+				sink_type &target=*default_sink<char_type>())
+				:
+			m_default_component(c), m_component(m_default_component)
+				,m_default_topic(t), m_topic(m_default_topic)
+				,m_default_level(default_level<char_type>()), m_level(m_default_level)
 				,m_enabled(true)
 				,m_ignore_begin_end_count(0)
 				,m_open_count(0)
 			{
 				sink(&target);
 			}
-			basic_events(sink_type &target)
-				:m_default_component(default_component<_Elem>())
-				,m_default_topic(default_topic<_Elem>())
+			basic_events(
+				const char_type *c,
+				const char_type *t=default_topic<_Elem>().str().c_str(),
+				sink_type &target=*default_sink<char_type>()
+				)
+				:m_default_component(c), m_component(m_default_component)
+				,m_default_topic(t), m_topic(m_default_topic)
+				,m_default_level(default_level<char_type>()), m_level(m_default_level)
 				,m_enabled(true)
 				,m_ignore_begin_end_count(0)
 				,m_open_count(0)
 			{
+				reset_tags_to_default();
 				sink(&target);
 			}
 			void enabled(bool is_enabled) { m_enabled=is_enabled; }
+			basic_events(sink_type &target)
+				:m_default_component(default_component<char_type>()), m_component(m_default_component)
+				,m_default_topic(default_topic<char_type>()), m_topic(m_default_topic)
+				,m_default_level(default_level<char_type>()), m_level(m_default_level)
+				,m_enabled(true)
+				,m_ignore_begin_end_count(0)
+				,m_open_count(0)
+			{
+				reset_tags_to_default();
+				sink(&target);
+			}
 			void enable() { enabled(true); }
 			void disable() { enabled(false); }
 			bool enabled() const { return m_enabled; }
@@ -781,43 +848,60 @@ namespace litwindow {
 				return inserter(*this, true) && v;
 			}
 			template <typename Value>
+			void put(const Value &v)
+			{
+				stream() << v;
+			}
+			template <typename Value>
 			inserter operator<<(const Value &v)
 			{
-				return inserter(*this, true) << v;
+				return operator&&(v);
 			}
 
-			//const Streambuf *rdbuf() const { return static_cast<const Streambuf*>(this); }
-			//Streambuf *rdbuf() { return static_cast<Streambuf*>(this); }
 
 			inserter operator && (logmanipulator l)
 			{
 				_Myt &r((*l)(*this));
 				return inserter(r, r.enabled());
 			}
-			void level(levels::default_level_enum l)
+			_Myt &operator &&(const component_type &c)
 			{
-				m_stream_traits.put_level(*this, l);
+				return component(c);
 			}
-			template <typename Value>
-			void put(const Value &v)
+			_Myt &operator &&(const level_type &l)
 			{
-				stream() << v;
+				return level(l);
+			}
+			_Myt &operator &&(const topic_type &t)
+			{
+				return topic(t);
 			}
 			void sink(sink_type *s)
 			{
 				m_stream_traits.set_sink(stream(), s);
 			}
 
-			void component(const name_type &c) 
+			_Myt &level(const level_type &l)
 			{
-				m_default_component=c;
-				m_stream_traits.put_component(stream(), c);
+				m_level=l; return *this;
 			}
-			void topic(const name_type &t)
+			_Myt &level(typename level_type::preset l)
 			{
-				m_default_topic=t;
-				m_stream_traits.put_topic(stream(), t);
+				return level(level_type(l));
 			}
+			_Myt &component(const component_type &c) 
+			{
+				m_component=c; return *this;
+			}
+			_Myt &set_default_topic(const topic_type &t)
+			{
+				m_topic=m_default_topic=t; return *this;
+			}
+			_Myt &set_default_component(const component_type &c) 
+			{
+				m_component=m_default_component=c; return *this;
+			}
+
 			void continue_entry()
 			{
 				// ignore one 'end' and one 'begin'
@@ -831,9 +915,10 @@ namespace litwindow {
 			{
 				if (m_open_count++==0) {
 					if (m_ignore_begin_end_count==0) {
-						m_stream_traits.lbegin(*this);
-						component(m_default_component);
-						topic(m_default_topic);
+						m_stream_traits.lbegin(stream());
+						m_stream_traits.put_level(stream(), m_level);
+						m_stream_traits.put_component(stream(), m_component);
+						m_stream_traits.put_topic(stream(), m_topic);
 					} else
 						--m_ignore_begin_end_count;
 				}
@@ -843,31 +928,40 @@ namespace litwindow {
 			{
 				if (m_open_count==1) {
 					if (m_ignore_begin_end_count==0) {
-						m_stream_traits.lend(*this); 
+						m_stream_traits.lend(stream());
+						reset_tags_to_default();
 					} else
 						--m_ignore_begin_end_count;
 					m_open_count=0;
 				} else if (m_open_count>0)
 					--m_open_count;
 			}
+
+			void reset_tags_to_default()
+			{
+				m_level=m_default_level;
+				m_component=m_default_component;
+				m_topic=m_default_topic;
+			}
 			friend class inserter;
-			instance_type m_instance;
-			name_type	m_default_component;
-			name_type	m_default_topic;
+			instance_type	m_instance;
+			level_type		m_default_level, m_level;
+			component_type	m_default_component, m_component;
+			topic_type		m_default_topic, m_topic;
 		};
 
 		template <typename _Elem, typename Streambuf>
-		inline basic_events<_Elem, Streambuf> &debug(basic_events<_Elem, Streambuf> &in) { in.level(levels::debug_level); return in; }
+		inline basic_events<_Elem, Streambuf> &debug(basic_events<_Elem, Streambuf> &in) { in.level(basic_level<_Elem>::debug); return in; }
 		template <typename _Elem, typename Streambuf>
-		inline basic_events<_Elem, Streambuf> &information(basic_events<_Elem, Streambuf> &in) { in.level(levels::information); return in; }
+		inline basic_events<_Elem, Streambuf> &information(basic_events<_Elem, Streambuf> &in) { in.level(basic_level<_Elem>::information); return in; }
 		template <typename _Elem, typename Streambuf>
-		inline basic_events<_Elem, Streambuf> &info(basic_events<_Elem, Streambuf> &in) { return information(in); }
+		inline basic_events<_Elem, Streambuf> &info(basic_events<_Elem, Streambuf> &in) { return in.level(basic_level<_Elem>::info); return in; }
 		template <typename _Elem, typename Streambuf>
-		inline basic_events<_Elem, Streambuf> &warning(basic_events<_Elem, Streambuf> &in) { in.level(levels::warning); return in; }
+		inline basic_events<_Elem, Streambuf> &warning(basic_events<_Elem, Streambuf> &in) { in.level(basic_level<_Elem>::warning); return in; }
 		template <typename _Elem, typename Streambuf>
-		inline basic_events<_Elem, Streambuf> &error(basic_events<_Elem, Streambuf> &in) { in && basic_level<levels::error, _Elem>(); return in; }
+		inline basic_events<_Elem, Streambuf> &error(basic_events<_Elem, Streambuf> &in) { in.level(basic_level<_Elem>::error); return in; }
 		template <typename _Elem, typename Streambuf>
-		inline basic_events<_Elem, Streambuf> &critical(basic_events<_Elem, Streambuf> &in) { in && basic_level<levels::critical, _Elem>(); return in; }
+		inline basic_events<_Elem, Streambuf> &critical(basic_events<_Elem, Streambuf> &in) { in.level(basic_level<_Elem>::critical); return in; }
 
 		template <typename _Elem, typename Streambuf>
 		inline basic_events<_Elem, Streambuf> &disable(basic_events<_Elem, Streambuf> &in) { in.disable(); return in; }
@@ -1062,7 +1156,7 @@ namespace litwindow {
 		* - define an events object with the logsink as its target
 		* - write event information to the events object
 		* - query the stringstream for the output
-		*.
+		*
 		* \code
 		* std::wstringstream s;
 		* wostream_logsink sink(s);

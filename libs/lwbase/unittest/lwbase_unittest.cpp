@@ -12,11 +12,12 @@ using namespace std;
 BOOST_AUTO_TEST_CASE(simple_log_name)
 {
     using namespace logger;
-    name one("one");
-    name two("two");
-    name one_other("one");
-    name three("three");
-    name two_other("two");
+    tag one("one");
+    tag two("two");
+    tag one_other("one");
+    tag three("three");
+    tag two_other("two");
+	tag two_third=two_other;
     {
         BOOST_CHECK_EQUAL(one.index(), one_other.index());
         BOOST_CHECK_EQUAL(two.index(), two_other.index());
@@ -40,25 +41,25 @@ BOOST_AUTO_TEST_CASE(simple_log_name)
         BOOST_CHECK_LE(one, two);
         BOOST_CHECK_LT(one, two);
     }
-    name two_point_three(two+three);
-    name two_point_three_direct("two/three");
+    tag two_point_three(two+three);
+    tag two_point_three_direct("two/three");
     {
         BOOST_CHECK_EQUAL(two_point_three, two_point_three_direct);
     }
     {
-        name one_by_index(one.index());
-        name two_by_index(two.index());
+        tag one_by_index(one.index());
+        tag two_by_index(two.index());
         BOOST_CHECK_EQUAL(one, one_by_index);
         BOOST_CHECK_EQUAL(two, two_by_index);
-        name complex_by_index(two_point_three_direct.index());
+        tag complex_by_index(two_point_three_direct.index());
         BOOST_CHECK_EQUAL(two_point_three, complex_by_index);
     }
     {
         struct excp {
             static void invalid_index()
             {
-                size_t invalid_i=name::end();
-                name x(invalid_i);
+                size_t invalid_i=tag::end();
+                tag x(invalid_i);
             }
         };
         BOOST_CHECK_THROW(excp::invalid_index(), std::out_of_range);
@@ -79,13 +80,13 @@ BOOST_AUTO_TEST_CASE(logging_syntax_check)
         test_caller a;
         test && "Hello";
         wstring rc=test.rdbuf()->str();
-        BOOST_CHECK(rc==wstring(L"\t\tHello"));
+        BOOST_CHECK(rc==wstring(L"info\t\t\tHello"));
     }
     {
 		test && logger::warning && logger::contl;
         test && L"Ups";
         wstring rc=test.rdbuf()->str();
-        BOOST_CHECK(rc==L"\t\tHello\t\tUps");
+        BOOST_CHECK(rc==L"info\t\t\tHellowarning\t\t\tUps");
     }
 }
 

@@ -17,8 +17,8 @@ namespace litwindow {
 
 		template global_sink_data<char> LITWINDOW_LOGGER_API &global_sink_data<char>::instance();
 		template global_sink_data<wchar_t> LITWINDOW_LOGGER_API &global_sink_data<wchar_t>::instance();
-		template basic_name<char>::container_type LITWINDOW_LOGGER_API &basic_name<char>::name_container();
-		template basic_name<wchar_t>::index_container_type LITWINDOW_LOGGER_API &basic_name<wchar_t>::index_container();
+		template basic_tag<char>::container_type LITWINDOW_LOGGER_API &basic_tag<char>::name_container();
+		template basic_tag<wchar_t>::index_container_type LITWINDOW_LOGGER_API &basic_tag<wchar_t>::index_container();
 	}
 }
 #endif
