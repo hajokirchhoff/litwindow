@@ -171,7 +171,7 @@ namespace litwindow {
 				typename container_type::const_iterator i=find_name(n);
 				m_index=i->second;
 			}
-			static _Lock &g_lock()
+			static _Lock LITWINDOW_LOGGER_API &g_lock()
 			{
 				static _Lock theLock;
 				return theLock;
@@ -179,11 +179,10 @@ namespace litwindow {
 			static typename container_type::iterator find_name(const name_type &n)
 			{
 				details::defaults<_Elem>::mutex_lock_type<_Lock> lock(g_lock());
-				static _Index g_next_free_index=0;
-				std::pair<typename container_type::iterator, bool> i=name_container().insert(std::make_pair(n, g_next_free_index));
+				container_type &c(name_container());
+				std::pair<typename container_type::iterator, bool> i=c.insert(std::make_pair(n, c.size()));
 				if (i.second) {
 					index_container().insert(index_container().end(), 1, i.first);
-					++g_next_free_index;
 				}
 				return i.first;
 			}
@@ -781,14 +780,14 @@ namespace litwindow {
 					////(*pFn)(_owner._outstream);
 					return *this;
 				}
-				inserter &operator<<(std::basic_ostream<_Elem> &(*pFn)(std::basic_ostream<_Elem> &))
-				{
-					return operator&&(pFn);
-				}
 				template <typename Value>
 				inserter &operator <<(const Value &v)
 				{
-					return operator&&(v);
+					return operator&&<Value>(v);
+				}
+				inserter &operator<<(std::basic_ostream<_Elem> &(*pFn)(std::basic_ostream<_Elem> &))
+				{
+					return operator&&(pFn);
 				}
 			};
 
@@ -855,7 +854,7 @@ namespace litwindow {
 			template <typename Value>
 			inserter operator<<(const Value &v)
 			{
-				return operator&&(v);
+				return operator&&<Value>(v);
 			}
 
 
@@ -866,15 +865,15 @@ namespace litwindow {
 			}
 			_Myt &operator &&(const component_type &c)
 			{
-				return component(c);
+				return this->component(c);
 			}
 			_Myt &operator &&(const level_type &l)
 			{
-				return level(l);
+				return this->level(l);
 			}
 			_Myt &operator &&(const topic_type &t)
 			{
-				return topic(t);
+				return this->topic(t);
 			}
 			void sink(sink_type *s)
 			{
@@ -892,6 +891,10 @@ namespace litwindow {
 			_Myt &component(const component_type &c) 
 			{
 				m_component=c; return *this;
+			}
+			_Myt &topic(const topic_type &t)
+			{
+				m_topic=t; return *this;
 			}
 			_Myt &set_default_topic(const topic_type &t)
 			{
