@@ -857,11 +857,10 @@ namespace litwindow {
 				return operator&&<Value>(v);
 			}
 
-
-			inserter operator && (logmanipulator l)
+			_Myt &operator && (logmanipulator l)
 			{
-				_Myt &r((*l)(*this));
-				return inserter(r, r.enabled());
+				return (*l)(*this);
+				//return inserter(r, r.enabled());
 			}
 			_Myt &operator &&(const component_type &c)
 			{
@@ -908,7 +907,8 @@ namespace litwindow {
 			void continue_entry()
 			{
 				// ignore one 'end' and one 'begin'
-				m_ignore_begin_end_count=2;
+				if (m_open_count)
+                    m_ignore_begin_end_count=2;
 			}
 		private:
 			size_t	m_ignore_begin_end_count;
