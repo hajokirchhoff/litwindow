@@ -98,5 +98,14 @@ extern void LWWX_API enable_log_to_wxdebug(bool enabled=true);
 
 #endif
 
+#include <wx/window.h>
+#include <boost/utility.hpp>
+class wxWindowFreezer:public boost::noncopyable
+{
+    wxWindow *m_w;
+public:
+    wxWindowFreezer(wxWindow *w):m_w(w) { m_w->Freeze(); }
+    ~wxWindowFreezer() { m_w->Thaw(); }
+};
 
 #endif
