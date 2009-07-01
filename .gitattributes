@@ -101,6 +101,8 @@ libs/lwwx/stdwx.cpp -text
 libs/lwwx/stdwx.h -text
 libs/lwwx/wxList_objects.cpp -text
 libs/lwwx/wxList_objects.h -text
+libs/lwwx/wxbook_objects.cpp -text
+libs/lwwx/wxbook_objects.h -text
 libs/lwwx/wxbutton_objects.cpp -text
 libs/lwwx/wxbutton_objects.h -text
 libs/lwwx/wxio.cpp -text
@@ -136,6 +138,7 @@ litwindow/config.hpp -text
 litwindow/constraints.h -text
 litwindow/dataadapter.h -text
 litwindow/dataadaptercontainerimp.h -text
+litwindow/dataadapterenum.h -text
 litwindow/dataadapterimp.h -text
 litwindow/expr.h -text
 litwindow/logger.hpp -text

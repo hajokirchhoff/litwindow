@@ -236,6 +236,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\litwindow\dataadapterenum.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\litwindow\dataadapterimp.h"
 				>
 			</File>

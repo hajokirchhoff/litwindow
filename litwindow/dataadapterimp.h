@@ -394,6 +394,7 @@ namespace litwindow {
 		}
 	};
 
+    class converter_enum_info;
 	/// base class for all converter objects.
 	class LWBASE_API converter_base
 	{
@@ -442,6 +443,8 @@ namespace litwindow {
 		/// return the size of an object in bytes
 		virtual size_t get_sizeof(const schema_entry *e) const = 0;
 
+        /// return enum access
+        virtual const converter_enum_info *get_enum_info() const { return 0; }
 	};
 
 	/** converter for abstract aggregates. */

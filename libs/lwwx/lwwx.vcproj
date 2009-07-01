@@ -218,6 +218,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\wxbook_objects.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\wxbutton_objects.cpp"
 				>
 			</File>
@@ -277,6 +281,10 @@
 			</File>
 			<File
 				RelativePath=".\stdwx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\wxbook_objects.h"
 				>
 			</File>
 			<File

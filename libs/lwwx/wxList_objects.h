@@ -50,6 +50,8 @@ public:
     virtual void SetStringSelection(const wxString &str) = 0;
     virtual long GetClientDataSelection() const;
     virtual void SetClientDataSelection(long clientData);
+    bool GetUseClientData() const { return IndexClientData; }
+    void SetUseClientData(bool douse) { IndexClientData=true; }
 
     bool	IndexClientData;	///< if true, uses client data to index elements in the list
 protected:

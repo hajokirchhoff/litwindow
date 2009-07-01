@@ -223,6 +223,7 @@ PROP_GetSet(tstring, Column)
 PROP_GetSet(accessor, Current)
 PROP_GetSet(wxString, StringSelection)
 PROP_GetSet(int, Value)
+PROP_GetSet(bool, UseClientData)
 PROP(IndexClientData)
 END_ADAPTER()
 

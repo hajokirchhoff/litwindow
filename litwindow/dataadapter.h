@@ -34,6 +34,7 @@ namespace litwindow {
 	class container;
 	class const_aggregate;
 	class aggregate;
+    class converter_enum_info;
 
 	/** const_accessor objects are the most fundamental data adapters, providing basic, readonly access to objects.
 	A const_accessor can point to objects of any kind and provides basic readonly access to the values of these objects.
@@ -102,7 +103,9 @@ namespace litwindow {
 		bool is_nested() const;
 		/// Test if the accessor points to an old style C vector
 		bool is_c_vector() const;
-
+        /// Test if the accessor is an enumeration
+        bool is_enum() const;
+        const converter_enum_info *get_enum_info() const;
 		/** get the size of the original object.
 		get_sizeof() returns 'sizeof(object)', the number of bytes occupied by
 		the original object.
@@ -1404,6 +1407,14 @@ namespace litwindow {
 	{
 		return get_type()->is_c_vector();
 	}
+    inline bool const_accessor::is_enum() const
+    {
+        return get_type()->is_enum();
+    }
+    inline const converter_enum_info *const_accessor::get_enum_info() const
+    {
+        return get_type()->get_enum_info();
+    }
 
 	inline size_t const_accessor::get_sizeof() const
 	{
@@ -1628,6 +1639,17 @@ namespace litwindow {
 		}
 
 	};
+
+    template <typename AggregateType, typename ValueType>
+    void set_value(AggregateType &ag, const char *member_name, const ValueType &t)
+    {
+        dynamic_cast_accessor<ValueType>(make_aggregate(ag)[member_name]).set(t);
+    }
+    template <typename AggregateType, typename ValueType>
+    ValueType get_value(AggregateType &ag, const char *member_name)
+    {
+        dynamic_cast_accessor<ValueType>(make_const_aggregate()[member_name]).get<ValueType>();
+    }
 
 	/** converter class calling external (non-member) functions to get or set a value. */
 	template <class Value, class PropClass, class GetPointer, class SetPointer>
