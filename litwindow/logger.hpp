@@ -978,8 +978,6 @@ namespace litwindow {
 
 		typedef basic_events<char> events;
 		typedef basic_events<wchar_t> wevents;
-		typedef events log;
-		typedef wevents wlog;
 
 		/*!\page litwindow_logger Logging: recording events and states.
 		* Copyright 2009 Hajo Kirchhoff, Lit Window Productions - Kirchhoff-IT Consulting, www.litwindow.com
