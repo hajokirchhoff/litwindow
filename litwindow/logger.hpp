@@ -849,7 +849,20 @@ namespace litwindow {
 			template <typename Value>
 			void put(const Value &v)
 			{
-				stream() << v;
+                litwindow_logger_find_all_namespaces_operator_insert_to_stream(stream(), v);
+                // This here used to be
+				// stream() << v;
+                // but in that case a user defined operator << will not be found if it is not
+                // visible in the litwindow::logger namespace
+                // So call the ::litwindow_logger... function (see below), which then
+                // will cause a lookup in all accessible namespaces
+
+                // Note: This might be a Visual Studio 2008 compiler bug, but I don't know enough
+                // about the exact C++ symbol lookup rules to determine that. I would have expected
+                // that symbols from the global namespace were accessible here in this function
+                // even if they where defined somewhere else or somewhat later on.
+                // But without this 'workaround', a user defined operator<<(ostream&, const Value&) will not be
+                // found.
 			}
 			template <typename Value>
 			inserter operator<<(const Value &v)
@@ -1172,6 +1185,12 @@ namespace litwindow {
 		* \endcode
 		*/
 	}
+}
+
+template <typename _Elem, typename V>
+inline std::basic_ostream<_Elem> &litwindow_logger_find_all_namespaces_operator_insert_to_stream(std::basic_ostream<_Elem> &o, const V &v)
+{
+    return (o << v);
 }
 
 #include "logger/sink.hpp"
