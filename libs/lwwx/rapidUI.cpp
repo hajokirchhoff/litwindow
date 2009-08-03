@@ -70,9 +70,20 @@ void RapidUI::TransferDataFromWindow()
 	m_solver.solve();
 }
 
+void RapidUI::TransferDataToWindow()
+{
+    UnsolveAllDataToWindowsRules();
+    m_solver.solve();
+}
+
 void RapidUI::UnsolveAllWindowsToDataRules()
 {
 	m_solver.mark_group_changed(wxT("window_to_data"));
+}
+
+void RapidUI::UnsolveAllDataToWindowsRules()
+{
+    m_solver.mark_group_changed(wxT("data_to_window"));
 }
 
 void RapidUI::AddDefaultRulesForWindow(wxWindow *w)

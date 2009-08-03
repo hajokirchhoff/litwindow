@@ -91,9 +91,11 @@ public:
 		TransferDataFromWindow();
 	}
 	//@}
+    void TransferDataToWindow();
 
 	void Clear();
 	void UnsolveAllWindowsToDataRules();
+    void UnsolveAllDataToWindowsRules();
 
 	/** Tells the solver that a value has changed.
 	@return true if the value could be changed without violating constraints. false if a conflict occurred.
