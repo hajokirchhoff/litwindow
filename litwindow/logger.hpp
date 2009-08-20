@@ -269,7 +269,7 @@ namespace litwindow {
 			const thread_process_id *m_source_id;
 		};
 
-		template <unsigned category, typename _Elem>
+		template <typename Category, typename _Elem>
 		class basic_tag_with_category:public basic_tag<_Elem>
 		{
 			typedef basic_tag<_Elem> inherited;
@@ -281,12 +281,10 @@ namespace litwindow {
 		};
 
 		namespace {
-			enum {
-				cat_component,
-				cat_topic,
-				cat_level,
-				cat_instance
-			};
+            struct cat_component {};
+            struct cat_topic {};
+            struct cat_level {};
+            struct cat_instance {};
 		};
 		template <typename _Elem>
 		struct basic_component:public basic_tag_with_category<cat_component, _Elem>
