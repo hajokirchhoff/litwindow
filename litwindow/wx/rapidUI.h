@@ -26,10 +26,12 @@ DECLARE_EXPORTED_EVENT_TYPE(LWWX_API, lwEVT_COMMIT_PHASE, 0);
 namespace litwindow {
 
 using namespace std;
-#pragma warning(disable:4231)
-LWWX_STL_VECTOR_EXPORT(wxWindow*);
 #pragma warning(disable:4660)
 LWWX_STL_VECTOR_EXPORT(tstring);
+#ifdef not
+#pragma warning(disable:4231)
+LWWX_STL_VECTOR_EXPORT(wxWindow*);
+#endif // not
 
 class LWWX_API RapidUI;
 

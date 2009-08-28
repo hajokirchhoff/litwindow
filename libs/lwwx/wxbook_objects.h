@@ -14,13 +14,13 @@
 #include <litwindow/lwbase.hpp>
 #include <litwindow/dataadapter.h>
 #include <wx/bookctrl.h>
+#include <wx/choicebk.h>
 #include "./base_objects.h"
 
 #ifndef x_DOC_DEVELOPER
 
 class wxBookCtrlBase;
 class wxBookCtrlEvent;
-class wxChoicebookEvent;
 
 namespace litwindow {
 
@@ -28,7 +28,7 @@ namespace litwindow {
     {
         wxBookCtrlBase *m_wnd;
         void OnPageChanged(wxBookCtrlEvent &evt);
-        void OnPageChanged(wxChoicebookEvent &evt);
+        void OnChoicePageChanged(wxChoicebookEvent &evt);
         void notify_changed();
     public:
         wxBookCtrlBaseAdapter(wxBookCtrlBase *w=0);

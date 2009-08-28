@@ -26,7 +26,7 @@ namespace litwindow {
         notify_changed();
     }
 
-    void wxBookCtrlBaseAdapter::OnPageChanged( wxChoicebookEvent &evt )
+    void wxBookCtrlBaseAdapter::OnChoicePageChanged( wxChoicebookEvent &evt )
     {
         notify_changed();
     }
@@ -52,7 +52,7 @@ using namespace litwindow;
 IMPLEMENT_DYNAMIC_CLASS(wxBookCtrlBaseAdapter, lwAdapterBase)
 BEGIN_EVENT_TABLE(wxBookCtrlBaseAdapter, lwAdapterBase)
 EVT_BOOKCTRL_PAGE_CHANGED(wxID_ANY, OnPageChanged)
-EVT_CHOICEBOOK_PAGE_CHANGED(wxID_ANY, OnPageChanged)
+EVT_CHOICEBOOK_PAGE_CHANGED(wxID_ANY, OnChoicePageChanged)
 END_EVENT_TABLE()
 
 BEGIN_ADAPTER_NO_COPY(wxBookCtrlBaseAdapter)
