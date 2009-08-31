@@ -57,6 +57,7 @@ libs/lwwx/doc/images/tutorialstep1.gif -text
 libs/lwwx/doc/litwindow.doxy -text
 libs/lwwx/doc/tutorial_rssreader.doxy -text
 libs/lwwx/extended_error_dialog.cpp -text
+libs/lwwx/list_mediator.cpp -text
 libs/lwwx/lwwx.cpp -text
 libs/lwwx/lwwx.pjd -text
 libs/lwwx/lwwx.vcproj -text
@@ -164,10 +165,12 @@ litwindow/renderer.hpp -text
 litwindow/result.hpp -text
 litwindow/tchar.h -text
 litwindow/tstring.hpp -text
+litwindow/ui/list_mediator.hpp -text
 litwindow/wx/action_objects.h -text
 litwindow/wx/dynamic_menu.h -text
 litwindow/wx/extended_error.h -text
 litwindow/wx/extended_error_dialog.h -text
+litwindow/wx/list_mediator.hpp -text
 litwindow/wx/lwwx.h -text
 litwindow/wx/new_widgets.h -text
 litwindow/wx/rapidUI.h -text

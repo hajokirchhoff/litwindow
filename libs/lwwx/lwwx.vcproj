@@ -198,6 +198,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\list_mediator.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\lwwx.cpp"
 				>
 			</File>
@@ -265,6 +269,14 @@
 			</File>
 			<File
 				RelativePath="..\..\litwindow\wx\extended_error_dialog.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\litwindow\wx\list_mediator.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\litwindow\ui\list_mediator.hpp"
 				>
 			</File>
 			<File
