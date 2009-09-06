@@ -5,17 +5,10 @@
 #include "lwwx.h"
 #include <wx/listctrl.h>
 #include <boost/function.hpp>
+#include <boost/ref.hpp>
 
 namespace litwindow {
     namespace wx {
-
-        class wxListCtrl_list_adapter:public ui::basic_list_adapter<wxListCtrl>
-        {
-            typedef wxListCtrl List;
-            List    *m_ctrl;
-        public:
-            
-        };
 
         class LWWX_API VirtualListCtrl:public wxListCtrl
         {
@@ -38,11 +31,33 @@ namespace litwindow {
             //virtual wxListItemAttr *OnGetItemColumnAttr(long item, long WXUNUSED) const;
             //virtual int OnGetItemColumnImage(long item, long column) const;
             DECLARE_DYNAMIC_CLASS(VirtualListCtrl);
+        public:
         };
 
-        inline ui::basic_list_adapter<VirtualListCtrl> make_list_adapter(VirtualListCtrl *l)
+        class wxListCtrl_list_adapter:public ui::basic_ui_control_adapter<VirtualListCtrl>
         {
-            return ui::basic_list_adapter<VirtualListCtrl>();
+        public:
+            typedef VirtualListCtrl value_type;
+            value_type *wnd() const { return m_ctrl; }
+            wxListCtrl_list_adapter(VirtualListCtrl *l=0)
+                :m_ctrl(l){}
+            size_t column_count() const { return wnd()->GetColumnCount(); }
+            size_t item_count() const { return wnd()->GetItemCount(); }
+
+            void insert_column(size_t c, const ui::basic_column_descriptor &col)
+            {
+
+            }
+            void remove_column(size_t c);
+            void set_column(size_t, const ui::basic_column_descriptor &col);
+        private:
+            value_type *m_ctrl;
+        };
+
+
+        inline wxListCtrl_list_adapter make_list_adapter(VirtualListCtrl *l)
+        {
+            return wxListCtrl_list_adapter(l);
         }
     }
 }
