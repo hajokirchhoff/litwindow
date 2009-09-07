@@ -6,6 +6,7 @@
 #include <wx/listctrl.h>
 #include <boost/function.hpp>
 #include <boost/ref.hpp>
+#include <boost/bind.hpp>
 
 namespace litwindow {
     namespace wx {
@@ -71,11 +72,11 @@ namespace litwindow {
                 :m_ctrl(l) { l->on_get_item_text=boost::bind(&wxListCtrl_list_adapter::on_get_item_text, this, _1, _2); }
             size_t column_count() const { return wnd()->GetColumnCount(); }
             size_t item_count() const { return wnd()->GetItemCount(); }
-            void set_item_count(size_t new_count) { wnd()->SetItemCount(); }
-            void setup_columns(const ui::basic_columns_adapter &d) const
-            {
-                ui::setup_columns(m_columns_traits, wnd(), d);
-            }
+            void set_item_count(size_t new_count) { wnd()->SetItemCount(new_count); }
+            //void setup_columns(const ui::basic_columns_adapter &d) const
+            //{
+            //    ui::setup_columns(m_columns_traits, wnd(), d);
+            //}
             void begin_update() { wnd()->Freeze(); }
             void end_update() { wnd()->Thaw(); }
 
