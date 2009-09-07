@@ -14,6 +14,8 @@ libs/lwbase/unittest/lwbase_unittest.idc
 libs/lwwx/*.user
 libs/lwwx/Debug
 libs/lwwx/Release
+libs/lwwx/samples/generic_list_mediator/VCProjectUnicodeDebug
+libs/lwwx/samples/generic_list_mediator/list_mediator.pjd.bak
 libs/odbc/*.user
 libs/odbc/Debug
 libs/odbc/Release
