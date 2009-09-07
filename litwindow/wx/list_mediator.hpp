@@ -61,20 +61,36 @@ namespace litwindow {
         class wxListCtrl_list_adapter:public ui::basic_ui_control_adapter //:public ui::basic_ui_control_adapter<VirtualListCtrl, wxColumns_traits>
         {
         public:
+
+            //typedef ui::basic_list_mediator mediator;
+            //typedef ui::basic_columns_adapter columns;
+
             typedef VirtualListCtrl value_type;
             value_type *wnd() const { return m_ctrl; }
             wxListCtrl_list_adapter(VirtualListCtrl *l=0)
-                :m_ctrl(l) {}
+                :m_ctrl(l) { l->on_get_item_text=boost::bind(&wxListCtrl_list_adapter::on_get_item_text, this, _1, _2); }
             size_t column_count() const { return wnd()->GetColumnCount(); }
             size_t item_count() const { return wnd()->GetItemCount(); }
+            void set_item_count(size_t new_count) { wnd()->SetItemCount(); }
             void setup_columns(const ui::basic_columns_adapter &d) const
             {
                 ui::setup_columns(m_columns_traits, wnd(), d);
             }
+            void begin_update() { wnd()->Freeze(); }
+            void end_update() { wnd()->Thaw(); }
 
         private:
+            wxString on_get_item_text(long item, long column)
+            {
+                //record_adapter i=m_mediator->get_record(item);
+                //columns c=m_mediator->get_columns_adapter();
+                //return c.get_text(i, c);
+                return L"??";
+            }
+            //mediator *m_mediator;
             wxColumns_traits m_columns_traits;
             value_type *m_ctrl;
+            std::vector<size_t> m_visible_columns_index;
         };
 
 
