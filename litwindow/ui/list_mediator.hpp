@@ -4,6 +4,7 @@
 #include "litwindow/tstring.hpp"
 #include <vector>
 #include <boost/ref.hpp>
+#include <iterator>
 
 namespace litwindow {
     namespace ui {
@@ -17,13 +18,71 @@ namespace litwindow {
         {
             tstring m_title;
             tstring m_name;
+            int     m_width;
+            bool    m_visible;
         public:
-            basic_column_descriptor(const tstring &name, const tstring &title=tstring())
-                :m_name(name), m_title(title.empty() ? name : title) {}
+            basic_column_descriptor(const tstring &name, const tstring &title=tstring(), int width=-1)
+                :m_name(name), m_title(title.empty() ? name : title), m_width(width), m_visible(true)
+            {}
             /// the title or header of the column
             tstring title() const { return m_title; }
             /// the internal name of the column
             tstring name() const { return m_name; }
+            /// set the column width
+            void width(int new_width) { m_width=new_width; }
+            /// return the column width
+            int width() const { return m_width; }
+            /// visibility
+            bool visible() const { return m_visible; }
+            void visible(bool do_show) { m_visible=do_show; }
+            template <typename Archive>
+            void serialize(Archive &ar, const unsigned int version)
+            {
+                ar & m_title & m_name & m_width & m_visible;				
+            }
+        };
+
+        class basic_columns_adapter
+        {
+        public:
+            typedef basic_column_descriptor value_type;
+            typedef std::vector<value_type> columns_t;
+            const columns_t &columns() const { return m_column_data; }
+            std::back_insert_iterator<columns_t> add(const basic_column_descriptor &d)
+            {
+                set_dirty();
+                m_column_data.push_back(d);
+                return std::back_inserter<columns_t>(m_column_data);
+            }
+            struct back_inserter
+            {
+                basic_columns_adapter &m_c;
+                back_inserter(basic_columns_adapter &c):m_c(c){}
+                back_inserter operator()(const basic_column_descriptor &d) const
+                {
+                    m_c.add(d);
+                    return *this;
+                }
+                back_inserter operator()(const tstring &name, const tstring &title, int width=-1) const
+                {
+                    return operator()(basic_column_descriptor(name, title, width));
+                }
+            };
+            back_inserter add(const tstring &name, const tstring &title, int width=-1)
+            {
+                return back_inserter(*this)(name, title, width);
+            }
+            size_t size() const { return columns().size(); }
+            bool dirty() const { return m_dirty; }
+            basic_columns_adapter()
+                :m_dirty(true){}
+            const value_type &at(size_t idx) const { return columns().at(idx); }
+        protected:
+            void set_dirty() { m_dirty=true; }
+            void clear_dirty() { m_dirty=false; }
+        private:
+            bool m_dirty;
+            columns_t m_column_data;
         };
 
         template <typename DatasetAdapter>
@@ -43,19 +102,29 @@ namespace litwindow {
             return basic_dataset_accessor<DatasetAdapter>();
         }
 
-        typedef std::vector<basic_column_descriptor> basic_columns;
+        template <typename ColumnTraits, typename UIControl, typename Columns>
+        void setup_columns(ColumnTraits &tr, UIControl c, Columns &cols)
+        {
+            size_t idx=0;
+            while (idx<cols.size()) {
+                if (idx>=tr.count(c))
+                    tr.insert_column(c, idx, cols.at(idx));
+                else
+                    tr.set_column(c, idx, cols.at(idx));
+                ++idx;
+            }
+            while (tr.count(c)>cols.size())
+                tr.remove_column(c, tr.count(c)-1);
+        }
 
-        template <typename List>
         class basic_ui_control_adapter
         {
         public:
-            typedef List value_type;
-
-            size_t column_count() const;
-            size_t item_count() const;
+            void begin_update() {}
+            void end_update() {}
         };
 
-        template <typename DatasetAdapter, typename UIControlAdapter, typename ColumnsAdapter=basic_columns>
+        template <typename DatasetAdapter, typename UIControlAdapter, typename ColumnsAdapter=basic_columns_adapter>
         class basic_list_mediator
         {
         public:
@@ -92,8 +161,10 @@ namespace litwindow {
             void refresh_columns(bool do_refresh=true);
             void refresh_list();
             
-            void begin_update() {}
-            void end_update() {}
+            void begin_update() { m_ui_control_adapter.begin_update(); }
+            void end_update() { m_ui_control_adapter.end_update(); }
+
+            void setup_columns();
 
             ui_control_adapter_type m_ui_control_adapter;
             columns_adapter_type    m_columns;
@@ -112,19 +183,9 @@ namespace litwindow {
         template <typename DatasetAdapter, typename UIControlAdapter, typename ColumnsAdapter>
         void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, ColumnsAdapter>::refresh_columns(bool do_refresh)
         {
-            if (m_columns.size() != m_ui_control_adapter.column_count())
-                do_refresh=true;
-            if (do_refresh) {
+            if (do_refresh || m_columns.dirty()) {
                 begin_update();
-                size_t c=0;
-                while (c<m_columns.size()) {
-                    if (c>=m_ui_control_adapter.column_count())
-                        m_ui_control_adapter.insert_column(c, m_columns[c]);
-                    else
-                        m_ui_control_adapter.set_column(c, m_columns[c]);
-                }
-                while (m_ui_control_adapter.column_count()>=m_columns.size())
-                    m_ui_control_adapter.remove_column(m_ui_control_adapter.column_count()-1);
+                setup_columns();
                 end_update();
                 m_needs_refresh_columns=false;
             }
@@ -135,6 +196,15 @@ namespace litwindow {
         {
 
         }
+
+        template <typename DatasetAdapter, typename UIControlAdapter, typename ColumnsAdapter>
+        void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, ColumnsAdapter>::setup_columns()
+        {
+            m_ui_control_adapter.setup_columns(m_columns);
+        }
+
     }
 }
 #endif // list_mediator_h__31080910
+
+void setup_columns();

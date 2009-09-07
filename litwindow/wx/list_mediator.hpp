@@ -34,23 +34,46 @@ namespace litwindow {
         public:
         };
 
-        class wxListCtrl_list_adapter:public ui::basic_ui_control_adapter<VirtualListCtrl>
+        class wxColumns_traits
+        {
+        public:
+            void insert_column(wxListCtrl *c, size_t index, const ui::basic_column_descriptor &d) const
+            {
+                c->InsertColumn(index, d.title(), wxLIST_FORMAT_LEFT, d.width());
+            }
+            void remove_column(wxListCtrl *c, size_t index) const
+            {
+                c->DeleteColumn(index);
+            }
+            void set_column(wxListCtrl *c, size_t index, const ui::basic_column_descriptor &d) const
+            {
+                wxListItem it;
+                it.SetText(d.title());
+                it.SetWidth(d.width());
+                c->SetColumn(index, it);
+            }
+            size_t count(wxListCtrl *c) const
+            {
+                return c->GetColumnCount();
+            }
+        };
+
+        class wxListCtrl_list_adapter:public ui::basic_ui_control_adapter //:public ui::basic_ui_control_adapter<VirtualListCtrl, wxColumns_traits>
         {
         public:
             typedef VirtualListCtrl value_type;
             value_type *wnd() const { return m_ctrl; }
             wxListCtrl_list_adapter(VirtualListCtrl *l=0)
-                :m_ctrl(l){}
+                :m_ctrl(l) {}
             size_t column_count() const { return wnd()->GetColumnCount(); }
             size_t item_count() const { return wnd()->GetItemCount(); }
-
-            void insert_column(size_t c, const ui::basic_column_descriptor &col)
+            void setup_columns(const ui::basic_columns_adapter &d) const
             {
-
+                ui::setup_columns(m_columns_traits, wnd(), d);
             }
-            void remove_column(size_t c);
-            void set_column(size_t, const ui::basic_column_descriptor &col);
+
         private:
+            wxColumns_traits m_columns_traits;
             value_type *m_ctrl;
         };
 
@@ -59,6 +82,7 @@ namespace litwindow {
         {
             return wxListCtrl_list_adapter(l);
         }
+
     }
 }
 
