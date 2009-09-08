@@ -89,6 +89,11 @@ namespace litwindow {
             {
                 ui::setup_columns(wxColumns_traits<typename ColumnsAdapter::column_descriptor_type>(), wnd(), d);
             }
+            template <typename DatasetAdapter>
+            void refresh_list(const DatasetAdapter &a)
+            {
+                set_item_count(a.size());
+            }
             void begin_update() { wnd()->Freeze(); }
             void end_update() { wnd()->Thaw(); }
 
@@ -124,15 +129,38 @@ namespace litwindow {
             }
         };
 
-        class wxListBox_list_adapter
+        class wxListBox_list_adapter:public ui::basic_ui_control_adapter
         {
-            wxListBox *m_ctrl;
+            wxControlWithItems *m_ctrl;
         public:
             wxListBox_list_adapter()
                 :m_ctrl(0){}
-            void set_control(wxListBox *l)
+            void set_control(wxControlWithItems *l)
             {
                 m_ctrl=l;
+            }
+            wxControlWithItems *wnd() const { return m_ctrl; }
+            template <typename DatasetAdapter>
+            void refresh_list(const DatasetAdapter &a)
+            {
+                const DatasetAdapter::columns_adapter_type &columns_adapter(a.columns_adapter());
+                wnd()->Clear();
+                tstring text;
+                size_t row=0;
+                for (size_t i=0; i<a.size(); ++i) {
+                    const DatasetAdapter::value_type &current(a.value_at(i));
+                    if (columns_adapter.render_element_at(row, 0, *wnd(), current)==false) {
+                        columns_adapter.render_element_at(0, text, current);
+                        wnd()->Append(text);
+                    }
+                    ++row;
+                }
+            }
+
+            template <typename ColumnsAdapter>
+            void setup_columns(const ColumnsAdapter &c) const
+            {
+                return; // a list box does not have columns
             }
         };
     }

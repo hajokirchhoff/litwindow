@@ -57,6 +57,11 @@ typedef ui::basic_column_descriptor<test_data> sample_column_descriptor;
 typedef ui::basic_columns_adapter<sample_column_descriptor> sample_columns_adapter;
 typedef ui::stl_container_dataset_accessor<test_list_t, sample_columns_adapter > sample_dataset_adapter;
 
+template <typename Value>
+inline void to_string(const Value &v, tstring &c)
+{
+    c=boost::lexical_cast<tstring>(v);
+}
 void generic_list_sample::setup_lists()
 {
     // setup some example records
@@ -66,7 +71,12 @@ void generic_list_sample::setup_lists()
 
     sample_column_descriptor column1(L"Name", 120/*, &test_data::name*/);
     static sample_columns_adapter g_columns;
-    g_columns.add(L"Name", 120/*, &test_data::name*/)(L"Age"/*,*/ /*age_formatter*/);
+    boost::function<void(const test_data &t, tstring &c)> fnc;
+    fnc=boost::bind(&to_string<int>, 
+        boost::bind(&litwindow::ui::to_member<test_data, int>, _1, &test_data::age),
+        _2
+        );
+    g_columns.add(L"Name", 120, fnc)(L"Age", 10, fnc/*age_formatter*/);
 
     static sample_dataset_adapter g_test_list_adapter;
     g_test_list_adapter.set_container(g_sample);
@@ -80,12 +90,19 @@ void generic_list_sample::setup_lists()
     g_listctrl_mediator.set_dataset_adapter(g_test_list_adapter);
     g_listctrl_mediator.refresh();
 
+
+    static wx::wxListBox_list_adapter g_listbox_adapter;
+    g_listbox_adapter.set_control(m_listbox);
+    static ui::basic_list_mediator<sample_dataset_adapter, wx::wxListBox_list_adapter> g_listbox_mediator;
+    g_listbox_mediator.set_ui_adapter(g_listbox_adapter);
+    g_listbox_mediator.set_dataset_adapter(g_test_list_adapter);
+    g_listbox_mediator.refresh();
+
+
     m_dataview->AppendTextColumn(L"Name", 0);
     static wx::wxDataViewCtrl_list_adapter g_dataviewctrl_adapter;
     g_dataviewctrl_adapter.set_control(m_dataview);
 
-    static wx::wxListBox_list_adapter g_listbox_adapter;
-    g_listbox_adapter.set_control(m_listbox);
 }
 
 /*
@@ -162,9 +179,9 @@ generic_list_sample::~generic_list_sample()
 void generic_list_sample::Init()
 {
 ////@begin generic_list_sample member initialisation
+    m_listctrl = NULL;
     m_listbox = NULL;
     m_choice = NULL;
-    m_listctrl = NULL;
     m_grid = NULL;
     m_dataview = NULL;
 ////@end generic_list_sample member initialisation
@@ -191,6 +208,18 @@ void generic_list_sample::CreateControls()
     itemFlexGridSizer3->AddGrowableCol(2);
     itemBoxSizer2->Add(itemFlexGridSizer3, 1, wxGROW|wxALL, 5);
 
+    wxStaticText* itemStaticText4 = new wxStaticText( itemDialog1, wxID_STATIC, _("wxListCtrl"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemFlexGridSizer3->Add(itemStaticText4, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
+
+    wxStaticText* itemStaticText5 = new wxStaticText( itemDialog1, wxID_STATIC, _("wxListBox"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemFlexGridSizer3->Add(itemStaticText5, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
+
+    wxStaticText* itemStaticText6 = new wxStaticText( itemDialog1, wxID_STATIC, _("wxChoice"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemFlexGridSizer3->Add(itemStaticText6, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
+
+    m_listctrl = new VirtualListCtrl( itemDialog1, ID_LISTCTRL, wxDefaultPosition, wxSize(100, 100), wxLC_REPORT );
+    itemFlexGridSizer3->Add(m_listctrl, 0, wxGROW|wxGROW|wxALL, 5);
+
     wxArrayString m_listboxStrings;
     m_listbox = new wxListBox( itemDialog1, ID_LISTBOX, wxDefaultPosition, wxDefaultSize, m_listboxStrings, wxLB_SINGLE );
     itemFlexGridSizer3->Add(m_listbox, 0, wxGROW|wxGROW|wxALL, 5);
@@ -199,8 +228,14 @@ void generic_list_sample::CreateControls()
     m_choice = new wxChoice( itemDialog1, ID_CHOICE, wxDefaultPosition, wxDefaultSize, m_choiceStrings, 0 );
     itemFlexGridSizer3->Add(m_choice, 0, wxGROW|wxALIGN_TOP|wxALL, 5);
 
-    m_listctrl = new VirtualListCtrl( itemDialog1, ID_LISTCTRL, wxDefaultPosition, wxSize(100, 100), wxLC_REPORT );
-    itemFlexGridSizer3->Add(m_listctrl, 0, wxGROW|wxGROW|wxALL, 5);
+    wxStaticText* itemStaticText10 = new wxStaticText( itemDialog1, wxID_STATIC, _("wxGrid"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemFlexGridSizer3->Add(itemStaticText10, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
+
+    wxStaticText* itemStaticText11 = new wxStaticText( itemDialog1, wxID_STATIC, _("wxDataViewCtrl"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemFlexGridSizer3->Add(itemStaticText11, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
+
+    wxStaticText* itemStaticText12 = new wxStaticText( itemDialog1, wxID_STATIC, _("Static text"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemFlexGridSizer3->Add(itemStaticText12, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
 
     m_grid = new wxGrid( itemDialog1, ID_GRID, wxDefaultPosition, wxSize(200, 150), wxSUNKEN_BORDER|wxHSCROLL|wxVSCROLL );
     m_grid->SetDefaultColSize(50);
@@ -210,8 +245,10 @@ void generic_list_sample::CreateControls()
     m_grid->CreateGrid(5, 5, wxGrid::wxGridSelectCells);
     itemFlexGridSizer3->Add(m_grid, 0, wxGROW|wxGROW|wxALL, 5);
 
-    m_dataview = new wxDataViewCtrl( itemDialog1, ID_DATAVIEW, wxDefaultPosition, wxSize(100, 100), wxSIMPLE_BORDER );
+    m_dataview = new wxDataViewCtrl( itemDialog1, ID_DATAVIEW, wxDefaultPosition, wxSize(200, 100), wxSIMPLE_BORDER );
     itemFlexGridSizer3->Add(m_dataview, 0, wxGROW|wxGROW|wxALL, 5);
+
+
 
 ////@end generic_list_sample content construction
     setup_lists();

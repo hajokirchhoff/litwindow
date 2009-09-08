@@ -5,23 +5,26 @@
 #include <vector>
 #include <boost/ref.hpp>
 #include <boost/function.hpp>
+#include <boost/lexical_cast.hpp>
 #include <iterator>
 
 namespace litwindow {
     namespace ui {
-        template <typename Value>
+        template <typename Value/*, typename TextRenderer*/>
         class basic_column_descriptor
         {
         public:
-            typedef boost::function<tstring(const Value&)> text_renderer_type;
+            typedef boost::function<void (const Value&, tstring&)> text_renderer_type;
+            //typedef TextRenderer text_renderer_type;
+            typedef Value value_type;
         private:
             tstring m_title;
             int     m_width;
             bool    m_visible;
             text_renderer_type m_text_renderer;
         public:
-            basic_column_descriptor(const tstring &title, int width=-1/*, const default_text_renderer &v*/)
-                :m_title(title), m_width(width), m_visible(true)//, m_text_renderer(v)
+            basic_column_descriptor(const tstring &title, int width=-1, const text_renderer_type &v=text_renderer_type())
+                :m_title(title), m_width(width), m_visible(true), m_text_renderer(v)
             {}
             /// the title or header of the column
             tstring title() const { return m_title; }
@@ -38,18 +41,39 @@ namespace litwindow {
                 ar & m_title & m_width & m_visible;				
             }
 
+            template <typename Control>
+            bool render_element(size_t row, size_t col, Control &c, const value_type &v) const { return false; }
+
+            bool render_element(tstring &c, const value_type &v) const
+            {
+                m_text_renderer(v, c);
+                return true; 
+            }
+
             //tstring value_as_text(const typename text_renderer_type::value_type &t) const;// { return m_text_renderer(t); }
         };
 
-        template <typename Value>
+        template <typename ValueType, typename MemberType>
+        inline const MemberType &to_member(const ValueType &v, MemberType (ValueType::*ptr_to_member))
+        {
+            return v.*ptr_to_member;
+        }
+        template <typename ValueType, typename MemberType>
+        boost::function<void(const ValueType &v, tstring &s)> make_text_renderer(MemberType (ValueType::*ptr_to_member))
+        {
+            return boost::bind(&boost::lexical_cast<tstring, MemberType>, boost::bind(&to_member<ValueType, MemberType>, _1, ptr_to_member));
+        }
+
+        template <typename ColumnDescriptor>
         class basic_columns_adapter
         {
         public:
             //typedef Value element_adapter;
             //typedef typename element_adapter::element_value_type element_value_type;
-            //typedef typename element_adapter::value_type value_type;
             //typedef typename element_adapter::column_position_type column_position_type;
-            typedef basic_column_descriptor<Value> column_descriptor_type;
+            typedef ColumnDescriptor column_descriptor_type;
+            typedef typename column_descriptor_type::value_type value_type;
+            typedef typename column_descriptor_type::text_renderer_type text_renderer_type;
 
             typedef std::vector<column_descriptor_type> columns_t;
             const columns_t &columns() const { return m_column_data; }
@@ -68,20 +92,31 @@ namespace litwindow {
                     m_c.add(d);
                     return *this;
                 }
-                back_inserter operator()(const tstring &title, int width=-1) const
+                back_inserter operator()(const tstring &title, int width=-1, text_renderer_type r=text_renderer_type()) const
                 {
-                    return operator()(column_descriptor_type(title, width));
+                    return operator()(column_descriptor_type(title, width, r));
                 }
             };
-            back_inserter add(const tstring &title, int width=-1)
+            template <typename ValueRenderer>
+            back_inserter add(const tstring &title, int width=-1, ValueRenderer r=ValueRenderer())
             {
-                return back_inserter(*this)(title, width);
+                return back_inserter(*this)(title, width, /*make_text_renderer<value_type>(r)*/r);
             }
             size_t size() const { return columns().size(); }
             bool dirty() const { return m_dirty; }
             basic_columns_adapter()
                 :m_dirty(true){}
             const column_descriptor_type &column_descriptor(size_t idx) const { return columns().at(idx); }
+
+            template <typename Control>
+            bool render_element_at(size_t row, size_t col, Control &c, const value_type &v) const
+            {
+                return columns().at(col).render_element(row, col, c, v);
+            }
+            bool render_element_at(size_t col, tstring &rc, const value_type &v) const
+            {
+                return columns().at(col).render_element(rc, v);
+            }
             //const value_type &column_description(size_t idx) const { return columns().at(idx); }
 
             //const element_value_type &get(const value_type &e, const column_position_type &pos) const
@@ -158,17 +193,18 @@ namespace litwindow {
                 container_type::const_iterator i=container().begin();
                 while (dest!=m_ptrs.end() && i!=container().end()) {
                     sorted_container_type::value_type new_v= & *i;
-                    if (m_filter_pred && m_filter_pred(new_v))
+                    if (!m_filter_pred || m_filter_pred(new_v))
                         *dest++=new_v;
                     ++i;
                 }
-                while (i!=container().end()) {
+                if (dest<m_ptrs.end())
+                    m_ptrs.erase(dest, m_ptrs.end());
+                else while (i!=container().end()) {
                     sorted_container_type::value_type new_v= & *i;
-                    if (m_filter_pred && m_filter_pred(new_v))
+                    if (!m_filter_pred || m_filter_pred(new_v))
                         m_ptrs.push_back(new_v);
                     ++i;
                 }
-                m_ptrs.erase(dest, m_ptrs.end());
                 if (m_sort_pred)
                     std::sort(m_ptrs.begin(), m_ptrs.end(), m_sort_pred);
             }
@@ -270,7 +306,7 @@ namespace litwindow {
         template <typename DatasetAdapter, typename UIControlAdapter>
         void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter>::refresh_list()
         {
-            m_ui_control_adapter.set_item_count(m_dataset_adapter.size());
+            m_ui_control_adapter.refresh_list(m_dataset_adapter);
         }
 
         template <typename DatasetAdapter, typename UIControlAdapter>

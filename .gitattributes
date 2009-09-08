@@ -72,6 +72,7 @@ libs/lwwx/samples/generic_list_mediator/list_mediator.rc -text
 libs/lwwx/samples/generic_list_mediator/list_mediator.sln -text
 libs/lwwx/samples/generic_list_mediator/list_mediator.vcproj -text
 libs/lwwx/samples/generic_list_mediator/list_mediator.vcproj.Galadriel.Hajo[!!-~]Kirchhoff.user -text
+libs/lwwx/samples/generic_list_mediator/list_mediator.vcproj.ITHILIEN.Hajo[!!-~]Kirchhoff.user -text
 libs/lwwx/samples/generic_list_mediator/list_mediatorapp.cpp -text
 libs/lwwx/samples/generic_list_mediator/list_mediatorapp.h -text
 libs/lwwx/samples/generic_list_mediator/stdwx.cpp -text
@@ -144,6 +145,7 @@ libs/odbc/table.cpp -text
 libs/odbc/utility.cpp -text
 /litwindow-VC90.sln -text
 /litwindow-VC90.vcproj -text
+/litwindow-VC90.vcproj.ITHILIEN.Hajo[!!-~]Kirchhoff.user -text
 litwindow/algorithm.h -text
 litwindow/auto_link.hpp -text
 litwindow/check.hpp -text

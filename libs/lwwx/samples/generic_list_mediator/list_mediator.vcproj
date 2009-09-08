@@ -59,7 +59,7 @@
 				AssemblerListingLocation="VCProjectUnicodeDebug/"
 				ObjectFile="VCProjectUnicodeDebug/"
 				ProgramDataBaseFileName="VCProjectUnicodeDebug\list_mediator.pdb"
-				WarningLevel="4"
+				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
 				CompileAs="0"
@@ -159,7 +159,7 @@
 				AssemblerListingLocation="VCProjectUnicodeRelease/"
 				ObjectFile="VCProjectUnicodeRelease/"
 				ProgramDataBaseFileName="VCProjectUnicodeRelease\list_mediator.pdb"
-				WarningLevel="4"
+				WarningLevel="3"
 				SuppressStartupBanner="true"
 				CompileAs="0"
 			/>
