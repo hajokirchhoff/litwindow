@@ -65,6 +65,8 @@ libs/lwwx/new_widgets.cpp -text
 libs/lwwx/rapidUI.cpp -text
 libs/lwwx/rapidUI_parser.cpp -text
 libs/lwwx/samples/generic_list_mediator/generic_list_mediator.vsprops -text
+libs/lwwx/samples/generic_list_mediator/generic_list_sample.cpp -text
+libs/lwwx/samples/generic_list_mediator/generic_list_sample.h -text
 libs/lwwx/samples/generic_list_mediator/list_mediator.pjd -text
 libs/lwwx/samples/generic_list_mediator/list_mediator.rc -text
 libs/lwwx/samples/generic_list_mediator/list_mediator.sln -text

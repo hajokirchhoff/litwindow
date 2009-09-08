@@ -108,7 +108,7 @@ bool List_mediatorApp::OnInit()
 	return false;
 ////@end List_mediatorApp initialisation
 
-    return true;
+    //return true;
 }
 
 

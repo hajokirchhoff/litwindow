@@ -476,17 +476,17 @@
               <long name="title-mode">0</long>
               <long name="locked">0</long>
               <string name="proxy-type">"wbFlexGridSizerProxy"</string>
-              <string name="proxy-GrowableColumns">""</string>
-              <string name="proxy-GrowableRows">""</string>
+              <string name="proxy-GrowableColumns">"0,1,2"</string>
+              <string name="proxy-GrowableRows">"0,1"</string>
               <long name="proxy-Columns">3</long>
               <long name="proxy-Rows">0</long>
               <long name="proxy-ColumnSpacing">0</long>
               <long name="proxy-RowSpacing">0</long>
               <string name="proxy-Member variable name">""</string>
               <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
-              <string name="proxy-AlignH">"Centre"</string>
+              <string name="proxy-AlignH">"Expand"</string>
               <string name="proxy-AlignV">"Centre"</string>
-              <long name="proxy-Stretch factor">0</long>
+              <long name="proxy-Stretch factor">1</long>
               <long name="proxy-Border">5</long>
               <bool name="proxy-wxLEFT">1</bool>
               <bool name="proxy-wxRIGHT">1</bool>
@@ -627,7 +627,7 @@
                 <string name="proxy-Custom ctor arguments">""</string>
               </document>
               <document>
-                <string name="title">"wxListCtrl: ID_LISTCTRL"</string>
+                <string name="title">"VirtualListCtrl: ID_LISTCTRL"</string>
                 <string name="type">"dialog-control-document"</string>
                 <string name="filename">""</string>
                 <string name="icon-name">"listctrl"</string>
@@ -639,7 +639,7 @@
                 <string name="proxy-Id name">"ID_LISTCTRL"</string>
                 <long name="proxy-Id value">10003</long>
                 <string name="proxy-Name">""</string>
-                <string name="proxy-Class">"wxListCtrl"</string>
+                <string name="proxy-Class">"VirtualListCtrl"</string>
                 <string name="proxy-Base class">"wxListCtrl"</string>
                 <bool name="proxy-External implementation">1</bool>
                 <bool name="proxy-Separate files">0</bool>
@@ -785,7 +785,7 @@
                 <string name="proxy-Event sources">""</string>
               </document>
               <document>
-                <string name="title">"wxWindow: ID_FOREIGN"</string>
+                <string name="title">"wxDataViewCtrl: ID_DATAVIEW"</string>
                 <string name="type">"dialog-control-document"</string>
                 <string name="filename">""</string>
                 <string name="icon-name">"foreign"</string>
@@ -794,11 +794,11 @@
                 <long name="title-mode">0</long>
                 <long name="locked">0</long>
                 <string name="proxy-type">"wbForeignCtrlProxy"</string>
-                <string name="proxy-Id name">"ID_FOREIGN"</string>
+                <string name="proxy-Id name">"ID_DATAVIEW"</string>
                 <long name="proxy-Id value">10005</long>
                 <string name="proxy-Name">""</string>
-                <string name="proxy-Class">"wxWindow"</string>
-                <string name="proxy-Base class">"wxWindow"</string>
+                <string name="proxy-Class">"wxDataViewCtrl"</string>
+                <string name="proxy-Base class">"wxControl"</string>
                 <bool name="proxy-External implementation">1</bool>
                 <bool name="proxy-Separate files">0</bool>
                 <string name="proxy-Implementation filename">""</string>

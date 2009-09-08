@@ -8,6 +8,9 @@
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
 
+class wxDataViewCtrl;
+class wxListBox;
+
 namespace litwindow {
     namespace wx {
 
@@ -35,10 +38,12 @@ namespace litwindow {
         public:
         };
 
+
+        template <typename ColumnDescriptor>
         class wxColumns_traits
         {
         public:
-            void insert_column(wxListCtrl *c, size_t index, const ui::basic_column_descriptor &d) const
+            void insert_column(wxListCtrl *c, size_t index, const ColumnDescriptor &d) const
             {
                 c->InsertColumn(index, d.title(), wxLIST_FORMAT_LEFT, d.width());
             }
@@ -46,7 +51,7 @@ namespace litwindow {
             {
                 c->DeleteColumn(index);
             }
-            void set_column(wxListCtrl *c, size_t index, const ui::basic_column_descriptor &d) const
+            void set_column(wxListCtrl *c, size_t index, const ColumnDescriptor &d) const
             {
                 wxListItem it;
                 it.SetText(d.title());
@@ -62,26 +67,33 @@ namespace litwindow {
         class wxListCtrl_list_adapter:public ui::basic_ui_control_adapter //:public ui::basic_ui_control_adapter<VirtualListCtrl, wxColumns_traits>
         {
         public:
-
-            //typedef ui::basic_list_mediator mediator;
-            //typedef ui::basic_columns_adapter columns;
-
             typedef VirtualListCtrl value_type;
             value_type *wnd() const { return m_ctrl; }
             wxListCtrl_list_adapter(VirtualListCtrl *l=0)
-                :m_ctrl(l) { l->on_get_item_text=boost::bind(&wxListCtrl_list_adapter::on_get_item_text, this, _1, _2); }
+                :m_ctrl(0) { set_control(l); }
+            void set_control(VirtualListCtrl *l)
+            {
+                if (l!=m_ctrl) {
+                    if (m_ctrl)
+                        m_ctrl->on_get_item_text.clear();
+                    m_ctrl=l;
+                    l->on_get_item_text=boost::bind(&wxListCtrl_list_adapter::on_get_item_text, this, _1, _2);
+                }
+            }
+            //~wxListCtrl_list_adapter() { if (m_ctrl) m_ctrl->on_get_item_text.clear(); }
             size_t column_count() const { return wnd()->GetColumnCount(); }
             size_t item_count() const { return wnd()->GetItemCount(); }
             void set_item_count(size_t new_count) { wnd()->SetItemCount(new_count); }
-            //void setup_columns(const ui::basic_columns_adapter &d) const
-            //{
-            //    ui::setup_columns(m_columns_traits, wnd(), d);
-            //}
+            template <typename ColumnsAdapter>
+            void setup_columns(const ColumnsAdapter &d) const
+            {
+                ui::setup_columns(wxColumns_traits<typename ColumnsAdapter::column_descriptor_type>(), wnd(), d);
+            }
             void begin_update() { wnd()->Freeze(); }
             void end_update() { wnd()->Thaw(); }
 
         private:
-            wxString on_get_item_text(long item, long column)
+            wxString on_get_item_text(long /*item*/, long /*column*/)
             {
                 //record_adapter i=m_mediator->get_record(item);
                 //columns c=m_mediator->get_columns_adapter();
@@ -89,7 +101,7 @@ namespace litwindow {
                 return L"??";
             }
             //mediator *m_mediator;
-            wxColumns_traits m_columns_traits;
+            //wxColumns_traits m_columns_traits;
             value_type *m_ctrl;
             std::vector<size_t> m_visible_columns_index;
         };
@@ -100,6 +112,29 @@ namespace litwindow {
             return wxListCtrl_list_adapter(l);
         }
 
+        class wxDataViewCtrl_list_adapter
+        {
+            wxDataViewCtrl *m_ctrl;
+        public:
+            wxDataViewCtrl_list_adapter()
+                :m_ctrl(0){}
+            void set_control(wxDataViewCtrl *ctrl)
+            {
+                m_ctrl=ctrl;
+            }
+        };
+
+        class wxListBox_list_adapter
+        {
+            wxListBox *m_ctrl;
+        public:
+            wxListBox_list_adapter()
+                :m_ctrl(0){}
+            void set_control(wxListBox *l)
+            {
+                m_ctrl=l;
+            }
+        };
     }
 }
 
