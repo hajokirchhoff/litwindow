@@ -53,15 +53,22 @@ namespace litwindow {
             //tstring value_as_text(const typename text_renderer_type::value_type &t) const;// { return m_text_renderer(t); }
         };
 
+        template <typename Value>
+        inline void to_string(const Value &v, tstring &c)
+        {
+            c=boost::lexical_cast<tstring>(v);
+        }
         template <typename ValueType, typename MemberType>
         inline const MemberType &to_member(const ValueType &v, MemberType (ValueType::*ptr_to_member))
         {
             return v.*ptr_to_member;
         }
-        template <typename ValueType, typename MemberType>
-        boost::function<void(const ValueType &v, tstring &s)> make_text_renderer(MemberType (ValueType::*ptr_to_member))
+        template <typename MemberType, typename ValueType>
+        inline typename basic_column_descriptor<ValueType>::text_renderer_type make_text_renderer(MemberType (ValueType::*ptr_to_member))
         {
-            return boost::bind(&boost::lexical_cast<tstring, MemberType>, boost::bind(&to_member<ValueType, MemberType>, _1, ptr_to_member));
+            return boost::bind(&to_string<MemberType>,
+                boost::bind(&to_member<ValueType, MemberType>, _1, ptr_to_member),
+                _2);
         }
 
         template <typename ColumnDescriptor>
@@ -97,6 +104,11 @@ namespace litwindow {
                     return operator()(column_descriptor_type(title, width, r));
                 }
             };
+            template <typename ValueMember>
+            back_inserter add(const tstring &title, int width=-1, ValueMember (value_type::*ptr_to_member)=0)
+            {
+                return back_inserter(*this)(title, width, make_text_renderer<ValueMember>(ptr_to_member));
+            }
             template <typename ValueRenderer>
             back_inserter add(const tstring &title, int width=-1, ValueRenderer r=ValueRenderer())
             {
@@ -232,6 +244,8 @@ namespace litwindow {
         public:
             void begin_update() {}
             void end_update() {}
+            template <typename Mediator>
+            void connect_mediator(const Mediator &m) {}
         };
 
 //////////////////////////////////////////////////////////////////////////
@@ -239,7 +253,6 @@ namespace litwindow {
         class basic_list_mediator
         {
         public:
-
             void refresh();
 
             typedef UIControlAdapter ui_control_adapter_type;
@@ -255,7 +268,11 @@ namespace litwindow {
             {
                 set_ui_adapter(make_list_adapter(l));
             }
-            void set_ui_adapter(const ui_control_adapter_type &a) { m_ui_control_adapter=a; }
+            void set_ui_adapter(const ui_control_adapter_type &a)
+            { 
+                m_ui_control_adapter=a; 
+                m_ui_control_adapter.connect_mediator(*this);
+            }
 
             void set_dataset_adapter(const dataset_adapter_type &d) { m_dataset_adapter=d; }
             template <typename Data>
@@ -263,9 +280,16 @@ namespace litwindow {
             {
                 set_dataset_adapter(make_dataset_accessor(d));
             }
+            const dataset_adapter_type &dataset() const { return m_dataset_adapter; }
 
             basic_list_mediator()
                 :m_needs_refresh_columns(true){}
+
+            void get_item_text(size_t row, size_t col, tstring &rc) const
+            {
+                const dataset_adapter_type::columns_adapter_type &columns_adapter(dataset().columns_adapter());
+                columns_adapter.render_element_at(col, rc, dataset().value_at(row));
+            }
         protected:
             void refresh_columns(bool do_refresh=true);
             void refresh_list();

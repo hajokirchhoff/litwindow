@@ -447,7 +447,7 @@
           <long name="proxy-X">-1</long>
           <long name="proxy-Y">-1</long>
           <long name="proxy-Width">400</long>
-          <long name="proxy-Height">300</long>
+          <long name="proxy-Height">400</long>
           <bool name="proxy-AUI manager">0</bool>
           <string name="proxy-Event sources">""</string>
           <document>
@@ -477,7 +477,7 @@
               <long name="locked">0</long>
               <string name="proxy-type">"wbFlexGridSizerProxy"</string>
               <string name="proxy-GrowableColumns">"0,1,2"</string>
-              <string name="proxy-GrowableRows">"0,1"</string>
+              <string name="proxy-GrowableRows">"1,3"</string>
               <long name="proxy-Columns">3</long>
               <long name="proxy-Rows">0</long>
               <long name="proxy-ColumnSpacing">0</long>

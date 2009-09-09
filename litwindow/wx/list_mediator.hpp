@@ -64,7 +64,8 @@ namespace litwindow {
             }
         };
 
-        class wxListCtrl_list_adapter:public ui::basic_ui_control_adapter //:public ui::basic_ui_control_adapter<VirtualListCtrl, wxColumns_traits>
+        class wxListCtrl_list_adapter:public ui::basic_ui_control_adapter
+            //:public ui::basic_ui_control_adapter<VirtualListCtrl, wxColumns_traits>
         {
         public:
             typedef VirtualListCtrl value_type;
@@ -73,12 +74,13 @@ namespace litwindow {
                 :m_ctrl(0) { set_control(l); }
             void set_control(VirtualListCtrl *l)
             {
-                if (l!=m_ctrl) {
-                    if (m_ctrl)
-                        m_ctrl->on_get_item_text.clear();
-                    m_ctrl=l;
-                    l->on_get_item_text=boost::bind(&wxListCtrl_list_adapter::on_get_item_text, this, _1, _2);
-                }
+                m_ctrl=l;
+            }
+            template <typename Mediator>
+            void connect_mediator(const Mediator &m)
+            {
+                m_get_text=boost::bind(&Mediator::get_item_text, boost::cref(m), _1, _2, _3);
+                m_ctrl->on_get_item_text=boost::bind(&wxListCtrl_list_adapter::on_get_item_text, this, _1, _2);
             }
             //~wxListCtrl_list_adapter() { if (m_ctrl) m_ctrl->on_get_item_text.clear(); }
             size_t column_count() const { return wnd()->GetColumnCount(); }
@@ -98,15 +100,15 @@ namespace litwindow {
             void end_update() { wnd()->Thaw(); }
 
         private:
-            wxString on_get_item_text(long /*item*/, long /*column*/)
+            wxString on_get_item_text(long item, long column)
             {
-                //record_adapter i=m_mediator->get_record(item);
-                //columns c=m_mediator->get_columns_adapter();
-                //return c.get_text(i, c);
-                return L"??";
+                tstring rc;
+                m_get_text(item, column, rc);
+                return rc;
             }
             //mediator *m_mediator;
             //wxColumns_traits m_columns_traits;
+            boost::function<void(long, long, tstring &)> m_get_text;
             value_type *m_ctrl;
             std::vector<size_t> m_visible_columns_index;
         };
@@ -129,12 +131,12 @@ namespace litwindow {
             }
         };
 
-        class wxListBox_list_adapter:public ui::basic_ui_control_adapter
+        class wxControlWithItems_list_adapter:public ui::basic_ui_control_adapter
         {
             wxControlWithItems *m_ctrl;
         public:
-            wxListBox_list_adapter()
-                :m_ctrl(0){}
+            wxControlWithItems_list_adapter(wxControlWithItems *l=0)
+                :m_ctrl(l){}
             void set_control(wxControlWithItems *l)
             {
                 m_ctrl=l;
@@ -163,7 +165,20 @@ namespace litwindow {
                 return; // a list box does not have columns
             }
         };
+
+        typedef wxControlWithItems_list_adapter wxListBox_list_adapter;
+        typedef wxControlWithItems_list_adapter wxChoiceBox_list_adapter;
+
+        inline wxListBox_list_adapter make_list_adapter(wxListBox *l)
+        {
+            return wxListBox_list_adapter(l);
+        }
+        inline wxChoiceBox_list_adapter make_list_adapter(wxChoice *l)
+        {
+            return wxChoiceBox_list_adapter(l);
+        }
     }
+    using wx::make_list_adapter;
 }
 
 

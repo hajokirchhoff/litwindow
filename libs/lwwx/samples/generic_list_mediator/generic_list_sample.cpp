@@ -57,11 +57,6 @@ typedef ui::basic_column_descriptor<test_data> sample_column_descriptor;
 typedef ui::basic_columns_adapter<sample_column_descriptor> sample_columns_adapter;
 typedef ui::stl_container_dataset_accessor<test_list_t, sample_columns_adapter > sample_dataset_adapter;
 
-template <typename Value>
-inline void to_string(const Value &v, tstring &c)
-{
-    c=boost::lexical_cast<tstring>(v);
-}
 void generic_list_sample::setup_lists()
 {
     // setup some example records
@@ -69,14 +64,13 @@ void generic_list_sample::setup_lists()
     g_sample.push_back(test_data(L"Obama", 48));
     g_sample.push_back(test_data(L"Merkel", 54));
 
-    sample_column_descriptor column1(L"Name", 120/*, &test_data::name*/);
     static sample_columns_adapter g_columns;
     boost::function<void(const test_data &t, tstring &c)> fnc;
-    fnc=boost::bind(&to_string<int>, 
+    fnc=boost::bind(&litwindow::ui::to_string<int>, 
         boost::bind(&litwindow::ui::to_member<test_data, int>, _1, &test_data::age),
         _2
         );
-    g_columns.add(L"Name", 120, fnc)(L"Age", 10, fnc/*age_formatter*/);
+    g_columns.add(L"Name", 120, &test_data::name)(L"Age", 80, fnc);
 
     static sample_dataset_adapter g_test_list_adapter;
     g_test_list_adapter.set_container(g_sample);
@@ -93,11 +87,18 @@ void generic_list_sample::setup_lists()
 
     static wx::wxListBox_list_adapter g_listbox_adapter;
     g_listbox_adapter.set_control(m_listbox);
+
     static ui::basic_list_mediator<sample_dataset_adapter, wx::wxListBox_list_adapter> g_listbox_mediator;
     g_listbox_mediator.set_ui_adapter(g_listbox_adapter);
     g_listbox_mediator.set_dataset_adapter(g_test_list_adapter);
     g_listbox_mediator.refresh();
 
+
+    static ui::basic_list_mediator<sample_dataset_adapter, wx::wxChoiceBox_list_adapter> g_choicebox_mediator;
+    g_choicebox_mediator.set_ui(m_choice);
+    //g_choicebox_mediator.set_dataset(g_sample);
+    g_choicebox_mediator.set_dataset_adapter(g_test_list_adapter);
+    g_choicebox_mediator.refresh();
 
     m_dataview->AppendTextColumn(L"Name", 0);
     static wx::wxDataViewCtrl_list_adapter g_dataviewctrl_adapter;
@@ -201,8 +202,8 @@ void generic_list_sample::CreateControls()
     itemDialog1->SetSizer(itemBoxSizer2);
 
     wxFlexGridSizer* itemFlexGridSizer3 = new wxFlexGridSizer(0, 3, 0, 0);
-    itemFlexGridSizer3->AddGrowableRow(0);
     itemFlexGridSizer3->AddGrowableRow(1);
+    itemFlexGridSizer3->AddGrowableRow(3);
     itemFlexGridSizer3->AddGrowableCol(0);
     itemFlexGridSizer3->AddGrowableCol(1);
     itemFlexGridSizer3->AddGrowableCol(2);
