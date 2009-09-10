@@ -129,6 +129,7 @@ namespace litwindow {
             {
                 return columns().at(col).render_element(rc, v);
             }
+            typename columns_t::value_type &at(size_t col) { return columns().at(col); }
             //const value_type &column_description(size_t idx) const { return columns().at(idx); }
 
             //const element_value_type &get(const value_type &e, const column_position_type &pos) const
@@ -272,8 +273,8 @@ namespace litwindow {
             typedef typename dataset_adapter_type::columns_adapter_type columns_adapter_type;
 
             //void set_columns_adapter(const columns_adapter_type &cols) { m_columns=cols; m_needs_refresh_columns=true; }
-            columns_adapter_type &columns() { return m_dataset_adapter.columns_adapter(); }
-            const columns_adapter_type &columns() const { return m_dataset_adapter.columns_adapter(); }
+            columns_adapter_type &columns_adapter() { return m_dataset_adapter.columns_adapter(); }
+            const columns_adapter_type &columns_adapter() const { return m_dataset_adapter.columns_adapter(); }
 
             template <typename List>
             void set_ui(List &l)
@@ -337,7 +338,7 @@ namespace litwindow {
         template <typename DatasetAdapter, typename UIControlAdapter>
         void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter>::refresh_columns(bool do_refresh)
         {
-            if (do_refresh || columns().dirty()) {
+            if (do_refresh || columns_adapter().dirty()) {
                 begin_update();
                 setup_columns();
                 end_update();
@@ -354,7 +355,7 @@ namespace litwindow {
         template <typename DatasetAdapter, typename UIControlAdapter>
         void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter>::setup_columns()
         {
-            m_ui_control_adapter.setup_columns(columns());
+            m_ui_control_adapter.setup_columns(columns_adapter());
         }
 
     }

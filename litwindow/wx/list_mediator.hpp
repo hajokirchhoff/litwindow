@@ -4,6 +4,7 @@
 #include "../ui/list_mediator.hpp"
 #include "lwwx.h"
 #include <wx/listctrl.h>
+#include <wx/dataview.h>
 #include <boost/function.hpp>
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
@@ -138,6 +139,34 @@ namespace litwindow {
             return wxListCtrl_list_adapter(l);
         }
 
+        template <typename Mediator>
+        class wxDataViewModel_adapter:public wxDataViewModel
+        {
+        public:
+            typedef Mediator mediator_type;
+            typedef typename mediator_type::dataset_adapter_type dataset_adapter_type;
+        private:
+            mediator_type &m_owner;
+        public:
+            wxDataViewModel_adapter(mediator_type &m)
+                :m_owner(m){}
+            virtual bool IsContainer(const wxDataViewItem &i) const { return false; }
+            virtual wxDataViewItem GetParent(const wxDataViewItem &i) const { return wxDataViewItem(); }
+            virtual unsigned int GetChildren(const wxDataViewItem &i, wxDataViewItemArray &children) const { children.clear(); return 0; }
+            virtual unsigned int GetColumnCount() const { return m_owner.columns_adapter().size(); }
+            virtual wxString GetColumnType(unsigned int col) const { return wxString("wxString"); }
+            virtual void GetValue(wxVariant &variant, const wxDataViewItem &item, unsigned int col) const
+            {
+                tstring text;
+                m_owner.get_item_text((size_t)item.GetID(), col, text);
+                variant=text;
+            }
+            virtual bool SetValue(const wxVariant &variant, const wxDataViewItem &item, unsigned int col)
+            {
+                return false;
+            }
+        };
+
         class wxDataViewCtrl_list_adapter:public ui::basic_ui_control_adapter
         {
         public:
@@ -155,6 +184,9 @@ namespace litwindow {
             template <typename Mediator>
             void connect_mediator(Mediator &m)
             {
+                wxDataViewModel_adapter<Mediator> *model=new wxDataViewModel_adapter<Mediator>(m);
+                wnd()->AssociateModel(model);
+                model->DecRef();
             }
             template <typename ColumnsAdapter>
             void setup_columns(const ColumnsAdapter &d) const
