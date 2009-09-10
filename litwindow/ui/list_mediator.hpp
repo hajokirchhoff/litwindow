@@ -182,6 +182,7 @@ namespace litwindow {
             columns_adapter_type m_columns_adapter;
             sort_pred_type m_sort_pred;
             filter_pred_type m_filter_pred;
+            bool m_needs_update;
 
             container_type &container() const { return *m_c; }
         public:
@@ -190,10 +191,10 @@ namespace litwindow {
             _Myt &set_container(container_type &v)
             {
                 m_c=&v;
-                update();
+                m_needs_update=true;
                 return *this;
             }
-            _Myt &set_columns(const columns_adapter_type &cadapter)
+            _Myt &set_columns_adapter(const columns_adapter_type &cadapter)
             {
                 m_columns_adapter=cadapter;
                 return *this;
@@ -220,9 +221,20 @@ namespace litwindow {
                 if (m_sort_pred)
                     std::sort(m_ptrs.begin(), m_ptrs.end(), m_sort_pred);
             }
-            void update() { sort(); }
+            void update() { if (m_needs_update) sort(); m_needs_update=false; }
+            void refresh() { update(); }
             const value_type &value_at(size_t pos) const { return *m_ptrs.at(pos); }
         };
+
+
+        template <typename Container, typename ColumnsAdapter>
+        inline stl_container_dataset_accessor<Container, ColumnsAdapter> make_dataset_adapter(Container &d, const ColumnsAdapter &c)
+        {
+            stl_container_dataset_accessor<Container, ColumnsAdapter> rc;
+            rc.set_container(d);
+            rc.set_columns_adapter(c);
+            return rc;
+        }
 
         template <typename ColumnTraits, typename UIControl, typename Columns>
         void setup_columns(ColumnTraits tr, UIControl c, Columns &cols)
@@ -259,7 +271,7 @@ namespace litwindow {
             typedef DatasetAdapter dataset_adapter_type;
             typedef typename dataset_adapter_type::columns_adapter_type columns_adapter_type;
 
-            //void set_columns(const columns_adapter_type &cols) { m_columns=cols; m_needs_refresh_columns=true; }
+            //void set_columns_adapter(const columns_adapter_type &cols) { m_columns=cols; m_needs_refresh_columns=true; }
             columns_adapter_type &columns() { return m_dataset_adapter.columns_adapter(); }
             const columns_adapter_type &columns() const { return m_dataset_adapter.columns_adapter(); }
 
@@ -270,15 +282,15 @@ namespace litwindow {
             }
             void set_ui_adapter(const ui_control_adapter_type &a)
             { 
-                m_ui_control_adapter=a; 
+                m_ui_control_adapter=a;
                 m_ui_control_adapter.connect_mediator(*this);
             }
 
             void set_dataset_adapter(const dataset_adapter_type &d) { m_dataset_adapter=d; }
-            template <typename Data>
-            void set_dataset(Data &d)
+            template <typename Data, typename Columns>
+            void set_dataset(Data &d, const Columns &c)
             {
-                set_dataset_adapter(make_dataset_accessor(d));
+                set_dataset_adapter(make_dataset_adapter(d, c));
             }
             const dataset_adapter_type &dataset() const { return m_dataset_adapter; }
 
@@ -289,6 +301,11 @@ namespace litwindow {
             {
                 const dataset_adapter_type::columns_adapter_type &columns_adapter(dataset().columns_adapter());
                 columns_adapter.render_element_at(col, rc, dataset().value_at(row));
+            }
+
+            void refresh_dataset()
+            {
+                m_dataset_adapter.refresh();
             }
         protected:
             void refresh_columns(bool do_refresh=true);
@@ -311,6 +328,7 @@ namespace litwindow {
         void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter>::refresh()
         {
             begin_update();
+            refresh_dataset();
             refresh_columns(m_needs_refresh_columns);
             refresh_list();
             end_update();

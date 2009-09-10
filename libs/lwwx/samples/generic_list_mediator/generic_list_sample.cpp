@@ -74,7 +74,7 @@ void generic_list_sample::setup_lists()
 
     static sample_dataset_adapter g_test_list_adapter;
     g_test_list_adapter.set_container(g_sample);
-    g_test_list_adapter.set_columns(g_columns);
+    g_test_list_adapter.set_columns_adapter(g_columns);
 
     static wx::wxListCtrl_list_adapter g_listctrl_adapter;
     g_listctrl_adapter.set_control(m_listctrl);
@@ -96,13 +96,16 @@ void generic_list_sample::setup_lists()
 
     static ui::basic_list_mediator<sample_dataset_adapter, wx::wxChoiceBox_list_adapter> g_choicebox_mediator;
     g_choicebox_mediator.set_ui(m_choice);
-    //g_choicebox_mediator.set_dataset(g_sample);
-    g_choicebox_mediator.set_dataset_adapter(g_test_list_adapter);
+    g_choicebox_mediator.set_dataset(g_sample, g_columns);
     g_choicebox_mediator.refresh();
 
-    m_dataview->AppendTextColumn(L"Name", 0);
     static wx::wxDataViewCtrl_list_adapter g_dataviewctrl_adapter;
     g_dataviewctrl_adapter.set_control(m_dataview);
+
+    static ui::basic_list_mediator<sample_dataset_adapter, wx::wxDataViewCtrl_list_adapter> g_dataview_mediator;
+    g_dataview_mediator.set_ui_adapter(g_dataviewctrl_adapter);
+    g_dataview_mediator.set_dataset(g_sample, g_columns);
+    g_dataview_mediator.refresh();
 
 }
 

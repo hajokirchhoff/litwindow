@@ -47,9 +47,18 @@ namespace litwindow {
             {
                 c->InsertColumn(index, d.title(), wxLIST_FORMAT_LEFT, d.width());
             }
+            void insert_column(wxDataViewCtrl *c, size_t index, const ColumnDescriptor &d) const
+            {
+                wxDataViewColumn *new_column=new wxDataViewColumn(d.title(), new wxDataViewTextRenderer(), index, d.width());
+                c->InsertColumn(index, new_column);
+            }
             void remove_column(wxListCtrl *c, size_t index) const
             {
                 c->DeleteColumn(index);
+            }
+            void remove_column(wxDataViewCtrl *c, size_t index) const
+            {
+                c->DeleteColumn(c->GetColumn(index));
             }
             void set_column(wxListCtrl *c, size_t index, const ColumnDescriptor &d) const
             {
@@ -58,7 +67,17 @@ namespace litwindow {
                 it.SetWidth(d.width());
                 c->SetColumn(index, it);
             }
+            void set_column(wxDataViewCtrl *c, size_t index, const ColumnDescriptor &d) const
+            {
+                wxDataViewColumn *col=c->GetColumn(index);
+                col->SetTitle(d.title());
+                col->SetWidth(d.width());
+            }
             size_t count(wxListCtrl *c) const
+            {
+                return c->GetColumnCount();
+            }
+            size_t count(wxDataViewCtrl *c) const
             {
                 return c->GetColumnCount();
             }
@@ -119,15 +138,32 @@ namespace litwindow {
             return wxListCtrl_list_adapter(l);
         }
 
-        class wxDataViewCtrl_list_adapter
+        class wxDataViewCtrl_list_adapter:public ui::basic_ui_control_adapter
         {
-            wxDataViewCtrl *m_ctrl;
         public:
+            typedef wxDataViewCtrl value_type;
+        private:
+            value_type *m_ctrl;
+        public:
+            value_type *wnd() const { return m_ctrl; }
             wxDataViewCtrl_list_adapter()
                 :m_ctrl(0){}
             void set_control(wxDataViewCtrl *ctrl)
             {
                 m_ctrl=ctrl;
+            }
+            template <typename Mediator>
+            void connect_mediator(Mediator &m)
+            {
+            }
+            template <typename ColumnsAdapter>
+            void setup_columns(const ColumnsAdapter &d) const
+            {
+                ui::setup_columns(wxColumns_traits<typename ColumnsAdapter::column_descriptor_type>(), wnd(), d);
+            }
+            template <typename DatasetAdapter>
+            void refresh_list(const DatasetAdapter &a)
+            {
             }
         };
 
