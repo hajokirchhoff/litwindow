@@ -50,7 +50,7 @@ namespace litwindow {
             }
             void insert_column(wxDataViewCtrl *c, size_t index, const ColumnDescriptor &d) const
             {
-                wxDataViewColumn *new_column=new wxDataViewColumn(d.title(), new wxDataViewTextRenderer(), index, d.width());
+                wxDataViewColumn *new_column=new wxDataViewColumn(d.title(), new wxDataViewTextRenderer(), index, d.width(), wxALIGN_LEFT);
                 c->InsertColumn(index, new_column);
             }
             void remove_column(wxListCtrl *c, size_t index) const
@@ -139,31 +139,49 @@ namespace litwindow {
             return wxListCtrl_list_adapter(l);
         }
 
+        class wxDataViewCtrl_list_adapter;
+
         template <typename Mediator>
-        class wxDataViewModel_adapter:public wxDataViewModel
+        class wxDataViewModel_adapter:public wxDataViewVirtualListModel
         {
         public:
             typedef Mediator mediator_type;
             typedef typename mediator_type::dataset_adapter_type dataset_adapter_type;
         private:
             mediator_type &m_owner;
+            size_t m_current_item_count;
         public:
             wxDataViewModel_adapter(mediator_type &m)
-                :m_owner(m){}
+                :m_owner(m), m_current_item_count(0){}
             virtual bool IsContainer(const wxDataViewItem &i) const { return false; }
             virtual wxDataViewItem GetParent(const wxDataViewItem &i) const { return wxDataViewItem(); }
             virtual unsigned int GetChildren(const wxDataViewItem &i, wxDataViewItemArray &children) const { children.clear(); return 0; }
             virtual unsigned int GetColumnCount() const { return m_owner.columns_adapter().size(); }
             virtual wxString GetColumnType(unsigned int col) const { return wxString("wxString"); }
-            virtual void GetValue(wxVariant &variant, const wxDataViewItem &item, unsigned int col) const
+            virtual void GetValueByRow(wxVariant &variant, unsigned int row, unsigned int col) const
             {
                 tstring text;
-                m_owner.get_item_text((size_t)item.GetID(), col, text);
+                m_owner.get_item_text(row, col, text);
                 variant=text;
             }
-            virtual bool SetValue(const wxVariant &variant, const wxDataViewItem &item, unsigned int col)
+            virtual bool SetValueByRow(const wxVariant &variant, unsigned int row, unsigned int col)
             {
                 return false;
+            }
+            void refresh(wxDataViewCtrl_list_adapter *)
+            {
+                const dataset_adapter_type &dataset(m_owner.dataset_adapter());
+                size_t row=0;
+                while (row<dataset.size() && row<m_current_item_count)
+                    RowChanged(row++);
+                while (row<dataset.size()) {
+                    RowAppended();
+                    ++row;
+                    ++m_current_item_count;
+                }
+                while (m_current_item_count>row) {
+                    RowDeleted(--m_current_item_count);
+                }
             }
         };
 
@@ -173,6 +191,7 @@ namespace litwindow {
             typedef wxDataViewCtrl value_type;
         private:
             value_type *m_ctrl;
+            boost::function<void()> m_refresh_forwarder;
         public:
             value_type *wnd() const { return m_ctrl; }
             wxDataViewCtrl_list_adapter()
@@ -185,6 +204,7 @@ namespace litwindow {
             void connect_mediator(Mediator &m)
             {
                 wxDataViewModel_adapter<Mediator> *model=new wxDataViewModel_adapter<Mediator>(m);
+                m_refresh_forwarder=boost::bind(&wxDataViewModel_adapter<Mediator>::refresh, model, this);
                 wnd()->AssociateModel(model);
                 model->DecRef();
             }
@@ -196,6 +216,8 @@ namespace litwindow {
             template <typename DatasetAdapter>
             void refresh_list(const DatasetAdapter &a)
             {
+                if (m_refresh_forwarder)
+                    m_refresh_forwarder();
             }
         };
 

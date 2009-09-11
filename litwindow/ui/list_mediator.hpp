@@ -293,15 +293,15 @@ namespace litwindow {
             {
                 set_dataset_adapter(make_dataset_adapter(d, c));
             }
-            const dataset_adapter_type &dataset() const { return m_dataset_adapter; }
+            const dataset_adapter_type &dataset_adapter() const { return m_dataset_adapter; }
 
             basic_list_mediator()
                 :m_needs_refresh_columns(true){}
 
             void get_item_text(size_t row, size_t col, tstring &rc) const
             {
-                const dataset_adapter_type::columns_adapter_type &columns_adapter(dataset().columns_adapter());
-                columns_adapter.render_element_at(col, rc, dataset().value_at(row));
+                const dataset_adapter_type::columns_adapter_type &columns_adapter(dataset_adapter().columns_adapter());
+                columns_adapter.render_element_at(col, rc, dataset_adapter().value_at(row));
             }
 
             void refresh_dataset()
