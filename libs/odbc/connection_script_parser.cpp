@@ -115,10 +115,9 @@ struct script_grammar:public grammar<script_grammar<Actions> >,boost::noncopyabl
 				=   confix_p(ch_p(_T('"')), *(~ch_p(_T('"'))) % str_p(_T("\"\"")), _T('"'));
 
 			identifier
-				=   (((
-				quoted_identifier
-				|   unquoted_identifier) >> skip_p)
-			% (_T('.') >> skip_p))[boost::bind(&Actions::log_, &actions, _1, _2, _T("identifier: "))]
+				=   (
+                (quoted_identifier | unquoted_identifier) 
+			% (skip_p >> _T('.') >> skip_p))[boost::bind(&Actions::log_, &actions, _1, _2, _T("identifier: "))]
 				;
 
 			uinteger

@@ -231,6 +231,7 @@ namespace litwindow {
 			:dbms_generic(odbcConnection) 
 		{
 			macros()[_T("TIMESTAMP")]=_T("DATETIME");
+            macros()[_T("UUID")]=_T("UNIQUEIDENTIFIER");
 		}
 
 		dbms_mysql::dbms_mysql(const tstring &odbcConnection)
@@ -264,6 +265,7 @@ namespace litwindow {
 			macros()[_T("TRUE")]=_T("TRUE");
 			macros()[_T("FALSE")]=_T("FALSE");
 			macros()[_T("DATETIME")]=_T("TIMESTAMP");
+            macros()[_T("UUID")]=_T("uuid");
 		}
 		bool dbms_postgres::has_capability(capabilities c) const
 		{

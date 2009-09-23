@@ -30,6 +30,8 @@ namespace litwindow {
 			macros()[_T("BOOLEAN")]=_T("BIT");
 			macros()[_T("TRUE")]=_T("TRUE");
 			macros()[_T("FALSE")]=_T("FALSE");
+            macros()[_T("UUID")]=_T("GUID");
+            macros()[_T("TIMESTAMP")]=_T("DATETIME");
 		}
 
 		void dbms_access::set_parameters_from_odbc_connection_string(const tstring &odbc_connection)
