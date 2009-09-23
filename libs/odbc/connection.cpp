@@ -13,6 +13,8 @@
 #include <litwindow/logging.h>
 #include <litwindow/check.hpp>
 #include "connection.h"
+#include "binder.h"
+#include "statement.h"
 
 #define new DEBUG_NEW
 
@@ -642,7 +644,34 @@ namespace litwindow {
 		litwindow::Precondition(name.substr(0, 2)==_T("$$"), "macro names must begin with $$");
 		m_macros[name]=value;
 	}
-	//-----------------------------------------------------------------------------------------------------------//
+
+    const sqlreturn & connection::add_or_alter_column_for( prop_t a, const tstring &column_name, const tstring &table_name )
+    {
+        data_type_info info;
+        m_last_error=data_type_lookup().get(a, info);
+        if (m_last_error.ok()) {
+            SQLSMALLINT sql_type=info.m_sql_type;
+            tstring sql_type_name=sql_to_create_table_name(sql_type, info.m_column_size);
+            statement stmt(*this);
+            stmt << _T("ALTER TABLE ") << table_name.c_str() << _T(" COLUMN ") << binder::make_column_name(column_name).c_str() << _T(" ") << sql_type << _T(";");
+            if (!stmt.execute()) {
+                stmt.clear();
+                stmt << _T("ALTER TABLE ") << table_name.c_str() << _T(" ADD COLUMN ") << binder::make_column_name(column_name).c_str() << _T(" ") << sql_type << _T(";");
+                stmt.execute();
+            }
+            m_last_error=stmt.last_error();
+        }
+        return m_last_error;
+    }
+
+    const sqlreturn & connection::create_table_for( const_aggregate ag, const tstring &table_name/*=tstring()*/, const tstring &primarykey_name/*=tstring()*/ )
+    {
+        statement stmt(*this);
+        stmt << _T("CREATE TABLE ") << table_name.c_str() << _T(" ()");
+        stmt.execute();
+        return m_last_error;
+    }
+    //-----------------------------------------------------------------------------------------------------------//
 	//-----------------------------------------------------------------------------------------------------------//
 	environment_imp::environment_imp()
 	{

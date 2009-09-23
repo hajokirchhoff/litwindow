@@ -234,6 +234,11 @@ public:
 	{
 		return get_dbms()->sql_to_create_table_name(this, sql_type, length);
 	}
+
+    const sqlreturn LWODBC_API  &create_table_for(const_aggregate ag, const tstring &table_name=tstring(), const tstring &primarykey_name=tstring());
+    const sqlreturn LWODBC_API  &add_or_alter_column_for(prop_t a, const tstring &column_name, const tstring &table_name);
+    const sqlreturn LWODBC_API  &drop_column(const tstring &table_name);
+    const sqlreturn LWODBC_API  &change_primary_key(const tstring &table_name, const tstring &primarykey_name);
 	//@}
 
 	void set_log(bool on=true)                                                  { m_log=on; }

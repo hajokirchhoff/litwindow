@@ -273,6 +273,8 @@ public:
 
 	void set_use_cache(bool yes) throw() { m_columns.use_cache(yes); }
 	bool has_cache() const throw() { return m_columns.has_cache(); }
+	/// make a column name from a c identifier
+	static tstring make_column_name(const tstring &c_identifier);
 protected:
 	friend class statement;
 	friend class table;
@@ -306,8 +308,6 @@ protected:
 	/// call bind_column or bind_parameter for all members of an aggregate
 	sqlreturn bind_aggregate(const aggregate &a, size_t level, const tstring &prefix, solve_nested_names_enum solver, bool bind_to_columns);
 	sqlreturn bind_aggregate(const aggregate &a, const tstring &name, solve_nested_names_enum solver, bool bind_to_columns);
-	/// make a column name from a c identifier
-	tstring make_column_name(const tstring &c_identifier) const;
 
 	typedef vector<bind_task> bind_tasks_t;
 

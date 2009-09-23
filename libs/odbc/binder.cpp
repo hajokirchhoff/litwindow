@@ -19,6 +19,27 @@
 
 #define new DEBUG_NEW
 
+#define HAS_BOOST_UUID
+#ifdef HAS_BOOST_UUID
+#include <boost/uuid.hpp>
+template <>
+litwindow::tstring litwindow::converter<boost::uuid>::to_string(const boost::uuid &v)
+{
+    basic_stringstream<TCHAR> out;
+    out << v;
+    return out.str();
+}
+template <>
+size_t litwindow::converter<boost::uuid>::from_string(const litwindow::tstring &newValue, boost::uuid &v)
+{
+    basic_stringstream<TCHAR> in(newValue);
+    in >> v;
+    return sizeof(v);
+}
+LWL_IMPLEMENT_ACCESSOR(boost::uuid)
+#endif
+
+
 template <>
 litwindow::tstring litwindow::converter<TIME_STRUCT>::to_string(const TIME_STRUCT &v)
 {
@@ -235,7 +256,7 @@ sqlreturn binder::build_insert_statement_and_bind(tstring &sql, const tstring &t
 	return rc;
 }
 
-tstring binder::make_column_name(const tstring &c_identifier) const
+tstring binder::make_column_name(const tstring &c_identifier)
 {
 	if (c_identifier.substr(0, 2)==_T("m_"))
 		return c_identifier.substr(2);
