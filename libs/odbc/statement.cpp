@@ -742,6 +742,12 @@ void statement::add_accessor(const litwindow::accessor &a)
 	m_continuous_sql_binder.m_last_was_parameter=true;
 }
 
+void statement::add_const_accessor(const litwindow::const_accessor &a)
+{
+    AbortOn(m_continuous_sql_binder.m_last_bind_type!=odbc::in, "const data must use odbc::in binding.");
+    add_accessor(const_cast_accessor(a));
+}
+
 sqlreturn statement::feed_column_to_target_parameter(SQLSMALLINT col_position, statement *target, SQLSMALLINT par_pos) const
 {
 	Precondition(m_binder.m_columns.size()>0, "columns not bound!");

@@ -247,9 +247,9 @@ void parser_actions::statement(sql_grammar_iterator_t first, sql_grammar_iterato
 			odbc::statement s(m_current_statement, m_connection);
 			if (m_ignore_error)
 				s.set_throw_on_error(false);
-			if (s.execute().ok()==false && m_ignore_error==false) {
+			if (s.execute().success()==false && m_ignore_error==false) {
 				m_connection.set_last_error(s.last_error());
-				throw action_failed(first, _T("SQL execute failed"));
+                throw action_failed(first, _T("SQL execute failed: ")+s.last_error().as_string());
 			}
 		}
 	}

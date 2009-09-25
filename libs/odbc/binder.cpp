@@ -709,19 +709,58 @@ namespace {
 	static register_data_type<double> tdouble(SQL_C_DOUBLE, SQL_DOUBLE);
 	static register_data_type<double> tdouble2(SQL_C_DOUBLE, SQL_FLOAT);
 	static register_data_type<TIME_STRUCT> ttime_struct(SQL_C_TIME, SQL_TIME);
-    static register_data_type<boost::uuid> tuuid(SQL_C_GUID, SQL_GUID);
 
     struct tuuid_bind_helper:public extended_bind_helper
     {
+        // unfortunately for us, boost::uuid stores the uuid bytes in a different order
+        // than used by ODBC (under Windows at least)
+        virtual SQLUINTEGER prepare_bind_buffer(data_type_info &info, statement &s, bind_type bind_howto) const
+        {
+            info.m_target_ptr=0;
+            info.m_target_size=16;
+            return 16;
+        }
         virtual sqlreturn get_data(data_type_info &info, statement &s) const
         {
-            sqlreturn rc;
             typed_accessor<boost::uuid> a=dynamic_cast_accessor<boost::uuid>(info.m_accessor);
-            boost::uuid target;
-            unsigned char u[16];
-
+            if (info.m_len_ind_p && (*info.m_len_ind_p==SQL_NULL_DATA || *info.m_len_ind_p==0)) {
+                a.set(boost::uuid());
+            } else {
+                boost::uint8_t guiddata[16];
+                boost::uint8_t *p=guiddata;
+                const boost::uint8_t *g=(const boost::uint8_t*)info.m_target_ptr;
+                *p++=g[3]; *p++=g[2]; *p++=g[1]; *p++=g[0];
+                *p++=g[5]; *p++=g[4];
+                *p++=g[7]; *p++=g[6];
+                memcpy(p, g+8, 8);
+                boost::uuid temp;
+                temp.assign(guiddata+0, guiddata+16);
+                a.set(temp);
+            }
+            return sqlreturn(SQL_SUCCESS);
         }
-    };
+        sqlreturn put_data(data_type_info &info) const
+        {
+            if (info.m_len_ind_p==0 || (*info.m_len_ind_p!=SQL_NULL_DATA && *info.m_len_ind_p!=SQL_DEFAULT_PARAM)) {
+                typed_accessor<boost::uuid> a=dynamic_cast_accessor<boost::uuid>(info.m_accessor);
+                if (info.m_target_size<16)
+                    return sqlreturn(_("String data right truncation (tstring)"), err_data_right_truncated, _T("22001"));
+                boost::uuid val(a.get());
+                boost::uuid::iterator src=val.data_.begin();
+                boost::uint8_t *dst=(boost::uint8_t*)info.m_target_ptr;
+                dst[3]=*src++; dst[2]=*src++; dst[1]=*src++; dst[0]=*src++;
+                dst[5]=*src++; dst[4]=*src++;
+                dst[7]=*src++; dst[6]=*src++;
+                memcpy(dst+8, src, 8);
+            }
+            return sqlreturn(SQL_SUCCESS);
+        }
+        SQLINTEGER get_length(data_type_info &info) const
+        {
+            return 16;
+        }
+    } g_uuid_bind_helper;
+    static register_data_type<boost::uuid> tuuid(SQL_C_GUID, SQL_GUID, 0, &g_uuid_bind_helper);
 
 struct tstring_bind_helper:public extended_bind_helper
 {

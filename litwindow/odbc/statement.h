@@ -130,6 +130,12 @@ public:
 		add_accessor(make_accessor(v));
 		return *this;
 	}
+    template <typename Value>
+    statement &operator << (const Value &v)
+    {
+        add_const_accessor(make_const_accessor(v));
+        return *this;
+    }
 	template <>
 	statement &operator << (accessor &v)
 	{
@@ -689,6 +695,7 @@ private:
 		bind_type m_last_bind_type;
 	} m_continuous_sql_binder;
 	void LWODBC_API add_accessor(const accessor &a);
+    void LWODBC_API add_const_accessor(const const_accessor &a);
 };
 
 inline bool statement::has_been_executed() const { return m_state==executed || m_state==fetched; }
