@@ -709,6 +709,19 @@ namespace {
 	static register_data_type<double> tdouble(SQL_C_DOUBLE, SQL_DOUBLE);
 	static register_data_type<double> tdouble2(SQL_C_DOUBLE, SQL_FLOAT);
 	static register_data_type<TIME_STRUCT> ttime_struct(SQL_C_TIME, SQL_TIME);
+    static register_data_type<boost::uuid> tuuid(SQL_C_GUID, SQL_GUID);
+
+    struct tuuid_bind_helper:public extended_bind_helper
+    {
+        virtual sqlreturn get_data(data_type_info &info, statement &s) const
+        {
+            sqlreturn rc;
+            typed_accessor<boost::uuid> a=dynamic_cast_accessor<boost::uuid>(info.m_accessor);
+            boost::uuid target;
+            unsigned char u[16];
+
+        }
+    };
 
 struct tstring_bind_helper:public extended_bind_helper
 {
