@@ -711,6 +711,7 @@ namespace litwindow {
 		};
 		// ---------------------------------------------------------------------------------------------
 
+        enum enable_state { enabled, disabled };
 		/// Base class for logging events
 		template <
 			typename _Elem,
@@ -792,13 +793,14 @@ namespace litwindow {
 
 			basic_events(
 				const component_type &c=default_component<char_type>(),
-				const topic_type &t=default_topic<char_type>(), 
+				const topic_type &t=default_topic<char_type>(),
+                enable_state is_enabled=logger::enabled,
 				sink_type &target=*default_sink<char_type>())
 				:
 			m_default_component(c), m_component(m_default_component)
 				,m_default_topic(t), m_topic(m_default_topic)
 				,m_default_level(default_level<char_type>()), m_level(m_default_level)
-				,m_enabled(true)
+				,m_enabled(is_enabled!=disabled)
 				,m_ignore_begin_end_count(0)
 				,m_open_count(0)
 			{
@@ -807,19 +809,23 @@ namespace litwindow {
 			basic_events(
 				const char_type *c,
 				const char_type *t=default_topic<_Elem>().str().c_str(),
+                enable_state is_enabled=logger::enabled,
 				sink_type &target=*default_sink<char_type>()
 				)
 				:m_default_component(c), m_component(m_default_component)
 				,m_default_topic(t), m_topic(m_default_topic)
 				,m_default_level(default_level<char_type>()), m_level(m_default_level)
-				,m_enabled(true)
+				,m_enabled(is_enabled!=disabled)
 				,m_ignore_begin_end_count(0)
 				,m_open_count(0)
 			{
 				reset_tags_to_default();
 				sink(&target);
 			}
-			void enabled(bool is_enabled) { m_enabled=is_enabled; }
+			void enabled(bool enabled) { m_enabled=enabled; }
+            bool enabled() const { return m_enabled; }
+            void enable() { enabled(true); }
+            void disable() { enabled(false); }
 			basic_events(sink_type &target)
 				:m_default_component(default_component<char_type>()), m_component(m_default_component)
 				,m_default_topic(default_topic<char_type>()), m_topic(m_default_topic)
@@ -831,9 +837,6 @@ namespace litwindow {
 				reset_tags_to_default();
 				sink(&target);
 			}
-			void enable() { enabled(true); }
-			void disable() { enabled(false); }
-			bool enabled() const { return m_enabled; }
 
 			_Outstream &stream() { return *this; }
 
@@ -842,7 +845,7 @@ namespace litwindow {
 			template <typename Value>
 			inserter operator && (const Value &v)
 			{
-				return inserter(*this, true) && v;
+				return inserter(*this, enabled()) && v;
 			}
 			template <typename Value>
 			void put(const Value &v)
