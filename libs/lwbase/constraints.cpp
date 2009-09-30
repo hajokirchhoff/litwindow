@@ -59,14 +59,14 @@ void constraint_solver::solve()
 
 value_assign_base *constraint_solver::evaluate(rule_base *b)
 {
-	lw_log() << _T("  evaluating ") << b->name() << endl;
+	//lw_log() << _T("  evaluating ") << b->name() << endl;
 	return b->evaluate(this);
 }
 
 void constraint_solver::execute_immediate(rule_base *i)
 {
 	m_current_rule_solved=i;
-	lw_log() << _T("  rule execute_immediate ") << i->name() << endl;
+	//lw_log() << _T("  rule execute_immediate ") << i->name() << endl;
 	m_suppress_mirror_rule=m_current_rule_solved->get_mirror();
 	i->execute_immediate(this);
 }
@@ -155,7 +155,7 @@ void constraint_solver::unsolve_depencencies_of(const const_accessor &target, bo
 
 void constraint_solver::assign_value(value_assign_base *new_value)
 {
-	lw_log() << _T("  assigning value for rule ") << m_current_rule_solved->name() << endl;
+	//lw_log() << _T("  assigning value for rule ") << m_current_rule_solved->name() << endl;
 	std::auto_ptr<value_assign_base> guard(new_value);
 
 	// Check for circular rules, i.e. if this target has already been changed. 
@@ -165,7 +165,7 @@ void constraint_solver::assign_value(value_assign_base *new_value)
 		m_undo_values.push_back(new_value->get_undo());
 	}
 	if (a_value!=m_values_changed->end()) {
-		lw_log() << _T("     value has already been assigned. Rechecking...") << endl;
+		//lw_log() << _T("     value has already been assigned. Rechecking...") << endl;
 		// This target has already been assigned a value.
 		if (new_value->will_modify(get_symbol_table())) {
 			// The new value is different than the existing value.
@@ -272,7 +272,7 @@ void value_assign_accessor::do_assign(symbol_table_interface *)
 				typed_const_accessor<const_accessor>(src).get(src);
 			}
 		}
-	lw_log() << "do_assign { "<<accessor_as_debug(trg, true)<< " } <- { " << accessor_as_debug(src, true) << " }" << endl;
+	//lw_log() << "do_assign { "<<accessor_as_debug(trg, true)<< " } <- { " << accessor_as_debug(src, true) << " }" << endl;
 
 		if (trg.is_type(src) || is_type<accessor>(trg))
 			trg.assign(src);

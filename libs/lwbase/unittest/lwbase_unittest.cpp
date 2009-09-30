@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(simple_log_sink)
     ostream_logsink sink(s);
 	sink.format().timestamp=false;
 	sink.format().level=false;
-    events e("aComponent", "aTopic", sink);
+    events e("aComponent", "aTopic", logger::enabled, sink);
     e && "Test 1";
 	string rc(s.str());
 	BOOST_CHECK_EQUAL(rc, string("aComponent\taTopic\tTest 1\n"));
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(simple_stderr_log)
 {
 	using namespace logger;
 	ostream_logsink s(std::cerr);
-	events evt("Testkomponente", "Topic", s);
+	events evt("Testkomponente", "Topic", logger::enabled, s);
 	evt && "Zeile 1";
 	evt << "Zeile 2";
 }
