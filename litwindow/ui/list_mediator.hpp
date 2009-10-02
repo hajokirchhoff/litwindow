@@ -3,6 +3,7 @@
 
 #include "litwindow/tstring.hpp"
 #include <vector>
+#include <iterator>
 #include <boost/ref.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
@@ -233,6 +234,16 @@ namespace litwindow {
                 (*m_c).erase(m_item_handles.at(pos));
                 m_needs_update=true;
             }
+            void clear()
+            {
+                (*m_c).clear();
+                m_needs_update=true;
+            }
+            void append(const value_type &new_value)
+            {
+                std::back_inserter(*m_c)=new_value;
+                m_needs_update=true;
+            }
         };
 
 
@@ -343,6 +354,14 @@ namespace litwindow {
             void delete_selected_item()
             {
                 dataset_adapter().delete_value_at(ui_adapter().get_selected_index());
+            }
+            void delete_all_items()
+            {
+                dataset_adapter().clear();
+            }
+            void append_item(const value_type &data)
+            {
+                dataset_adapter().append(data);
             }
 
         protected:
