@@ -81,6 +81,7 @@ void constraint_solver::execute_all_immediate()
 			execute_immediate(*i);
 		m_suppress_mirror_rule=(*i)->get_mirror();
 	}
+    reset();
 }
 
 void constraint_solver::undo_assign_values()
