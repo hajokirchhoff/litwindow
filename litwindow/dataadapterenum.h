@@ -10,6 +10,7 @@
 */
 #include "litwindow/tstring.hpp"
 #include <vector>
+#include <limits>
 #include "litwindow/dataadapter.h"
 namespace litwindow {
     class enum_adapter

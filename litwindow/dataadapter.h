@@ -950,6 +950,11 @@ namespace litwindow {
 		return accessor(&v, get_schema_entry(v));
 	}
 
+    inline accessor reinterpret_accessor(prop_t target_type, const accessor &source)
+    {
+        return accessor(source.get_this_ptr(), target_type);
+    }
+
 	template <class Value>
 	inline const_aggregate make_const_aggregate(Value &v)
 	{

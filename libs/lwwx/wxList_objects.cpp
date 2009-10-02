@@ -11,6 +11,7 @@ using namespace std;
 #include <wx/event.h>
 #include "litwindow/lwbase.hpp"
 #include "litwindow/dataadapter.h"
+#include <litwindow/dataadapterenum.h>
 #include "litwindow/wx/rapidUI.h"
 #include "wxlist_objects.h"
 
@@ -83,11 +84,11 @@ void lwListAdapterBase::SetClientDataSelection(long clientData)
 	SetSelection(i);
 }
 
-int lwListAdapterBase::GetValue() const
+int lwListAdapterBase::GetValueAsInt() const
 {
 	return IndexClientData ? GetClientDataSelection() : GetSelection();
 }
-void lwListAdapterBase::SetValue(int newValue)
+void lwListAdapterBase::SetValueAsInt(int newValue)
 {
 	if (IndexClientData)
 		SetClientDataSelection(newValue);
@@ -150,6 +151,45 @@ void lwListAdapterBase::SetCurrent(const accessor &newValue)
 lwListAdapterBase::~lwListAdapterBase()
 {
 	m_current.destroy();
+}
+
+const accessor lwListAdapterBase::GetValue() const
+{
+    accessor rc;
+    if (is_enum()) {
+        m_int_value=GetClientDataSelection();
+        rc=reinterpret_accessor(m_enum_type, make_accessor(m_int_value));
+    } else {
+        m_int_value=GetValueAsInt();
+        rc=make_accessor(m_int_value);
+    }
+    return rc;
+}
+
+void lwListAdapterBase::SetValue(const accessor &newValue)
+{
+    if (newValue.is_enum()) {
+        set_is_enum(true);
+        m_enum_type=newValue.get_type();
+        const converter_enum_info *new_info=newValue.get_enum_info();
+        if (new_info!=m_enum_info) {
+            m_enum_info=new_info;
+            ClearList();
+            for (size_t i=0; i<m_enum_info->enum_count(); ++i) {
+                const converter_enum_info::element &current(m_enum_info->enum_value(i));
+                AppendList(current.m_name, (void*)current.m_value);
+            }
+            SetUseClientData(true);
+        }
+        SetClientDataSelection(newValue.to_int());
+    } else {
+        set_is_enum(false);
+        if (m_enum_info) {
+            SetUseClientData(false);
+            m_enum_info=0;
+        }
+        SetValueAsInt(newValue.to_int());
+    }
 }
 
 //-----------------------------------------------------------------------------------------------------------//
@@ -222,7 +262,8 @@ PROP_GetSet(accessor, Items)
 PROP_GetSet(tstring, Column)
 PROP_GetSet(accessor, Current)
 PROP_GetSet(wxString, StringSelection)
-PROP_GetSet(int, Value)
+PROP_GetSet(int, ValueAsInt)
+PROP_GetSet(accessor, Value)
 PROP_GetSet(bool, UseClientData)
 PROP(IndexClientData)
 END_ADAPTER()

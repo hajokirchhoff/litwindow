@@ -31,8 +31,12 @@ public:
     const accessor GetCurrent() const;
     void SetCurrent(const accessor &newValue);
 
-    int GetValue() const;
-    void SetValue(int newValue);
+    int GetValueAsInt() const;
+    void SetValueAsInt(int newValue);
+
+    const accessor GetValue() const;
+    void SetValue(const accessor &newValue);
+
     const tstring &GetColumn() const
     {
         return m_column;
@@ -43,7 +47,7 @@ public:
         FillList();
     }
 
-    lwListAdapterBase():IndexClientData(false) { }
+    lwListAdapterBase():IndexClientData(false),m_is_enum(false),m_enum_info(0),m_enum_type(0) { }
     virtual ~lwListAdapterBase();
 
     virtual wxString GetStringSelection() const = 0;
@@ -54,6 +58,7 @@ public:
     void SetUseClientData(bool douse) { IndexClientData=true; }
 
     bool	IndexClientData;	///< if true, uses client data to index elements in the list
+    bool    is_enum() const { return m_is_enum; }
 protected:
     virtual void FillList();
     virtual int GetCount() const = 0;
@@ -62,13 +67,19 @@ protected:
     virtual void *GetClientData(int index) const = 0;
 
     virtual void ClearList() = 0;
-    virtual void AppendList(const tstring &element) = 0;
+    virtual void AppendList(const tstring &element, void *clientData=0) = 0;
     virtual wxWindow *GetWnd() const = 0;
     virtual void CalcCurrent(int containerIndex) const;
     accessor    m_items;
     tstring      m_column;
     /// m_current is the accessor to the current item. It is delayed-created and thus mutable.
     mutable accessor    m_current;
+    bool        m_is_enum;
+    void        set_is_enum(bool yes) { m_is_enum=yes; }
+    /// temporary object to allow returning an accessor from GetValue
+    mutable int m_int_value;
+    const converter_enum_info *m_enum_info;
+    litwindow::prop_t m_enum_type;
     DECLARE_DYNAMIC_CLASS_NO_COPY(lwListAdapterBase);
 };
 
@@ -100,9 +111,9 @@ public:
     {
         m_wnd->Clear();
     }
-    void AppendList(const tstring &element)
+    void AppendList(const tstring &element, void *clientData)
     {
-        m_wnd->Append(element.c_str());
+        m_wnd->Append(element.c_str(), clientData);
     }
 
     int GetSelection() const
@@ -154,9 +165,9 @@ public:
     {
         m_wnd->Clear();
     }
-    void AppendList(const tstring &element)
+    void AppendList(const tstring &element, void *clientData)
     {
-        m_wnd->Append(element.c_str());
+        m_wnd->Append(element.c_str(), clientData);
     }
 
     int GetSelection() const
@@ -208,9 +219,9 @@ public:
     {
         m_wnd->Clear();
     }
-    void AppendList(const tstring &element)
+    void AppendList(const tstring &element, void *clientData)
     {
-        m_wnd->Append(element.c_str());
+        m_wnd->Append(element.c_str(), clientData);
     }
     int GetSelection() const
     {
