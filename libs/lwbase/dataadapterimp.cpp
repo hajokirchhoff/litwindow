@@ -42,6 +42,27 @@ IMPLEMENT_ADAPTER_TYPE(litwindow::const_aggregate)
 
 IMPLEMENT_ADAPTER_TYPE(boost::uint64_t)
 
+#define HAS_BOOST_UUID
+#ifdef HAS_BOOST_UUID
+#include <boost/uuid.hpp>
+template <>
+litwindow::tstring litwindow::converter<boost::uuid>::to_string(const boost::uuid &v)
+{
+    basic_stringstream<TCHAR> out;
+    out << v;
+    return out.str();
+}
+template <>
+size_t litwindow::converter<boost::uuid>::from_string(const litwindow::tstring &newValue, boost::uuid &v)
+{
+    basic_stringstream<TCHAR> in(newValue);
+    in >> v;
+    return sizeof(v);
+}
+LWL_IMPLEMENT_ACCESSOR(boost::uuid)
+#endif
+
+
 #ifdef _NATIVE_WCHAR_T_DEFINED
 IMPLEMENT_ADAPTER_TYPE(wchar_t)
 #endif

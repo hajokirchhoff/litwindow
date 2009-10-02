@@ -222,6 +222,7 @@ namespace litwindow {
                 if (m_sort_pred)
                     std::sort(m_ptrs.begin(), m_ptrs.end(), m_sort_pred);
             }
+            void force_update() { m_needs_update=true; }
             void update() { if (m_needs_update) sort(); m_needs_update=false; }
             void refresh() { update(); }
             const value_type &value_at(size_t pos) const { return *m_ptrs.at(pos); }
@@ -262,10 +263,19 @@ namespace litwindow {
         };
 
 //////////////////////////////////////////////////////////////////////////
+
+        /*! A basic_list_mediator encapsules all interactions between a tabular UI control
+        * and a dataset. The DatasetAdapter connects the mediator with a dataset
+        * structure such as a vector, odbc statement or others. The UIControlAdapter
+        * connects the mediator with a UI control such as a list, combobox, listctrl,
+        * grid or others.
+        */
         template <typename DatasetAdapter, typename UIControlAdapter>
         class basic_list_mediator
         {
         public:
+            /// refresh the ui control
+            /// call this after the dataset has changed
             void refresh();
 
             typedef UIControlAdapter ui_control_adapter_type;
@@ -276,6 +286,11 @@ namespace litwindow {
             columns_adapter_type &columns_adapter() { return m_dataset_adapter.columns_adapter(); }
             const columns_adapter_type &columns_adapter() const { return m_dataset_adapter.columns_adapter(); }
 
+            template <typename Data, typename Columns>
+            void set_dataset(Data &d, const Columns &c)
+            {
+                set_dataset_adapter(make_dataset_adapter(d, c));
+            }
             template <typename List>
             void set_ui(List &l)
             {
@@ -288,12 +303,8 @@ namespace litwindow {
             }
 
             void set_dataset_adapter(const dataset_adapter_type &d) { m_dataset_adapter=d; }
-            template <typename Data, typename Columns>
-            void set_dataset(Data &d, const Columns &c)
-            {
-                set_dataset_adapter(make_dataset_adapter(d, c));
-            }
             const dataset_adapter_type &dataset_adapter() const { return m_dataset_adapter; }
+            dataset_adapter_type &dataset_adapter() { return m_dataset_adapter; }
 
             basic_list_mediator()
                 :m_needs_refresh_columns(true){}
