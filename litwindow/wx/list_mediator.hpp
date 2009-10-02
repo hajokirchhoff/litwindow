@@ -32,6 +32,10 @@ namespace litwindow {
                 const wxString &name=wxListCtrlNameStr
                 ):wxListCtrl(parent, id, pos, size, (style& ~ (wxLC_ICON|wxLC_LIST))|wxLC_VIRTUAL|wxLC_REPORT, validator, name) {}
             virtual wxString OnGetItemText(long item, long column) const;
+            long GetFirstSelected() const
+            {
+                return GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+            }
             //virtual int OnGetItemImage(long item) const;
             //virtual wxListItemAttr *OnGetItemColumnAttr(long item, long WXUNUSED) const;
             //virtual int OnGetItemColumnImage(long item, long column) const;
@@ -118,6 +122,10 @@ namespace litwindow {
             }
             void begin_update() { wnd()->Freeze(); }
             void end_update() { wnd()->Thaw(); }
+            /// Get the index of the currently selected item.
+            /// If the list control allows multiselect, this will return
+            /// the first selected index.
+            size_t get_selected_index() const;
 
         private:
             wxString on_get_item_text(long item, long column)
@@ -267,6 +275,13 @@ namespace litwindow {
         {
             return wxChoiceBox_list_adapter(l);
         }
+
+        inline size_t wxListCtrl_list_adapter::get_selected_index() const
+        {
+            long rc=wnd()->GetFirstSelected();
+            return rc==-1 ? npos : rc;
+        }
+
     }
     using wx::make_list_adapter;
 }

@@ -8,6 +8,7 @@ namespace litwindow {
         {
             return on_get_item_text ? on_get_item_text(item, column) : wxString();
         }
+
     }
 }
 IMPLEMENT_DYNAMIC_CLASS(litwindow::wx::VirtualListCtrl, wxListCtrl);

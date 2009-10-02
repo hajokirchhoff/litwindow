@@ -171,8 +171,10 @@ namespace litwindow {
             typedef stl_container_dataset_accessor<Container, ColumnsAdapter> _Myt;
             typedef Container container_type;
             typedef typename Container::value_type value_type;
-            typedef std::vector<const value_type*> sorted_container_type;
+            typedef std::vector<value_type*> sorted_container_type;
             typedef ColumnsAdapter columns_adapter_type;
+            typedef typename container_type::const_iterator const_iterator;
+            typedef typename container_type::iterator iterator;
             //typedef typename columns_adapter_type::element_value_type element_value_type;
             //typedef typename columns_adapter_type::column_position_type column_position_type;
             typedef boost::function<bool(const value_type *left, const value_type *right)> sort_pred_type;
@@ -204,7 +206,7 @@ namespace litwindow {
             void sort()
             {
                 sorted_container_type::iterator dest=m_ptrs.begin();
-                container_type::const_iterator i=container().begin();
+                container_type::iterator i=container().begin();
                 while (dest!=m_ptrs.end() && i!=container().end()) {
                     sorted_container_type::value_type new_v= & *i;
                     if (!m_filter_pred || m_filter_pred(new_v))
@@ -226,6 +228,11 @@ namespace litwindow {
             void update() { if (m_needs_update) sort(); m_needs_update=false; }
             void refresh() { update(); }
             const value_type &value_at(size_t pos) const { return *m_ptrs.at(pos); }
+            void modify_value_at(size_t pos, const value_type &new_value)
+            {
+                *m_ptrs.at(pos)=new_value;
+                m_needs_update=true;
+            }
         };
 
 
@@ -260,6 +267,8 @@ namespace litwindow {
             void end_update() {}
             template <typename Mediator>
             void connect_mediator(const Mediator &m) {}
+            static const size_t npos=(size_t)-1;
+            size_t get_selected_index() const { return npos; }
         };
 
 //////////////////////////////////////////////////////////////////////////
@@ -281,6 +290,7 @@ namespace litwindow {
             typedef UIControlAdapter ui_control_adapter_type;
             typedef DatasetAdapter dataset_adapter_type;
             typedef typename dataset_adapter_type::columns_adapter_type columns_adapter_type;
+            typedef typename dataset_adapter_type::value_type value_type;
 
             //void set_columns_adapter(const columns_adapter_type &cols) { m_columns=cols; m_needs_refresh_columns=true; }
             columns_adapter_type &columns_adapter() { return m_dataset_adapter.columns_adapter(); }
@@ -305,6 +315,8 @@ namespace litwindow {
             void set_dataset_adapter(const dataset_adapter_type &d) { m_dataset_adapter=d; }
             const dataset_adapter_type &dataset_adapter() const { return m_dataset_adapter; }
             dataset_adapter_type &dataset_adapter() { return m_dataset_adapter; }
+            const ui_control_adapter_type &ui_adapter() const { return m_ui_control_adapter; }
+            ui_control_adapter_type &ui_adapter() { return m_ui_control_adapter; }
 
             basic_list_mediator()
                 :m_needs_refresh_columns(true){}
@@ -319,6 +331,16 @@ namespace litwindow {
             {
                 m_dataset_adapter.refresh();
             }
+
+            const value_type &get_selected_item() const
+            {
+                return dataset_adapter().value_at(ui_adapter().get_selected_index());
+            }
+            void modify_selected_item(const value_type &data)
+            {
+                dataset_adapter().modify_value_at(ui_adapter().get_selected_index(), data);
+            }
+
         protected:
             void refresh_columns(bool do_refresh=true);
             void refresh_list();
