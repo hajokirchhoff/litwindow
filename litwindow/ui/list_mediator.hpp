@@ -164,24 +164,21 @@ namespace litwindow {
             size_t size() const;
         };
 
-        template <typename Container, typename ColumnsAdapter>
+        template <typename Container, typename ColumnsAdapter, typename ItemHandle=typename Container::iterator>
         class stl_container_dataset_accessor
         {
         public:
             typedef stl_container_dataset_accessor<Container, ColumnsAdapter> _Myt;
             typedef Container container_type;
             typedef typename Container::value_type value_type;
-            typedef std::vector<value_type*> sorted_container_type;
+            typedef ItemHandle item_handle_type;
+            typedef std::vector<item_handle_type> sorted_container_type;
             typedef ColumnsAdapter columns_adapter_type;
-            typedef typename container_type::const_iterator const_iterator;
-            typedef typename container_type::iterator iterator;
-            //typedef typename columns_adapter_type::element_value_type element_value_type;
-            //typedef typename columns_adapter_type::column_position_type column_position_type;
-            typedef boost::function<bool(const value_type *left, const value_type *right)> sort_pred_type;
-            typedef boost::function<bool(const value_type *f)> filter_pred_type;
+            typedef boost::function<bool(const item_handle_type &left, const item_handle_type &right)> sort_pred_type;
+            typedef boost::function<bool(const item_handle_type &f)> filter_pred_type;
         private:
             container_type *m_c;
-            sorted_container_type m_ptrs;
+            sorted_container_type m_item_handles;
             columns_adapter_type m_columns_adapter;
             sort_pred_type m_sort_pred;
             filter_pred_type m_filter_pred;
@@ -202,35 +199,38 @@ namespace litwindow {
                 m_columns_adapter=cadapter;
                 return *this;
             }
-            size_t size() const { return m_ptrs.size(); }
+            size_t size() const { return m_item_handles.size(); }
             void sort()
             {
-                sorted_container_type::iterator dest=m_ptrs.begin();
+                sorted_container_type::iterator dest=m_item_handles.begin();
                 container_type::iterator i=container().begin();
-                while (dest!=m_ptrs.end() && i!=container().end()) {
-                    sorted_container_type::value_type new_v= & *i;
-                    if (!m_filter_pred || m_filter_pred(new_v))
-                        *dest++=new_v;
+                while (dest!=m_item_handles.end() && i!=container().end()) {
+                    if (!m_filter_pred || m_filter_pred(i))
+                        *dest++=i;
                     ++i;
                 }
-                if (dest<m_ptrs.end())
-                    m_ptrs.erase(dest, m_ptrs.end());
+                if (dest<m_item_handles.end())
+                    m_item_handles.erase(dest, m_item_handles.end());
                 else while (i!=container().end()) {
-                    sorted_container_type::value_type new_v= & *i;
-                    if (!m_filter_pred || m_filter_pred(new_v))
-                        m_ptrs.push_back(new_v);
+                    if (!m_filter_pred || m_filter_pred(i))
+                        m_item_handles.push_back(i);
                     ++i;
                 }
                 if (m_sort_pred)
-                    std::sort(m_ptrs.begin(), m_ptrs.end(), m_sort_pred);
+                    std::sort(m_item_handles.begin(), m_item_handles.end(), m_sort_pred);
             }
             void force_update() { m_needs_update=true; }
             void update() { if (m_needs_update) sort(); m_needs_update=false; }
             void refresh() { update(); }
-            const value_type &value_at(size_t pos) const { return *m_ptrs.at(pos); }
+            const value_type &value_at(size_t pos) const { return *m_item_handles.at(pos); }
             void modify_value_at(size_t pos, const value_type &new_value)
             {
-                *m_ptrs.at(pos)=new_value;
+                *m_item_handles.at(pos)=new_value;
+                m_needs_update=true;
+            }
+            void delete_value_at(size_t pos)
+            {
+                (*m_c).erase(m_item_handles.at(pos));
                 m_needs_update=true;
             }
         };
@@ -339,6 +339,10 @@ namespace litwindow {
             void modify_selected_item(const value_type &data)
             {
                 dataset_adapter().modify_value_at(ui_adapter().get_selected_index(), data);
+            }
+            void delete_selected_item()
+            {
+                dataset_adapter().delete_value_at(ui_adapter().get_selected_index());
             }
 
         protected:
