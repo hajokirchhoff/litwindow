@@ -165,6 +165,8 @@ public:
 	bool constraints_violation() const throw() { return m_rc==SQL_ERROR && is_state(_T("23***")); }
 	/// test for 'permission denied'. \todo Prüfen, ob dies für alle Datenbanken funktioniert, oder ob man pro Datenbank testen muß... Vermutlich pro Datenbank.
 	bool permission_denied() const throw() { return m_rc==SQL_ERROR && is_state(_T("42501")); }
+    /// integrity constraint is usually returned by inserts and updates
+    bool integrity_constraint_violation() const throw() { return m_rc==SQL_ERROR && is_state(_T("23000")); }
 	/// log any errors and return true if errors logged or false if ok()
 	bool LWODBC_API log_errors() const throw() { return success() ? false : do_log_errors(); }
 	bool LWODBC_API ok_log() const { return log_errors()==false; }
