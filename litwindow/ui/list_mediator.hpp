@@ -57,7 +57,8 @@ namespace litwindow {
         template <typename Value>
         inline void to_string(const Value &v, tstring &c)
         {
-            c=boost::lexical_cast<tstring>(v);
+            //c=boost::lexical_cast<tstring>(v);
+            c=make_const_accessor(v).to_string();
         }
         template <typename ValueType, typename MemberType>
         inline const MemberType &to_member(const ValueType &v, MemberType (ValueType::*ptr_to_member))
@@ -69,6 +70,13 @@ namespace litwindow {
         {
             return boost::bind(&to_string<MemberType>,
                 boost::bind(&to_member<ValueType, MemberType>, _1, ptr_to_member),
+                _2);
+        }
+        template <typename MemberFnc, typename ValueType>
+        inline typename basic_column_descriptor<ValueType>::text_renderer_type make_text_renderer(MemberFnc (ValueType::*ptr_to_member)() const)
+        {
+            return boost::bind(&to_string<MemberFnc>,
+                boost::bind(ptr_to_member, _1),
                 _2);
         }
 
@@ -103,6 +111,16 @@ namespace litwindow {
                 back_inserter operator()(const tstring &title, int width=-1, text_renderer_type r=text_renderer_type()) const
                 {
                     return operator()(column_descriptor_type(title, width, r));
+                }
+                template <typename ValueMember>
+                back_inserter operator()(const tstring &title, int width, ValueMember (value_type::*ptr_to_member)) const
+                {
+                    return operator()(column_descriptor_type(title, width, make_text_renderer<ValueMember>(ptr_to_member)));
+                }
+                template <typename MemberFnc>
+                back_inserter operator()(const tstring &title, int width, MemberFnc (value_type::* ptr_to_member)() const) const
+                {
+                    return operator()(column_descriptor_type(title, width, make_text_renderer<MemberFnc>(ptr_to_member)));
                 }
             };
             template <typename ValueMember>

@@ -14,10 +14,17 @@
 #include <iomanip>
 #include <limits>
 #include <boost/cstdint.hpp>
+#ifdef max
+#undef max
+#endif
+#ifdef min
+#undef min
+#endif
 using namespace std;
-
+using namespace litwindow;
 //TODO: use boost::mpl
 //TODO: modify dataadapter into a header-lib, get rid of .cpp files
+
 
 //#pragma warning(disable: 4518) /* disable '__declspec(dllimport)' unexpected here */
 

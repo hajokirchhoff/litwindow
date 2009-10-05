@@ -148,6 +148,7 @@ libs/odbc/utility.cpp -text
 /litwindow-VC90.vcproj.ITHILIEN.Hajo[!!-~]Kirchhoff.user -text
 litwindow/algorithm.h -text
 litwindow/auto_link.hpp -text
+litwindow/boost/posix_time.hpp -text
 litwindow/check.hpp -text
 litwindow/config.hpp -text
 litwindow/constraints.h -text
