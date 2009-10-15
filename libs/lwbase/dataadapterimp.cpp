@@ -14,6 +14,7 @@
 #include <iomanip>
 #include <limits>
 #include <boost/cstdint.hpp>
+#include <boost/lexical_cast.hpp>
 #ifdef max
 #undef max
 #endif
@@ -208,6 +209,20 @@ void not_implemented(const string &what)
 
 // the following code fragment shall be invisible to doxygen
 #ifndef DOXYGEN_INVOKED
+
+template<>
+size_t converter<boost::uint64_t>::from_string(const tstring &newValue, boost::uint64_t &v)
+{
+    using namespace boost;
+    v=lexical_cast<uint64_t>(newValue);
+    return sizeof(v);
+}
+template<>
+litwindow::tstring converter<boost::uint64_t>::to_string(const boost::uint64_t &v)
+{
+    using namespace boost;
+    return lexical_cast<litwindow::tstring>(v);
+}
 
 template <>
 tstring converter<int>::to_string(const int &i)
