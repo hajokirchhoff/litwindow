@@ -155,9 +155,9 @@ namespace litwindow {
             //{
             //    return m_element_adapter(e, pos);
             //}
+			void set_dirty() { m_dirty=true; }
+			void clear_dirty() { m_dirty=false; }
         protected:
-            void set_dirty() { m_dirty=true; }
-            void clear_dirty() { m_dirty=false; }
         private:
             bool m_dirty;
             columns_t m_column_data;
@@ -238,10 +238,16 @@ namespace litwindow {
                 if (m_sort_pred)
                     std::sort(m_item_handles.begin(), m_item_handles.end(), m_sort_pred);
             }
-            void force_update() { m_needs_update=true; }
+			void set_dirty() { m_needs_update=true; }
+            void force_update() { m_needs_update=true; update(); }
             void update() { if (m_needs_update) sort(); m_needs_update=false; }
-            void refresh() { update(); }
-            const value_type &value_at(size_t pos) const { return *m_item_handles.at(pos); }
+            void refresh(bool force=false) { if (force) force_update(); else update(); }
+            const value_type &value_at(size_t pos) const
+			{
+				//TODO: this needs a mechanism to return 'no-item' to signal the caller
+				// that the container has changed and no longer has 'pos' items
+				return *m_item_handles.at(pos); 
+			}
             void modify_value_at(size_t pos, const value_type &new_value)
             {
                 *m_item_handles.at(pos)=new_value;
@@ -358,7 +364,7 @@ namespace litwindow {
 
             void refresh_dataset()
             {
-                m_dataset_adapter.refresh();
+                m_dataset_adapter.refresh(true);
             }
 
             const value_type &get_selected_item() const
@@ -430,6 +436,7 @@ namespace litwindow {
         void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter>::setup_columns()
         {
             m_ui_control_adapter.setup_columns(columns_adapter());
+			columns_adapter().clear_dirty();
         }
 
     }
