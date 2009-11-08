@@ -145,7 +145,7 @@ namespace litwindow {
 			///\return this names string
 			const name_type &str() const { return *find_by_index(index()); }
 			static _Elem tag_sep() { return _Elem(0); }
-			///\addtogroup Operators
+			///\name Operators
 			//{
 			bool operator== (const _Myt &right) const   {return index()==right.index();}
 			bool operator!= (const _Myt &right) const   {return !operator==(right);}
