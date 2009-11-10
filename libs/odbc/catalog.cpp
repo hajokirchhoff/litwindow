@@ -14,7 +14,6 @@
 
 #define new DEBUG_NEW
 
-#pragma warning(push, 4)
 //#pragma warning(disable: 4312 4267)
 
 namespace litwindow {

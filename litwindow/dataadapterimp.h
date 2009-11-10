@@ -428,6 +428,7 @@ namespace litwindow {
 		virtual const schema_base *get_schema() const { return 0; }
 
 		virtual bool is_container() const { return false; }
+		virtual bool is_const_container() const { return false; }
 		virtual const_container_iterator_imp_base *get_const_begin(const schema_entry *se, const_prop_ptr member_ptr) const { return 0; }
 		virtual const_container_iterator_imp_base *get_const_end(const schema_entry *se, const_prop_ptr member_ptr) const { return 0; }
 		virtual container_iterator_imp_base *get_begin(const schema_entry *se, prop_ptr member_ptr) const { return 0; }

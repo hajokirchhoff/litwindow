@@ -185,7 +185,7 @@ END_ADAPTER()
 BEGIN_ADAPTER_NO_COPY(wxComboBox)
     PROP_CO(wxComboBoxAdapter, GetComboBoxAdapter)
     PROP_I(wxControl)
-    PROP_GetSet(wxString, Value)
+    //PROP_GetSet(wxString, Value)
 END_ADAPTER()
 
 BEGIN_ADAPTER_NO_COPY(wxChoice)

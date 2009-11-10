@@ -60,17 +60,19 @@ public:
 
     //-----------------------------------------------------------------------------------------------------------//
     //-----------------------------------------------------------------------------------------------------------//
-template <class Iterator>
+template <class Container, class Iterator=Container::const_iterator>
 class const_container_const_iterator:public const_container_iterator_imp_base
 {
 public:
-    Iterator i;
-    const_container_const_iterator(const Iterator &_i)
+	typedef Iterator iterator;
+	typedef typename Container::value_type value_type;
+    iterator i;
+    const_container_const_iterator(const iterator &_i)
         :i(_i)
     {}
     virtual const_container_iterator_imp_base *clone() const
     {
-        return new const_container_const_iterator<Iterator>(*this);
+        return new const_container_const_iterator<Container, Iterator>(*this);
     }
     virtual const_accessor get() const
     {
@@ -78,11 +80,11 @@ public:
     }
     virtual prop_t get_element_type() const
     {
-	    return prop_type_object<Iterator::value_type>::get(0);
+	    return prop_type_object<value_type>::get(0);
     }
       virtual bool operator == (const const_container_iterator_imp_base &c) const
     {
-            const const_container_const_iterator<Iterator> *my_c=dynamic_cast<const const_container_const_iterator<Iterator> *>(&c);
+            const const_container_const_iterator<Container, Iterator> *my_c=dynamic_cast<const const_container_const_iterator<Container, Iterator> *>(&c);
             return my_c && i==my_c->i;
         //return get().is_alias_of(c.get());
     }
@@ -190,10 +192,10 @@ public:
     }
 };
 
-template <class Iterator>
-const_container_const_iterator<Iterator> *make_const_container_const_iterator(const Iterator &i)
+template <class Container, class Iterator>
+const_container_const_iterator<Container, Iterator> *make_const_container_const_iterator(const Iterator &i)
 {
-    return new const_container_const_iterator<Iterator>(i);
+    return new const_container_const_iterator<Container, Iterator>(i);
 }
 
 template <class _Cont, class _Iter, class _Value>
@@ -203,24 +205,37 @@ container_iterator<_Cont, _Iter, _Value> *make_container_iterator(const _Iter &i
 }
 
 template <class Container>
-class container_converter:public converter<Container>
+class const_container_converter:public converter<Container>
+{
+public:
+	const_container_converter(const string &name, const prop_type_registrar *r)
+		:converter<Container>(name, r)
+	{}
+	bool is_const_container() const
+	{
+		return true;
+	}
+	const_container_iterator_imp_base *get_const_begin(const schema_entry *se, const_prop_ptr member_ptr) const
+	{
+		return make_const_container_const_iterator<Container>(member(member_ptr).begin());
+	}
+	const_container_iterator_imp_base *get_const_end(const schema_entry *se, const_prop_ptr member_ptr) const
+	{
+		return make_const_container_const_iterator<Container>(member(member_ptr).end());
+	}
+};
+
+template <class Container>
+class container_converter:public const_container_converter<Container>
 {
 public:
     container_converter(const string &name, const prop_type_registrar *r)
-        :converter<Container>(name, r)
+        :const_container_converter<Container>(name, r)
     {}
-    bool is_container() const
-    {
-        return true;
-    }
-    const_container_iterator_imp_base *get_const_begin(const schema_entry *se, const_prop_ptr member_ptr) const
-    {
-        return make_const_container_const_iterator(member(member_ptr).begin());
-    }
-    const_container_iterator_imp_base *get_const_end(const schema_entry *se, const_prop_ptr member_ptr) const
-    {
-        return make_const_container_const_iterator(member(member_ptr).end());
-    }
+	bool is_container() const
+	{
+		return true;
+	}
     container_iterator_imp_base *get_begin(const schema_entry *se, prop_ptr member_ptr) const
     {
         return make_container_iterator<Container, Container::iterator, Container::value_type>(member(member_ptr).begin());
@@ -244,6 +259,15 @@ public:
 		static litwindow::container_converter<tp > theConverter(#tp, &litwindow::prop_type_object<tp>::____register_prop_t);    \
 		return &theConverter;    \
 	} \
+
+#define LWL_IMPLEMENT_CONST_CONTAINER(tp) \
+	template <> \
+	litwindow::prop_type_registrar litwindow::prop_type_object<tp >::____register_prop_t(litwindow::prop_type_object<tp >::get(0)); \
+	LWBASE_DLL_EXPORT ::litwindow::prop_t     get_prop_type_data_adapter_mechanism(const tp*)    \
+{    \
+	static litwindow::const_container_converter<tp > theConverter(#tp, &litwindow::prop_type_object<tp>::____register_prop_t);    \
+	return &theConverter;    \
+} \
 /*template <> \
 ::litwindow::prop_t LWBASE_DLL_EXPORT ::litwindow::prop_type_object<tp >::get(const tp *) \
     { \

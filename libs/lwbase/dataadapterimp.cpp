@@ -316,6 +316,11 @@ int converter<int>::to_int(const int &i)
 {
     return i;
 }
+template <>
+int converter<unsigned int>::to_int(const unsigned int &i)
+{
+	return i;
+}
 
 template <>
 int converter<short>::to_int(const short &i)
@@ -346,7 +351,11 @@ void converter<short>::from_int(int value, short &member)
 {
     member=value;
 }
-
+template <>
+void converter<unsigned int>::from_int(int value, unsigned int &member)
+{
+	member=value;
+}
 template <>
 size_t converter<string>::from_string(const tstring &p, string &member)
 {

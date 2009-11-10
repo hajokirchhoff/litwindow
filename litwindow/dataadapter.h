@@ -91,6 +91,8 @@ namespace litwindow {
 		///\name Testing capabilities of the accessor.
 		///These functions test capabilities and attributes of the accessor.
 		//\{
+		/// Test if the accessor points to a const container.
+		bool is_const_container() const;
 		/// Test if the accessor points to a container.
 		bool is_container() const;
 		/// Test if the accessor points to an aggregate.
@@ -185,6 +187,7 @@ namespace litwindow {
 		/// It is valid to call get_container for an object that isn't a container. If thats the case
 		/// const_container::is_valid() will return false for the returned container accessor.
 		const_container get_container() const;
+		const_container get_const_container() const;
 
 		/// Return an aggregate accessor for this object.
 		/// It is valid to call get_aggregate for an object that isn't an aggregate. If thats the case,
@@ -1244,9 +1247,13 @@ namespace litwindow {
 	}
 	inline const_container const_accessor::get_container() const
 	{
-		if (!is_container())
+		if (!is_const_container())
 			throw lwbase_error("is not a container");
 		return const_container(*this);
+	}
+	inline const_container const_accessor::get_const_container() const
+	{
+		 return get_container();
 	}
 
 	inline container accessor::get_container() const
@@ -1388,6 +1395,12 @@ namespace litwindow {
 		/** Tests if the object pointed to is a container. Use this function to test
 		if get_container() would return a valid container adapter. */
 		return get_type()->is_container();
+	}
+	inline bool const_accessor::is_const_container() const
+	{
+		/** Tests if the object pointed to is a container. Use this function to test
+		if get_const_container() would return a valid container adapter. */
+		return get_type()->is_const_container();
 	}
 
 	/** Tests if the object pointed to is an aggregate. Use this function to test

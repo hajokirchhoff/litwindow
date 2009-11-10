@@ -274,6 +274,7 @@ END_ADAPTER()
 
 BEGIN_ADAPTER_NO_COPY(wxComboBoxAdapter)
 PROP_I(lwListAdapterBase)
+PROP_GetSet(accessor, Value)
 END_ADAPTER()
 
 BEGIN_ADAPTER_NO_COPY(wxChoiceAdapter)

@@ -43,6 +43,17 @@ namespace litwindow {
         {
             m_values.push_back(element(e, m_next_value++));
         }
+		void add(const element &e)
+		{
+			m_values.push_back(element(e));
+			m_next_value=e.m_value+1;
+		}
+		enum_adapter operator+(const element &e)
+		{
+			enum_adapter rc(*this);
+			rc.add(e);
+			return rc;
+		}
         enum_adapter operator+(const inserter &r)
         {
             enum_adapter rc(*this);

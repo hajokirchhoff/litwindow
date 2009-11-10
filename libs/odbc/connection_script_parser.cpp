@@ -16,8 +16,6 @@
 #include "connection.h"
 #include "statement.h"
 
-#pragma warning(push, 4)
-
 #define new DEBUG_NEW
 
 namespace litwindow {
