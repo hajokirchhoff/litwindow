@@ -159,7 +159,10 @@ const accessor lwListAdapterBase::GetValue() const
     if (is_enum()) {
         m_int_value=GetClientDataSelection();
         rc=reinterpret_accessor(m_enum_type, make_accessor(m_int_value));
-    } else {
+	} else if (is_string()) {
+		m_string_value=GetValueAsString();
+		rc=make_accessor(m_string_value);
+	} else {
         m_int_value=GetValueAsInt();
         rc=make_accessor(m_int_value);
     }
@@ -169,7 +172,7 @@ const accessor lwListAdapterBase::GetValue() const
 void lwListAdapterBase::SetValue(const accessor &newValue)
 {
     if (newValue.is_enum()) {
-        set_is_enum(true);
+        set_is_enum();
         m_enum_type=newValue.get_type();
         const converter_enum_info *new_info=newValue.get_enum_info();
         if (new_info!=m_enum_info) {
@@ -182,8 +185,11 @@ void lwListAdapterBase::SetValue(const accessor &newValue)
             SetUseClientData(true);
         }
         SetClientDataSelection(newValue.to_int());
-    } else {
-        set_is_enum(false);
+    } else if (newValue.is_type<wxString>()) {
+		set_is_string();
+		SetValueAsString(dynamic_cast_accessor<wxString>(newValue).get());
+	} else {
+        set_is_int();
         if (m_enum_info) {
             SetUseClientData(false);
             m_enum_info=0;

@@ -34,6 +34,9 @@ public:
     int GetValueAsInt() const;
     void SetValueAsInt(int newValue);
 
+	virtual wxString GetValueAsString() const { return GetStringSelection(); }
+	virtual void SetValueAsString(const wxString &str) { SetStringSelection(str); }
+
     const accessor GetValue() const;
     void SetValue(const accessor &newValue);
 
@@ -47,7 +50,7 @@ public:
         FillList();
     }
 
-    lwListAdapterBase():IndexClientData(false),m_is_enum(false),m_enum_info(0),m_enum_type(0) { }
+    lwListAdapterBase():IndexClientData(false),m_is_enum(false),m_is_string(false),m_enum_info(0),m_enum_type(0) { }
     virtual ~lwListAdapterBase();
 
     virtual wxString GetStringSelection() const = 0;
@@ -59,6 +62,8 @@ public:
 
     bool	IndexClientData;	///< if true, uses client data to index elements in the list
     bool    is_enum() const { return m_is_enum; }
+	bool	is_string() const { return m_is_string; }
+	bool	is_int() const { return !m_is_enum && !m_is_string; }
 protected:
     virtual void FillList();
     virtual int GetCount() const = 0;
@@ -75,9 +80,13 @@ protected:
     /// m_current is the accessor to the current item. It is delayed-created and thus mutable.
     mutable accessor    m_current;
     bool        m_is_enum;
-    void        set_is_enum(bool yes) { m_is_enum=yes; }
+	bool		m_is_string;
+    void        set_is_enum() { m_is_enum=true; m_is_string=false; }
+	void		set_is_string() { m_is_string=true; m_is_enum=false; }
+	void		set_is_int() { m_is_string=m_is_enum=false; }
     /// temporary object to allow returning an accessor from GetValue
     mutable int m_int_value;
+	mutable wxString m_string_value;
     const converter_enum_info *m_enum_info;
     litwindow::prop_t m_enum_type;
     DECLARE_DYNAMIC_CLASS_NO_COPY(lwListAdapterBase);
