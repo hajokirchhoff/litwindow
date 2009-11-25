@@ -11,6 +11,8 @@
 
 namespace litwindow {
     namespace ui {
+		using namespace std;
+
         template <typename Value/*, typename TextRenderer*/>
         class basic_column_descriptor
         {
