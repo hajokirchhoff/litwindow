@@ -2,6 +2,7 @@
 #define list_mediator_h__31080910
 
 #include "litwindow/tstring.hpp"
+#include "litwindow/dataadapter.h"
 #include <vector>
 #include <iterator>
 #include <boost/ref.hpp>
@@ -60,7 +61,7 @@ namespace litwindow {
         inline void to_string(const Value &v, tstring &c)
         {
             //c=boost::lexical_cast<tstring>(v);
-            c=make_const_accessor(v).to_string();
+            c=litwindow::make_const_accessor(v).to_string();
         }
         template <typename ValueType, typename MemberType>
         inline const MemberType &to_member(const ValueType &v, MemberType (ValueType::*ptr_to_member))

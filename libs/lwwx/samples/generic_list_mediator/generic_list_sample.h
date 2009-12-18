@@ -18,6 +18,7 @@
  */
 
 ////@begin includes
+#include "wx/notebook.h"
 #include "wx/listctrl.h"
 #include "wx/grid.h"
 ////@end includes
@@ -42,11 +43,14 @@ class wxDataViewCtrl;
 
 ////@begin control identifiers
 #define ID_GENERIC_LIST_SAMPLE 10000
+#define ID_NOTEBOOK 10006
+#define ID_PANEL 10007
 #define ID_LISTCTRL 10003
 #define ID_LISTBOX 10001
 #define ID_CHOICE 10002
 #define ID_GRID 10004
 #define ID_DATAVIEW 10005
+#define ID_PANEL1 10008
 #define SYMBOL_GENERIC_LIST_SAMPLE_STYLE wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxTAB_TRAVERSAL
 #define SYMBOL_GENERIC_LIST_SAMPLE_TITLE _("generic_list_sample")
 #define SYMBOL_GENERIC_LIST_SAMPLE_IDNAME ID_GENERIC_LIST_SAMPLE
@@ -97,7 +101,11 @@ public:
     /// Should we show tooltips?
     static bool ShowToolTips();
     void setup_lists();
-////@begin generic_list_sample member variables
+
+    void setup_sample_listctrl( );
+    void setup_sample_list_adapter();
+    void setup_sample_columns_adapter();
+    ////@begin generic_list_sample member variables
     VirtualListCtrl* m_listctrl;
     wxListBox* m_listbox;
     wxChoice* m_choice;

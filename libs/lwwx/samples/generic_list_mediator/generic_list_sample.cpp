@@ -27,6 +27,7 @@
 
 #include <wx/dataview.h>
 #include <litwindow/wx/list_mediator.hpp>
+#include <litwindow/dataadapter.h>
 #include "generic_list_sample.h"
 
 using namespace litwindow;
@@ -57,6 +58,9 @@ typedef ui::basic_column_descriptor<test_data> sample_column_descriptor;
 typedef ui::basic_columns_adapter<sample_column_descriptor> sample_columns_adapter;
 typedef ui::stl_container_dataset_accessor<test_list_t, sample_columns_adapter > sample_dataset_adapter;
 
+static sample_columns_adapter g_columns;
+static sample_dataset_adapter g_test_list_adapter;
+
 void generic_list_sample::setup_lists()
 {
     // setup some example records
@@ -64,27 +68,14 @@ void generic_list_sample::setup_lists()
     g_sample.push_back(test_data(L"Obama", 48));
     g_sample.push_back(test_data(L"Merkel", 54));
 
-    static sample_columns_adapter g_columns;
-    boost::function<void(const test_data &t, tstring &c)> fnc;
-    fnc=boost::bind(&litwindow::ui::to_string<int>, 
-        boost::bind(&litwindow::ui::to_member<test_data, int>, _1, &test_data::age),
-        _2
-        );
-    g_columns.add(L"Name", 120, &test_data::name)(L"Age", 80, fnc);
+    setup_sample_columns_adapter();
 
-    static sample_dataset_adapter g_test_list_adapter;
-    g_test_list_adapter.set_container(g_sample);
-    g_test_list_adapter.set_columns_adapter(g_columns);
+    setup_sample_list_adapter();
 
-    static wx::wxListCtrl_list_adapter g_listctrl_adapter;
-    g_listctrl_adapter.set_control(m_listctrl);
+    setup_sample_listctrl();
 
-    static ui::basic_list_mediator<sample_dataset_adapter, wx::wxListCtrl_list_adapter> g_listctrl_mediator;
-    g_listctrl_mediator.set_ui_adapter(g_listctrl_adapter);
-    g_listctrl_mediator.set_dataset_adapter(g_test_list_adapter);
-    g_listctrl_mediator.refresh();
-
-
+    //=======================================================================
+    // setup listbox
     static wx::wxListBox_list_adapter g_listbox_adapter;
     g_listbox_adapter.set_control(m_listbox);
 
@@ -93,12 +84,15 @@ void generic_list_sample::setup_lists()
     g_listbox_mediator.set_dataset_adapter(g_test_list_adapter);
     g_listbox_mediator.refresh();
 
-
+    //=======================================================================
+    // setup choicebox
     static ui::basic_list_mediator<sample_dataset_adapter, wx::wxChoiceBox_list_adapter> g_choicebox_mediator;
     g_choicebox_mediator.set_ui(m_choice);
     g_choicebox_mediator.set_dataset(g_sample, g_columns);
     g_choicebox_mediator.refresh();
 
+    //=======================================================================
+    // setup dataviewctrl
     static wx::wxDataViewCtrl_list_adapter g_dataviewctrl_adapter;
     g_dataviewctrl_adapter.set_control(m_dataview);
 
@@ -204,55 +198,64 @@ void generic_list_sample::CreateControls()
     wxBoxSizer* itemBoxSizer2 = new wxBoxSizer(wxVERTICAL);
     itemDialog1->SetSizer(itemBoxSizer2);
 
-    wxFlexGridSizer* itemFlexGridSizer3 = new wxFlexGridSizer(0, 3, 0, 0);
-    itemFlexGridSizer3->AddGrowableRow(1);
-    itemFlexGridSizer3->AddGrowableRow(3);
-    itemFlexGridSizer3->AddGrowableCol(0);
-    itemFlexGridSizer3->AddGrowableCol(1);
-    itemFlexGridSizer3->AddGrowableCol(2);
-    itemBoxSizer2->Add(itemFlexGridSizer3, 1, wxGROW|wxALL, 5);
+    wxNotebook* itemNotebook3 = new wxNotebook( itemDialog1, ID_NOTEBOOK, wxDefaultPosition, wxDefaultSize, wxBK_DEFAULT );
 
-    wxStaticText* itemStaticText4 = new wxStaticText( itemDialog1, wxID_STATIC, _("wxListCtrl"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer3->Add(itemStaticText4, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
+    wxPanel* itemPanel4 = new wxPanel( itemNotebook3, ID_PANEL, wxDefaultPosition, wxDefaultSize, wxNO_BORDER|wxTAB_TRAVERSAL );
+    wxFlexGridSizer* itemFlexGridSizer5 = new wxFlexGridSizer(0, 3, 0, 0);
+    itemFlexGridSizer5->AddGrowableRow(1);
+    itemFlexGridSizer5->AddGrowableRow(3);
+    itemFlexGridSizer5->AddGrowableCol(0);
+    itemFlexGridSizer5->AddGrowableCol(1);
+    itemFlexGridSizer5->AddGrowableCol(2);
+    itemPanel4->SetSizer(itemFlexGridSizer5);
 
-    wxStaticText* itemStaticText5 = new wxStaticText( itemDialog1, wxID_STATIC, _("wxListBox"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer3->Add(itemStaticText5, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
+    wxStaticText* itemStaticText6 = new wxStaticText( itemPanel4, wxID_STATIC, _("wxListCtrl"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemFlexGridSizer5->Add(itemStaticText6, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
 
-    wxStaticText* itemStaticText6 = new wxStaticText( itemDialog1, wxID_STATIC, _("wxChoice"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer3->Add(itemStaticText6, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
+    wxStaticText* itemStaticText7 = new wxStaticText( itemPanel4, wxID_STATIC, _("wxListBox"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemFlexGridSizer5->Add(itemStaticText7, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
 
-    m_listctrl = new VirtualListCtrl( itemDialog1, ID_LISTCTRL, wxDefaultPosition, wxSize(100, 100), wxLC_REPORT );
-    itemFlexGridSizer3->Add(m_listctrl, 0, wxGROW|wxGROW|wxALL, 5);
+    wxStaticText* itemStaticText8 = new wxStaticText( itemPanel4, wxID_STATIC, _("wxChoice"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemFlexGridSizer5->Add(itemStaticText8, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
+
+    m_listctrl = new VirtualListCtrl( itemPanel4, ID_LISTCTRL, wxDefaultPosition, wxSize(100, 100), wxLC_REPORT );
+    itemFlexGridSizer5->Add(m_listctrl, 0, wxGROW|wxGROW|wxALL, 5);
 
     wxArrayString m_listboxStrings;
-    m_listbox = new wxListBox( itemDialog1, ID_LISTBOX, wxDefaultPosition, wxDefaultSize, m_listboxStrings, wxLB_SINGLE );
-    itemFlexGridSizer3->Add(m_listbox, 0, wxGROW|wxGROW|wxALL, 5);
+    m_listbox = new wxListBox( itemPanel4, ID_LISTBOX, wxDefaultPosition, wxDefaultSize, m_listboxStrings, wxLB_SINGLE );
+    itemFlexGridSizer5->Add(m_listbox, 0, wxGROW|wxGROW|wxALL, 5);
 
     wxArrayString m_choiceStrings;
-    m_choice = new wxChoice( itemDialog1, ID_CHOICE, wxDefaultPosition, wxDefaultSize, m_choiceStrings, 0 );
-    itemFlexGridSizer3->Add(m_choice, 0, wxGROW|wxALIGN_TOP|wxALL, 5);
+    m_choice = new wxChoice( itemPanel4, ID_CHOICE, wxDefaultPosition, wxDefaultSize, m_choiceStrings, 0 );
+    itemFlexGridSizer5->Add(m_choice, 0, wxGROW|wxALIGN_TOP|wxALL, 5);
 
-    wxStaticText* itemStaticText10 = new wxStaticText( itemDialog1, wxID_STATIC, _("wxGrid"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer3->Add(itemStaticText10, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
+    wxStaticText* itemStaticText12 = new wxStaticText( itemPanel4, wxID_STATIC, _("wxGrid"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemFlexGridSizer5->Add(itemStaticText12, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
 
-    wxStaticText* itemStaticText11 = new wxStaticText( itemDialog1, wxID_STATIC, _("wxDataViewCtrl"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer3->Add(itemStaticText11, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
+    wxStaticText* itemStaticText13 = new wxStaticText( itemPanel4, wxID_STATIC, _("wxDataViewCtrl"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemFlexGridSizer5->Add(itemStaticText13, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
 
-    wxStaticText* itemStaticText12 = new wxStaticText( itemDialog1, wxID_STATIC, _("Static text"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer3->Add(itemStaticText12, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
+    wxStaticText* itemStaticText14 = new wxStaticText( itemPanel4, wxID_STATIC, _("Static text"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemFlexGridSizer5->Add(itemStaticText14, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxTOP, 5);
 
-    m_grid = new wxGrid( itemDialog1, ID_GRID, wxDefaultPosition, wxSize(200, 150), wxSUNKEN_BORDER|wxHSCROLL|wxVSCROLL );
+    m_grid = new wxGrid( itemPanel4, ID_GRID, wxDefaultPosition, wxSize(200, 150), wxSUNKEN_BORDER|wxHSCROLL|wxVSCROLL );
     m_grid->SetDefaultColSize(50);
     m_grid->SetDefaultRowSize(25);
     m_grid->SetColLabelSize(25);
     m_grid->SetRowLabelSize(50);
     m_grid->CreateGrid(5, 5, wxGrid::wxGridSelectCells);
-    itemFlexGridSizer3->Add(m_grid, 0, wxGROW|wxGROW|wxALL, 5);
+    itemFlexGridSizer5->Add(m_grid, 0, wxGROW|wxGROW|wxALL, 5);
 
-    m_dataview = new wxDataViewCtrl( itemDialog1, ID_DATAVIEW, wxDefaultPosition, wxSize(200, 100), wxSIMPLE_BORDER );
-    itemFlexGridSizer3->Add(m_dataview, 0, wxGROW|wxGROW|wxALL, 5);
+    m_dataview = new wxDataViewCtrl( itemPanel4, ID_DATAVIEW, wxDefaultPosition, wxSize(200, 100), wxSIMPLE_BORDER );
+    itemFlexGridSizer5->Add(m_dataview, 0, wxGROW|wxGROW|wxALL, 5);
 
+    itemNotebook3->AddPage(itemPanel4, _("Template based"));
 
+    wxPanel* itemPanel18 = new wxPanel( itemNotebook3, ID_PANEL1, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxTAB_TRAVERSAL );
+
+    itemNotebook3->AddPage(itemPanel18, _("Tab"));
+
+    itemBoxSizer2->Add(itemNotebook3, 1, wxGROW|wxALL, 5);
 
 ////@end generic_list_sample content construction
     setup_lists();
@@ -292,4 +295,31 @@ wxIcon generic_list_sample::GetIconResource( const wxString& name )
     wxUnusedVar(name);
     return wxNullIcon;
 ////@end generic_list_sample icon retrieval
+}
+
+void generic_list_sample::setup_sample_columns_adapter()
+{
+    boost::function<void(const test_data &t, tstring &c)> fnc;
+    fnc=boost::bind(&litwindow::ui::to_string<int>, 
+        boost::bind(&litwindow::ui::to_member<test_data, int>, _1, &test_data::age),
+        _2
+        );
+    g_columns.add(L"Name", 120, &test_data::name)(L"Age", 80, fnc);
+}
+
+void generic_list_sample::setup_sample_list_adapter()
+{
+    g_test_list_adapter.set_container(g_sample);
+    g_test_list_adapter.set_columns_adapter(g_columns);
+}
+
+void generic_list_sample::setup_sample_listctrl( )
+{
+    static wx::wxListCtrl_list_adapter g_listctrl_adapter;
+    g_listctrl_adapter.set_control(m_listctrl);
+
+    static ui::basic_list_mediator<sample_dataset_adapter, wx::wxListCtrl_list_adapter> g_listctrl_mediator;
+    g_listctrl_mediator.set_ui_adapter(g_listctrl_adapter);
+    g_listctrl_mediator.set_dataset_adapter(g_test_list_adapter);
+    g_listctrl_mediator.refresh();
 }
