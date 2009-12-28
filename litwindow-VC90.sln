@@ -6,6 +6,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lwbase-vc90", "libs\lwbase-VC90\lwbase-VC90.vcproj", "{3574B45C-ED89-473C-92FC-251BCD966664}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "odbc", "libs\odbc\odbc.vcproj", "{C4667EDB-00C3-4786-90FC-14877A0FCDF9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3574B45C-ED89-473C-92FC-251BCD966664} = {3574B45C-ED89-473C-92FC-251BCD966664}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lwwx", "libs\lwwx\lwwx.vcproj", "{67C5A0AD-747F-4A92-8A1A-BA7491F26E8D}"
 	ProjectSection(ProjectDependencies) = postProject

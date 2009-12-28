@@ -166,13 +166,13 @@ namespace litwindow {
             virtual unsigned int GetChildren(const wxDataViewItem &i, wxDataViewItemArray &children) const { children.clear(); return 0; }
             virtual unsigned int GetColumnCount() const { return m_owner.columns_adapter().size(); }
             virtual wxString GetColumnType(unsigned int col) const { return wxString("wxString"); }
-            virtual void GetValueByRow(wxVariant &variant, unsigned int row, unsigned int col) const
+            virtual void GetValue(wxVariant &variant, unsigned int row, unsigned int col) const
             {
                 tstring text;
                 m_owner.get_item_text(row, col, text);
                 variant=text;
             }
-            virtual bool SetValueByRow(const wxVariant &variant, unsigned int row, unsigned int col)
+            virtual bool SetValue(const wxVariant &variant, unsigned int row, unsigned int col)
             {
                 return false;
             }
