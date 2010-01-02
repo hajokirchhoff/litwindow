@@ -407,7 +407,30 @@ namespace litwindow {
         };
 
 
-        //////////////////////////////////////////////////////////////////////////
+
+
+		
+		//------------------------------------------------------------------------------------------------------------------------------------
+		//////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////////
+		class generic_dataset_adapter
+		{
+		public:
+		};
+		class generic_ui_control_adapter
+		{
+		public:
+		};
+		/*! The generic_list_mediator is a polymorphic basic_list_mediator
+		* and works with any kind of dataset and control adapter.
+		*/
+		class generic_list_mediator:public basic_list_mediator<generic_dataset_adapter, generic_ui_control_adapter>
+		{
+		public:
+		};
+		
+		//------------------------------------------------------------------------------------------------------------------------------------
+		//////////////////////////////////////////////////////////////////////////
         template <typename DatasetAdapter, typename UIControlAdapter>
         void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter>::refresh()
         {
