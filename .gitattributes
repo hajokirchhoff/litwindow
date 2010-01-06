@@ -46,6 +46,7 @@ libs/lwbase/unittest/wrapping_strstream_test.cpp -text
 libs/lwwx/action_objects.cpp -text
 libs/lwwx/base_objects.cpp -text
 libs/lwwx/base_objects.h -text
+libs/lwwx/basic_list_mediator.cpp -text
 libs/lwwx/build/Jamfile.v2 -text
 libs/lwwx/doc/building_litwindow.doxy -text
 libs/lwwx/doc/comparison_10x.doxy -text
@@ -57,7 +58,6 @@ libs/lwwx/doc/images/tutorialstep1.gif -text
 libs/lwwx/doc/litwindow.doxy -text
 libs/lwwx/doc/tutorial_rssreader.doxy -text
 libs/lwwx/extended_error_dialog.cpp -text
-libs/lwwx/list_mediator.cpp -text
 libs/lwwx/lwwx.cpp -text
 libs/lwwx/lwwx.pjd -text
 libs/lwwx/lwwx.vcproj -text
@@ -181,8 +181,10 @@ litwindow/renderer.hpp -text
 litwindow/result.hpp -text
 litwindow/tchar.h -text
 litwindow/tstring.hpp -text
+litwindow/ui/basic_list_mediator.hpp -text
 litwindow/ui/list_mediator.hpp -text
 litwindow/wx/action_objects.h -text
+litwindow/wx/basic_list_mediator.hpp -text
 litwindow/wx/dynamic_menu.h -text
 litwindow/wx/extended_error.h -text
 litwindow/wx/extended_error_dialog.h -text

@@ -194,11 +194,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\extended_error_dialog.cpp"
+				RelativePath=".\basic_list_mediator.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\list_mediator.cpp"
+				RelativePath=".\extended_error_dialog.cpp"
 				>
 			</File>
 			<File
@@ -260,6 +260,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\litwindow\ui\basic_list_mediator.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\litwindow\wx\dynamic_menu.h"
 				>
 			</File>
@@ -272,11 +276,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\litwindow\wx\list_mediator.hpp"
+				RelativePath="..\..\litwindow\ui\list_mediator.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\litwindow\ui\list_mediator.hpp"
+				RelativePath="..\..\litwindow\wx\list_mediator.hpp"
 				>
 			</File>
 			<File

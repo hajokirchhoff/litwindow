@@ -1,5 +1,5 @@
 #include "stdwx.h"
-#include "litwindow/wx/list_mediator.hpp"
+#include "litwindow/wx/basic_list_mediator.hpp"
 
 namespace litwindow {
     namespace wx {

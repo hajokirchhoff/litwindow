@@ -44,13 +44,18 @@ class wxDataViewCtrl;
 ////@begin control identifiers
 #define ID_GENERIC_LIST_SAMPLE 10000
 #define ID_NOTEBOOK 10006
+#define ID_PANEL_GENERIC 10008
+#define ID_VIRTUALLISTCTRL_GENERIC 10009
+#define ID_LISTBOX_GENERIC 10010
+#define ID_CHOICE_GENERIC 10011
+#define ID_GRID_GENERIC 10012
+#define ID_DATAVIEWCTRL_GENERIC 10013
 #define ID_PANEL 10007
 #define ID_LISTCTRL 10003
 #define ID_LISTBOX 10001
 #define ID_CHOICE 10002
 #define ID_GRID 10004
 #define ID_DATAVIEW 10005
-#define ID_PANEL1 10008
 #define SYMBOL_GENERIC_LIST_SAMPLE_STYLE wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxTAB_TRAVERSAL
 #define SYMBOL_GENERIC_LIST_SAMPLE_TITLE _("generic_list_sample")
 #define SYMBOL_GENERIC_LIST_SAMPLE_IDNAME ID_GENERIC_LIST_SAMPLE
@@ -105,7 +110,14 @@ public:
     void setup_sample_listctrl( );
     void setup_sample_list_adapter();
     void setup_sample_columns_adapter();
-    ////@begin generic_list_sample member variables
+	void setup_template_lists();
+	void setup_generic_lists();
+	////@begin generic_list_sample member variables
+    VirtualListCtrl* m_listctrl_generic;
+    wxListBox* m_listbox_generic;
+    wxChoice* m_choice_generic;
+    wxGrid* m_grid_generic;
+    wxDataViewCtrl* m_dataview_generic;
     VirtualListCtrl* m_listctrl;
     wxListBox* m_listbox;
     wxChoice* m_choice;
