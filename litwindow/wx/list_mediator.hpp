@@ -20,10 +20,24 @@ namespace litwindow {
 			template <typename Mediator>
 			void disconnect(Mediator *, uicontrol_type *) {}
 			template <typename Mediator>
-			void refresh_rows(Mediator &m, typename Mediator::uicontrol_type *ctrl) {}
+			void refresh_columns(Mediator &, uicontrol_type *) {}
 		};
 		template <typename UIControlPolicies>
-		class basic_wxcontrol_with_columns_policies:public basic_wxcontrol_policies
+		class basic_wxcontrol_with_rows_policies:public basic_wxcontrol_policies
+		{
+		public:
+			UIControlPolicies* This() { return static_cast<UIControlPolicies*>(this); }
+			template <typename Mediator>
+			void refresh_rows(Mediator &m, typename Mediator::uicontrol_type *ctrl)
+			{
+				This()->remove_all_rows(ctrl);
+				for (Mediator::const_iterator i=m.begin(); i!=m.end(); ++i) {
+					This()->append_row(m, ctrl, i);
+				}
+			}
+		};
+		template <typename UIControlPolicies>
+		class basic_wxcontrol_with_columns_policies:public basic_wxcontrol_with_rows_policies<UIControlPolicies>
 		{
 		public:
 			UIControlPolicies* This() { return static_cast<UIControlPolicies*>(this); }
@@ -45,13 +59,19 @@ namespace litwindow {
 		};
 
 		template <typename UIControl>
-		class uicontrol_policies:public basic_wxcontrol_policies
+		class uicontrol_policies:public basic_wxcontrol_with_rows_policies<uicontrol_policies<UIControl> >
 		{
 		public:
 			typedef UIControl uicontrol_type;
-			//void insert_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d) {}
-			//void set_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d) {}
-			//void remove_column(uicontrol_type *c, size_t idx) {}
+			void remove_all_rows(uicontrol_type *c)
+			{
+				c->Clear();
+			}
+			template <typename Mediator>
+			void append_row(Mediator &m, uicontrol_type *ctrl, typename Mediator::const_iterator i)
+			{
+				ctrl->AppendString(m.as_string(i));
+			}
 		};
 
 		template <>
@@ -75,6 +95,10 @@ namespace litwindow {
 			void remove_column(uicontrol_type *c, size_t idx) 
 			{
 				c->DeleteColumn(idx);
+			}
+			void remove_all_rows(uicontrol_type *c)
+			{
+				c->DeleteAllItems();
 			}
 		};
 

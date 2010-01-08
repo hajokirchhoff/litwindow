@@ -397,5 +397,9 @@ void generic_list_sample::setup_generic_lists()
 
 	static ui::list_mediator<test_list_t, wxListBox> g_listbox_mediator(g_sample, m_listbox_generic);
 	g_listbox_mediator.columns().add(L"Name", 120, &test_data::name);
-	g_generic_mediator.refresh();
+	g_listbox_mediator.refresh();
+
+	static ui::list_mediator<test_list_t, wxChoice> g_combobox_mediator(g_sample, m_choice_generic);
+	g_combobox_mediator.columns(g_listbox_mediator.columns());
+	g_combobox_mediator.refresh();
 }

@@ -34,11 +34,20 @@ namespace litwindow {
 			typedef basic_column_descriptor<value_type> column_descriptor;
 			typedef basic_columns_adapter<column_descriptor> columns_type;
 
+			typedef typename sorted_handles_t::const_iterator const_iterator;
+			typedef typename sorted_handles_t::iterator iterator;
+
 			ui_string get_item_text(container_type &c, const columns_type &columns, size_t row, size_t column) const
 			{
 				const handle_type &h(get_row(row));
 				ui_string rcstring;
 				bool rc=columns.render_element_at(column, rcstring, handle_to_value(h));
+				return rcstring;
+			}
+			ui_string as_string(container_type &c, const columns_type &columns, const_iterator i) const
+			{
+				ui_string rcstring;
+				bool rc=columns.render_element_at(0, rcstring, handle_to_value(*i));
 				return rcstring;
 			}
 
@@ -51,6 +60,10 @@ namespace litwindow {
 				}
 			}
 			size_t size(container_type &c) const { return m_handles.size(); }
+
+			const_iterator begin(container_type &c) const { return m_handles.begin(); }
+			const_iterator end(container_type &c) const { return m_handles.end(); }
+
 		protected:
 			sorted_handles_t m_handles;
 			const handle_type &get_row(size_t row) const { return m_handles[row]; }
@@ -77,6 +90,12 @@ namespace litwindow {
 			typedef typename ContainerPolicies::container_type container_type;
 			typedef typename ContainerPolicies::columns_type columns_type;
 			typedef typename UIControlPolicies::uicontrol_type uicontrol_type;
+
+			typedef typename ContainerPolicies::const_iterator const_iterator;
+			typedef typename ContainerPolicies::iterator iterator;
+
+			const_iterator begin() const { return m_container_policies.begin(*m_container); }
+			const_iterator end() const { return m_container_policies.end(*m_container); }
 
 			void set_ui(uicontrol_type *ctrl)
 			{ 
@@ -109,6 +128,10 @@ namespace litwindow {
 			litwindow::wstring get_item_text(size_t row, size_t col) const
 			{
 				return m_container_policies.get_item_text(*m_container, m_columns, row, col);
+			}
+			litwindow::wstring as_string(const_iterator i) const 
+			{ 
+				return m_container_policies.as_string(*m_container, m_columns, i); 
 			}
 			size_t get_item_count() const
 			{
