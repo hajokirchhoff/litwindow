@@ -23,7 +23,7 @@
 #include "wx/grid.h"
 ////@end includes
 
-#include <litwindow/wx/list_mediator.hpp>
+#include <litwindow/wx/basic_list_mediator.hpp>
 
 using litwindow::wx::VirtualListCtrl;
 

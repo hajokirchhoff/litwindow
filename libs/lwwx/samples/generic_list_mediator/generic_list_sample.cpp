@@ -388,10 +388,14 @@ void generic_list_sample::setup_sample_listctrl( )
 void generic_list_sample::setup_generic_lists()
 {
 	using litwindow::wx::uicontrol_policies;
-	static ui::list_mediator<test_list_t, wxListCtrl> g_generic_mediator;
+	static ui::list_mediator<test_list_t, VirtualListCtrl> g_generic_mediator;
 	g_generic_mediator.set_ui(m_listctrl_generic);
 	g_generic_mediator.set_container(g_sample);
-	ui::list_mediator<test_list_t, wxListCtrl>::columns_type &ca(g_generic_mediator.columns());
+	ui::list_mediator<test_list_t, VirtualListCtrl>::columns_type &ca(g_generic_mediator.columns());
 	ca.add(L"Name", 120, &test_data::name)(L"TestColumn", 140, &test_data::age);
+	g_generic_mediator.refresh();
+
+	static ui::list_mediator<test_list_t, wxListBox> g_listbox_mediator(g_sample, m_listbox_generic);
+	g_listbox_mediator.columns().add(L"Name", 120, &test_data::name);
 	g_generic_mediator.refresh();
 }

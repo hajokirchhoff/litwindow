@@ -145,6 +145,7 @@ namespace litwindow {
             }
             size_t size() const { return columns().size(); }
             bool dirty() const { return m_dirty; }
+			void dirty(bool is_dirty) { m_dirty=is_dirty; }
             basic_columns_adapter()
                 :m_dirty(true){}
             const column_descriptor_type &column_descriptor(size_t idx) const { return columns().at(idx); }
