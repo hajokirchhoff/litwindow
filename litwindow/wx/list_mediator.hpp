@@ -2,6 +2,7 @@
 #define wx_list_mediator_h__31080910
 
 #include "../wx/basic_list_mediator.hpp"
+#include "../ui/list_mediator.hpp"
 
 #include <wx/listctrl.h>
 namespace litwindow {

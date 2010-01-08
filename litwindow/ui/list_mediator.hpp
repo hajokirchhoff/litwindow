@@ -58,7 +58,7 @@ namespace litwindow {
 		};
 
 		template <typename Value>
-		class container_policies<std::vector<Value>, Value >
+		class container_policies<std::vector<Value>, Value >:public stl_container_policies<std::vector<Value> >
 		{
 		public:
 		};
