@@ -138,6 +138,7 @@ namespace litwindow {
 				return m_container_policies.size(*m_container);
 			}
 
+			size_t size() const { return get_item_count(); }
 			void refresh() { do_refresh(); }
 			void refresh(bool force) { if (force) { set_dirty(); m_columns.dirty(true); } do_refresh(); }
 			~list_mediator()
@@ -156,7 +157,7 @@ namespace litwindow {
 			bool m_dirty;
 			void do_refresh()
 			{
-				if (m_container && m_uicontrol && dirty()) {
+				if (m_container && m_uicontrol && !m_columns.empty() && dirty()) {
 					m_uicontrol_policies.begin_update(m_uicontrol);
 					m_container_policies.refresh_handles(*m_container);
 					if (m_columns.dirty()) {

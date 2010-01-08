@@ -138,6 +138,83 @@ namespace litwindow {
 			}
 		};
 
+		
+
+		//////////////////////////////////////////////////////////////////////////
+		//------------------------------------------------------------------------------------------------------------------------------------
+#pragma region wxDataViewCtrl policies
+		//------------------------------------------------------------------------------------------------------------------------------------
+		
+		template <typename Mediator>
+		class wxDataViewModel_policies:public wxDataViewVirtualListModel
+		{
+		public:
+			typedef Mediator mediator_type;
+		private:
+			mediator_type &m_owner;
+			size_t m_current_item_count;
+		public:
+			wxDataViewModel_policies(mediator_type &m)
+				:m_owner(m), m_current_item_count(0){}
+			virtual bool IsContainer(const wxDataViewItem &i) const { return false; }
+			virtual wxDataViewItem GetParent(const wxDataViewItem &i) const { return wxDataViewItem(); }
+			virtual unsigned int GetChildren(const wxDataViewItem &i, wxDataViewItemArray &children) const { children.clear(); return 0; }
+			virtual unsigned int GetColumnCount() const { return m_owner.columns().size(); }
+			virtual wxString GetColumnType(unsigned int col) const { return wxString("wxString"); }
+			virtual void GetValue(wxVariant &variant, unsigned int row, unsigned int col) const
+			{
+				tstring text;
+				text=m_owner.get_item_text(row, col);
+				variant=text;
+			}
+			virtual bool SetValue(const wxVariant &variant, unsigned int row, unsigned int col)
+			{
+				return false;
+			}
+			void refresh()
+			{
+				Reset(m_owner.size());
+			}
+		};		
+		
+		template <>
+		class uicontrol_policies<wxDataViewCtrl>:public basic_wxcontrol_with_columns_policies<uicontrol_policies<wxDataViewCtrl> >, public boost::noncopyable
+		{
+			typedef basic_wxcontrol_with_columns_policies<uicontrol_policies<wxDataViewCtrl> > Inherited;
+		public:
+			typedef wxDataViewCtrl uicontrol_type;
+			template <typename Mediator>
+			void connect(Mediator *md, uicontrol_type* v)
+			{
+				wxDataViewModel_policies<Mediator> *model=new wxDataViewModel_policies<Mediator>(*md);
+				v->AssociateModel(model);
+				model->DecRef();
+			}
+			template <typename Mediator>
+			void refresh_rows(Mediator &m, uicontrol_type *ctrl)
+			{
+				wxDataViewModel_policies<Mediator> *model(dynamic_cast<wxDataViewModel_policies<Mediator>*>(ctrl->GetModel()));
+				model->refresh();
+			}
+			size_t column_count(uicontrol_type *c) const { return c->GetColumnCount(); }
+			void insert_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d)
+			{
+				wxDataViewColumn *new_column=new wxDataViewColumn(d.title(), new wxDataViewTextRenderer(), idx, d.width(), wxALIGN_LEFT);
+				c->InsertColumn(idx, new_column);
+			}
+			void set_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d) 
+			{
+				wxDataViewColumn *col=c->GetColumn(idx);
+				col->SetTitle(d.title());
+				col->SetWidth(d.width());
+			}
+			void remove_column(uicontrol_type *c, size_t idx) 
+			{
+				c->DeleteColumn(c->GetColumn(idx));
+			}
+		};
+#pragma endregion wxDataViewCtrl policies
+		//------------------------------------------------------------------------------------------------------------------------------------
 	}
 	using wx::uicontrol_policies;
 	//using namespace wx;

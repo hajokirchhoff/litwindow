@@ -144,6 +144,7 @@ namespace litwindow {
                 return back_inserter(*this)(title, width, /*make_text_renderer<value_type>(r)*/r);
             }
             size_t size() const { return columns().size(); }
+			bool empty() const { return columns().empty(); }
             bool dirty() const { return m_dirty; }
 			void dirty(bool is_dirty) { m_dirty=is_dirty; }
             basic_columns_adapter()

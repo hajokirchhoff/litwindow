@@ -199,7 +199,7 @@ namespace litwindow {
             typedef wxDataViewCtrl value_type;
         private:
             value_type *m_ctrl;
-            boost::function<void()> m_refresh_forwarder;
+			boost::function<void()> m_refresh_forwarder;
         public:
             value_type *wnd() const { return m_ctrl; }
             wxDataViewCtrl_list_adapter()
