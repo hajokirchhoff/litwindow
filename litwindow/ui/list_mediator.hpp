@@ -27,6 +27,9 @@ namespace litwindow {
 		class stl_container_policies
 		{
 		public:
+			static const bool insert_stable=false;
+			static const bool erase_stable=true;
+			typedef stl_container_policies container_policies_type;
 			typedef Container container_type;
 			typedef typename container_type::value_type value_type;
 			typedef typename container_type::iterator handle_type;
@@ -51,21 +54,56 @@ namespace litwindow {
 				return rcstring;
 			}
 
-			void refresh_handles(container_type &c)
+			void refresh_handles(container_type &c) const
 			{
 				m_handles.resize(c.size());
 				sorted_handles_t::iterator n=m_handles.begin();
 				for (container_type::iterator i=c.begin(); i!=c.end(); ++i) {
 					*n++=i;
 				}
+				m_handles_dirty=false;
 			}
-			size_t size(container_type &c) const { return m_handles.size(); }
+			size_t size(container_type &c) const { return handles(c).size(); }
 
-			const_iterator begin(container_type &c) const { return m_handles.begin(); }
-			const_iterator end(container_type &c) const { return m_handles.end(); }
+			const_iterator begin(container_type &c) const { return handles(c).begin(); }
+			const_iterator end(container_type &c) const { return handles(c).end(); }
 
+			value_type &at(container_type &c, size_t idx) { return *handles(c).at(idx); }
+			const value_type &at(const container_type &c, size_t idx) const { return *handles(c).at(idx); }
+			void set_at(container_type &c, size_t idx, const value_type &v) { value_type &old=at(c, idx); old=v; }
+
+			//TODO: implement insert_stable for different container types
+			void append(container_type &c, const value_type &v)
+			{
+				handle_type h=c.insert(c.end(), v);
+				if (container_policies_type::insert_stable)
+					m_handles.push_back(h);
+				else
+					m_handles_dirty=true;
+			}
+
+			void clear(container_type &c)
+			{
+				c.clear();
+				m_handles.clear();
+				m_handles_dirty=false;
+			}
+			void erase(container_type &c, size_t idx)
+			{
+				c.erase(handles(c).at(idx));
+				if (container_policies_type::erase_stable)
+					m_handles.erase(m_handles.begin()+idx);
+				else
+					m_handles_dirty=true;
+			}
+
+			stl_container_policies()
+				:m_handles_dirty(true){}
 		protected:
-			sorted_handles_t m_handles;
+			mutable bool m_handles_dirty;
+			sorted_handles_t &handles(container_type &c) { if (m_handles_dirty) refresh_handles(c); return m_handles; }
+			sorted_handles_t &handles(const container_type &c) const { if (m_handles_dirty) refresh_handles(const_cast<container_type&>(c)); return m_handles; }
+			mutable sorted_handles_t m_handles;
 			const handle_type &get_row(size_t row) const { return m_handles[row]; }
 			const value_type &handle_to_value(const handle_type &h) const { return *h; }
 		};
@@ -83,11 +121,15 @@ namespace litwindow {
 		public:
 		};
 
+		
+		//------------------------------------------------------------------------------------------------------------------------------------
+		
 		template <typename Container, typename UIControl, typename ContainerPolicies=container_policies<Container>, typename UIControlPolicies=uicontrol_policies<UIControl> >
 		class list_mediator
 		{
 		public:
 			typedef typename ContainerPolicies::container_type container_type;
+			typedef typename container_type::value_type value_type;
 			typedef typename ContainerPolicies::columns_type columns_type;
 			typedef typename UIControlPolicies::uicontrol_type uicontrol_type;
 
@@ -138,7 +180,22 @@ namespace litwindow {
 				return m_container_policies.size(*m_container);
 			}
 
+			size_t get_selection_index() const { return m_uicontrol_policies.get_selection_index(m_uicontrol); }
+
+			//TODO: implement a container-like interface
 			size_t size() const { return get_item_count(); }
+
+			value_type &value_at(size_t idx) { return m_container_policies.at(*m_container, idx); }
+			const value_type &value_at(size_t idx) const { return m_container_policies.at(*m_container, idx); }
+			void set_value_at(size_t idx, const value_type &v) { m_container_policies.set_at(*m_container, idx, v); set_dirty(); }
+			void remove(size_t idx) { m_container_policies.erase(*m_container, idx); set_dirty(); }
+
+			void delete_selected_item() { remove(get_selection_index()); }
+			const value_type &get_selected_item() const { return value_at(get_selection_index()); }
+			void modify_selected_item(const value_type &v) { set_value_at(get_selection_index(), v); }
+			void delete_all_items() { m_container_policies.clear(*m_container); set_dirty(); }
+			void append_item(const value_type &v) { m_container_policies.append(*m_container, v); set_dirty(); }
+
 			void refresh() { do_refresh(); }
 			void refresh(bool force) { if (force) { set_dirty(); m_columns.dirty(true); } do_refresh(); }
 			~list_mediator()

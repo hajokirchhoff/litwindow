@@ -72,6 +72,10 @@ namespace litwindow {
 			{
 				ctrl->AppendString(m.as_string(i));
 			}
+			size_t get_selection_index(uicontrol_type *ctrl) const
+			{
+				return ctrl->GetSelection();
+			}
 		};
 
 		template <>
@@ -99,6 +103,10 @@ namespace litwindow {
 			void remove_all_rows(uicontrol_type *c)
 			{
 				c->DeleteAllItems();
+			}
+			size_t get_selection_index(uicontrol_type *ctrl) const
+			{
+				return ctrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
 			}
 		};
 
