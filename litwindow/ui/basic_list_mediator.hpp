@@ -84,12 +84,26 @@ namespace litwindow {
                 boost::bind(&to_member<ValueType, MemberType>, _1, ptr_to_member),
                 _2);
         }
-        template <typename MemberFnc, typename ValueType>
-        inline typename basic_column_descriptor<ValueType>::text_renderer_type make_text_renderer(MemberFnc (ValueType::*ptr_to_member)() const)
+		template <typename MemberType, typename ValueType, typename Formatter>
+		inline typename basic_column_descriptor<ValueType>::text_renderer_type make_text_renderer(MemberType (ValueType::*ptr_to_member), Formatter fmt)
+		{
+			using boost::bind;
+			return bind(&to_string<typename Formatter::result_type>,
+				
+					bind(fmt, bind(&to_member<ValueType, MemberType>, _1, ptr_to_member) ),
+				_2);
+		}
+		template <typename Result, typename MemberClass>
+		inline void member_result_to_string(Result (MemberClass::*ptr_to_member)() const, const MemberClass &p, tstring &c)
+		{
+			to_string((p.*ptr_to_member)(), c);
+		}
+        template <typename MemberType, typename ValueType>
+        inline typename basic_column_descriptor<ValueType>::text_renderer_type make_text_renderer(MemberType (ValueType::*ptr_to_member)() const)
         {
-            return boost::bind(&to_string<MemberFnc>,
-                boost::bind(ptr_to_member, _1),
-                _2);
+			using namespace boost;
+			function<void (ValueType, tstring &c)> render(bind(&member_result_to_string<MemberType, ValueType>, ptr_to_member, _1, _2));
+			return render;
         }
 #pragma endregion TextRenderer
 
@@ -132,17 +146,32 @@ namespace litwindow {
                 {
                     return operator()(column_descriptor_type(title, width, make_text_renderer<MemberFnc>(ptr_to_member)));
                 }
+				template <typename ValueMember, typename Formatter>
+				back_inserter operator()(const tstring &title, int width, ValueMember (value_type::*ptr_to_member), Formatter fmt) const
+				{
+					return operator()(column_descriptor_type(title, width, make_text_renderer<ValueMember>(ptr_to_member, fmt)));
+				}
             };
             template <typename ValueMember>
             back_inserter add(const tstring &title, int width=-1, ValueMember (value_type::*ptr_to_member)=0)
             {
                 return back_inserter(*this)(title, width, make_text_renderer<ValueMember>(ptr_to_member));
             }
+			template <typename MemberFnc>
+			back_inserter add(const tstring &title, int width, MemberFnc (value_type::* ptr_to_member)() const )
+			{
+				return back_inserter(*this)(column_descriptor_type(title, width, make_text_renderer<MemberFnc>(ptr_to_member)));
+			}
             template <typename ValueRenderer>
             back_inserter add(const tstring &title, int width=-1, ValueRenderer r=ValueRenderer())
             {
                 return back_inserter(*this)(title, width, /*make_text_renderer<value_type>(r)*/r);
             }
+			template <typename ValueMember, typename Formatter>
+			back_inserter add(const tstring &title, int width, ValueMember (value_type::*ptr_to_member), Formatter fmt)
+			{
+				return back_inserter(*this)(title, width, ptr_to_member, fmt);
+			}
             size_t size() const { return columns().size(); }
 			bool empty() const { return columns().empty(); }
             bool dirty() const { return m_dirty; }

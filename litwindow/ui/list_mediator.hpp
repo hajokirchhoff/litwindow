@@ -197,7 +197,7 @@ namespace litwindow {
 			void append_item(const value_type &v) { m_container_policies.append(*m_container, v); set_dirty(); }
 
 			void refresh() { do_refresh(); }
-			void refresh(bool force) { if (force) { set_dirty(); m_columns.dirty(true); } do_refresh(); }
+			void refresh(bool force) { if (force) { set_dirty(); /*m_columns.dirty(true);*/ } do_refresh(); }
 			~list_mediator()
 			{
 				set_ui(0);
