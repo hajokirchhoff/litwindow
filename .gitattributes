@@ -173,6 +173,7 @@ litwindow/odbc/dbms_ms_excel.h -text
 litwindow/odbc/internals.h -text
 litwindow/odbc/lwodbc.h -text
 litwindow/odbc/lwodbc_def.h -text
+litwindow/odbc/odbc_fwd.h -text
 litwindow/odbc/statement.h -text
 litwindow/odbc/table.h -text
 litwindow/odbc/utility.h -text

@@ -246,7 +246,10 @@ namespace litwindow {
             if (cy==lock && (!get_concurrency(actual_concurrency) || actual_concurrency!=lock)) {
                 return m_last_error=sqlreturn(_("concurrency==lock (row locking) is not supported by this DBMS"), err_not_supported_by_dbms);
             }
-            set_statement(_T("SELECT ")+m_binder.dump_columns()+_T(" FROM ")+m_table_name+m_where_clause+m_order_by_clause) &&
+			tstring columns(m_binder.dump_columns());
+			if (columns.empty())
+				columns=_T("*");
+            set_statement(_T("SELECT ")+columns+_T(" FROM ")+m_table_name+m_where_clause+m_order_by_clause) &&
                 set_scrollable(scrollable) &&
                 set_use_cache(cy==optimistic && has_update_row()==false && has_POSITIONED_UPDATE()==false) &&
                 execute();

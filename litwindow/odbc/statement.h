@@ -529,6 +529,7 @@ public:
 	sqlreturn	get_column_table(SQLSMALLINT pos, tstring &value) 							{ return get_column_attr(pos, SQL_DESC_TABLE_NAME, value); }
 	sqlreturn	get_column_name(SQLSMALLINT pos, tstring &value) 							{ return get_column_attr(pos, SQL_DESC_NAME, value); }
 	sqlreturn	get_column_label(SQLSMALLINT pos, tstring &value)							{ return get_column_attr(pos, SQL_DESC_LABEL, value); }
+	sqlreturn	get_column_type(SQLSMALLINT pos, SQLINTEGER &value)					{ return get_column_attr(pos, SQL_DESC_TYPE, value); }
 
 	sqlreturn	LWODBC_API get_column_descriptor(SQLSMALLINT pos, column_descriptor &d) const;
 	sqlreturn	get_column_size(SQLSMALLINT pos, SQLUINTEGER &column_size) const;

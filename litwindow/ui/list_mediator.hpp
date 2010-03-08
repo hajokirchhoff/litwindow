@@ -194,6 +194,7 @@ namespace litwindow {
 			const value_type &get_selected_item() const { return value_at(get_selection_index()); }
 			void modify_selected_item(const value_type &v) { set_value_at(get_selection_index(), v); }
 			void delete_all_items() { m_container_policies.clear(*m_container); set_dirty(); }
+			void clear() { delete_all_items(); }
 			void append_item(const value_type &v) { m_container_policies.append(*m_container, v); set_dirty(); }
 
 			void refresh() { do_refresh(); }

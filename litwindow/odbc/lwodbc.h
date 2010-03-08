@@ -17,6 +17,7 @@
 #include <sqlext.h>
 #include <vector>
 #include "./lwodbc_def.h"
+#include "./odbc_fwd.h"
 
 #pragma warning(push, 4)
 
@@ -31,9 +32,6 @@ const size_t maximum_text_column_length_retrieved=65535;
 
 //-----------------------------------------------------------------------------------------------------------//
 using namespace std;
-
-class connection;
-class statement;
 
 extern LWODBC_API const tstring null_string;
 extern LWODBC_API const tstring default_string;

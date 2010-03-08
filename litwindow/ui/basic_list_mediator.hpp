@@ -176,6 +176,7 @@ namespace litwindow {
 			bool empty() const { return columns().empty(); }
             bool dirty() const { return m_dirty; }
 			void dirty(bool is_dirty) { m_dirty=is_dirty; }
+			void clear() { m_column_data.clear(); dirty(true); }
             basic_columns_adapter()
                 :m_dirty(true){}
             const column_descriptor_type &column_descriptor(size_t idx) const { return columns().at(idx); }
@@ -196,8 +197,8 @@ namespace litwindow {
             //{
             //    return m_element_adapter(e, pos);
             //}
-			void set_dirty() { m_dirty=true; }
-			void clear_dirty() { m_dirty=false; }
+			void set_dirty() { dirty(true); }
+			void clear_dirty() { dirty(false); }
         protected:
         private:
             bool m_dirty;
