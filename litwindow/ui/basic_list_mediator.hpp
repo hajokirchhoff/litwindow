@@ -8,6 +8,7 @@
 #include <boost/ref.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/utility/result_of.hpp>
 #include <iterator>
 
 namespace litwindow {
@@ -441,6 +442,30 @@ namespace litwindow {
             {
                 dataset_adapter().append(data);
             }
+#ifdef not
+			template <typename Fnc>
+			void visit(size_t idx, Fnc f)
+			{
+				f(dataset_adapter().value_at(idx), idx);
+			}
+			template <typename Fnc>
+			void for_each_selected(Fnc f)
+			{
+				ui_adapter().for_each_selected(bind(&basic_list_mediator::visit, this, _1, f));
+			}
+#endif // not
+			template <typename ResultSet, typename Fnc>
+			void visit(ResultSet* rc, size_t idx, Fnc f)
+			{
+				rc->push_back(f(dataset_adapter().value_at(idx), idx));
+			}
+			template <typename Fnc>
+			std::vector<typename boost::result_of<Fnc>::type> get_selection(Fnc f)
+			{
+				std::vector<typename boost::result_of<Fnc>::type> rc;
+				ui_adapter().for_each_selected(bind(&basic_list_mediator::visit, this, &rc, _1, f));
+				return rc;
+			}
 
         protected:
             void refresh_columns(bool do_refresh=true);

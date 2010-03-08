@@ -180,7 +180,9 @@ namespace litwindow {
 				return m_container_policies.size(*m_container);
 			}
 
+			static const size_t npos = (size_t)-1;
 			size_t get_selection_index() const { return m_uicontrol_policies.get_selection_index(m_uicontrol); }
+			bool has_selection() const { return get_selection_index()!=npos; }
 
 			//TODO: implement a container-like interface
 			size_t size() const { return get_item_count(); }
@@ -197,7 +199,19 @@ namespace litwindow {
 			void clear() { delete_all_items(); }
 			void append_item(const value_type &v) { m_container_policies.append(*m_container, v); set_dirty(); }
 
-			void refresh() { do_refresh(); }
+			template <typename ResultSet, typename Fnc>
+			void visit(ResultSet* rc, size_t idx, Fnc f) const
+			{
+				rc->push_back(f(value_at(idx)));
+			}
+			template <typename Fnc, typename ResultSet>
+			void get_selection(Fnc f, ResultSet &r) const
+			{
+				r.clear();
+				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(&list_mediator::visit<ResultSet, Fnc>, this, &r, _1, f));
+			}
+
+			void refresh() { refresh(true); }
 			void refresh(bool force) { if (force) { set_dirty(); /*m_columns.dirty(true);*/ } do_refresh(); }
 			~list_mediator()
 			{

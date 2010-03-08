@@ -8,6 +8,8 @@
 namespace litwindow {
 	namespace wx {
 
+		using litwindow::ui::list_mediator;
+
 		class basic_wxcontrol_policies
 		{
 		public:
@@ -34,6 +36,11 @@ namespace litwindow {
 				for (Mediator::const_iterator i=m.begin(); i!=m.end(); ++i) {
 					This()->append_row(m, ctrl, i);
 				}
+			}
+			template <typename Visitor>
+			void for_each_selected(Visitor v)
+			{
+
 			}
 		};
 		template <typename UIControlPolicies>
@@ -76,6 +83,11 @@ namespace litwindow {
 			{
 				return ctrl->GetSelection();
 			}
+			//template <typename Visitor>
+			//void for_each_selected(Visitor v) const
+			//{
+
+			//}
 		};
 
 		template <>
@@ -107,6 +119,14 @@ namespace litwindow {
 			size_t get_selection_index(uicontrol_type *ctrl) const
 			{
 				return ctrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+			}
+			template <typename Visitor>
+			void for_each_selected(uicontrol_type *ctrl, Visitor v) const
+			{
+				long idx=-1;
+				while ((idx=ctrl->GetNextItem(idx, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED))!=-1) {
+					v(idx);
+				}
 			}
 		};
 
