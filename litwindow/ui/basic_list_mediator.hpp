@@ -226,13 +226,13 @@ namespace litwindow {
             size_t size() const;
         };
 
-        template <typename Container, typename ItemHandle=typename Container::iterator>
+        template <typename ContainerType, typename ItemHandle=typename ContainerType::iterator>
         class stl_container_dataset_accessor
         {
         public:
             typedef stl_container_dataset_accessor _Myt;
-            typedef Container container_type;
-            typedef typename Container::value_type value_type;
+            typedef ContainerType container_type;
+            typedef typename ContainerType::value_type value_type;
             typedef ItemHandle item_handle_type;
             typedef std::vector<item_handle_type> sorted_container_type;
             typedef boost::function<bool(const item_handle_type &left, const item_handle_type &right)> sort_pred_type;
@@ -313,10 +313,10 @@ namespace litwindow {
         };
 
 
-        template <typename Container>
-        inline stl_container_dataset_accessor<Container> make_dataset_adapter(Container &d)
+        template <typename ContainerType>
+        inline stl_container_dataset_accessor<ContainerType> make_dataset_adapter(ContainerType &d)
         {
-            stl_container_dataset_accessor<Container> rc;
+            stl_container_dataset_accessor<ContainerType> rc;
             rc.set_container(d);
             return rc;
         }
