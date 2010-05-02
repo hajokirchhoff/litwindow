@@ -606,7 +606,7 @@ namespace litwindow {
 	{
 		SQLSMALLINT length;
 		value=0;
-		m_last_error=SQLGetInfo(handle(), info, &value, 0, &length);
+		m_last_error=SQLGetInfo(handle(), info, &value, sizeof(SQLUINTEGER), &length);
 #if !defined(_WIN32)
 #pragma message("This code assumes LSB byte order!")
 #endif
