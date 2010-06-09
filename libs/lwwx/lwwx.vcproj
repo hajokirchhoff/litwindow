@@ -160,6 +160,78 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="DebugOptimize|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\..\boost&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include\msvc&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include&quot;;&quot;$(ProjectDir)..\..&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WXUSINGDLL;LWWX_EXPORTS;LITWINDOW_ALL_DYN_LINK"
+				RuntimeLibrary="3"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				DisableSpecificWarnings="4275"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\$(ProjectName)-vc90-mt-gd-1_0_0.dll"
+				AdditionalLibraryDirectories="&quot;$(ProjectDir)..\..\..\wxWidgets\lib\vc_dll&quot;"
+				GenerateDebugInformation="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -182,6 +254,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DebugOptimize|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -276,11 +356,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\litwindow\ui\list_mediator.hpp"
+				RelativePath="..\..\litwindow\wx\list_mediator.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\litwindow\wx\list_mediator.hpp"
+				RelativePath="..\..\litwindow\ui\list_mediator.hpp"
 				>
 			</File>
 			<File

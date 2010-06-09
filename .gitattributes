@@ -6,6 +6,7 @@
 /README.txt -text
 /build_all_vc2008.bat -text
 libs/lwbase-VC90/lwbase-VC90.vcproj -text
+libs/lwbase-VC90/lwbase-VC90.vcproj.Hurog.Hajo[!!-~]Kirchhoff.user -text
 libs/lwbase/build/Jamfile.v2 -text
 libs/lwbase/check.cpp -text
 libs/lwbase/constraints.cpp -text
@@ -38,6 +39,7 @@ libs/lwbase/unittest/inheritancetests.cpp -text
 libs/lwbase/unittest/lwbase_unittest.cpp -text
 libs/lwbase/unittest/lwbase_unittest.vcproj -text
 libs/lwbase/unittest/lwbase_unittest.vcproj.Galadriel.Hajo[!!-~]Kirchhoff.user -text
+libs/lwbase/unittest/lwbase_unittest.vcproj.Hurog.Hajo[!!-~]Kirchhoff.user -text
 libs/lwbase/unittest/objectfactorytests.cpp -text
 libs/lwbase/unittest/stdafx.cpp -text
 libs/lwbase/unittest/stdafx.h -text
@@ -61,6 +63,7 @@ libs/lwwx/extended_error_dialog.cpp -text
 libs/lwwx/lwwx.cpp -text
 libs/lwwx/lwwx.pjd -text
 libs/lwwx/lwwx.vcproj -text
+libs/lwwx/lwwx.vcproj.Hurog.Hajo[!!-~]Kirchhoff.user -text
 libs/lwwx/new_widgets.cpp -text
 libs/lwwx/rapidUI.cpp -text
 libs/lwwx/rapidUI_parser.cpp -text
@@ -138,6 +141,7 @@ libs/odbc/dbms_ms_excel.cpp -text
 libs/odbc/internals.cpp -text
 libs/odbc/lwodbc.cpp -text
 libs/odbc/odbc.vcproj -text
+libs/odbc/odbc.vcproj.Hurog.Hajo[!!-~]Kirchhoff.user -text
 libs/odbc/statement.cpp -text
 libs/odbc/statement_parser.cpp -text
 libs/odbc/stdafx.cpp -text
