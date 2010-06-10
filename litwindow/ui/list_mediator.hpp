@@ -136,9 +136,6 @@ namespace litwindow {
 			typedef typename ContainerPolicies::const_iterator const_iterator;
 			typedef typename ContainerPolicies::iterator iterator;
 
-			const_iterator begin() const { return m_container_policies.begin(*m_container); }
-			const_iterator end() const { return m_container_policies.end(*m_container); }
-
 			void set_ui(uicontrol_type *ctrl)
 			{ 
 				if (m_uicontrol!=ctrl) {
@@ -183,20 +180,27 @@ namespace litwindow {
 			static const size_t npos = (size_t)-1;
 			size_t get_selection_index() const { return m_uicontrol_policies.get_selection_index(m_uicontrol); }
 			bool has_selection() const { return get_selection_index()!=npos; }
+			void set_selection_index(size_t i) { m_uicontrol_policies.set_selection_index(m_uicontrol, i); }
 
 			//TODO: implement a container-like interface
+			//\name STL interface functions
+			//@{
+			const value_type &at(size_t idx) const { return value_at(idx); }
+			void clear() { delete_all_items(); }
+			void remove(size_t idx) { m_container_policies.erase(*m_container, idx); set_dirty(); }
 			size_t size() const { return get_item_count(); }
+			const_iterator begin() const { return m_container_policies.begin(*m_container); }
+			const_iterator end() const { return m_container_policies.end(*m_container); }
+			//@}
 
 			value_type &value_at(size_t idx) { return m_container_policies.at(*m_container, idx); }
 			const value_type &value_at(size_t idx) const { return m_container_policies.at(*m_container, idx); }
 			void set_value_at(size_t idx, const value_type &v) { m_container_policies.set_at(*m_container, idx, v); set_dirty(); }
-			void remove(size_t idx) { m_container_policies.erase(*m_container, idx); set_dirty(); }
 
 			void delete_selected_item() { remove(get_selection_index()); }
 			const value_type &get_selected_item() const { return value_at(get_selection_index()); }
 			void modify_selected_item(const value_type &v) { set_value_at(get_selection_index(), v); }
 			void delete_all_items() { m_container_policies.clear(*m_container); set_dirty(); }
-			void clear() { delete_all_items(); }
 			void append_item(const value_type &v) { m_container_policies.append(*m_container, v); set_dirty(); }
 
 			template <typename ResultSet, typename Fnc>

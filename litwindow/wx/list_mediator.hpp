@@ -83,6 +83,10 @@ namespace litwindow {
 			{
 				return ctrl->GetSelection();
 			}
+			void set_selection_index(uicontrol_type *ctrl, size_t new_selection)
+			{
+				ctrl->SetSelection(new_selection);
+			}
 			//template <typename Visitor>
 			//void for_each_selected(Visitor v) const
 			//{
@@ -126,6 +130,17 @@ namespace litwindow {
 				long idx=-1;
 				while ((idx=ctrl->GetNextItem(idx, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED))!=-1) {
 					v(idx);
+				}
+			}
+			void set_selection_index(uicontrol_type *ctrl, size_t idx)
+			{
+				size_t current=get_selection_index(ctrl);
+				if (current!=idx) {
+					for_each_selected(ctrl, boost::bind(&uicontrol_type::SetItemState, ctrl, _1, 0, wxLIST_STATE_SELECTED));
+					if (idx<(size_t)ctrl->GetItemCount()) {
+						ctrl->SetItemState(idx, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+						ctrl->EnsureVisible(idx);
+					}
 				}
 			}
 		};

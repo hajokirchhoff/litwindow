@@ -442,6 +442,7 @@ namespace litwindow {
             {
                 dataset_adapter().append(data);
             }
+
 #ifdef not
 			template <typename Fnc>
 			void visit(size_t idx, Fnc f)
