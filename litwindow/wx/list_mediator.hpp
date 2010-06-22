@@ -100,6 +100,15 @@ namespace litwindow {
 			typedef basic_wxcontrol_with_columns_policies<uicontrol_policies<wxListCtrl> > Inherited;
 		public:
 			typedef wxListCtrl uicontrol_type;
+			void begin_update(uicontrol_type *c) { }
+			void end_update(uicontrol_type *c)
+			{
+				int topItem=c->GetTopItem();
+				int perPage=c->GetCountPerPage();
+				int totalItems=c->GetItemCount();
+				int bottomItem=min(totalItems, topItem+perPage);
+				c->RefreshItems(topItem, bottomItem);
+			}
 			size_t column_count(uicontrol_type *c) const { return c->GetColumnCount(); }
 			void insert_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d)
 			{
