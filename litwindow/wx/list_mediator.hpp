@@ -112,13 +112,17 @@ namespace litwindow {
 			size_t column_count(uicontrol_type *c) const { return c->GetColumnCount(); }
 			void insert_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d)
 			{
-				c->InsertColumn(idx, d.title(), wxLIST_FORMAT_LEFT, d.width());
+				wxListItem it;
+				it.SetText(d.title());
+				it.SetWidth(d.width());
+				c->InsertColumn(idx, it);
 			}
 			void set_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d) 
 			{
 				wxListItem it;
 				it.SetText(d.title());
 				it.SetWidth(d.width());
+				it.SetAlign(wxLIST_FORMAT_LEFT);
 				c->SetColumn(idx, it);
 			}
 			void remove_column(uicontrol_type *c, size_t idx) 
@@ -166,6 +170,7 @@ namespace litwindow {
 			void connect(Mediator *md, uicontrol_type* v)
 			{
 				v->on_get_item_text=boost::bind(&Mediator::get_item_text, md, _1, _2);
+				v->on_get_item_image=boost::bind(&Mediator::get_item_image, md, _1, _2);
 				on_destroyed=boost::bind(&Mediator::set_ui, md, (uicontrol_type*)0);
 				v->Connect(wxEventType(wxEVT_DESTROY), wxObjectEventFunction(&uicontrol_policies::OnDestroy), 0, this);
 			}

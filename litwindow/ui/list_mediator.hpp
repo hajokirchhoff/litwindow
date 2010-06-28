@@ -40,6 +40,13 @@ namespace litwindow {
 			typedef typename sorted_handles_t::const_iterator const_iterator;
 			typedef typename sorted_handles_t::iterator iterator;
 
+			int get_item_image(container_type &c, const columns_type &columns, size_t row, size_t column) const
+			{
+				const handle_type &h(get_row(row));
+				int idx=-1;
+				bool rc=columns.render_element_image_at(column, idx, handle_to_value(h));
+				return idx;
+			}
 			ui_string get_item_text(container_type &c, const columns_type &columns, size_t row, size_t column) const
 			{
 				const handle_type &h(get_row(row));
@@ -167,6 +174,10 @@ namespace litwindow {
 			litwindow::wstring get_item_text(size_t row, size_t col) const
 			{
 				return m_container_policies.get_item_text(*m_container, m_columns, row, col);
+			}
+			int get_item_image(size_t row, size_t col) const
+			{
+				return m_container_policies.get_item_image(*m_container, m_columns, row, col);
 			}
 			litwindow::wstring as_string(const_iterator i) const 
 			{ 

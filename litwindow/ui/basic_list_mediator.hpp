@@ -27,17 +27,20 @@ namespace litwindow {
             /// visibility
             bool visible() const { return m_visible; }
             void visible(bool do_show) { m_visible=do_show; }
+			bool image() const { return m_image; }
+			bool image(bool is_image) { m_image=is_image; }
 			template <typename Archive>
 			void serialize(Archive &ar, const unsigned int version)
 			{
 				ar & m_title & m_width & m_visible;				
 			}
-			basic_column_label(const tstring &title, int width=-1, bool visible=true)
-				:m_title(title),m_width(width),m_visible(visible){}
+			basic_column_label(const tstring &title, int width=-1, bool visible=true, bool is_image=false)
+				:m_title(title),m_width(width),m_visible(visible),m_image(is_image){}
 		protected:
 			tstring m_title;
 			int     m_width;
 			bool    m_visible;
+			bool	m_image;
 		};
 
         template <typename Value/*, typename TextRenderer*/>
@@ -45,26 +48,46 @@ namespace litwindow {
         {
         public:
             typedef boost::function<void (const Value&, tstring&)> text_renderer_type;
+			typedef boost::function<void (const Value&, int&)> image_index_renderer_type;
             //typedef TextRenderer text_renderer_type;
             typedef Value value_type;
         private:
             text_renderer_type m_text_renderer;
+			image_index_renderer_type m_image_index_renderer;
         public:
             basic_column_descriptor(const tstring &title, int width=-1, const text_renderer_type &v=text_renderer_type())
-                :basic_column_label(title, width, true), m_text_renderer(v)
+                :basic_column_label(title, width, true, false), m_text_renderer(v), m_image_index_renderer(0)
             {}
+			basic_column_descriptor(const tstring &title, int width, const image_index_renderer_type &i)
+				:basic_column_label(title, width, true, true), m_text_renderer(0), m_image_index_renderer(i)
+			{}
 
             template <typename Control>
             bool render_element(size_t row, size_t col, Control &c, const value_type &v) const { return false; }
 
             bool render_element(tstring &c, const value_type &v) const
             {
-                m_text_renderer(v, c);
+				if (m_text_renderer)
+	                m_text_renderer(v, c);
                 return true; 
             }
+			bool render_element_image(int &i, const value_type &v) const
+			{
+				if (m_image_index_renderer)
+					m_image_index_renderer(v, i);
+				else
+					i=-1;
+				return true;
+			}
 
             //tstring value_as_text(const typename text_renderer_type::value_type &t) const;// { return m_text_renderer(t); }
         };
+
+		template <typename Value>
+		basic_column_descriptor<Value> image_column(const tstring &title, int width, const typename basic_column_descriptor<Value>::image_index_renderer_type &i)
+		{
+			return basic_column_descriptor<Value>(title, width, i);
+		}
 
 #pragma region TextRenderer
         template <typename Value>
@@ -115,10 +138,11 @@ namespace litwindow {
             typedef ColumnDescriptor column_descriptor_type;
             typedef typename column_descriptor_type::value_type value_type;
             typedef typename column_descriptor_type::text_renderer_type text_renderer_type;
+			typedef typename column_descriptor_type::image_index_renderer_type image_index_renderer_type;
 
             typedef std::vector<column_descriptor_type> columns_t;
             const columns_t &columns() const { return m_column_data; }
-            std::back_insert_iterator<columns_t> add(const column_descriptor_type &d)
+            std::back_insert_iterator<columns_t> do_add(const column_descriptor_type &d)
             {
                 set_dirty();
                 m_column_data.push_back(d);
@@ -130,10 +154,10 @@ namespace litwindow {
                 back_inserter(basic_columns_adapter &c):m_c(c){}
                 back_inserter operator()(const column_descriptor_type &d) const
                 {
-                    m_c.add(d);
+                    m_c.do_add(d);
                     return *this;
                 }
-                back_inserter operator()(const tstring &title, int width=-1, text_renderer_type r=text_renderer_type()) const
+                back_inserter operator()(const tstring &title, int width, text_renderer_type r) const
                 {
                     return operator()(column_descriptor_type(title, width, r));
                 }
@@ -173,6 +197,11 @@ namespace litwindow {
 			{
 				return back_inserter(*this)(title, width, ptr_to_member, fmt);
 			}
+			template <typename ColumnDescriptor>
+			back_inserter add(const ColumnDescriptor d)
+			{
+				return back_inserter(*this)(d);
+			}
             size_t size() const { return columns().size(); }
 			bool empty() const { return columns().empty(); }
             bool dirty() const { return m_dirty; }
@@ -191,6 +220,10 @@ namespace litwindow {
             {
                 return columns().at(col).render_element(rc, v);
             }
+			bool render_element_image_at(size_t col, int &rc, const value_type &v) const
+			{
+				return columns().at(col).render_element_image(rc, v);
+			}
             typename columns_t::value_type &at(size_t col) { return columns().at(col); }
             //const value_type &column_description(size_t idx) const { return columns().at(idx); }
 

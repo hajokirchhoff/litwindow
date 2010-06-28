@@ -8,6 +8,10 @@ namespace litwindow {
         {
             return on_get_item_text ? on_get_item_text(item, column) : wxString();
         }
+		int VirtualListCtrl::OnGetItemColumnImage(long item, long column) const
+		{
+			return on_get_item_image ? on_get_item_image(item, column) : -1;
+		}
 
     }
 }

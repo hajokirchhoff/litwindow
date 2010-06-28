@@ -20,6 +20,8 @@ namespace litwindow {
         public:
             typedef boost::function<wxString(long item, long column)> GetItemTextHandler;
             GetItemTextHandler on_get_item_text;
+			typedef boost::function<int(long item, long column)> GetItemImageHandler;
+			GetItemImageHandler on_get_item_image;
 
             VirtualListCtrl():wxListCtrl() {}
             VirtualListCtrl(
@@ -32,6 +34,7 @@ namespace litwindow {
                 const wxString &name=wxListCtrlNameStr
                 ):wxListCtrl(parent, id, pos, size, (style& ~ (wxLC_ICON|wxLC_LIST))|wxLC_VIRTUAL|wxLC_REPORT, validator, name) {}
             virtual wxString OnGetItemText(long item, long column) const;
+			virtual int OnGetItemColumnImage(long item, long column) const;
             long GetFirstSelected() const
             {
                 return GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
