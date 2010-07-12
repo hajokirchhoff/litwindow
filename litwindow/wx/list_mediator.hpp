@@ -10,6 +10,8 @@ namespace litwindow {
 
 		using litwindow::ui::list_mediator;
 
+
+//------------------------------------------------------------------------------------------------------------------------------------
 		class basic_wxcontrol_policies
 		{
 		public:
@@ -94,12 +96,30 @@ namespace litwindow {
 			//}
 		};
 
+		/************************************************************************/
+		/* wxListCtrl Policies                                                  */
+		/************************************************************************/
 		template <>
-		class uicontrol_policies<wxListCtrl>:public basic_wxcontrol_with_columns_policies<uicontrol_policies<wxListCtrl> >
+		class uicontrol_policies<wxListCtrl>:public basic_wxcontrol_with_columns_policies<uicontrol_policies<wxListCtrl> >, public wxEvtHandler
 		{
 			typedef basic_wxcontrol_with_columns_policies<uicontrol_policies<wxListCtrl> > Inherited;
 		public:
 			typedef wxListCtrl uicontrol_type;
+			template <typename Mediator>
+			void connect(Mediator *md, uicontrol_type* v)
+			{
+				v->Connect(wxEventType(wxEVT_COMMAND_LIST_COL_CLICK), wxListEventHandler(uicontrol_policies::OnListColClick), 0, this);
+				on_destroyed=boost::bind(&Mediator::clear_ui, md);
+				on_l_col_clicked=boost::bind(&Mediator::sort_by, md, _1);
+				v->Connect(wxEventType(wxEVT_DESTROY), wxObjectEventFunction(&uicontrol_policies::OnDestroy), 0, this);
+			}
+			template <typename Mediator>
+			void disconnect(Mediator *md, uicontrol_type *v)
+			{
+				v->Disconnect(wxEventType(wxEVT_COMMAND_LIST_COL_CLICK), wxListEventHandler(uicontrol_policies::OnListColClick), 0, this);
+				v->Disconnect(wxEventType(wxEVT_DESTROY), wxObjectEventFunction(&uicontrol_policies::OnDestroy), 0, this);
+				on_destroyed.clear();
+			}
 			void begin_update(uicontrol_type *c) { }
 			void end_update(uicontrol_type *c)
 			{
@@ -156,10 +176,24 @@ namespace litwindow {
 					}
 				}
 			}
+		protected:
+			boost::function<void()> on_destroyed;
+			boost::function<void(int col)> on_l_col_clicked;
+			void OnDestroy(wxEvent &evt)
+			{
+				evt.Skip();
+				if (on_destroyed)
+					on_destroyed();
+			}
+			void OnListColClick(wxListEvent &evt)
+			{
+				if (on_l_col_clicked)
+					on_l_col_clicked(evt.GetColumn());
+			}
 		};
 
 		template <>
-		class uicontrol_policies<VirtualListCtrl>:public uicontrol_policies<wxListCtrl>, public wxEvtHandler
+		class uicontrol_policies<VirtualListCtrl>:public uicontrol_policies<wxListCtrl>
 		{
 			typedef uicontrol_policies<wxListCtrl> Inherited;
 		public:
@@ -169,29 +203,19 @@ namespace litwindow {
 			template <typename Mediator>
 			void connect(Mediator *md, uicontrol_type* v)
 			{
+				Inherited::connect(md, v);
 				v->on_get_item_text=boost::bind(&Mediator::get_item_text, md, _1, _2);
 				v->on_get_item_image=boost::bind(&Mediator::get_item_image, md, _1, _2);
-				on_destroyed=boost::bind(&Mediator::set_ui, md, (uicontrol_type*)0);
-				v->Connect(wxEventType(wxEVT_DESTROY), wxObjectEventFunction(&uicontrol_policies::OnDestroy), 0, this);
 			}
 			template <typename Mediator>
-			void disconnect(Mediator *, uicontrol_type *v)
+			void disconnect(Mediator *md, uicontrol_type *v)
 			{
-				v->Disconnect(wxEventType(wxEVT_DESTROY), wxObjectEventFunction(&uicontrol_policies::OnDestroy), 0, this);
-				on_destroyed.clear();
+				Inherited::disconnect(md, v);
 			}
 			template <typename Mediator>
 			void refresh_rows(Mediator &m, typename Mediator::uicontrol_type *ctrl)
 			{
 				ctrl->SetItemCount(m.get_item_count());
-			}
-		protected:
-			boost::function<void()> on_destroyed;
-			void OnDestroy(wxEvent &evt)
-			{
-				evt.Skip();
-				if (on_destroyed)
-					on_destroyed();
 			}
 		};
 

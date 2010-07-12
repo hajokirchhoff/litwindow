@@ -68,7 +68,21 @@ namespace litwindow {
 				for (container_type::iterator i=c.begin(); i!=c.end(); ++i) {
 					*n++=i;
 				}
+				if (m_sort_fnc)
+					std::sort(m_handles.begin(), m_handles.end(), m_sort_fnc);
 				m_handles_dirty=false;
+			}
+			bool comparator(const container_type &c, const columns_type &columns, int column_index, const handle_type &left, const handle_type &right)
+			{
+				return columns.compare(column_index, *left, *right);
+			}
+			void set_sort_order(const container_type &c, const columns_type &columns, int column_index)
+			{
+				m_sort_fnc=bind(&container_policies_type::comparator, this, c, columns, column_index, _1, _2);
+			}
+			void clear_sort_order()
+			{
+				m_sort_fnc.clear();
 			}
 			size_t size(container_type &c) const { return handles(c).size(); }
 
@@ -108,6 +122,7 @@ namespace litwindow {
 				:m_handles_dirty(true){}
 		protected:
 			mutable bool m_handles_dirty;
+			boost::function<bool(const handle_type&, const handle_type&)> m_sort_fnc;
 			sorted_handles_t &handles(container_type &c) { if (m_handles_dirty) refresh_handles(c); return m_handles; }
 			sorted_handles_t &handles(const container_type &c) const { if (m_handles_dirty) refresh_handles(const_cast<container_type&>(c)); return m_handles; }
 			mutable sorted_handles_t m_handles;
@@ -154,6 +169,10 @@ namespace litwindow {
 						m_uicontrol_policies.connect(this, m_uicontrol);
 				} 
 			}
+			void clear_ui()
+			{
+				set_ui(0);
+			}
 			uicontrol_type *get_ui() const { return m_uicontrol; }
 
 			void set_container(container_type &ctnr)
@@ -171,6 +190,14 @@ namespace litwindow {
 			void columns(const columns_type &c) { m_columns=c; set_dirty(); m_columns.dirty(true); }
 			columns_type &columns() { return m_columns; }
 
+			void sort_by(int column_index)
+			{
+				if (column_index>=0)
+					m_container_policies.set_sort_order(*m_container, m_columns, column_index);
+				else
+					m_container_policies.clear_sort_order();
+				refresh(true);
+			}
 			litwindow::wstring get_item_text(size_t row, size_t col) const
 			{
 				return m_container_policies.get_item_text(*m_container, m_columns, row, col);

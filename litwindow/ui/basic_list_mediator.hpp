@@ -49,11 +49,13 @@ namespace litwindow {
         public:
             typedef boost::function<void (const Value&, tstring&)> text_renderer_type;
 			typedef boost::function<void (const Value&, int&)> image_index_renderer_type;
+			typedef boost::function<bool (const Value &left, const Value &right)> comparator_type;
             //typedef TextRenderer text_renderer_type;
             typedef Value value_type;
         private:
             text_renderer_type m_text_renderer;
 			image_index_renderer_type m_image_index_renderer;
+			comparator_type m_comparator;
         public:
             basic_column_descriptor(const tstring &title, int width=-1, const text_renderer_type &v=text_renderer_type())
                 :basic_column_label(title, width, true, false), m_text_renderer(v), m_image_index_renderer(0)
@@ -81,7 +83,16 @@ namespace litwindow {
 			}
 
             //tstring value_as_text(const typename text_renderer_type::value_type &t) const;// { return m_text_renderer(t); }
-        };
+			bool compare(const value_type &left, const value_type &right, size_t col) const
+			{
+				if (m_comparator)
+					return m_comparator(left, right);
+				tstring left_string, right_string;
+				render_element(left_string, left);
+				render_element(right_string, right);
+				return left_string<right_string;
+			}
+		};
 
 		template <typename Value>
 		basic_column_descriptor<Value> image_column(const tstring &title, int width, const typename basic_column_descriptor<Value>::image_index_renderer_type &i)
@@ -233,6 +244,11 @@ namespace litwindow {
             //}
 			void set_dirty() { dirty(true); }
 			void clear_dirty() { dirty(false); }
+
+			bool compare(size_t col, const typename column_descriptor_type::value_type &left, const typename column_descriptor_type::value_type &right) const
+			{
+				return columns().at(col).compare(left, right, col);
+			}
         protected:
         private:
             bool m_dirty;
