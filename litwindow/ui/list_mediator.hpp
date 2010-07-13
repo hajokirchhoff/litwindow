@@ -69,16 +69,31 @@ namespace litwindow {
 					*n++=i;
 				}
 				if (m_sort_fnc)
-					std::sort(m_handles.begin(), m_handles.end(), m_sort_fnc);
+					m_sort_fnc(m_handles.begin(), m_handles.end());
 				m_handles_dirty=false;
 			}
 			bool comparator(const container_type &c, const columns_type &columns, int column_index, const handle_type &left, const handle_type &right)
 			{
 				return columns.compare(column_index, *left, *right);
 			}
+			static inline void do_sort(typename sorted_handles_t::iterator start, typename sorted_handles_t::iterator stop, column_descriptor d, int col_index)
+			{
+				struct sorter
+				{
+					const column_descriptor &d;
+					int col_index;
+					bool operator()(const handle_type &left, const handle_type &right) const
+					{
+						return d.compare(*left, *right, col_index);
+					}
+					sorter(const column_descriptor &d_, int col_index_):d(d_),col_index(col_index_){}
+				} sort_object(d, col_index);
+				std::sort(start, stop, sort_object);
+			}
 			void set_sort_order(const container_type &c, const columns_type &columns, int column_index)
 			{
-				m_sort_fnc=bind(&container_policies_type::comparator, this, c, columns, column_index, _1, _2);
+				m_sort_fnc=bind(&container_policies_type::do_sort, _1, _2, columns.at(column_index), column_index);
+				//m_sort_fnc=bind(&columns_type::compare, columns, column_index, _1, _2);
 			}
 			void clear_sort_order()
 			{
@@ -122,7 +137,7 @@ namespace litwindow {
 				:m_handles_dirty(true){}
 		protected:
 			mutable bool m_handles_dirty;
-			boost::function<bool(const handle_type&, const handle_type&)> m_sort_fnc;
+			boost::function<void(typename sorted_handles_t::iterator, typename sorted_handles_t::iterator)> m_sort_fnc;
 			sorted_handles_t &handles(container_type &c) { if (m_handles_dirty) refresh_handles(c); return m_handles; }
 			sorted_handles_t &handles(const container_type &c) const { if (m_handles_dirty) refresh_handles(const_cast<container_type&>(c)); return m_handles; }
 			mutable sorted_handles_t m_handles;

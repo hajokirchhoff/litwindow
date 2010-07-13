@@ -11,6 +11,8 @@
 #include <boost/utility/result_of.hpp>
 #include <iterator>
 
+//#pragma optimize("ty", on)
+
 namespace litwindow {
     namespace ui {
 		using namespace std;
@@ -43,6 +45,15 @@ namespace litwindow {
 			bool	m_image;
 		};
 
+		template <typename Value, typename MemberValue>
+		class column_interface
+		{
+		public:
+			typedef Value value_type;
+			typedef MemberValue member_type;
+			column_interface(member_type (value_type::*ptr_to_member));
+		};
+
         template <typename Value/*, typename TextRenderer*/>
 		class basic_column_descriptor:public basic_column_label
         {
@@ -55,14 +66,18 @@ namespace litwindow {
         private:
             text_renderer_type m_text_renderer;
 			image_index_renderer_type m_image_index_renderer;
-			comparator_type m_comparator;
         public:
-            basic_column_descriptor(const tstring &title, int width=-1, const text_renderer_type &v=text_renderer_type())
+			comparator_type m_comparator;
+			basic_column_descriptor(const tstring &title, int width=-1, const text_renderer_type &v=text_renderer_type())
                 :basic_column_label(title, width, true, false), m_text_renderer(v), m_image_index_renderer(0)
             {}
 			basic_column_descriptor(const tstring &title, int width, const image_index_renderer_type &i)
 				:basic_column_label(title, width, true, true), m_text_renderer(0), m_image_index_renderer(i)
 			{}
+			//basic_column_descriptor(const tstring &title, int width, const column_interface &i)
+			//	:basic_column_label(title, width, true, false), m_text_renderer(/*i.text_renderer()*/0), m_image_index_renderer(0)
+			//	,m_comparator(/*i.comparator()*/0)
+			//{}
 
             template <typename Control>
             bool render_element(size_t row, size_t col, Control &c, const value_type &v) const { return false; }
@@ -140,6 +155,41 @@ namespace litwindow {
 			function<void (ValueType, tstring &c)> render(bind(&member_result_to_string<MemberType, ValueType>, ptr_to_member, _1, _2));
 			return render;
         }
+
+		template <typename MemberType, typename ValueType>
+		inline bool comparator(const ValueType &left, const ValueType &right, MemberType (ValueType::*ptr_to_member))
+		{
+			return (left.*ptr_to_member)<(right.*ptr_to_member);
+		}
+		template <typename MemberType, typename ValueType>
+		inline bool compare_memfnc(const ValueType &left, const ValueType &right, MemberType (ValueType::*ptr_to_member)() const)
+		{
+			return (left.*ptr_to_member)()<(right.*ptr_to_member)();
+		}
+		template <typename MemberType, typename ValueType>
+		inline basic_column_descriptor<ValueType> make_column_descriptor(const wstring &title, int width, MemberType (ValueType::*ptr_to_member))
+		{
+			basic_column_descriptor<ValueType> rc(title, width, make_text_renderer(ptr_to_member));
+			//function<const MemberType&(const ValueType &, MemberType (ValueType::*))> left, right;
+			//left=bind(&to_member<ValueType, MemberType>, _1, ptr_to_member);
+			//right=bind(&to_member<ValueType, MemberType>, _1, ptr_to_member);
+			rc.m_comparator=boost::bind(&comparator<MemberType, ValueType>, _1, _2, ptr_to_member);
+				//bind(std::less<MemberType>(), bind(&to_member<ValueType, MemberType>, _1, ptr_to_member), bind(to_member<ValueType, MemberType>,_2, ptr_to_member));
+			return rc;
+		}
+		template <typename MemberFnc, typename ValueType>
+		inline basic_column_descriptor<ValueType> make_column_descriptor(const wstring &title, int width, MemberFnc (ValueType::*ptr_to_member)() const)
+		{
+			basic_column_descriptor<ValueType> rc(title, width, make_text_renderer(ptr_to_member));
+			function<MemberFnc (const ValueType &)> left, right;
+			left=bind(ptr_to_member, _1);
+			right=bind(ptr_to_member, _1);
+			rc.m_comparator=boost::bind(&compare_memfnc<MemberFnc, ValueType>, _1, _2, ptr_to_member);
+			//rc.m_comparator=boost::bind(&comparator<MemberFnc, ValueType>, _1, _2, ptr_to_member);
+			//rc.m_comparator=boost::bind(std::less<MemberFnc>, left, right);
+			return rc;
+		}
+
 #pragma endregion TextRenderer
 
 		template <typename ColumnDescriptor>
@@ -175,12 +225,15 @@ namespace litwindow {
                 template <typename ValueMember>
                 back_inserter operator()(const tstring &title, int width, ValueMember (value_type::*ptr_to_member)) const
                 {
-                    return operator()(column_descriptor_type(title, width, make_text_renderer<ValueMember>(ptr_to_member)));
+                    return operator()(make_column_descriptor(title, width, ptr_to_member)
+						//column_descriptor_type(title, width, make_text_renderer<ValueMember>(ptr_to_member))
+						);
                 }
                 template <typename MemberFnc>
                 back_inserter operator()(const tstring &title, int width, MemberFnc (value_type::* ptr_to_member)() const) const
                 {
-                    return operator()(column_descriptor_type(title, width, make_text_renderer<MemberFnc>(ptr_to_member)));
+                    return operator()(make_column_descriptor(title, width, ptr_to_member));
+						//(column_descriptor_type(title, width, make_text_renderer<MemberFnc>(ptr_to_member)));
                 }
 				template <typename ValueMember, typename Formatter>
 				back_inserter operator()(const tstring &title, int width, ValueMember (value_type::*ptr_to_member), Formatter fmt) const
@@ -188,31 +241,30 @@ namespace litwindow {
 					return operator()(column_descriptor_type(title, width, make_text_renderer<ValueMember>(ptr_to_member, fmt)));
 				}
             };
-            template <typename ValueMember>
-            back_inserter add(const tstring &title, int width=-1, ValueMember (value_type::*ptr_to_member)=0)
-            {
-                return back_inserter(*this)(title, width, make_text_renderer<ValueMember>(ptr_to_member));
-            }
-			template <typename MemberFnc>
-			back_inserter add(const tstring &title, int width, MemberFnc (value_type::* ptr_to_member)() const )
-			{
-				return back_inserter(*this)(column_descriptor_type(title, width, make_text_renderer<MemberFnc>(ptr_to_member)));
-			}
-            template <typename ValueRenderer>
-            back_inserter add(const tstring &title, int width=-1, ValueRenderer r=ValueRenderer())
-            {
-                return back_inserter(*this)(title, width, /*make_text_renderer<value_type>(r)*/r);
-            }
-			template <typename ValueMember, typename Formatter>
-			back_inserter add(const tstring &title, int width, ValueMember (value_type::*ptr_to_member), Formatter fmt)
-			{
-				return back_inserter(*this)(title, width, ptr_to_member, fmt);
-			}
-			template <typename ColumnDescriptor>
-			back_inserter add(const ColumnDescriptor d)
-			{
-				return back_inserter(*this)(d);
-			}
+#ifdef not
+   //         template <typename ValueMember>
+   //         back_inserter add(const tstring &title, int width=-1, ValueMember (value_type::*ptr_to_member)=0)
+   //         {
+   //             return back_inserter(*this)(title, width, make_text_renderer<ValueMember>(ptr_to_member));
+   //         }
+			//template <typename MemberFnc>
+			//back_inserter add(const tstring &title, int width, MemberFnc (value_type::* ptr_to_member)() const )
+			//{
+			//	return back_inserter(*this)(column_descriptor_type(title, width, make_text_renderer<MemberFnc>(ptr_to_member)));
+			//}
+   //         template <typename ValueRenderer>
+   //         back_inserter add(const tstring &title, int width=-1, ValueRenderer r=ValueRenderer())
+   //         {
+   //             return back_inserter(*this)(title, width, /*make_text_renderer<value_type>(r)*/r);
+   //         }
+			//template <typename ValueMember, typename Formatter>
+			//back_inserter add(const tstring &title, int width, ValueMember (value_type::*ptr_to_member), Formatter fmt)
+			//{
+			//	return back_inserter(*this)(title, width, ptr_to_member, fmt);
+			//}
+#endif // not
+			template <typename ColumnDescriptor> back_inserter add(const tstring &title, int width, const ColumnDescriptor d) { return back_inserter(*this)(title, width, d); }
+			template <typename ColumnDescriptor> back_inserter add(const ColumnDescriptor d) { return back_inserter(*this)(d); }
             size_t size() const { return columns().size(); }
 			bool empty() const { return columns().empty(); }
             bool dirty() const { return m_dirty; }
@@ -236,6 +288,7 @@ namespace litwindow {
 				return columns().at(col).render_element_image(rc, v);
 			}
             typename columns_t::value_type &at(size_t col) { return columns().at(col); }
+			typename const columns_t::value_type &at(size_t col) const { return columns().at(col); }
             //const value_type &column_description(size_t idx) const { return columns().at(idx); }
 
             //const element_value_type &get(const value_type &e, const column_position_type &pos) const
@@ -570,4 +623,6 @@ namespace litwindow {
 
     }
 }
+
+#pragma optimize("", on)
 #endif // list_mediator_h__31080910
