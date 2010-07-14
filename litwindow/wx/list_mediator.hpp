@@ -116,8 +116,10 @@ namespace litwindow {
 			template <typename Mediator>
 			void disconnect(Mediator *md, uicontrol_type *v)
 			{
-				v->Disconnect(wxEventType(wxEVT_COMMAND_LIST_COL_CLICK), wxListEventHandler(uicontrol_policies::OnListColClick), 0, this);
-				v->Disconnect(wxEventType(wxEVT_DESTROY), wxObjectEventFunction(&uicontrol_policies::OnDestroy), 0, this);
+				if (!v->IsBeingDeleted()) {
+					v->Disconnect(wxEventType(wxEVT_COMMAND_LIST_COL_CLICK), wxListEventHandler(uicontrol_policies::OnListColClick), 0, this);
+					v->Disconnect(wxEventType(wxEVT_DESTROY), wxObjectEventFunction(&uicontrol_policies::OnDestroy), 0, this);
+				}
 				on_destroyed.clear();
 			}
 			void begin_update(uicontrol_type *c) { }
