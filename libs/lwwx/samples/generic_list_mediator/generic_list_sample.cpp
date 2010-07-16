@@ -64,6 +64,8 @@ static sample_dataset_adapter g_test_list_adapter;
 
 void generic_list_sample::setup_lists()
 {
+	extern void compile_tests();
+	compile_tests();
 	setup_template_lists();
 	setup_generic_lists();
 }

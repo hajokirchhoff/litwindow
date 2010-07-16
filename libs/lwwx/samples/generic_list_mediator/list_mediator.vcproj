@@ -4,6 +4,7 @@
 	Version="9,00"
 	Name="list_mediator"
 	ProjectGUID="{9926C1F5-D07F-43FF-959C-7CD14594951D}"
+	RootNamespace="list_mediator"
 	TargetFrameworkVersion="0"
 	>
 	<Platforms>
@@ -48,7 +49,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /EHsc"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../../../wxwidgets/include,../../../../../wxwidgets/contrib/include,../../../../../wxwidgets/lib/vc_lib/mswud,C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include,C:\Program Files\Microsoft SDKs\Windows\v6.0A\include"
+				AdditionalIncludeDirectories="../../../..;../../../../../wxwidgets/include,../../../../../wxwidgets/contrib/include,../../../../../wxwidgets/lib/vc_lib/mswud,C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include,C:\Program Files\Microsoft SDKs\Windows\v6.0A\include"
 				PreprocessorDefinitions="NOPCH,WIN32,__WXMSW__,_WINDOWS,__WXDEBUG__,_DEBUG,_UNICODE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -147,7 +148,7 @@
 				AdditionalOptions=" /EHsc"
 				Optimization="1"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../../../../wxwidgets/include,../../../../../wxwidgets/contrib/include,../../../../../wxwidgets/lib/vc_lib/mswu,C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include,C:\Program Files\Microsoft SDKs\Windows\v6.0A\include"
+				AdditionalIncludeDirectories="../../../..;../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswu;&quot;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include&quot;;&quot;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include&quot;"
 				PreprocessorDefinitions="NOPCH,WIN32,__WXMSW__,_WINDOWS,_UNICODE"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -219,6 +220,10 @@
 			>
 			<File
 				RelativePath="generic_list_sample.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\generic_list_sample2.cpp"
 				>
 			</File>
 			<File

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioUserFile
 	ProjectType="Visual C++"
 	Version="9,00"
@@ -6,7 +6,7 @@
 	>
 	<Configurations>
 		<Configuration
-			Name="Unicode Debug|Win32"
+			Name="Debug|Win32"
 			>
 			<DebugSettings
 				Command="$(TargetPath)"
@@ -20,9 +20,9 @@
 				HttpUrl=""
 				PDBPath=""
 				SQLDebugging=""
-				Environment="PATH=../../../../../wxwidgets/lib/vc_dll;$(SolutionDir)stage/lib"
+				Environment=""
 				EnvironmentMerge="true"
-				DebuggerFlavor="0"
+				DebuggerFlavor=""
 				MPIRunCommand=""
 				MPIRunArguments=""
 				MPIRunWorkingDirectory=""
@@ -34,7 +34,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Unicode Release|Win32"
+			Name="Release|Win32"
 			>
 			<DebugSettings
 				Command="$(TargetPath)"

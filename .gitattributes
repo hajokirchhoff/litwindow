@@ -36,6 +36,7 @@ libs/lwbase/unittest/fixtures.cpp -text
 libs/lwbase/unittest/fixtures.h -text
 libs/lwbase/unittest/fixtures2.cpp -text
 libs/lwbase/unittest/inheritancetests.cpp -text
+libs/lwbase/unittest/list_mediator_unittest.cpp -text
 libs/lwbase/unittest/lwbase_unittest.cpp -text
 libs/lwbase/unittest/lwbase_unittest.vcproj -text
 libs/lwbase/unittest/lwbase_unittest.vcproj.Galadriel.Hajo[!!-~]Kirchhoff.user -text
@@ -70,6 +71,7 @@ libs/lwwx/rapidUI_parser.cpp -text
 libs/lwwx/samples/generic_list_mediator/generic_list_mediator.vsprops -text
 libs/lwwx/samples/generic_list_mediator/generic_list_sample.cpp -text
 libs/lwwx/samples/generic_list_mediator/generic_list_sample.h -text
+libs/lwwx/samples/generic_list_mediator/generic_list_sample2.cpp -text
 libs/lwwx/samples/generic_list_mediator/list_mediator.pjd -text
 libs/lwwx/samples/generic_list_mediator/list_mediator.rc -text
 libs/lwwx/samples/generic_list_mediator/list_mediator.sln -text
@@ -150,6 +152,7 @@ libs/odbc/table.cpp -text
 libs/odbc/utility.cpp -text
 /litwindow-VC90.sln -text
 /litwindow-VC90.vcproj -text
+/litwindow-VC90.vcproj.Hurog.Hajo[!!-~]Kirchhoff.user -text
 /litwindow-VC90.vcproj.ITHILIEN.Hajo[!!-~]Kirchhoff.user -text
 litwindow/algorithm.h -text
 litwindow/auto_link.hpp -text
