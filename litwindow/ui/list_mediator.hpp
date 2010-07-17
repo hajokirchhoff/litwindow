@@ -62,7 +62,7 @@ namespace litwindow {
 					// which means left == right. So check next column if there is one.
 					++i;
 				}
-				return &left < &right;	// all columns tested equal, so sort criteria is undefined.
+				return false;	// all columns tested equal, so left is not less than right
 			}
 			bool compare(const value_type *left, const value_type *right) const { return compare(*left, *right); }
 			template <typename handle>
