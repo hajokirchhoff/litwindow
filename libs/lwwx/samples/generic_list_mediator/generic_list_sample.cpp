@@ -76,7 +76,7 @@ void generic_list_sample::setup_template_lists()
     g_sample.push_back(test_data(L"Thatcher", 91));
     g_sample.push_back(test_data(L"Obama", 48));
     g_sample.push_back(test_data(L"Merkel", 54));
-
+	g_sample.push_back(test_data(L"Melanchton", 54));
     setup_sample_columns_adapter();
 
     setup_sample_list_adapter();

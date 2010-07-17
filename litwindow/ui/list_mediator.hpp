@@ -2,6 +2,7 @@
 #define list_mediator_h__31080910
 
 #include "basic_list_mediator.hpp"
+#include <deque>
 
 namespace litwindow {
 	namespace ui {
@@ -9,6 +10,64 @@ namespace litwindow {
 		typedef litwindow::tstring ui_string;
 
 		//////////////////////////////////////////////////////////////////////////
+		template <typename ColumnDescriptor>
+		struct basic_columns_sorter {
+			typedef typename ColumnDescriptor::value_type value_type;
+			struct sort_column
+			{
+				int m_column_index;
+				bool m_sort_ascending;
+				const ColumnDescriptor *m_column_descriptor;
+				sort_column()
+					:m_column_index(-1){}
+				sort_column(int idx, bool ascending, const ColumnDescriptor &d)
+					:m_column_index(idx),m_sort_ascending(ascending),m_column_descriptor(&d){}
+				bool is_valid() const { return m_column_index>=0; }
+			};
+			typedef std::deque<sort_column> sort_columns_t;
+			sort_columns_t m_sort_columns;
+			basic_columns_sorter():m_sort_columns(3){}
+			void clear()
+			{
+				std::fill(m_sort_columns.begin(), m_sort_columns.end(), sort_column());
+			}
+			void push_sort(int new_column, const ColumnDescriptor &d)
+			{
+				sort_columns_t::iterator i=find_if(m_sort_columns.begin(), m_sort_columns.end(), boost::bind(&sort_column::m_column_index, _1)==new_column);
+				bool sortascending;
+				if (i==m_sort_columns.end()) {
+					sortascending=true;
+					m_sort_columns.pop_back();
+				} else {
+					if (i==m_sort_columns.begin())
+						sortascending=!i->m_sort_ascending;
+					else
+						sortascending=true;
+					m_sort_columns.erase(i);
+				}
+				m_sort_columns.push_front(sort_column(new_column, sortascending, d));
+			}
+			bool compare(const value_type &left, const value_type &right) const
+			{
+				sort_columns_t::const_iterator i=m_sort_columns.begin();
+				while (i!=m_sort_columns.end() && i->is_valid()) {
+					const sort_columns_t::value_type &current(*i);
+					const value_type *l, *r;
+					if (i->m_sort_ascending) { l=&left; r=&right; } else { l=&right; r=&left; }
+					if (i->m_column_descriptor->compare(*l, *r, i->m_column_index))
+						return true;	// left < right if ascending == true and left > right if ascending == false
+					if (i->m_column_descriptor->compare(*r, *l, i->m_column_index))
+						return false;	// left > right if ascending == true and left < right if ascending == false
+					// if control flow arrives here, then   !(left<right) && !(left>right)
+					// which means left == right. So check next column if there is one.
+					++i;
+				}
+				return &left < &right;	// all columns tested equal, so sort criteria is undefined.
+			}
+			bool compare(const value_type *left, const value_type *right) const { return compare(*left, *right); }
+			template <typename handle>
+			bool operator()(handle left, handle right) const { return compare(*left, *right); }
+		};
 		//------------------------------------------------------------------------------------------------------------------------------------
 		template <typename Container, typename Value=typename Container::value_type>
 		class container_policies
@@ -76,28 +135,19 @@ namespace litwindow {
 			{
 				return columns.compare(column_index, *left, *right);
 			}
-			static inline void do_sort(typename sorted_handles_t::iterator start, typename sorted_handles_t::iterator stop, column_descriptor d, int col_index)
+			static inline void do_sort(typename sorted_handles_t::iterator start, typename sorted_handles_t::iterator stop, const basic_columns_sorter<column_descriptor> &sorting)
 			{
-				struct sorter
-				{
-					const column_descriptor &d;
-					int col_index;
-					bool operator()(const handle_type &left, const handle_type &right) const
-					{
-						return d.compare(*left, *right, col_index);
-					}
-					sorter(const column_descriptor &d_, int col_index_):d(d_),col_index(col_index_){}
-				} sort_object(d, col_index);
-				std::sort(start, stop, sort_object);
+				std::sort(start, stop, sorting);
 			}
 			void set_sort_order(const container_type &c, const columns_type &columns, int column_index)
 			{
-				m_sort_fnc=bind(&container_policies_type::do_sort, _1, _2, columns.at(column_index), column_index);
-				//m_sort_fnc=bind(&columns_type::compare, columns, column_index, _1, _2);
+				m_sorting.push_sort(column_index, columns.at(column_index));
+				m_sort_fnc=bind(&container_policies_type::do_sort, _1, _2, boost::ref(m_sorting));
 			}
 			void clear_sort_order()
 			{
 				m_sort_fnc.clear();
+				m_sorting.clear();
 			}
 			size_t size(container_type &c) const { return handles(c).size(); }
 
@@ -138,6 +188,7 @@ namespace litwindow {
 		protected:
 			mutable bool m_handles_dirty;
 			boost::function<void(typename sorted_handles_t::iterator, typename sorted_handles_t::iterator)> m_sort_fnc;
+			basic_columns_sorter<column_descriptor> m_sorting;
 			sorted_handles_t &handles(container_type &c) { if (m_handles_dirty) refresh_handles(c); return m_handles; }
 			sorted_handles_t &handles(const container_type &c) const { if (m_handles_dirty) refresh_handles(const_cast<container_type&>(c)); return m_handles; }
 			mutable sorted_handles_t m_handles;
