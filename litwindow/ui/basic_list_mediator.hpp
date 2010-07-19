@@ -101,6 +101,12 @@ namespace litwindow {
 			{
 				if (m_comparator)
 					return m_comparator(left, right);
+				if (m_image_index_renderer) {
+					int l, r;
+					m_image_index_renderer(left, l);
+					m_image_index_renderer(right, r);
+					return l<r;
+				}
 				tstring left_string, right_string;
 				render_element(left_string, left);
 				render_element(right_string, right);
