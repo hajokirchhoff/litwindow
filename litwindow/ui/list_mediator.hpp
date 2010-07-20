@@ -318,6 +318,11 @@ namespace litwindow {
 				r.clear();
 				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(&list_mediator::visit<ResultSet, Fnc>, this, &r, _1, f));
 			}
+			template <typename Fnc>
+			void for_each_selected(Fnc f) const
+			{
+				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(f, _1));
+			}
 
 			void refresh() { refresh(true); }
 			void refresh(bool force) { if (force) { set_dirty(); /*m_columns.dirty(true);*/ } do_refresh(); }
