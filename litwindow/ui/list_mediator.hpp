@@ -3,6 +3,7 @@
 
 #include "basic_list_mediator.hpp"
 #include <deque>
+#include <list>
 
 namespace litwindow {
 	namespace ui {

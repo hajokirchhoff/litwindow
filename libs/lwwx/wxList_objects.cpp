@@ -180,7 +180,7 @@ void lwListAdapterBase::SetValue(const accessor &newValue)
             ClearList();
             for (size_t i=0; i<m_enum_info->enum_count(); ++i) {
                 const converter_enum_info::element &current(m_enum_info->enum_value(i));
-                AppendList(wxGetTranslation(current.m_name), (void*)current.m_value);
+                AppendList(tstring(wxGetTranslation(current.m_name)), (void*)current.m_value);
             }
             SetUseClientData(true);
         }
