@@ -26,8 +26,8 @@ DECLARE_EXPORTED_EVENT_TYPE(LWWX_API, lwEVT_COMMIT_PHASE, 0);
 namespace litwindow {
 
 using namespace std;
-#pragma warning(disable:4660)
-LWWX_STL_VECTOR_EXPORT(tstring);
+//#pragma warning(disable:4660)
+//LWWX_STL_VECTOR_EXPORT(tstring);
 #ifdef not
 #pragma warning(disable:4231)
 LWWX_STL_VECTOR_EXPORT(wxWindow*);
@@ -36,7 +36,7 @@ LWWX_STL_VECTOR_EXPORT(wxWindow*);
 class LWWX_API RapidUI;
 
 typedef void (*rules_function_t)(RapidUI &);
-LWWX_STL_VECTOR_EXPORT(rules_function_t);
+//LWWX_STL_VECTOR_EXPORT(rules_function_t);
 
 class LWWX_API RapidUI:public symbol_table_interface
 {
