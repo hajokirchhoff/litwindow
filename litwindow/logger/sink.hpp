@@ -4,6 +4,7 @@
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <string>
+#include <deque>
 #include "../logger.hpp"
 
 namespace litwindow {

@@ -25,8 +25,8 @@
 ////@end includes
 
 #include "litwindow/wx/extended_error_dialog.h"
-#include <boost/spirit.hpp>
-#include <boost/spirit/phoenix.hpp>
+#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/phoenix1.hpp>
 
 ////@begin XPM images
 ////@end XPM images
@@ -215,9 +215,10 @@ namespace litwindow { namespace wx {
 		m_detail->SetPage(details);
 	}
 
+#pragma warning(disable: 4503)
 	wxString extended_error_dialog::MakeHtml(const wxString &input)
 	{
-		using namespace boost::spirit;
+        using namespace boost::spirit::classic;
 		using namespace phoenix;
 		wxString rc;
 		parse_info<const wchar_t*> info

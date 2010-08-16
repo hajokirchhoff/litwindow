@@ -4,7 +4,7 @@
 
 #include <string>
 #include <stdexcept>
-#include <boost/exception.hpp>
+#include <boost/exception/all.hpp>
 
 namespace litwindow { namespace wx {
 
@@ -50,7 +50,7 @@ namespace litwindow { namespace wx {
     template <>
     inline extended_error<char> make_extended_error(const boost::exception &e)
     {
-        boost::shared_ptr<std::string const> err=boost::get_error_info<what_info>(e);
+        std::string const *err=boost::get_error_info<what_info>(e);
         return extended_error<char>(err ? *err : "boost::exception", diagnostic_information(e));
     }
 } }

@@ -52,22 +52,26 @@ IMPLEMENT_ADAPTER_TYPE(boost::uint64_t)
 
 #define HAS_BOOST_UUID
 #ifdef HAS_BOOST_UUID
-#include <boost/uuid.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
+using boost::uuids::uuid;
+
 template <>
-litwindow::tstring litwindow::converter<boost::uuid>::to_string(const boost::uuid &v)
+litwindow::tstring litwindow::converter<uuid>::to_string(const uuid &v)
 {
     basic_stringstream<TCHAR> out;
     out << v;
     return out.str();
 }
 template <>
-size_t litwindow::converter<boost::uuid>::from_string(const litwindow::tstring &newValue, boost::uuid &v)
+size_t litwindow::converter<uuid>::from_string(const litwindow::tstring &newValue, uuid &v)
 {
     basic_stringstream<TCHAR> in(newValue);
     in >> v;
     return sizeof(v);
 }
-LWL_IMPLEMENT_ACCESSOR(boost::uuid)
+LWL_IMPLEMENT_ACCESSOR(uuid)
 #endif
 
 
