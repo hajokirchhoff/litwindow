@@ -22,6 +22,27 @@ namespace litwindow { namespace wx {
             m_values.push_back(make_pair(v, label));
             add_to_menu(m_values.size()-1);
         }
+		void set(size_t idx, const Value &v, const wxString &label)
+		{
+			m_values.at(idx)=make_pair(v, label);
+			add_to_menu(idx);
+		}
+		void resize(size_t new_size)
+		{
+			// first remove no longer used entries
+			size_t unused_entries=new_size;
+			while (unused_entries<m_values.size()) {
+				remove_menu(unused_entries);
+				++unused_entries;
+			}
+			// now add entries if neccessary
+			size_t i=m_values.size();
+			m_values.resize(new_size);
+			// and add entries in the menu itself
+			while (i<m_values.size()) {
+				set(i++, Value(), L"???");
+			}
+		}
         void remove(const Value &v, const wxString &label=wxEmptyString)
         {
             size_t target=0;
@@ -53,8 +74,7 @@ namespace litwindow { namespace wx {
             m_insert_before_id=insert_before_id;
         }
         wxMenu *get_menu() const { return m_menu; }
-        dynamic_menu(){}
-        dynamic_menu(const Traits &t):m_traits(t) {}
+        dynamic_menu(const Traits &t=Traits()):m_traits(t) {}
         void update_menu()
         {
             if (m_menu) {
@@ -122,8 +142,6 @@ namespace litwindow { namespace wx {
     };
 }
 }
-
-namespace wx1=litwindow::wx;
 
 #endif // dynamic_menu_h__301108
 
