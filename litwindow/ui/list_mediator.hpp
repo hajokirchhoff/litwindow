@@ -4,6 +4,7 @@
 #include "basic_list_mediator.hpp"
 #include <deque>
 #include <list>
+#include <boost/shared_ptr.hpp>
 
 namespace litwindow {
 	namespace ui {
@@ -11,9 +12,11 @@ namespace litwindow {
 		typedef litwindow::tstring ui_string;
 
 		//////////////////////////////////////////////////////////////////////////
-		template <typename ColumnDescriptor>
+		template <typename ColumnDescriptor, typename HandlePolicies>
 		struct basic_columns_sorter {
 			typedef typename ColumnDescriptor::value_type value_type;
+			typedef typename HandlePolicies handle_policies_type;
+			typedef typename handle_policies_type::handle_type handle_type;
 			struct sort_column
 			{
 				int m_column_index;
@@ -27,6 +30,7 @@ namespace litwindow {
 			};
 			typedef std::deque<sort_column> sort_columns_t;
 			sort_columns_t m_sort_columns;
+			handle_policies_type m_handle_policies;
 			basic_columns_sorter():m_sort_columns(3){}
 			void clear()
 			{
@@ -66,8 +70,7 @@ namespace litwindow {
 				return false;	// all columns tested equal, so left is not less than right
 			}
 			bool compare(const value_type *left, const value_type *right) const { return compare(*left, *right); }
-			template <typename handle>
-			bool operator()(handle left, handle right) const { return compare(*left, *right); }
+			bool operator()(handle_type left, handle_type right) const { return compare(m_handle_policies.handle_to_value(left), m_handle_policies.handle_to_value(right)); }
 		};
 		//------------------------------------------------------------------------------------------------------------------------------------
 		template <typename Container, typename Value=typename Container::value_type>
@@ -91,6 +94,16 @@ namespace litwindow {
 			typedef typename container_type::value_type value_type;
 			typedef typename container_type::iterator handle_type;
 			const value_type &handle_to_value(const handle_type &h) const { return *h; }
+		};
+
+		template <typename Value>
+		class handle_policies<std::vector<boost::shared_ptr<Value> > >
+		{
+		public:
+			typedef std::vector<boost::shared_ptr<Value> > container_type;
+			typedef typename Value value_type;
+			typedef typename container_type::iterator handle_type;
+			const value_type &handle_to_value(const handle_type &h) const { return **h; }
 		};
 
 		template <typename Container, typename HandlePolicies=handle_policies<Container> >
@@ -147,7 +160,7 @@ namespace litwindow {
 			{
 				return columns.compare(column_index, *left, *right);
 			}
-			static inline void do_sort(typename sorted_handles_t::iterator start, typename sorted_handles_t::iterator stop, const basic_columns_sorter<column_descriptor> &sorting)
+			static inline void do_sort(typename sorted_handles_t::iterator start, typename sorted_handles_t::iterator stop, const basic_columns_sorter<column_descriptor, handle_policies_type> &sorting)
 			{
 				std::sort(start, stop, sorting);
 			}
@@ -201,7 +214,7 @@ namespace litwindow {
 			handle_policies_type m_handle_policies;
 			mutable bool m_handles_dirty;
 			boost::function<void(typename sorted_handles_t::iterator, typename sorted_handles_t::iterator)> m_sort_fnc;
-			basic_columns_sorter<column_descriptor> m_sorting;
+			basic_columns_sorter<column_descriptor, handle_policies_type> m_sorting;
 			sorted_handles_t &handles(container_type &c) { if (m_handles_dirty) refresh_handles(c); return m_handles; }
 			sorted_handles_t &handles(const container_type &c) const { if (m_handles_dirty) refresh_handles(const_cast<container_type&>(c)); return m_handles; }
 			mutable sorted_handles_t m_handles;
@@ -346,6 +359,8 @@ namespace litwindow {
 			list_mediator():m_dirty(false),m_uicontrol(0),m_container(0){}
 			list_mediator(container_type &c, uicontrol_type *u)
 			{ set_container(c); set_ui(u); }
+			list_mediator &set(container_type &c) { set_container(c); return *this; }
+			list_mediator &set(uicontrol_type *u) { set_ui(u); return *this; }
 		protected:
 			columns_type m_columns;
 			uicontrol_type *m_uicontrol;
