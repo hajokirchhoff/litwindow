@@ -84,6 +84,16 @@ namespace litwindow {
 		};
 
 		template <typename Container>
+		class handle_policies
+		{
+		public:
+			typedef typename Container container_type;
+			typedef typename container_type::value_type value_type;
+			typedef typename container_type::iterator handle_type;
+			const value_type &handle_to_value(const handle_type &h) const { return *h; }
+		};
+
+		template <typename Container, typename HandlePolicies=handle_policies<Container> >
 		class stl_container_policies
 		{
 		public:
@@ -91,8 +101,9 @@ namespace litwindow {
 			static const bool erase_stable=true;
 			typedef stl_container_policies container_policies_type;
 			typedef Container container_type;
-			typedef typename container_type::value_type value_type;
-			typedef typename container_type::iterator handle_type;
+			typedef HandlePolicies handle_policies_type;
+			typedef typename handle_policies_type::value_type value_type;
+			typedef typename handle_policies_type::handle_type handle_type;
 			typedef std::vector<handle_type> sorted_handles_t;
 			typedef basic_column_descriptor<value_type> column_descriptor;
 			typedef basic_columns_adapter<column_descriptor> columns_type;
@@ -187,6 +198,7 @@ namespace litwindow {
 			stl_container_policies()
 				:m_handles_dirty(true){}
 		protected:
+			handle_policies_type m_handle_policies;
 			mutable bool m_handles_dirty;
 			boost::function<void(typename sorted_handles_t::iterator, typename sorted_handles_t::iterator)> m_sort_fnc;
 			basic_columns_sorter<column_descriptor> m_sorting;
@@ -194,7 +206,7 @@ namespace litwindow {
 			sorted_handles_t &handles(const container_type &c) const { if (m_handles_dirty) refresh_handles(const_cast<container_type&>(c)); return m_handles; }
 			mutable sorted_handles_t m_handles;
 			const handle_type &get_row(size_t row) const { return m_handles[row]; }
-			const value_type &handle_to_value(const handle_type &h) const { return *h; }
+			const value_type &handle_to_value(const handle_type &h) const { return m_handle_policies.handle_to_value(h); }
 		};
 
 		template <typename Value>
