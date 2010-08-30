@@ -5,6 +5,7 @@
 libs/Debug
 libs/DebugOptimize
 libs/Release
+libs/lwbase-VC90/*.user
 libs/lwbase-VC90/Debug
 libs/lwbase-VC90/DebugOptimize
 libs/lwbase-VC90/Release
@@ -26,9 +27,11 @@ libs/lwbase/logger/Release
 libs/lwbase/test/Debug
 libs/lwbase/test/DebugOptimize
 libs/lwbase/test/Release
+libs/lwbase/unittest/*.user
 libs/lwbase/unittest/Debug
 libs/lwbase/unittest/DebugOptimize
 libs/lwbase/unittest/Release
+libs/lwwx/*.user
 libs/lwwx/Debug
 libs/lwwx/DebugOptimize
 libs/lwwx/Release
@@ -57,6 +60,7 @@ libs/lwwx/samples/generic_ui/res/Release
 libs/lwwx/samples/rssreader/Debug
 libs/lwwx/samples/rssreader/DebugOptimize
 libs/lwwx/samples/rssreader/Release
+libs/odbc/*.user
 libs/odbc/Debug
 libs/odbc/DebugOptimize
 libs/odbc/Release
