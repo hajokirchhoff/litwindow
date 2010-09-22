@@ -33,6 +33,21 @@ namespace litwindow {
 	extern std::string LWBASE_API w2sstring(const std::wstring &w);
 	extern std::wstring LWBASE_API s2wstring(const std::string &s);
 
+	template <typename DestChar, typename SrcChar>
+	basic_string<DestChar> to_string(const SrcChar *s);
+
+	template<>
+	inline basic_string<char> to_string(const char *s) { return basic_string<char>(s); }
+	template<>
+	inline basic_string<wchar_t> to_string(const char *s) { return s2wstring(string(s)); }
+
+	template <typename DestChar, typename SrcChar>
+	basic_string<DestChar> to_string(const std::basic_string<SrcChar> &s) { return s; }
+	template <>
+	inline basic_string<char> to_string(const basic_string<wchar_t> &s) { return w2sstring(s); }
+	template <>
+	inline basic_string<wchar_t> to_string(const basic_string<char> &s) { return s2wstring(s); }
+
 #ifdef _MBCS
 	typedef std::string tstring;
 	typedef std::ofstream tofstream;
