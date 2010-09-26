@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="lwbase_unittest"
 	ProjectGUID="{380677A9-085E-4F1F-88CF-F46781141ABA}"
 	RootNamespace="lwbase_unittest"
@@ -87,7 +87,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="set PATH=$(ProjectDir)..\..\..\..\boost\stage\lib;%PATH%&#x0D;&#x0A;&quot;$(TargetPath)&quot;&#x0D;&#x0A;"
+				CommandLine="set PATH=$(InputDir)..\..\..\..\boost\stage\lib;$(InputDir)..\..\..\..\litwindow\stage\lib;%PATH%&#x0D;&#x0A;&quot;$(TargetPath)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -164,7 +164,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="set PATH=$(ProjectDir)..\..\..\..\boost\stage\lib;%PATH%&#x0D;&#x0A;&quot;$(TargetPath)&quot;&#x0D;&#x0A;"
+				CommandLine="set PATH=$(InputDir)..\..\..\..\boost\stage\lib;$(InputDir)..\..\..\..\litwindow\stage\lib;%PATH%&#x0D;&#x0A;&quot;$(TargetPath)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -238,7 +238,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="set PATH=$(ProjectDir)..\..\..\..\boost\stage\lib;%PATH%&#x0D;&#x0A;&quot;$(TargetPath)&quot;&#x0D;&#x0A;"
+				CommandLine="set PATH=$(InputDir)..\..\..\..\boost\stage\lib;$(InputDir)..\..\..\..\litwindow\stage\lib;%PATH%&#x0D;&#x0A;&quot;$(TargetPath)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
