@@ -221,6 +221,7 @@ namespace litwindow {
 		{
 			s_entry=0;
 		}
+		void clear() { set_invalid(); }
 
 		//virtual size_t to_binary(void *destination, size_t destination_size) const = 0;
 		//virtual size_t from_binary(void *source, size_t source_size) = 0;
