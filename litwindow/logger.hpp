@@ -433,14 +433,24 @@ namespace litwindow {
 				{
 					return const_cast<entry*>(details::aligned_ptr<entry>(end_data()));
 				}
+				bool validate() const
+				{
+#ifdef _DEBUG
+					if (length()>4096 || m_timestamp>time(0)+5 || m_index>100000 || m_index>10000 || m_component>10000 || m_topic>10000 || m_level>1000) {
+						return false;
+					}
+#endif
+					return true;
+				}
 			};
 			class entries
 			{
 			public:
 				typedef typename basic_logbuf<_Elem, _Traits, _Alloc>::entry entry;
-				entries(const char_type *begin, const char_type *end)
-					:m_begin(begin), m_end(end)
+				entries(const char_type *b, const char_type *e)
+					:m_begin(b), m_end(e)
 				{
+					begin()->validate();
 				}
 				class const_iterator
 				{
