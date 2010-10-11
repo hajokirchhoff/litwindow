@@ -93,6 +93,7 @@ namespace litwindow {
 			typedef typename Container container_type;
 			typedef typename container_type::value_type value_type;
 			typedef typename container_type::iterator handle_type;
+			value_type &handle_to_value(handle_type &h) const { return *h; }
 			const value_type &handle_to_value(const handle_type &h) const { return *h; }
 		};
 
@@ -103,6 +104,7 @@ namespace litwindow {
 			typedef std::vector<boost::shared_ptr<Value> > container_type;
 			typedef typename Value value_type;
 			typedef typename container_type::iterator handle_type;
+			value_type &handle_to_value(handle_type &h) const { return **h; }
 			const value_type &handle_to_value(const handle_type &h) const { return **h; }
 		};
 
@@ -179,8 +181,9 @@ namespace litwindow {
 			const_iterator begin(container_type &c) const { return handles(c).begin(); }
 			const_iterator end(container_type &c) const { return handles(c).end(); }
 
-			value_type &at(container_type &c, size_t idx) { return *handles(c).at(idx); }
-			const value_type &at(const container_type &c, size_t idx) const { return *handles(c).at(idx); }
+			value_type &at(container_type &c, size_t idx) { return handle_to_value(handles(c).at(idx)); }
+			const value_type &at(const container_type &c, size_t idx) const { return handle_to_value(handles(c).at(idx)); }
+			const handle_type &handle_at(const container_type &c, size_t idx) const { return handles(c).at(idx); }
 			void set_at(container_type &c, size_t idx, const value_type &v) { value_type &old=at(c, idx); old=v; }
 
 			//TODO: implement insert_stable for different container types
@@ -220,6 +223,7 @@ namespace litwindow {
 			mutable sorted_handles_t m_handles;
 			const handle_type &get_row(size_t row) const { return m_handles[row]; }
 			const value_type &handle_to_value(const handle_type &h) const { return m_handle_policies.handle_to_value(h); }
+			value_type &handle_to_value(handle_type &h) const { return m_handle_policies.handle_to_value(h); }
 		};
 
 		template <typename Value>
@@ -243,8 +247,9 @@ namespace litwindow {
 		{
 		public:
 			typedef typename ContainerPolicies::container_type container_type;
-			typedef typename container_type::value_type value_type;
+			typedef typename ContainerPolicies::value_type value_type;
 			typedef typename ContainerPolicies::columns_type columns_type;
+			typedef typename ContainerPolicies::handle_type handle_type;
 			typedef typename UIControlPolicies::uicontrol_type uicontrol_type;
 
 			typedef typename ContainerPolicies::const_iterator const_iterator;
@@ -325,6 +330,7 @@ namespace litwindow {
 
 			value_type &value_at(size_t idx) { return m_container_policies.at(*m_container, idx); }
 			const value_type &value_at(size_t idx) const { return m_container_policies.at(*m_container, idx); }
+			const handle_type &handle_at(size_t idx) const { return m_container_policies.handle_at(*m_container, idx); }
 			void set_value_at(size_t idx, const value_type &v) { m_container_policies.set_at(*m_container, idx, v); set_dirty(); }
 
 			void delete_selected_item() { remove(get_selection_index()); }
@@ -333,6 +339,11 @@ namespace litwindow {
 			void delete_all_items() { m_container_policies.clear(*m_container); set_dirty(); }
 			void append_item(const value_type &v) { m_container_policies.append(*m_container, v); set_dirty(); }
 
+			template <typename Fnc>
+			void for_each_selected(Fnc f) const
+			{
+				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(f, _1));
+			}
 			template <typename ResultSet, typename Fnc>
 			void visit(ResultSet* rc, size_t idx, Fnc f) const
 			{
@@ -344,10 +355,16 @@ namespace litwindow {
 				r.clear();
 				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(&list_mediator::visit<ResultSet, Fnc>, this, &r, _1, f));
 			}
-			template <typename Fnc>
-			void for_each_selected(Fnc f) const
+			template <typename ResultSet>
+			void visit_index(ResultSet *rc, size_t idx) const
 			{
-				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(f, _1));
+				rc->push_back(idx);
+			}
+			std::vector<size_t> get_selection()
+			{
+				std::vector<size_t> rc;
+				for_each_selected(bind(&list_mediator::visit_index<std::vector<size_t> >, this, &rc, _1));
+				return rc;
 			}
 
 			void refresh() { refresh(true); }
