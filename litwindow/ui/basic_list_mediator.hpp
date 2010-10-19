@@ -46,7 +46,7 @@ namespace litwindow {
 			template <typename Archive>
 			void serialize(Archive &ar, const unsigned int version)
 			{
-				ar & m_title & m_width & m_visible;				
+				ar & make_nvp("title", m_title) & make_nvp("width", m_width) & make_nvp("visible", m_visible);				
 			}
 			basic_column_label(const tstring &title, int width=-1, bool visible=true, bool is_image=false)
 				:m_title(title),m_width(width),m_visible(visible),m_image(is_image){}
