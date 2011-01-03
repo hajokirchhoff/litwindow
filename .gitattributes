@@ -149,6 +149,11 @@ libs/odbc/statement_parser.cpp -text
 libs/odbc/stdafx.cpp -text
 libs/odbc/stdafx.h -text
 libs/odbc/table.cpp -text
+libs/odbc/unittest/odbc_unittest.cpp -text
+libs/odbc/unittest/odbc_unittest.vcproj -text
+libs/odbc/unittest/odbc_unittest.vcproj.Hurog.Hajo[!!-~]Kirchhoff.user -text
+libs/odbc/unittest/stdafx.cpp -text
+libs/odbc/unittest/stdafx.h -text
 libs/odbc/utility.cpp -text
 /litwindow-VC90.sln -text
 /litwindow-VC90.vcproj -text
