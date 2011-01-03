@@ -78,6 +78,7 @@
 #endif
 
 #if defined(LWBASE_DYN_LINK)
+
 #define _LWL_LIB_DLL ""
 #define _LWL_LIB_THREAD ""
 #else
