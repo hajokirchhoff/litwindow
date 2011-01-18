@@ -73,12 +73,12 @@ namespace litwindow {
 			bool operator()(handle_type left, handle_type right) const { return compare(m_handle_policies.handle_to_value(left), m_handle_policies.handle_to_value(right)); }
 		};
 		//------------------------------------------------------------------------------------------------------------------------------------
-		template <typename Container, typename Value=typename Container::value_type>
+		template <typename Container>
 		class container_policies
 		{
 		public:
 			typedef Container container_type;
-			typedef Value value_type;
+			typedef typename container_type::value_type value_type;
 			typedef typename container_type::iterator handle_type;
 			typedef basic_column_descriptor<value_type> column_descriptor;
 			typedef basic_columns_adapter<column_descriptor> columns_type;
@@ -227,13 +227,13 @@ namespace litwindow {
 		};
 
 		template <typename Value>
-		class container_policies<std::vector<Value>, Value >:public stl_container_policies<std::vector<Value> >
+		class container_policies<std::vector<Value>>:public stl_container_policies<std::vector<Value> >
 		{
 		public:
 		};
 
 		template <typename Value>
-		class container_policies<std::list<Value>, Value>:public stl_container_policies<std::list<Value> >
+		class container_policies<std::list<Value>>:public stl_container_policies<std::list<Value> >
 		{
 			typedef stl_container_policies<std::list<Value> > Inherited;
 		public:

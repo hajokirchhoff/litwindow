@@ -87,6 +87,12 @@ statement::statement(connection &c)
 {
 	init(c);
 }
+/** Constructs a statement that uses the shared_connection @p c. The connection must be open. */
+statement::statement(shared_connection &c)
+{
+	m_reference_counting_for_connection_pool=c;
+	init(*c);
+}
 /** Constructs a statement that uses connection @p c. The connection must be open. Sets the SQL statement
 to @p sql_statement */
 statement::statement(const tstring &sql_statement, connection &c)

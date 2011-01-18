@@ -105,6 +105,8 @@ public:
 	LWODBC_API		statement();
 	/// Constructs a statement that uses connection @p c
 	LWODBC_API explicit statement(connection &c);
+	/// Constructs a statement that uses shared_connection @p c
+	LWODBC_API explicit statement(shared_connection &c);
 	/// Constructs a statement that uses connection @p c, executing @p sql_statement
 	LWODBC_API          statement(const tstring &sql_statement, connection &c);
 	/// Constructs a statement that use the @p named_connection from the connection::pool and @p sql_statement
