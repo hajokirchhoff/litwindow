@@ -1,3 +1,4 @@
+/Release[!!-~]static
 /bin.v2
 /boost-build.jam
 /doxygen-doc
@@ -67,6 +68,7 @@ libs/odbc/Release
 libs/odbc/build/Debug
 libs/odbc/build/DebugOptimize
 libs/odbc/build/Release
+libs/stage
 /litwindow-VC90.ncb
 /litwindow-VC90.suo
 /litwindow-VC90.vcproj.Galadriel.Hajo[!!-~]Kirchhoff.user
