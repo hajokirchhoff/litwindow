@@ -19,7 +19,9 @@
 #include <boost/type_traits/add_const.hpp>
 #include <boost/type_traits/add_reference.hpp>
 
+#ifndef BOOST_TYPEOF_SILENT
 #define BOOST_TYPEOF_SILENT
+#endif
 #include <boost/typeof/typeof.hpp>
 #include <iterator>
 
