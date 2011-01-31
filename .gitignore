@@ -68,9 +68,6 @@ libs/odbc/Release
 libs/odbc/build/Debug
 libs/odbc/build/DebugOptimize
 libs/odbc/build/Release
-libs/odbc/unittest/Debug[!!-~]static
-libs/odbc/unittest/Release
-libs/odbc/unittest/Release[!!-~]static
 libs/stage
 /litwindow-VC90.ncb
 /litwindow-VC90.suo
