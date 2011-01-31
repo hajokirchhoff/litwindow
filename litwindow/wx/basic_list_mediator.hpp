@@ -175,10 +175,18 @@ namespace litwindow {
                 m_owner.get_item_text(row, col, text);
                 variant=text;
             }
+			virtual void GetValueByRow(wxVariant &variant, unsigned int row, unsigned int col) const
+			{
+				return GetValue(variant, row, col);
+			}
             virtual bool SetValue(const wxVariant &variant, unsigned int row, unsigned int col)
             {
                 return false;
             }
+			virtual bool SetValueByRow(const wxVariant &variant, unsigned int row, unsigned int col)
+			{
+				return SetValue(variant, row, col);
+			}
             void refresh(wxDataViewCtrl_list_adapter *)
             {
                 const dataset_adapter_type &dataset(m_owner.dataset_adapter());

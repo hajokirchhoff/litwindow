@@ -5,7 +5,7 @@
 * and other uses - is governed by the licence contained in the Lit Window Library 
 * distribution, file LICENCE.TXT
 */
-
+#include "stdafx.h"
 #if defined(LITWINDOW_LOGGER_EXPORTS) || defined(LWBASE_EXPORTS)
 #define BOOST_ALL_DYN_LINK
 #include "..\..\..\litwindow\logger\sink.hpp"

@@ -250,9 +250,17 @@ namespace litwindow {
 				text=m_owner.get_item_text(row, col);
 				variant=text;
 			}
+			virtual void GetValueByRow(wxVariant &variant, unsigned int row, unsigned int col) const
+			{
+				GetValue(variant, row, col);
+			}
 			virtual bool SetValue(const wxVariant &variant, unsigned int row, unsigned int col)
 			{
 				return false;
+			}
+			virtual bool SetValueByRow(const wxVariant &variant, unsigned int row, unsigned int col)
+			{
+				return SetValue(variant, row, col);
 			}
 			void refresh()
 			{
