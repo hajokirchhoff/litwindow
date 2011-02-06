@@ -419,11 +419,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\litwindow\ui\list_mediator.hpp"
+				RelativePath="..\..\litwindow\wx\list_mediator.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\litwindow\wx\list_mediator.hpp"
+				RelativePath="..\..\litwindow\ui\list_mediator.hpp"
 				>
 			</File>
 			<File
