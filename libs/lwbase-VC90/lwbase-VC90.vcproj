@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="lwbase-vc90"
 	ProjectGUID="{3574B45C-ED89-473C-92FC-251BCD966664}"
 	RootNamespace="lwbaseVC90"
@@ -18,9 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\stage\lib"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets="..\litwindow.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -90,9 +89,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)..\..\stage\lib"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets="..\litwindow.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -161,82 +159,9 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="DebugOptimize|Win32"
-			OutputDirectory="$(ProjectDir)..\..\stage\lib"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\..\boost&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include&quot;;&quot;$(ProjectDir)..\..&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LWBASE_EXPORTS"
-				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-				DisableSpecificWarnings="4275;4251"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\lwbase-vc90-mt-gd-1_0_0.dll"
-				AdditionalLibraryDirectories="..\..\..\boost\stage\lib"
-				GenerateDebugInformation="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
 			Name="Debug static|Win32"
-			OutputDirectory="$(ProjectDir)..\..\stage\lib"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\litwindow.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -298,9 +223,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release static|Win32"
-			OutputDirectory="$(ProjectDir)..\..\stage\lib"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\litwindow.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -410,14 +334,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DebugOptimize|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

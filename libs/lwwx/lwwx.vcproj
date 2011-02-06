@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="lwwx"
 	ProjectGUID="{67C5A0AD-747F-4A92-8A1A-BA7491F26E8D}"
 	RootNamespace="lwwx"
@@ -18,9 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\stage\lib"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets="..\litwindow.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -63,7 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\$(ProjectName)-vc90-mt-gd-1_0_0.dll"
-				AdditionalLibraryDirectories="&quot;$(ProjectDir)..\..\..\wxWidgets\lib\vc_dll&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\stage\lib\vc_dll&quot;"
 				GenerateDebugInformation="true"
 			/>
 			<Tool
@@ -90,9 +89,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)..\..\stage\lib"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets="..\litwindow.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -137,80 +135,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\$(ProjectName)-vc90-mt-1_0_0.dll"
-				AdditionalLibraryDirectories="&quot;$(ProjectDir)..\..\..\wxWidgets\lib\vc_dll&quot;"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="DebugOptimize|Win32"
-			OutputDirectory="$(ProjectDir)..\..\stage\lib"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				Optimization="2"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\..\boost&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include\msvc&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include&quot;;&quot;$(ProjectDir)..\..&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WXUSINGDLL;LWWX_EXPORTS;LITWINDOW_ALL_DYN_LINK"
-				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-				DisableSpecificWarnings="4275"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\$(ProjectName)-vc90-mt-gd-1_0_0.dll"
-				AdditionalLibraryDirectories="&quot;$(ProjectDir)..\..\..\wxWidgets\lib\vc_dll&quot;"
-				GenerateDebugInformation="true"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\stage\lib\vc_dll&quot;"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -236,9 +161,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug static|Win32"
-			OutputDirectory="$(ProjectDir)..\..\stage\lib"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\litwindow.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -300,9 +224,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release static|Win32"
-			OutputDirectory="$(ProjectDir)..\..\stage\lib"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\litwindow.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -386,14 +309,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DebugOptimize|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool

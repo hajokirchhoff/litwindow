@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="litwindow"
+	OutputDirectory="$(SolutionDir)..\stage\lib"
+	IntermediateDirectory="$(OutDir)\$(ConfigurationName)\$(ProjectName)"
+	>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalLibraryDirectories="$(SolutionDir)..\stage\lib"
+	/>
+</VisualStudioPropertySheet>
