@@ -83,11 +83,11 @@ public:
 	/** Update the current row - write the values of the bound columns back to the data storage */
 	const sqlreturn LWODBC_API &update_row() throw();
 	/** Return the number of rows updated by the last call to 'update_row'. Will be ==1 if successful. */
-	SQLINTEGER LWODBC_API update_row_count() const throw() { return m_update_row_count; }
+	SQLLEN LWODBC_API update_row_count() const throw() { return m_update_row_count; }
 	/** Delete the current row - remove the values from the data storage */
 	const sqlreturn LWODBC_API &delete_row() throw();
 	/** Return the number of rows deleted by the last call to 'update_row'. Will be ==1 if successful. */
-	SQLINTEGER LWODBC_API delete_row_count() const throw() { return m_delete_row_count; }
+	SQLLEN LWODBC_API delete_row_count() const throw() { return m_delete_row_count; }
 	/** Insert a new row. Copy the values in the bound columns to the data storage */
 	const sqlreturn LWODBC_API &insert_row() throw();
 
@@ -104,9 +104,9 @@ protected:
 	tstring m_where_clause;
 	tstring m_cursor_name;
 	statement m_update_statement;
-	SQLINTEGER m_update_row_count;
+	SQLLEN m_update_row_count;
 	statement m_delete_statement;
-	SQLINTEGER m_delete_row_count;
+	SQLLEN m_delete_row_count;
 	statement m_insert_statement;
 };
 

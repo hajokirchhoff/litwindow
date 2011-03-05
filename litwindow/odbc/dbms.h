@@ -42,7 +42,7 @@ namespace litwindow {
 		protected:
 			mutable vector<sql_type_info_result_set> m_type_info; // lazy evaluation, thus -> mutable
 		public:
-			tstring get_type_for(connection *ds, SQLSMALLINT data_type, SQLINTEGER length) const;
+			tstring get_type_for(connection *ds, SQLSMALLINT data_type, SQLLEN length) const;
 		};
 
 		/** Base DBMS strategy class */
@@ -141,7 +141,7 @@ namespace litwindow {
 			/// return the closest C data type for the SQL data type
 			virtual SQLSMALLINT sql_to_c_type(SQLSMALLINT sql_type) const = 0;
 			/// return a string that can be used for a column type in a create table statement
-			virtual tstring sql_to_create_table_name(connection *ds, SQLSMALLINT sql_type, SQLINTEGER length) const = 0;
+			virtual tstring sql_to_create_table_name(connection *ds, SQLSMALLINT sql_type, SQLLEN length) const = 0;
 
 			const map<tstring, tstring> &macros() const { return m_macros; }
 
@@ -219,7 +219,7 @@ namespace litwindow {
 			}
 
 			SQLSMALLINT sql_to_c_type(SQLSMALLINT sql_type) const;
-			virtual tstring sql_to_create_table_name(connection *ds, SQLSMALLINT sql_type, SQLINTEGER length) const;
+			virtual tstring sql_to_create_table_name(connection *ds, SQLSMALLINT sql_type, SQLLEN length) const;
 
 			virtual tstring get_sql_for(standard_sql_statement s) const;
 		protected:

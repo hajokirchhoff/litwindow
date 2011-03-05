@@ -378,7 +378,7 @@ sqlreturn binder::binder_lists::put()
 
 struct reset_intermediate_buffer_pointers 
 {
-	reset_intermediate_buffer_pointers(const unsigned char *buffer, SQLUINTEGER size)
+	reset_intermediate_buffer_pointers(const unsigned char *buffer, SQLULEN size)
 	{
 		begin_ptr=buffer;
 		if (buffer)
@@ -395,6 +395,11 @@ struct reset_intermediate_buffer_pointers
 	void operator()(SQLINTEGER * &p) const
 	{
 		if  ((const unsigned char*)p>=begin_ptr && (const unsigned char*)p<end_ptr)
+			p=0;
+	}
+	void operator()(SQLLEN * &p) const
+	{
+		if ((const unsigned char*)p>=begin_ptr && (const unsigned char*)p<end_ptr)
 			p=0;
 	}
 };
@@ -469,7 +474,7 @@ sqlreturn binder::binder_lists::prepare_binding(statement &s, bool bind_as_colum
 	m_intermediate_buffer.reset(m_intermediate_buffer_size>0 ? new unsigned char[m_intermediate_buffer_size] : 0);
 	unsigned char *buffer=m_intermediate_buffer.get();
 	m_needs_get=m_needs_put=false;
-	SQLUINTEGER size_left=m_intermediate_buffer_size;
+	SQLULEN size_left=m_intermediate_buffer_size;
 	for (i=0; i<m_elements.size() && rc.ok(); ++i) {
 		bind_task &b(m_elements[i]);
 		if (b.m_bind_info.m_helper && b.m_bind_info.m_target_ptr==0 && b.m_bind_info.m_target_size>0) {
@@ -695,7 +700,7 @@ namespace {
     {
         // unfortunately for us, uuid stores the uuid bytes in a different order
         // than used by ODBC (under Windows at least)
-        virtual SQLUINTEGER prepare_bind_buffer(data_type_info &info, statement &s, bind_type bind_howto) const
+        virtual SQLULEN prepare_bind_buffer(data_type_info &info, statement &s, bind_type bind_howto) const
         {
             info.m_target_ptr=0;
             info.m_target_size=16;
@@ -745,10 +750,10 @@ namespace {
 
 struct tstring_bind_helper:public extended_bind_helper
 {
-	virtual SQLUINTEGER prepare_bind_buffer(data_type_info &info, statement &s, bind_type bind_howto) const
+	virtual SQLULEN prepare_bind_buffer(data_type_info &info, statement &s, bind_type bind_howto) const
 	{
 		SQLSMALLINT pos=info.m_position;
-		SQLUINTEGER sz;
+		SQLULEN sz;
 		info.m_target_ptr=0;	// tell the binder we need an intermediate buffer
 		sqlreturn rc;
 		if (bind_howto==bindto) {

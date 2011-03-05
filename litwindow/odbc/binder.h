@@ -63,18 +63,18 @@ struct column_descriptor {
 
 	tstring         m_name;         ///< the name of the column as returned by ODBC
 	SQLSMALLINT		m_sql_type;     ///< the SQL_TYPE of the column
-	SQLUINTEGER		m_column_size;///< the size of the column
+	SQLULEN			m_column_size;///< the size of the column
 	SQLSMALLINT		m_decimal;      ///< the count of decimal digits
 	SQLSMALLINT		m_nullable;     ///< is the column nullable
 
 	SQLSMALLINT		m_position;		///< the column position in a result set
 	bool				m_case_sensitive; ///< true if name comparison is case sensitive, false otherwise
 	bool				m_auto_unique_value; ///< true if column is assigned a unique value on insert
-	SQLINTEGER		m_updatable;
-	SQLINTEGER		m_searchable;
-	SQLINTEGER		m_octet_length;
-	SQLINTEGER		m_unsigned;
-	SQLINTEGER		m_char_octet_length;	///< maximum length of a VARCHAR or binary column if supported by the driver or -1 if not
+	SQLLEN			m_updatable;
+	SQLLEN			m_searchable;
+	SQLLEN			m_octet_length;
+	SQLLEN			m_unsigned;
+	SQLLEN			m_char_octet_length;	///< maximum length of a VARCHAR or binary column if supported by the driver or -1 if not
 
 	bool			operator ==(const tstring &name) const
 	{
@@ -120,7 +120,7 @@ struct bind_descriptor {
 
 	SQLSMALLINT     m_c_type;       ///< the C_TYPE of the target
 	SQLPOINTER      m_target_ptr;   ///< a pointer to the target buffer
-	SQLUINTEGER      m_target_size;  ///< the size of the target buffer
+	SQLULEN			m_target_size;  ///< the size of the target buffer
 	SQLLEN*         m_len_ind_p;    ///< pointer to the length/indicator buffer
 	bool	m_reset_len_ind_to_SQL_NTS_after_execute;	///< if true, len_ind will be set to SQL_NTS for a non-output parameter
 
@@ -156,7 +156,7 @@ extern LWODBC_API data_type_info  no_column;
 struct extended_bind_helper
 {
 	/// prepare data_type_info @p info for binding and return the size of the intermediate buffer required by this column
-	virtual SQLUINTEGER prepare_bind_buffer(data_type_info &info, statement &s, bind_type bind_howto) const = 0;
+	virtual SQLULEN prepare_bind_buffer(data_type_info &info, statement &s, bind_type bind_howto) const = 0;
 	/// get the data from the statement
 	virtual sqlreturn get_data(data_type_info &info, statement &s) const = 0;
 	/// copy data to the column buffer
@@ -323,7 +323,7 @@ protected:
 		size_t	m_version;
 		bind_tasks_t m_elements;
 		vector<bind_task*> m_index;
-		SQLUINTEGER m_intermediate_buffer_size;
+		SQLULEN m_intermediate_buffer_size;
 		boost::shared_array<unsigned char> m_intermediate_buffer;
 		/// reset the state of BIND_TASK (not COLUMN!!!) at 'pos'
 		sqlreturn reset_bind_task_state(size_t pos, SQLINTEGER len_ind) throw();

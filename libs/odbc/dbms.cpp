@@ -403,7 +403,7 @@ namespace litwindow {
 			}
 			return rc;
 		}
-		tstring dbms_generic::sql_to_create_table_name(connection *ds, SQLSMALLINT sql_type, SQLINTEGER length) const
+		tstring dbms_generic::sql_to_create_table_name(connection *ds, SQLSMALLINT sql_type, SQLLEN length) const
 		{
 			SQLSMALLINT original_sql_type=sql_type;
 			tstring rc;
@@ -617,7 +617,7 @@ namespace litwindow {
 			dbms_base::do_register	firebird(dbms_firebird::can_handle_, dbms_firebird::construct);
 		};
 		
-		tstring dbms_type_mapper::get_type_for(connection *ds, SQLSMALLINT data_type, SQLINTEGER length) const
+		litwindow::tstring dbms_type_mapper::get_type_for( connection *ds, SQLSMALLINT data_type, SQLLEN length ) const
 		{
 			if (m_type_info.empty()) {
 				odbc::catalog c(*ds);

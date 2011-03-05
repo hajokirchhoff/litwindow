@@ -8,6 +8,6 @@
 	>
 	<Tool
 		Name="VCLinkerTool"
-		AdditionalLibraryDirectories="$(SolutionDir)..\stage\lib"
+		AdditionalLibraryDirectories="$(OutDir)"
 	/>
 </VisualStudioPropertySheet>

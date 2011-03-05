@@ -230,7 +230,7 @@ public:
 	{
 		return get_dbms()->sql_to_c_type(sql_type);
 	}
-	tstring LWODBC_API sql_to_create_table_name(SQLSMALLINT sql_type, SQLINTEGER length)
+	tstring LWODBC_API sql_to_create_table_name(SQLSMALLINT sql_type, SQLLEN length)
 	{
 		return get_dbms()->sql_to_create_table_name(this, sql_type, length);
 	}

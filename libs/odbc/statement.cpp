@@ -492,7 +492,7 @@ const sqlreturn &statement::get_attr(SQLINTEGER attribute, SQLUINTEGER &value)
 	return m_last_error=SQLGetStmtAttr(handle(), attribute, (SQLPOINTER)&value, SQL_IS_UINTEGER, 0);
 }
 
-sqlreturn statement::get_row_count(SQLINTEGER &rcount)
+sqlreturn statement::get_row_count(SQLLEN &rcount)
 {
 	rcount=-1;
 	return m_last_error=SQLRowCount(handle(), &rcount);
@@ -689,19 +689,19 @@ const sqlreturn &statement::get_column_attr(SQLSMALLINT pos, SQLSMALLINT field, 
 
 const sqlreturn &statement::get_column_attr(SQLSMALLINT pos, SQLSMALLINT field, bool &value)
 {
-	SQLINTEGER v=SQL_FALSE;
+	SQLLEN v=SQL_FALSE;
 	m_last_error=get_column_attr(pos, field, v);
 	if (m_last_error.ok())
 		value= v==SQL_TRUE;
 	return m_last_error;
 }
 
-const sqlreturn &statement::get_column_attr(SQLSMALLINT pos, SQLSMALLINT field, SQLINTEGER &value)
+const sqlreturn &statement::get_column_attr(SQLSMALLINT pos, SQLSMALLINT field, SQLLEN &value)
 {
 	return m_last_error=SQLColAttribute(handle(), pos, field, 0, 0, 0, &value);
 }
 
-sqlreturn statement::get_column_size(SQLSMALLINT pos, SQLUINTEGER &column_size) const
+sqlreturn statement::get_column_size( SQLSMALLINT pos, SQLULEN &column_size ) const
 {
 	sqlreturn rc=is_column_valid(pos);
 	if (rc.ok())
