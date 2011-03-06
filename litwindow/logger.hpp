@@ -422,7 +422,7 @@ namespace litwindow {
 				component_type	component() const { return component_type(m_component); }
 				topic_type		topic() const { return topic_type(m_topic); }
 				level_type		level() const { return level_type(m_level); }
-				void			index(size_t new_index) { m_index=new_index; }
+				void			index(size_t new_index) { m_index=unsigned long(new_index); }
 				size_t			index() const { return m_index; }
 				timestamp_type	timestamp() const { return m_timestamp; }
 				size_t          full_size_in_bytes() const 
@@ -531,11 +531,11 @@ namespace litwindow {
 			/// specify flush period: write to sink after a timespan of \p p
 			void sync_period(timestamp_type p)		{ m_sync_period=p; }
 
-			void    level(const level_type &lvl)		{ current_entry()->m_level=lvl.index(); }
+			void    level(const level_type &lvl)		{ current_entry()->m_level=unsigned short(lvl.index()); }
 			size_t  level() const					{ return m_current_entry->m_level; }
-			void    topic(const topic_type &t)		{ current_entry()->m_topic=t.index(); }
+			void    topic(const topic_type &t)		{ current_entry()->m_topic=(unsigned short)t.index(); }
 			size_t  topic() const					{ return m_current_entry->m_topic; }
-			void	component(const component_type &c)	{ current_entry()->m_component=c.index(); }
+			void	component(const component_type &c)	{ current_entry()->m_component=(unsigned short)c.index(); }
 			size_t	component() const				{ return m_current_entry->m_component; }
 			void	instance(const instance_type &i){ current_entry()->m_instance=i.index(); }
 
@@ -614,7 +614,7 @@ namespace litwindow {
 			void end_entry()
 			{
 				if (m_current_entry) {
-					off_t total=count();
+					off_t total=(off_t)count();
 					if (total>0) {
 						++m_log_count_since_last_sync;
 						m_current_entry->m_length=(unsigned short)total;

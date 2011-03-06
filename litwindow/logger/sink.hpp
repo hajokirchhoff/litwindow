@@ -210,7 +210,7 @@ namespace litwindow {
                         while (reinterpret_cast<const unsigned char*>(n)+sizeof(_Elem)<=end_ptr()) {
                             *n++=*f++;
                         }
-                        copy_e.m_length=f-e.begin_data();
+                        copy_e.m_length=unsigned short(f-e.begin_data());
                         m_next=end_ptr();
                     } else {
                         memcpy(m_next, &e, e.full_size_in_bytes());
