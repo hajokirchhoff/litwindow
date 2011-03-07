@@ -397,11 +397,13 @@ struct reset_intermediate_buffer_pointers
 		if  ((const unsigned char*)p>=begin_ptr && (const unsigned char*)p<end_ptr)
 			p=0;
 	}
+#ifdef _WIN64
 	void operator()(SQLLEN * &p) const
 	{
 		if ((const unsigned char*)p>=begin_ptr && (const unsigned char*)p<end_ptr)
 			p=0;
 	}
+#endif
 };
 sqlreturn binder::binder_lists::prepare_binding(statement &s, bool bind_as_columns, size_t columns_to_expect)
 {
