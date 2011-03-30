@@ -347,7 +347,9 @@ namespace litwindow {
 			template <typename ResultSet, typename Fnc>
 			void visit(ResultSet* rc, size_t idx, Fnc f) const
 			{
-				rc->push_back(f(value_at(idx)));
+				//back_inserter(*rc)= f(value_at(idx));
+				inserter(*rc, rc->end()) = f(value_at(idx));
+				//rc->push_back(f(value_at(idx)));
 			}
 			template <typename Fnc, typename ResultSet>
 			void get_selection(Fnc f, ResultSet &r) const
