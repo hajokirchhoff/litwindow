@@ -137,7 +137,7 @@ namespace litwindow {
 				wxListItem it;
 				it.SetText(d.title());
 				it.SetWidth(d.width());
-				c->InsertColumn(idx, it);
+				c->InsertColumn(static_cast<long>(idx), it);
 			}
 			void set_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d) 
 			{
@@ -145,11 +145,11 @@ namespace litwindow {
 				it.SetText(d.title());
 				it.SetWidth(d.width());
 				it.SetAlign(wxLIST_FORMAT_LEFT);
-				c->SetColumn(idx, it);
+				c->SetColumn(static_cast<long>(idx), it);
 			}
 			void remove_column(uicontrol_type *c, size_t idx) 
 			{
-				c->DeleteColumn(idx);
+				c->DeleteColumn(static_cast<long>(idx));
 			}
 			void remove_all_rows(uicontrol_type *c)
 			{
@@ -173,8 +173,8 @@ namespace litwindow {
 				if (current!=idx) {
 					for_each_selected(ctrl, boost::bind(&uicontrol_type::SetItemState, ctrl, _1, 0, wxLIST_STATE_SELECTED));
 					if (idx<(size_t)ctrl->GetItemCount()) {
-						ctrl->SetItemState(idx, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
-						ctrl->EnsureVisible(idx);
+						ctrl->SetItemState(static_cast<long>(idx), wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+						ctrl->EnsureVisible(static_cast<long>(idx));
 					}
 				}
 			}
@@ -217,7 +217,7 @@ namespace litwindow {
 			template <typename Mediator>
 			void refresh_rows(Mediator &m, typename Mediator::uicontrol_type *ctrl)
 			{
-				ctrl->SetItemCount(m.get_item_count());
+				ctrl->SetItemCount((long)m.get_item_count());
 			}
 		};
 
@@ -290,18 +290,18 @@ namespace litwindow {
 			size_t column_count(uicontrol_type *c) const { return c->GetColumnCount(); }
 			void insert_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d)
 			{
-				wxDataViewColumn *new_column=new wxDataViewColumn(d.title(), new wxDataViewTextRenderer(), idx, d.width(), wxALIGN_LEFT);
-				c->InsertColumn(idx, new_column);
+				wxDataViewColumn *new_column=new wxDataViewColumn(d.title(), new wxDataViewTextRenderer(), static_cast<long>(idx), d.width(), wxALIGN_LEFT);
+				c->InsertColumn(static_cast<long>(idx), new_column);
 			}
 			void set_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d) 
 			{
-				wxDataViewColumn *col=c->GetColumn(idx);
+				wxDataViewColumn *col=c->GetColumn(static_cast<long>(idx));
 				col->SetTitle(d.title());
 				col->SetWidth(d.width());
 			}
 			void remove_column(uicontrol_type *c, size_t idx) 
 			{
-				c->DeleteColumn(c->GetColumn(idx));
+				c->DeleteColumn(c->GetColumn(static_cast<long>(idx)));
 			}
 		};
 #pragma endregion wxDataViewCtrl policies

@@ -112,7 +112,7 @@ namespace litwindow {
             //~wxListCtrl_list_adapter() { if (m_ctrl) m_ctrl->on_get_item_text.clear(); }
             size_t column_count() const { return wnd()->GetColumnCount(); }
             size_t item_count() const { return wnd()->GetItemCount(); }
-            void set_item_count(size_t new_count) { wnd()->SetItemCount(new_count); }
+            void set_item_count(size_t new_count) { wnd()->SetItemCount(static_cast<long>(new_count)); }
             template <typename ColumnsAdapter>
             void setup_columns(const ColumnsAdapter &d) const
             {

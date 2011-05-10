@@ -87,7 +87,7 @@ namespace litwindow { namespace wx {
         void add_to_menu(size_t index)
         {
             if (m_menu) {
-                wxMenuItem *item=m_menu->FindItem(m_start_id+index);
+                wxMenuItem *item=m_menu->FindItem(m_start_id+(int)index);
                 if (item==0) {
                     // no item yet, need to create one
                     size_t insert_position=0;
@@ -106,7 +106,7 @@ namespace litwindow { namespace wx {
                         }
                     } else
                         insert_position=m_menu->GetMenuItemCount();
-                    item=m_menu->Insert(insert_position, m_start_id+index, m_values[index].second);
+                    item=m_menu->Insert(insert_position, m_start_id+(int)index, m_values[index].second);
                 }
                 set_menu(index, item);
             }
@@ -124,14 +124,14 @@ namespace litwindow { namespace wx {
         void set_menu(size_t index)
         {
             if (m_menu) {
-                wxMenuItem *item=m_menu->FindItem(m_start_id+index);
+                wxMenuItem *item=m_menu->FindItem(m_start_id+(int)index);
                 set_menu(index, item);
             }
         }
         void remove_menu(size_t index)
         {
             if (m_menu) {
-                m_menu->Destroy(m_start_id+index);
+                m_menu->Destroy(m_start_id+(int)index);
             }
         }
         std::vector<std::pair<Value, wxString> > m_values;
