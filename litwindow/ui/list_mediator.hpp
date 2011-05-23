@@ -181,6 +181,8 @@ namespace litwindow {
 			const_iterator begin(container_type &c) const { return handles(c).begin(); }
 			const_iterator end(container_type &c) const { return handles(c).end(); }
 
+			value_type &at_handle(handle_type &h) const { return handle_to_value(h); }
+			const value_type &at_handle(const handle_type &h) const { return handle_to_value(h); }
 			value_type &at(container_type &c, size_t idx) { return handle_to_value(handles(c).at(idx)); }
 			const value_type &at(const container_type &c, size_t idx) const { return handle_to_value(handles(c).at(idx)); }
 			const handle_type &handle_at(const container_type &c, size_t idx) const { return handles(c).at(idx); }
@@ -327,6 +329,9 @@ namespace litwindow {
 			const_iterator begin() const { return m_container_policies.begin(*m_container); }
 			const_iterator end() const { return m_container_policies.end(*m_container); }
 			//@}
+			value_type &value_at_handle(handle_type &h) const { return m_container_policies.at_handle(h); }
+			const value_type &value_at_handle(const handle_type &h) const { return m_container_policies.at_handle(h); }
+			handle_type get_selection_handle() const { return has_selection() ? handle_at(get_selection_index()) : handle_type(); }
 
 			value_type &value_at(size_t idx) { return m_container_policies.at(*m_container, idx); }
 			const value_type &value_at(size_t idx) const { return m_container_policies.at(*m_container, idx); }
