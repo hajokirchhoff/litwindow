@@ -21,7 +21,8 @@
 #include <wx/tokenzr.h>
 #include <wx/window.h>
 
-DECLARE_EXPORTED_EVENT_TYPE(LWWX_API, lwEVT_COMMIT_PHASE, 0);
+wxDECLARE_EXPORTED_EVENT(LWWX_API, lwEVT_COMMIT_PHASE, wxCommandEvent);
+wxDECLARE_EXPORTED_EVENT(LWWX_API, lwEVT_VALUES_CHANGED, wxCommandEvent);
 
 namespace litwindow {
 
@@ -38,7 +39,7 @@ class LWWX_API RapidUI;
 typedef void (*rules_function_t)(RapidUI &);
 //LWWX_STL_VECTOR_EXPORT(rules_function_t);
 
-class LWWX_API RapidUI:public symbol_table_interface
+class LWWX_API RapidUI:public wxEvtHandler, public symbol_table_interface
 {
 public:
 

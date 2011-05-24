@@ -196,6 +196,7 @@ litwindow/result.hpp -text
 litwindow/tchar.h -text
 litwindow/tstring.hpp -text
 litwindow/ui/basic_list_mediator.hpp -text
+litwindow/ui/edit_mediator.hpp -text
 litwindow/ui/list_mediator.hpp -text
 litwindow/wx/action_objects.h -text
 litwindow/wx/basic_list_mediator.hpp -text
