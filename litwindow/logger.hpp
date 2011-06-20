@@ -28,6 +28,7 @@
 #ifdef LITWINDOW_LOGGER_MUTEX
 #include <boost/thread/mutex.hpp>
 #endif
+#include <boost/lexical_cast.hpp>
 
 #ifdef max
 #undef max
@@ -258,7 +259,10 @@ namespace litwindow {
 				:m_instance(next_instance_value())
 				,m_source_id(get_thread_process_id())
 			{}
+			explicit basic_instance(unsigned int i)
+				:m_instance(i){}
 			unsigned int	index() const { return m_instance; }
+			std::basic_string<_Elem> str() const { return boost::lexical_cast<std::basic_string<_Elem> >(index()); }
 		private:
 			static int next_instance_value()
 			{
@@ -422,6 +426,7 @@ namespace litwindow {
 				component_type	component() const { return component_type(m_component); }
 				topic_type		topic() const { return topic_type(m_topic); }
 				level_type		level() const { return level_type(m_level); }
+				instance_type	instance() const { return instance_type(m_instance); }
 				void			index(size_t new_index) { m_index=unsigned long(new_index); }
 				size_t			index() const { return m_index; }
 				timestamp_type	timestamp() const { return m_timestamp; }
@@ -538,6 +543,7 @@ namespace litwindow {
 			void	component(const component_type &c)	{ current_entry()->m_component=(unsigned short)c.index(); }
 			size_t	component() const				{ return m_current_entry->m_component; }
 			void	instance(const instance_type &i){ current_entry()->m_instance=i.index(); }
+			unsigned int instance() const			{ return m_current_entry->m_instance; }
 
 			virtual int sync()
 			{
@@ -677,6 +683,10 @@ namespace litwindow {
 			{
 				m_rdbuf.component(component); return *this;
 			}
+			_Myt &put_instance(const instance_type &instance)
+			{
+				m_rdbuf.instance(instance); return *this;
+			}
 		protected:
 			_Streambuf m_rdbuf;
 
@@ -701,6 +711,7 @@ namespace litwindow {
 			void put_level(_Stream &stream, const level_type &l) { stream << l.str() << details::sep<char_type>(); }
 			void put_component(_Stream &stream, const component_type &c) { stream << c.str() << details::sep<char_type>(); }
 			void put_topic(_Stream &stream, const topic_type &t) { stream << t.str() << details::sep<char_type>(); }
+			void put_instance(_Stream &stream, const instance_type &i) { stream << i.str() << details::sep<char_type>(); }
 		};
 		template <typename _Elem>
 		struct stream_traits<basic_logstream<_Elem> >
@@ -718,6 +729,7 @@ namespace litwindow {
 			void put_level(stream_type &stream, const level_type &l) { stream.put_level(l); }
 			void put_component(stream_type &stream, const component_type &c) { stream.put_component(c); }
 			void put_topic(stream_type &stream, const topic_type &t) { stream.put_topic(t); }
+			void put_instance(stream_type &stream, const instance_type &i) { stream.put_instance(i); }
 		};
 		// ---------------------------------------------------------------------------------------------
 
@@ -946,6 +958,7 @@ namespace litwindow {
 						m_stream_traits.put_level(stream(), m_level);
 						m_stream_traits.put_component(stream(), m_component);
 						m_stream_traits.put_topic(stream(), m_topic);
+						m_stream_traits.put_instance(stream(), m_instance);
 					} else
 						--m_ignore_begin_end_count;
 				}
