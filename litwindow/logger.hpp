@@ -27,6 +27,8 @@
 #endif
 #ifdef LITWINDOW_LOGGER_MUTEX
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/tss.hpp>
+
 #endif
 #include <boost/lexical_cast.hpp>
 
@@ -655,6 +657,7 @@ namespace litwindow {
 			{
 			}
 			_Streambuf *rdbuf() { return &m_rdbuf; }
+			const _Streambuf *rdbuf() const { return &m_rdbuf; }
 			void sink(sink_type *newsink) { rdbuf()->sink(newsink); }
 			sink_type *sink() const { return rdbuf()->sink(); }
 
@@ -705,6 +708,7 @@ namespace litwindow {
 			typedef basic_logsink<char_type> sink_type;
 			typedef basic_instance<char_type> instance_type;
 			void set_sink(_Stream &stream, basic_logsink<char_type> *s) { }
+			basic_logsink<char_type> *get_sink(const _Stream &) const { return 0; }
 			void lbegin(_Stream &stream) { }
 			void lend(_Stream &stream) { }
 
@@ -724,6 +728,7 @@ namespace litwindow {
 			typedef basic_logsink<char_type> sink_type;
 			typedef basic_instance<char_type> instance_type;
 			void set_sink(stream_type &stream, typename stream_type::sink_type *s) { stream.sink(s); }
+			typename stream_type::sink_type *get_sink(const stream_type &stream) const { return stream.sink(); }
 			void lbegin(stream_type &stream) { stream.begin_entry(); }
 			void lend(stream_type &stream) { stream.end_entry(); }
 			void put_level(stream_type &stream, const level_type &l) { stream.put_level(l); }
@@ -742,6 +747,8 @@ namespace litwindow {
 		>
 		class basic_events:public _Outstream
 		{
+		public:
+			typedef _Outstream Inherited;
 			typedef basic_events<_Elem, _Outstream, _Streamtraits> _Myt;
 			typedef _Elem char_type;
 			typedef _Outstream outstream_type;
@@ -754,6 +761,7 @@ namespace litwindow {
 			typedef basic_topic<char_type> topic_type;
 			typedef basic_logsink<char_type> sink_type;
 			typedef basic_instance<char_type> instance_type;
+		private:
 			bool m_enabled;
 			outstream_traits m_stream_traits;
 		public:
@@ -844,6 +852,17 @@ namespace litwindow {
 				reset_tags_to_default();
 				sink(&target);
 			}
+			basic_events(const basic_events &e)
+				:m_default_component(e.m_default_component), m_component(e.m_component)
+				,m_default_topic(e.m_default_topic), m_topic(e.m_topic)
+				,m_default_level(e.m_default_level), m_level(e.m_level)
+				,m_enabled(e.m_enabled), m_ignore_begin_end_count(0), m_open_count(0)
+				,m_instance(e.m_instance)
+				,m_stream_traits(e.m_stream_traits)
+			{
+				sink(e.sink());
+			}
+
 			void enabled(bool enabled) { m_enabled=enabled; }
             bool enabled() const { return m_enabled; }
             void enable() { enabled(true); }
@@ -861,6 +880,7 @@ namespace litwindow {
 			}
 
 			_Outstream &stream() { return *this; }
+			const _Outstream &stream() const { return *this; }
 
 			operator bool() const { return m_enabled; }
 
@@ -913,6 +933,10 @@ namespace litwindow {
 			void sink(sink_type *s)
 			{
 				m_stream_traits.set_sink(stream(), s);
+			}
+			sink_type *sink() const
+			{
+				return m_stream_traits.get_sink(stream());
 			}
 
 			_Myt &level(const level_type &l)
@@ -1015,6 +1039,44 @@ namespace litwindow {
 
 		typedef basic_events<char> events;
 		typedef basic_events<wchar_t> wevents;
+		namespace threadsafe {
+			template <typename _Events>
+			struct basic_threadsafe_events
+			{
+				typedef _Events events_type;
+				boost::thread_specific_ptr<_Events> m_evt_ptr;
+				_Events m_default;
+				_Events &get_default() { return m_default; }
+				_Events &get() 
+				{ 
+					if (m_evt_ptr.get()==0) 
+						m_evt_ptr.reset(new _Events(m_default)); 
+					return *m_evt_ptr; 
+				}
+				basic_threadsafe_events()
+				{
+				}
+				basic_threadsafe_events(const basic_threadsafe_events &evt)
+					:m_default(evt.m_default)
+				{
+				}
+				events_type &operator &&(typename events_type::logmanipulator l)
+				{
+					return get() && l;
+				}
+				template <typename Value>
+				typename events_type::inserter operator &&(const Value &v)
+				{
+					return get() && l;
+				}
+				void sink(typename events_type::sink_type *s)
+				{
+					get().sink(s);
+				}
+			};
+			typedef basic_threadsafe_events<events> events;
+			typedef basic_threadsafe_events<wevents> wevents;
+		}
 
 		/*!\page litwindow_logger Logging: recording events and states.
 		* Copyright 2009 Hajo Kirchhoff, Lit Window Productions - Kirchhoff-IT Consulting, www.litwindow.com

@@ -3,6 +3,7 @@
 #include <boost/test/auto_unit_test.hpp>
 #include "litwindow/logger.hpp"
 #include "litwindow/logger/sink.hpp"
+#include "boost/thread/thread.hpp"
 
 #define new DEBUG_NEW
 
@@ -119,12 +120,25 @@ BOOST_AUTO_TEST_CASE(simple_log_level)
 	wostream_logsink sink(s);
 	sink.format().timestamp=false;
 	sink.format().level=false;
-    wevents e;
-	e.sink(&sink);
+	threadsafe::wevents e;
+	e.get_default().sink(&sink);
     e && debug && L"This is a test with number " && 800;
     e && warning && L"Some more tests.";
+	struct run_in_thread_t 
+	{
+		threadsafe::wevents m_e;
+		run_in_thread_t(threadsafe::wevents &e):m_e(e){}
+		void operator()()
+		{
+			m_e && debug && L"This from inside the thread" && 900;
+		}
+	};
+	run_in_thread_t call_rit(e);
+	wstring rc_a(s.str());
+	boost::thread trd(call_rit);
+	trd.join();
 	wstring rc(s.str());
-	BOOST_CHECK(rc==wstring(L"\t\tThis is a test with number 800\n\t\tSome more tests.\n"));
+	BOOST_CHECK(rc==wstring(L"\t\tThis is a test with number 800\n\t\tSome more tests.\n\t\tThis from inside the thread900\n"));
 }
 
 BOOST_AUTO_TEST_CASE(simple_stderr_log)
