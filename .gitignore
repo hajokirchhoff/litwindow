@@ -49,6 +49,7 @@ libs/lwwx/samples/Debug
 libs/lwwx/samples/DebugOptimize
 libs/lwwx/samples/Release
 libs/lwwx/samples/generic_list_mediator/Debug
+libs/lwwx/samples/generic_list_mediator/Debug[!!-~]static
 libs/lwwx/samples/generic_list_mediator/DebugOptimize
 libs/lwwx/samples/generic_list_mediator/Release
 libs/lwwx/samples/generic_list_mediator/VCProjectUnicodeDebug
