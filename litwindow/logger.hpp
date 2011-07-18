@@ -1044,6 +1044,8 @@ namespace litwindow {
 			struct basic_threadsafe_events
 			{
 				typedef _Events events_type;
+				typedef typename events_type::char_type char_type;
+				typedef typename events_type::sink_type sink_type;
 				boost::thread_specific_ptr<_Events> m_evt_ptr;
 				_Events m_default;
 				_Events &get_default() { return m_default; }
@@ -1060,14 +1062,35 @@ namespace litwindow {
 					:m_default(evt.m_default)
 				{
 				}
+				basic_threadsafe_events(
+					const char_type *c,
+					const char_type *t=default_topic<char_type>().str().c_str(),
+					enable_state is_enabled=logger::enabled,
+					sink_type &target=*default_sink<char_type>()
+					)
+					:m_default(c, t, is_enabled, target)
+				{
+				}
 				events_type &operator &&(typename events_type::logmanipulator l)
 				{
 					return get() && l;
 				}
+				events_type &operator &&(const typename events_type::component_type &c)
+				{
+					return get().component(c);
+				}
+				events_type &operator &&(const typename events_type::level_type &l)
+				{
+					return get().level(l);
+				}
+				events_type &operator &&(const typename events_type::topic_type &t)
+				{
+					return get().topic(t);
+				}				
 				template <typename Value>
 				typename events_type::inserter operator &&(const Value &v)
 				{
-					return get() && l;
+					return get() && v;
 				}
 				void sink(typename events_type::sink_type *s)
 				{
