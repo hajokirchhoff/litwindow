@@ -15,6 +15,7 @@ namespace litwindow { namespace ui {
 		boost::signal<void(bool)> enable_edit;
 		virtual void set_value(const value_type &v) = 0;
 		virtual void get_value(value_type &v) = 0;
+		virtual void readonly(bool do_readonly) = 0;
 
 		virtual ~basic_edit_mediator() {}
 	};
@@ -32,12 +33,15 @@ namespace litwindow { namespace ui {
 		void selection_changed(list_mediator_t *mediator, handle_type selection);
 		void selection_cleared(list_mediator_t *mediator);
 		void update_selection(list_mediator_t *mediator);
+		void readonly(bool do_readonly);
+		bool readonly() const;
 
 		list_edit_mediator()
-			:m_position_valid(false),m_mediator(0){}
+			:m_position_valid(false),m_mediator(0),m_readonly(false){}
 	private:
 		handle_type m_position;
 		bool m_position_valid;
+		bool m_readonly;
 		list_mediator_t *m_mediator;
 	};
 
@@ -46,19 +50,34 @@ namespace litwindow { namespace ui {
 	template <typename ListMediator>
 	void list_edit_mediator<ListMediator>::selection_changed(list_mediator_t *mediator, handle_type selection)
 	{
-		if (!m_position_valid)
-			enable_edit(true);
+		bool oldreadonly(readonly());
 		m_mediator=mediator;
 		m_position_valid=true;
 		m_position=selection;
+		if (oldreadonly!=readonly())
+			enable_edit(!readonly());
 		begin_edit();
+	}
+	template <typename ListMediator>
+	bool list_edit_mediator<ListMediator>::readonly() const
+	{
+		return !m_position_valid || m_readonly;
+	}
+	template <typename ListMediator>
+	void list_edit_mediator<ListMediator>::readonly(bool do_readonly)
+	{
+		bool oldreadonly(readonly());
+		m_readonly=do_readonly;
+		if (oldreadonly!=readonly())
+			enable_edit(!readonly());
 	}
 	template <typename ListMediator>
 	void list_edit_mediator<ListMediator>::selection_cleared(list_mediator_t *mediator)
 	{
-		if (m_position_valid)
-			enable_edit(false);
+		bool oldreadonly(readonly());
 		m_position_valid=false;
+		if (oldreadonly!=readonly())
+			enable_edit(!readonly());
 		m_mediator=mediator;
 	}
 	template <typename ListMediator>
