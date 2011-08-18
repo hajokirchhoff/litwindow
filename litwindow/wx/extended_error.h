@@ -4,6 +4,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <strstream>
 #include <boost/exception/all.hpp>
 
 namespace litwindow { namespace wx {

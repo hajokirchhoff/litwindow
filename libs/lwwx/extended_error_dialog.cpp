@@ -76,15 +76,15 @@ namespace litwindow { namespace wx {
 	bool extended_error_dialog::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 	{
 		////@begin extended_error_dialog creation
-		SetExtraStyle(wxWS_EX_BLOCK_EVENTS);
-		wxDialog::Create( parent, id, caption, pos, size, style );
+    SetExtraStyle(wxWS_EX_BLOCK_EVENTS);
+    wxDialog::Create( parent, id, caption, pos, size, style );
 
-		CreateControls();
-		if (GetSizer())
-		{
-			GetSizer()->SetSizeHints(this);
-		}
-		Centre();
+    CreateControls();
+    if (GetSizer())
+    {
+        GetSizer()->SetSizeHints(this);
+    }
+    Centre();
 		////@end extended_error_dialog creation
 		return true;
 	}
@@ -107,9 +107,11 @@ namespace litwindow { namespace wx {
 
 	void extended_error_dialog::Init()
 	{
+		m_allow_retry=false;
 		////@begin extended_error_dialog member initialisation
-		m_message = NULL;
-		m_detail = NULL;
+    m_main_sizer = NULL;
+    m_message = NULL;
+    m_detail = NULL;
 		////@end extended_error_dialog member initialisation
 	}
 
@@ -121,36 +123,41 @@ namespace litwindow { namespace wx {
 	void extended_error_dialog::CreateControls()
 	{    
 		////@begin extended_error_dialog content construction
-		extended_error_dialog* itemDialog1 = this;
+    extended_error_dialog* itemDialog1 = this;
 
-		wxBoxSizer* itemBoxSizer2 = new wxBoxSizer(wxVERTICAL);
-		itemDialog1->SetSizer(itemBoxSizer2);
+    m_main_sizer = new wxBoxSizer(wxVERTICAL);
+    itemDialog1->SetSizer(m_main_sizer);
 
-		m_message = new wxHtmlWindow( itemDialog1, ID_MESSAGE, wxDefaultPosition, wxSize(300, 100), wxHW_SCROLLBAR_AUTO|wxNO_BORDER|wxHSCROLL|wxVSCROLL );
-		itemBoxSizer2->Add(m_message, 1, wxGROW|wxALL, 5);
+    m_message = new wxHtmlWindow( itemDialog1, ID_MESSAGE, wxDefaultPosition, wxSize(300, 100), wxHW_SCROLLBAR_AUTO|wxNO_BORDER|wxHSCROLL|wxVSCROLL );
+    m_main_sizer->Add(m_message, 1, wxGROW|wxALL, 5);
 
-		wxCollapsiblePane* itemCollapsiblePane4 = new wxCollapsiblePane( itemDialog1, ID_COLLAPSIBLEPANE, _("More Info..."), wxDefaultPosition, wxDefaultSize, wxCP_DEFAULT_STYLE );
-		itemBoxSizer2->Add(itemCollapsiblePane4, 0, wxGROW, 5);
+    wxCollapsiblePane* itemCollapsiblePane4 = new wxCollapsiblePane( itemDialog1, ID_COLLAPSIBLEPANE, _("More Info..."), wxDefaultPosition, wxDefaultSize, wxCP_DEFAULT_STYLE );
+    m_main_sizer->Add(itemCollapsiblePane4, 0, wxGROW, 5);
 
-		wxBoxSizer* itemBoxSizer5 = new wxBoxSizer(wxVERTICAL);
-		itemCollapsiblePane4->GetPane()->SetSizer(itemBoxSizer5);
+    wxBoxSizer* itemBoxSizer5 = new wxBoxSizer(wxVERTICAL);
+    itemCollapsiblePane4->GetPane()->SetSizer(itemBoxSizer5);
 
-		m_detail = new wxHtmlWindow( itemCollapsiblePane4->GetPane(), ID_DETAIL, wxDefaultPosition, wxSize(-1, 150), wxHW_SCROLLBAR_AUTO|wxNO_BORDER|wxHSCROLL|wxVSCROLL );
-		itemBoxSizer5->Add(m_detail, 1, wxGROW|wxALL, 5);
-
-		wxBoxSizer* itemBoxSizer7 = new wxBoxSizer(wxHORIZONTAL);
-		itemBoxSizer2->Add(itemBoxSizer7, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
-
-		wxButton* itemButton8 = new wxButton( itemDialog1, wxID_OK, _("OK"), wxDefaultPosition, wxDefaultSize, 0 );
-		itemBoxSizer7->Add(itemButton8, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
-
-		wxButton* itemButton9 = new wxButton( itemDialog1, wxID_CANCEL, _("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
-		itemBoxSizer7->Add(itemButton9, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
-
-		wxButton* itemButton10 = new wxButton( itemDialog1, wxID_STOP, _("&Stop"), wxDefaultPosition, wxDefaultSize, 0 );
-		itemBoxSizer7->Add(itemButton10, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+    m_detail = new wxHtmlWindow( itemCollapsiblePane4->GetPane(), ID_DETAIL, wxDefaultPosition, wxSize(-1, 150), wxHW_SCROLLBAR_AUTO|wxNO_BORDER|wxHSCROLL|wxVSCROLL );
+    itemBoxSizer5->Add(m_detail, 1, wxGROW|wxALL, 5);
 
 		////@end extended_error_dialog content construction
+	m_standard_buttons = new wxStdDialogButtonSizer;
+	m_main_sizer->Add(m_standard_buttons, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+	if (allow_retry()) {
+		wxButton* itemButton8 = new wxButton( itemDialog1, wxID_YES, _("&Yes"), wxDefaultPosition, wxDefaultSize, 0 );
+		m_standard_buttons->AddButton(itemButton8);
+
+		wxButton* itemButton9 = new wxButton( itemDialog1, wxID_NO, _("&No"), wxDefaultPosition, wxDefaultSize, 0 );
+		m_standard_buttons->AddButton(itemButton9);
+	} else {
+		wxButton* itemButton8 = new wxButton( itemDialog1, wxID_OK, _("&OK"), wxDefaultPosition, wxDefaultSize, 0 );
+		m_standard_buttons->AddButton(itemButton8);
+	}
+
+	wxButton* itemButton9 = new wxButton( itemDialog1, wxID_CANCEL, _("&Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_standard_buttons->AddButton(itemButton9);
+
+    m_standard_buttons->Realize();
 	}
 
 
@@ -171,8 +178,8 @@ namespace litwindow { namespace wx {
 	{
 		// Bitmap retrieval
 		////@begin extended_error_dialog bitmap retrieval
-		wxUnusedVar(name);
-		return wxNullBitmap;
+    wxUnusedVar(name);
+    return wxNullBitmap;
 		////@end extended_error_dialog bitmap retrieval
 	}
 
@@ -184,23 +191,33 @@ namespace litwindow { namespace wx {
 	{
 		// Icon retrieval
 		////@begin extended_error_dialog icon retrieval
-		wxUnusedVar(name);
-		return wxNullIcon;
+    wxUnusedVar(name);
+    return wxNullIcon;
 		////@end extended_error_dialog icon retrieval
 	}
 
-	int extended_error_dialog::show_error_dialog( const wxString& msg, const wxString& detail )
+	int extended_error_dialog::show_error_dialog( const wxString& msg, const wxString& detail, const wxString &context, bool can_retry )
 	{
 		extended_error_dialog dlg(0);
 		dlg.SetDetails(detail);
-		dlg.SetMessage(msg);
+		wxString doMsg(msg);
+		if (can_retry) {
+			if (context.empty()==false)
+				doMsg.Append(wxString::Format(_("\nTry \"%s\" again (Yes), continue without \"%s\" (No) or Cancel?"), context));
+			else
+				doMsg.Append(_("\nTry again (Yes), continue (No) or Cancel?"));
+		}
+		dlg.SetMessage(doMsg);
+		dlg.allow_retry(can_retry);
+		if (context.empty())
+			dlg.SetTitle(wxString::Format(_("Error while \"%s\""), context));
 		int rc=dlg.ShowModal();
 		return rc;
 	}
 
-    int extended_error_dialog::show_error_dialog( const extended_error<char> &e )
+    int extended_error_dialog::show_error_dialog( const extended_error<char> &e, const wxString &context, bool can_retry)
     {
-        int rc=show_error_dialog(e.message(), e.details());
+        int rc=show_error_dialog(e.message(), e.details(), context, can_retry);
         e.was_shown();
         return rc;
     }
@@ -232,3 +249,4 @@ namespace litwindow { namespace wx {
 	}
 
 } /*namespace wx*/ } /*namespace litwindow*/
+
