@@ -339,7 +339,20 @@ namespace litwindow {
 			void set_value_at(size_t idx, const value_type &v) { m_container_policies.set_at(*m_container, idx, v); set_dirty(); }
 
 			void delete_selected_item() { remove(get_selection_index()); }
-			const value_type &get_selected_item() const { return value_at(get_selection_index()); }
+			const value_type &get_selected_item() const 
+			{ 
+				if (has_selection()==false) {
+					throw runtime_error("no item selected");
+				}
+				return value_at(get_selection_index()); 
+			}
+			value_type &get_selected_item()
+			{ 
+				if (has_selection()==false) {
+					throw runtime_error("no item selected");
+				}
+				return value_at(get_selection_index()); 
+			}
 			void modify_selected_item(const value_type &v) { set_value_at(get_selection_index(), v); }
 			void delete_all_items() { m_container_policies.clear(*m_container); set_dirty(); }
 			void append_item(const value_type &v) { m_container_policies.append(*m_container, v); set_dirty(); }
