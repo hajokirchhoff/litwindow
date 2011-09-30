@@ -13,6 +13,7 @@ namespace litwindow { namespace ui {
 		boost::signal<void()> begin_edit;
 		boost::signal<void()> end_edit;
 		boost::signal<void(bool)> enable_edit;
+		boost::signal<void(const value_type &)> value_changed;
 		virtual void set_value(const value_type &v) = 0;
 		virtual void get_value(value_type &v) = 0;
 		virtual void readonly(bool do_readonly) = 0;
@@ -94,6 +95,7 @@ namespace litwindow { namespace ui {
 	{
 		if (m_position_valid && m_mediator) {
 			m_mediator->value_at_handle(m_position)=v;
+			value_changed(v);
 			m_mediator->refresh();
 		}
 	}
