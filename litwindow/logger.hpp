@@ -1047,6 +1047,7 @@ namespace litwindow {
 				typedef typename events_type::char_type char_type;
 				typedef typename events_type::sink_type sink_type;
 				typedef typename events_type::topic_type topic_type;
+				typedef typename events_type::component_type component_type;
 				boost::thread_specific_ptr<_Events> m_evt_ptr;
 				_Events m_default;
 				_Events &get_default() { return m_default; }
@@ -1101,6 +1102,12 @@ namespace litwindow {
 				{
 					get_default().set_default_topic(t);
 					get().set_default_topic(t);
+				}
+				template <typename ValueType>
+				void set_default_component(ValueType c)
+				{
+					get_default().set_default_component(component_type(c));
+					get().set_default_component(component_type(c));
 				}
 			};
 			typedef basic_threadsafe_events<events> events;
