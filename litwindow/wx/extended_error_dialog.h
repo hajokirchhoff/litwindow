@@ -21,6 +21,7 @@
 #include "wx/html/htmlwin.h"
 #include "wx/collpane.h"
 ////@end includes
+#include <wx/dialog.h>
 #include "litwindow/wx/extended_error.h"
 #include "litwindow/wx/lwwx.h"
 
