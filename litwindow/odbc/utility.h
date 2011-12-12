@@ -6,8 +6,8 @@
  * distribution, file LICENCE.TXT
  * $Id: utility.h,v 1.4 2006/07/29 11:49:19 Hajo Kirchhoff Exp $
  */
-#ifndef _LWODBC_INTERNALS_
-#define _LWODBC_INTERNALS_
+#ifndef _LWODBC_UTILITY_
+#define _LWODBC_UTILITY_
 
 #include <litwindow/lwbase.hpp>
 #include <litwindow/tstring.hpp>
