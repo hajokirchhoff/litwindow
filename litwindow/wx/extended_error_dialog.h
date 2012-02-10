@@ -141,9 +141,10 @@ public:
 	void allow_retry(bool yes) { m_allow_retry=yes; }
 };
 
-#endif
     // _EXTENDED_ERROR_DIALOG_H_
 
 } /*namespace wx*/ } /*namespace litwindow*/
 
 namespace wx1 = litwindow::wx;
+
+#endif
