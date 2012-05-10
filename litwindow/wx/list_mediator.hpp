@@ -202,12 +202,34 @@ namespace litwindow {
 			typedef VirtualListCtrl uicontrol_type;
 			using Inherited::connect;
 			using Inherited::disconnect;
+			void OnRightClickMenu(wxCommandEvent &evt)
+			{
+				evt.Skip();
+			}
+			void OnColumnRightClick(wxCommandEvent &evt)
+			{
+				wxListCtrl *v=dynamic_cast<wxListCtrl*>(evt.GetEventObject());
+				if (v) {
+					wxMenu menu;
+					for (int i=0; i<v->GetColumnCount(); ++i) {
+						wxListItem col;
+						col.SetMask(wxLIST_MASK_TEXT);
+						v->GetColumn(i, col);
+						wxMenuItem *mi=menu.AppendCheckItem(10000+i, col.GetText());
+						mi->Check(col.GetWidth()>0);
+					}
+					v->PopupMenu(&menu);
+				} else
+					evt.Skip();
+			}
 			template <typename Mediator>
 			void connect(Mediator *md, uicontrol_type* v)
 			{
 				Inherited::connect(md, v);
 				v->on_get_item_text=boost::bind(&Mediator::get_item_text, md, _1, _2);
 				v->on_get_item_image=boost::bind(&Mediator::get_item_image, md, _1, _2);
+				v->Bind(wxEVT_COMMAND_LIST_COL_RIGHT_CLICK, boost::bind(&uicontrol_policies::OnColumnRightClick, this, _1));
+				v->Bind(wxEVT_COMMAND_MENU_SELECTED, bind(&uicontrol_policies::OnRightClickMenu, this, _1));
 			}
 			template <typename Mediator>
 			void disconnect(Mediator *md, uicontrol_type *v)
