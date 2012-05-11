@@ -136,14 +136,14 @@ namespace litwindow {
 			{
 				wxListItem it;
 				it.SetText(d.title());
-				it.SetWidth(d.width());
+				it.SetWidth(d.visible() ? d.width() : 0);
 				c->InsertColumn(static_cast<long>(idx), it);
 			}
 			void set_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d) 
 			{
 				wxListItem it;
 				it.SetText(d.title());
-				it.SetWidth(d.width());
+				it.SetWidth(d.visible() ? d.width() : 0);
 				it.SetAlign(wxLIST_FORMAT_LEFT);
 				c->SetColumn(static_cast<long>(idx), it);
 			}
@@ -198,38 +198,54 @@ namespace litwindow {
 		class uicontrol_policies<VirtualListCtrl>:public uicontrol_policies<wxListCtrl>
 		{
 			typedef uicontrol_policies<wxListCtrl> Inherited;
+			bool m_right_click_in_progress;
 		public:
+			//boost::function<void(int)> toggle_show_column;
 			typedef VirtualListCtrl uicontrol_type;
 			using Inherited::connect;
 			using Inherited::disconnect;
-			void OnRightClickMenu(wxCommandEvent &evt)
+			//template <typename Mediator>
+			template <typename Mediator>
+			void OnRightClickMenu(Mediator *md, wxCommandEvent &evt)
 			{
-				evt.Skip();
+				if (m_right_click_in_progress) {
+					int col=evt.GetId()-10000;
+					md->toggle_show_column(col);
+				} else
+					evt.Skip();
 			}
-			void OnColumnRightClick(wxCommandEvent &evt)
+			template <typename Mediator>
+			void OnColumnRightClick(Mediator *md, wxCommandEvent &evt)
 			{
 				wxListCtrl *v=dynamic_cast<wxListCtrl*>(evt.GetEventObject());
 				if (v) {
 					wxMenu menu;
 					for (int i=0; i<v->GetColumnCount(); ++i) {
 						wxListItem col;
-						col.SetMask(wxLIST_MASK_TEXT);
+						col.SetMask(wxLIST_MASK_TEXT | wxLIST_MASK_WIDTH);
 						v->GetColumn(i, col);
+						if (col.GetWidth()!=0 || md->columns().at(i).visible())
+							md->columns().at(i).width(col.GetWidth());
 						wxMenuItem *mi=menu.AppendCheckItem(10000+i, col.GetText());
 						mi->Check(col.GetWidth()>0);
 					}
+					m_right_click_in_progress=true;
 					v->PopupMenu(&menu);
+					m_right_click_in_progress=false;
 				} else
 					evt.Skip();
 			}
 			template <typename Mediator>
 			void connect(Mediator *md, uicontrol_type* v)
 			{
+				m_right_click_in_progress=false;
 				Inherited::connect(md, v);
 				v->on_get_item_text=boost::bind(&Mediator::get_item_text, md, _1, _2);
 				v->on_get_item_image=boost::bind(&Mediator::get_item_image, md, _1, _2);
-				v->Bind(wxEVT_COMMAND_LIST_COL_RIGHT_CLICK, boost::bind(&uicontrol_policies::OnColumnRightClick, this, _1));
-				v->Bind(wxEVT_COMMAND_MENU_SELECTED, bind(&uicontrol_policies::OnRightClickMenu, this, _1));
+				v->Bind(wxEVT_COMMAND_LIST_COL_RIGHT_CLICK, boost::bind(&uicontrol_policies::OnColumnRightClick<typename Mediator>, this, md, _1));
+				//toggle_show_column=boost::bind(&Mediator::toggle_show_column, md, _1);
+				//v->Bind(wxEVT_COMMAND_MENU_SELECTED, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnRightClickMenu, this, _1));
+				v->Bind(wxEVT_COMMAND_MENU_SELECTED, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnRightClickMenu<typename Mediator>, this, md, _1));
 			}
 			template <typename Mediator>
 			void disconnect(Mediator *md, uicontrol_type *v)
@@ -319,7 +335,7 @@ namespace litwindow {
 			{
 				wxDataViewColumn *col=c->GetColumn(static_cast<long>(idx));
 				col->SetTitle(d.title());
-				col->SetWidth(d.width());
+				col->SetWidth(d.visible() ? d.width() : -d.width());
 			}
 			void remove_column(uicontrol_type *c, size_t idx) 
 			{

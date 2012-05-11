@@ -398,6 +398,12 @@ namespace litwindow {
 			{ set_container(c); set_ui(u); }
 			list_mediator &set(container_type &c) { set_container(c); return *this; }
 			list_mediator &set(uicontrol_type *u) { set_ui(u); return *this; }
+
+			void toggle_show_column(size_t col)
+			{
+				columns().toggle_show(col);
+				refresh();
+			}
 		protected:
 			columns_type m_columns;
 			uicontrol_type *m_uicontrol;

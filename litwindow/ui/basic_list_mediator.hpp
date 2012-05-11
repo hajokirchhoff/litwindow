@@ -316,6 +316,7 @@ namespace litwindow {
 
             typedef std::vector<column_descriptor_type> columns_t;
             const columns_t &columns() const { return m_column_data; }
+			columns_t &columns() { return m_column_data; }
             std::back_insert_iterator<columns_t> do_add(const column_descriptor_type &d)
             {
                 set_dirty();
@@ -426,10 +427,15 @@ namespace litwindow {
             //}
 			void set_dirty() { dirty(true); }
 			void clear_dirty() { dirty(false); }
+			void toggle_show(size_t col)
+			{
+				columns().at(col).visible(!columns().at(col).visible());
+				dirty(true);
+			}
 
 			bool compare(size_t col, const typename column_descriptor_type::value_type &left, const typename column_descriptor_type::value_type &right) const
 			{
-				return columns().at(col).compare(left, right, col);
+				return at(col).compare(left, right, col);
 			}
         protected:
         private:
@@ -698,6 +704,8 @@ namespace litwindow {
 				ui_adapter().for_each_selected(bind(&basic_list_mediator::visit, this, &rc, _1, f));
 				return rc;
 			}
+			void show_hide_column(int col, bool show_hide);
+			void toggle_show_column(int col);
 
         protected:
             void refresh_columns(bool do_refresh=true);
@@ -736,6 +744,13 @@ namespace litwindow {
                 m_needs_refresh_columns=false;
             }
         }
+
+		template <typename DatasetAdapter, typename UIControlAdapter, typename ColumnsAdapter>
+		void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, ColumnsAdapter>::toggle_show_column(int col)
+		{
+			columns_adapter().toggle_show(col);
+			refresh_columns(true);
+		}
 
         template <typename DatasetAdapter, typename UIControlAdapter, typename ColumnsAdapter>
         void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, typename ColumnsAdapter>::refresh_list()
