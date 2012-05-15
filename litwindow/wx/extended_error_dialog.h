@@ -125,6 +125,7 @@ public:
 		int rc=can_retry ? wxYES : wxOK;
 		try {
 			fnc();
+			rc=wxOK;
 		}
 		catch (std::exception &e) {
 			rc=show_exception(e, context, can_retry);
