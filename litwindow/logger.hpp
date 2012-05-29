@@ -1109,6 +1109,9 @@ namespace litwindow {
 					get_default().set_default_component(component_type(c));
 					get().set_default_component(component_type(c));
 				}
+				void enabled(bool do_enable) { get_default().enabled(do_enable); get().enabled(do_enable); }
+				void enable() { enabled(true); }
+				void disable() { enabled(false); }
 			};
 			typedef basic_threadsafe_events<events> events;
 			typedef basic_threadsafe_events<wevents> wevents;
