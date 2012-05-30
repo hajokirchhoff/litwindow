@@ -1051,6 +1051,7 @@ namespace litwindow {
 				boost::thread_specific_ptr<_Events> m_evt_ptr;
 				_Events m_default;
 				_Events &get_default() { return m_default; }
+				const _Events &get_default() const { return m_default; }
 				_Events &get() 
 				{ 
 					if (m_evt_ptr.get()==0) 
@@ -1110,6 +1111,7 @@ namespace litwindow {
 					get().set_default_component(component_type(c));
 				}
 				void enabled(bool do_enable) { get_default().enabled(do_enable); get().enabled(do_enable); }
+				bool enabled() const { return get_default().enabled(); }
 				void enable() { enabled(true); }
 				void disable() { enabled(false); }
 			};
