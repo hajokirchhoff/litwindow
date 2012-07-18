@@ -8,8 +8,9 @@
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/archive/xml_wiarchive.hpp>
-#include <boost/archive/xml_woarchive.hpp>
+#include <boost/archive/text_wiarchive.hpp>
+#include <boost/archive/text_woarchive.hpp>
+#include "boost/algorithm/string/predicate.hpp"
 
 namespace litwindow {
 	namespace ui {
@@ -488,16 +489,16 @@ namespace litwindow {
 			void get_layout_perspective(wstring &layout)
 			{
 				std::wstringstream out;
-				boost::archive::xml_woarchive ar(out);
+				boost::archive::text_woarchive ar(out);
 				ar << boost::serialization::make_nvp("mediator", *this);
 				layout=out.str();
 			}
 			void set_layout_perspective(const wstring &layout)
 			{
-				if (layout.empty()==false) {
+				if (layout.empty()==false && !boost::algorithm::istarts_with(layout, L"<?xml")) {
 					try {
 						std::wstringstream in(layout);
-						boost::archive::xml_wiarchive ar(in);
+						boost::archive::text_wiarchive ar(in);
 						ar >> boost::serialization::make_nvp("mediator", *this);
 						refresh(true);
 					}

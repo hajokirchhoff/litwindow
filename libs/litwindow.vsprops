@@ -7,6 +7,10 @@
 	IntermediateDirectory="$(OutDir)\$(ConfigurationName)\$(ProjectName)"
 	>
 	<Tool
+		Name="VCCLCompilerTool"
+		PreprocessorDefinitions="BOOST_ALL_DYN_LINK"
+	/>
+	<Tool
 		Name="VCLinkerTool"
 		AdditionalLibraryDirectories="$(OutDir)"
 	/>
