@@ -19,6 +19,11 @@
 #include <boost/type_traits/add_const.hpp>
 #include <boost/type_traits/add_reference.hpp>
 
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/vector.hpp>
+//#include <boost/archive/text_wiarchive.hpp>
+//#include <boost/archive/text_woarchive.hpp>
+
 #ifndef BOOST_TYPEOF_SILENT
 #define BOOST_TYPEOF_SILENT
 #endif
@@ -48,7 +53,7 @@ namespace litwindow {
 			template <typename Archive>
 			void serialize(Archive &ar, const unsigned int version)
 			{
-				ar & make_nvp("title", m_title) & make_nvp("width", m_width) & make_nvp("visible", m_visible);				
+				ar & BOOST_SERIALIZATION_NVP(m_title) & BOOST_SERIALIZATION_NVP(m_width) & BOOST_SERIALIZATION_NVP(m_visible);				
 			}
 			basic_column_label(const tstring &title, int width=-1, bool visible=true, bool is_image=false)
 				:m_title(title),m_width(width),m_visible(visible),m_image(is_image){}
@@ -80,6 +85,7 @@ namespace litwindow {
 				:basic_column_label(title, width, true, true), m_text_renderer(0), m_image_index_renderer(i)
 			{}
 
+			basic_column_descriptor():basic_column_label(tstring(), -1, false, false){}
             template <typename Control>
             bool render_element(size_t row, size_t col, Control &c, const value_type &v) const { return false; }
 
@@ -114,6 +120,11 @@ namespace litwindow {
 				render_element(right_string, right);
 				return left_string<right_string;
 			}
+            template <typename Archive>
+            void serialize(Archive &ar, const unsigned int version)
+            {
+				ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(basic_column_label);				
+            }
 		};
 
 		template <typename Value>
@@ -391,6 +402,7 @@ namespace litwindow {
             basic_columns_adapter()
                 :m_dirty(true){ add.set_this(this); }
             const column_descriptor_type &column_descriptor(size_t idx) const { return columns().at(idx); }
+			column_descriptor_type &column_descriptor(size_t idx) { return columns().at(idx); }
 
 			size_t get_column_index(const wstring &title) const
 			{
@@ -437,10 +449,41 @@ namespace litwindow {
 			{
 				return at(col).compare(left, right, col);
 			}
-        protected:
+	
+            template <typename Archive>
+            void serialize(Archive &ar, const unsigned int version)
+            {
+				if (Archive::is_loading()) {
+					columns_t temp;
+					ar & boost::serialization::make_nvp("m_column_data", temp);
+					merge_in(temp);
+				} else {
+					ar & boost::serialization::make_nvp("m_column_data", m_column_data);
+				}
+            }
+		protected:
         private:
             bool m_dirty;
             columns_t m_column_data;
+
+			void merge_in(const columns_t &in)
+			{
+				struct merge_element
+				{
+					static void do_merge(columns_t &dest, const columns_t::value_type &src)
+					{
+						columns_t::iterator i;
+						i=std::find_if(dest.begin(), dest.end(), boost::bind(&columns_t::value_type::title, _1) == src.title());
+						if (i!=dest.end()) {
+							columns_t::value_type &current(*i);
+							current.width(src.width());
+							current.visible(src.visible());
+						}
+					}
+				};
+				for_each(in.begin(), in.end(), boost::bind(&merge_element::do_merge, boost::ref(m_column_data), _1));
+				m_dirty=true;
+			}
             //element_adapter m_element_adapter;
         };
 

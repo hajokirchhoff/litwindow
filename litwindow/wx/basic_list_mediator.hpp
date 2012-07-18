@@ -12,6 +12,9 @@
 class wxDataViewCtrl;
 class wxListBox;
 
+DECLARE_EXPORTED_EVENT_TYPE(LWWX_API, lwEVT_GET_LAYOUT_PERSPECTIVE, 0);
+DECLARE_EXPORTED_EVENT_TYPE(LWWX_API, lwEVT_SET_LAYOUT_PERSPECTIVE, 0);
+
 namespace litwindow {
     namespace wx {
 

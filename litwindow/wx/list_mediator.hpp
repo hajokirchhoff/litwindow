@@ -12,7 +12,7 @@ namespace litwindow {
 
 
 //------------------------------------------------------------------------------------------------------------------------------------
-		class basic_wxcontrol_policies
+		class basic_wxcontrol_policies:public wxEvtHandler
 		{
 		public:
 			typedef wxWindow uicontrol_type;
@@ -20,11 +20,38 @@ namespace litwindow {
 			void end_update(uicontrol_type *c) { c->Thaw(); }
 			size_t column_count(uicontrol_type *c) const { return 1; }
 			template <typename Mediator>
-			void connect(Mediator *, uicontrol_type *) {}
+			void connect(Mediator *m, uicontrol_type *v)
+			{
+				v->Connect(wxEventType(lwEVT_GET_LAYOUT_PERSPECTIVE), wxObjectEventFunction(&basic_wxcontrol_policies::OnGetLayoutPerspective), 0, this);
+				v->Connect(wxEventType(lwEVT_SET_LAYOUT_PERSPECTIVE), wxObjectEventFunction(&basic_wxcontrol_policies::OnSetLayoutPerspective), 0, this);
+				get_layout_perspective=boost::bind(&Mediator::get_layout_perspective, m, _1);
+				set_layout_perspective=boost::bind(&Mediator::set_layout_perspective, m, _1);
+			}
 			template <typename Mediator>
-			void disconnect(Mediator *, uicontrol_type *) {}
+			void disconnect(Mediator *m, uicontrol_type *v)
+			{
+				v->Disconnect(wxEventType(lwEVT_GET_LAYOUT_PERSPECTIVE), wxObjectEventFunction(&basic_wxcontrol_policies::OnGetLayoutPerspective), 0, this);
+				v->Disconnect(wxEventType(lwEVT_SET_LAYOUT_PERSPECTIVE), wxObjectEventFunction(&basic_wxcontrol_policies::OnSetLayoutPerspective), 0, this);
+				get_layout_perspective.clear();
+				set_layout_perspective.clear();
+			}
 			template <typename Mediator>
 			void refresh_columns(Mediator &, uicontrol_type *) {}
+			template <typename Mediator>
+			void get_columns(Mediator &, uicontrol_type *) {}
+		private:
+			boost::function<void(wstring &)> get_layout_perspective;
+			boost::function<void(const wstring &)> set_layout_perspective;
+			void OnGetLayoutPerspective(wxCommandEvent &evt)
+			{
+				wstring layout;
+				get_layout_perspective(layout);
+				evt.SetString(layout);
+			}
+			void OnSetLayoutPerspective(wxCommandEvent &evt)
+			{
+				set_layout_perspective(evt.GetString());
+			}
 		};
 		template <typename UIControlPolicies>
 		class basic_wxcontrol_with_rows_policies:public basic_wxcontrol_policies
@@ -65,6 +92,16 @@ namespace litwindow {
 				while (column_count(ctrl)>c.size())
 					This()->remove_column(ctrl, column_count(ctrl)-1);
 			}
+			template <typename Mediator>
+			void get_columns(Mediator &m, typename Mediator::uicontrol_type *ctrl)
+			{
+				size_t idx=0;
+				typename Mediator::columns_type &c(m.columns());
+				while (idx<c.size() && idx<This()->column_count(ctrl)) {
+					This()->get_column(ctrl, idx, c.column_descriptor(idx));
+					++idx;
+				}
+			}
 		};
 
 		template <typename UIControl>
@@ -100,7 +137,7 @@ namespace litwindow {
 		/* wxListCtrl Policies                                                  */
 		/************************************************************************/
 		template <>
-		class uicontrol_policies<wxListCtrl>:public basic_wxcontrol_with_columns_policies<uicontrol_policies<wxListCtrl> >, public wxEvtHandler
+		class uicontrol_policies<wxListCtrl>:public basic_wxcontrol_with_columns_policies<uicontrol_policies<wxListCtrl> >
 		{
 			typedef basic_wxcontrol_with_columns_policies<uicontrol_policies<wxListCtrl> > Inherited;
 		public:
@@ -108,6 +145,7 @@ namespace litwindow {
 			template <typename Mediator>
 			void connect(Mediator *md, uicontrol_type* v)
 			{
+				Inherited::connect(md, v);
 				v->Connect(wxEventType(wxEVT_COMMAND_LIST_COL_CLICK), wxListEventHandler(uicontrol_policies::OnListColClick), 0, this);
 				on_destroyed=boost::bind(&Mediator::clear_ui, md);
 				on_l_col_clicked=boost::bind(&Mediator::sort_by, md, _1);
@@ -145,7 +183,16 @@ namespace litwindow {
 				it.SetText(d.title());
 				it.SetWidth(d.visible() ? d.width() : 0);
 				it.SetAlign(wxLIST_FORMAT_LEFT);
+				it.SetMask(wxLIST_MASK_TEXT | wxLIST_MASK_WIDTH | wxLIST_MASK_FORMAT);
 				c->SetColumn(static_cast<long>(idx), it);
+			}
+			void get_column(uicontrol_type *c, size_t idx, ui::basic_column_label &d)
+			{
+				wxListItem it;
+				it.SetMask(wxLIST_MASK_TEXT | wxLIST_MASK_WIDTH);
+				c->GetColumn(static_cast<long>(idx), it);
+				if (d.visible())
+					d.width(it.GetWidth());
 			}
 			void remove_column(uicontrol_type *c, size_t idx) 
 			{
@@ -315,6 +362,7 @@ namespace litwindow {
 			template <typename Mediator>
 			void connect(Mediator *md, uicontrol_type* v)
 			{
+				Inherited::connect(md, v);
 				wxDataViewModel_policies<Mediator> *model=new wxDataViewModel_policies<Mediator>(*md);
 				v->AssociateModel(model);
 				model->DecRef();

@@ -5,11 +5,36 @@
 #include <deque>
 #include <list>
 #include <boost/shared_ptr.hpp>
+#include <boost/serialization/serialization.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/archive/xml_wiarchive.hpp>
+#include <boost/archive/xml_woarchive.hpp>
 
 namespace litwindow {
 	namespace ui {
 
 		typedef litwindow::tstring ui_string;
+
+		struct basic_columns_sort_index
+		{
+			enum sort_type_enum {
+				sort_automatic=-1,
+				sort_ascending=1,
+				sort_descending=0
+			};
+			int m_column_index;
+			bool m_sort_ascending;
+			sort_type_enum sort_type() const { return m_sort_ascending ? sort_ascending : sort_descending; }
+			basic_columns_sort_index(int idx, bool a):m_column_index(idx),m_sort_ascending(a) {}
+			basic_columns_sort_index():m_column_index(-1),m_sort_ascending(false){}
+
+            template <typename Archive>
+            void serialize(Archive &ar, const unsigned int version)
+            {
+				ar & BOOST_SERIALIZATION_NVP(m_column_index) & BOOST_SERIALIZATION_NVP(m_sort_ascending);
+            }
+		};
 
 		//////////////////////////////////////////////////////////////////////////
 		template <typename ColumnDescriptor, typename HandlePolicies>
@@ -17,15 +42,13 @@ namespace litwindow {
 			typedef typename ColumnDescriptor::value_type value_type;
 			typedef typename HandlePolicies handle_policies_type;
 			typedef typename handle_policies_type::handle_type handle_type;
-			struct sort_column
+			struct sort_column:public basic_columns_sort_index
 			{
-				int m_column_index;
-				bool m_sort_ascending;
 				const ColumnDescriptor *m_column_descriptor;
-				sort_column()
-					:m_column_index(-1){}
+				sort_column():basic_columns_sort_index(),m_column_descriptor(0) {}
 				sort_column(int idx, bool ascending, const ColumnDescriptor &d)
-					:m_column_index(idx),m_sort_ascending(ascending),m_column_descriptor(&d){}
+					:basic_columns_sort_index(idx, ascending)
+					,m_column_descriptor(&d){}
 				bool is_valid() const { return m_column_index>=0; }
 			};
 			typedef std::deque<sort_column> sort_columns_t;
@@ -36,21 +59,33 @@ namespace litwindow {
 			{
 				std::fill(m_sort_columns.begin(), m_sort_columns.end(), sort_column());
 			}
-			void push_sort(int new_column, const ColumnDescriptor &d)
+			void push_sort(int new_column, const ColumnDescriptor &d, basic_columns_sort_index::sort_type_enum t=sort_automatic)
 			{
 				sort_columns_t::iterator i=find_if(m_sort_columns.begin(), m_sort_columns.end(), boost::bind(&sort_column::m_column_index, _1)==new_column);
 				bool sortascending;
 				if (i==m_sort_columns.end()) {
-					sortascending=true;
+					sortascending= t!=basic_columns_sort_index::sort_descending;
 					m_sort_columns.pop_back();
 				} else {
-					if (i==m_sort_columns.begin())
-						sortascending=!i->m_sort_ascending;
-					else
-						sortascending=true;
+					if (i==m_sort_columns.begin()) {
+						if (t==basic_columns_sort_index::sort_automatic)
+							sortascending= !i->m_sort_ascending;
+						else
+							sortascending= t!=basic_columns_sort_index::sort_descending;
+					} else
+						sortascending= t!=basic_columns_sort_index::sort_descending;
 					m_sort_columns.erase(i);
 				}
 				m_sort_columns.push_front(sort_column(new_column, sortascending, d));
+			}
+			std::vector<basic_columns_sort_index> get_sort_columns() const
+			{
+				std::vector<basic_columns_sort_index> rc;
+				for (sort_columns_t::const_iterator i=m_sort_columns.begin(); i!=m_sort_columns.end(); ++i) 
+				{
+					rc.push_back(basic_columns_sort_index(i->m_column_index, i->m_sort_ascending));
+				}
+				return rc;
 			}
 			bool compare(const value_type &left, const value_type &right) const
 			{
@@ -166,10 +201,24 @@ namespace litwindow {
 			{
 				std::sort(start, stop, sorting);
 			}
+			void set_sort_order(const container_type &c, const columns_type &columns, int column_index, basic_columns_sort_index::sort_type_enum sort_type)
+			{
+				if (column_index<columns.size()) {
+					m_sorting.push_sort(column_index, columns.at(column_index), sort_type);
+					m_sort_fnc=bind(&container_policies_type::do_sort, _1, _2, boost::ref(m_sorting));
+				}
+			}
 			void set_sort_order(const container_type &c, const columns_type &columns, int column_index)
 			{
-				m_sorting.push_sort(column_index, columns.at(column_index));
-				m_sort_fnc=bind(&container_policies_type::do_sort, _1, _2, boost::ref(m_sorting));
+				set_sort_order(c, columns, column_index, basic_columns_sort_index::sort_automatic);
+			}
+			void set_sort_order(const container_type &c, const columns_type &columns, const basic_columns_sort_index &bcsi)
+			{
+				set_sort_order(c, columns, bcsi.m_column_index, bcsi.sort_type());
+			}
+			std::vector<basic_columns_sort_index> get_sort_order() const
+			{
+				return m_sorting.get_sort_columns();
 			}
 			void clear_sort_order()
 			{
@@ -215,11 +264,13 @@ namespace litwindow {
 
 			stl_container_policies()
 				:m_handles_dirty(true){}
+
 		protected:
 			handle_policies_type m_handle_policies;
 			mutable bool m_handles_dirty;
 			boost::function<void(typename sorted_handles_t::iterator, typename sorted_handles_t::iterator)> m_sort_fnc;
-			basic_columns_sorter<column_descriptor, handle_policies_type> m_sorting;
+			typedef basic_columns_sorter<column_descriptor, handle_policies_type> columns_sorter_t;
+			columns_sorter_t m_sorting;
 			sorted_handles_t &handles(container_type &c) { if (m_handles_dirty) refresh_handles(c); return m_handles; }
 			sorted_handles_t &handles(const container_type &c) const { if (m_handles_dirty) refresh_handles(const_cast<container_type&>(c)); return m_handles; }
 			mutable sorted_handles_t m_handles;
@@ -296,6 +347,18 @@ namespace litwindow {
 				else
 					m_container_policies.clear_sort_order();
 				refresh(true);
+			}
+			std::vector<basic_columns_sort_index> get_sort_order() const
+			{
+				return m_container_policies.get_sort_order();
+			}
+			void set_sort_order(const std::vector<basic_columns_sort_index> &sortorder)
+			{
+				m_container_policies.clear_sort_order();
+				for (size_t i=0; i<sortorder.size(); ++i) {
+					if (sortorder[i].m_column_index>=0)
+						m_container_policies.set_sort_order(*m_container, m_columns, sortorder[i]);
+				}
 			}
 			litwindow::wstring get_item_text(size_t row, size_t col) const
 			{
@@ -403,6 +466,46 @@ namespace litwindow {
 			{
 				columns().toggle_show(col);
 				refresh();
+			}
+
+            template <typename Archive>
+            void serialize(Archive &ar, const unsigned int version)
+            {
+				if (Archive::is_saving()) {
+					m_uicontrol_policies.get_columns(*this, m_uicontrol);
+				}
+				ar & BOOST_SERIALIZATION_NVP(m_columns);
+				std::vector<basic_columns_sort_index> sortorder;
+				if (Archive::is_loading()) {
+					ar & boost::serialization::make_nvp("sort-order", sortorder);
+					set_sort_order(sortorder);
+				} else {
+					sortorder = get_sort_order();
+					ar & boost::serialization::make_nvp("sort-order", sortorder);
+				}
+            }
+
+			void get_layout_perspective(wstring &layout)
+			{
+				std::wstringstream out;
+				boost::archive::xml_woarchive ar(out);
+				ar << boost::serialization::make_nvp("mediator", *this);
+				layout=out.str();
+			}
+			void set_layout_perspective(const wstring &layout)
+			{
+				if (layout.empty()==false) {
+					try {
+						std::wstringstream in(layout);
+						boost::archive::xml_wiarchive ar(in);
+						ar >> boost::serialization::make_nvp("mediator", *this);
+						refresh(true);
+					}
+					catch (boost::archive::archive_exception &a) {
+						// Invalid archive. Ignore layout perspective.
+						std::string w=a.what();
+					}
+				}
 			}
 		protected:
 			columns_type m_columns;
