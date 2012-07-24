@@ -13,5 +13,6 @@
 	<Tool
 		Name="VCLinkerTool"
 		AdditionalLibraryDirectories="$(OutDir)"
+		GenerateDebugInformation="true"
 	/>
 </VisualStudioPropertySheet>
