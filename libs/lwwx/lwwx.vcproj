@@ -119,7 +119,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\..\boost&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include\msvc&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include&quot;;&quot;$(ProjectDir)..\..&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WXUSINGDLL;LWWX_EXPORTS;LITWINDOW_ALL_DYN_LINK"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WXUSINGDLL;LWWX_EXPORTS;LITWINDOW_ALL_DYN_LINK;BOOST_ALL_DYN_LINK"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
@@ -193,7 +193,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\..\boost&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include\msvc&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include&quot;;&quot;$(ProjectDir)..\..&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WXUSINGDLL;LWWX_EXPORTS;;LITWINDOW_ALL_DYN_LINK"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WXUSINGDLL;LWWX_EXPORTS;;LITWINDOW_ALL_DYN_LINK;BOOST_ALL_DYN_LINK"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -268,7 +268,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\..\boost&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include\msvc&quot;;&quot;$(ProjectDir)..\..\..\wxWidgets\include&quot;;&quot;$(ProjectDir)..\..&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WXUSINGDLL;LWWX_EXPORTS;;LITWINDOW_ALL_DYN_LINK"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WXUSINGDLL;LWWX_EXPORTS;;LITWINDOW_ALL_DYN_LINK;BOOST_ALL_DYN_LINK"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -743,11 +743,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\litwindow\wx\list_mediator.hpp"
+				RelativePath="..\..\litwindow\ui\list_mediator.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\litwindow\ui\list_mediator.hpp"
+				RelativePath="..\..\litwindow\wx\list_mediator.hpp"
 				>
 			</File>
 			<File
