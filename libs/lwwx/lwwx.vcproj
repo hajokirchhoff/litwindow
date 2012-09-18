@@ -139,7 +139,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\$(ProjectName)-vc90-mt-gd-1_0_0.dll"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\stage64\lib\vc_amd64_dll&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\stage64\lib\vc_x64_dll&quot;;&quot;$(SolutionDir)..\stage64\lib\vc_amd64_dll&quot;"
 				GenerateDebugInformation="true"
 				TargetMachine="17"
 			/>
@@ -288,7 +288,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\$(ProjectName)-vc90-mt-1_0_0.dll"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\stage64\lib\vc_amd64_dll&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\stage64\lib\vc_x64_dll&quot;;&quot;$(SolutionDir)..\stage64\lib\vc_amd64_dll&quot;"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -743,11 +743,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\litwindow\wx\list_mediator.hpp"
+				RelativePath="..\..\litwindow\ui\list_mediator.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\litwindow\ui\list_mediator.hpp"
+				RelativePath="..\..\litwindow\wx\list_mediator.hpp"
 				>
 			</File>
 			<File
