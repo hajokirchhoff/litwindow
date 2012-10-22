@@ -862,7 +862,20 @@ namespace litwindow {
 			{
 				sink(e.sink());
 			}
-
+			const basic_events& operator=(const basic_events &e)
+			{
+				m_default_component=e.m_default_component;
+				m_component=e.m_component;
+				m_default_topic=e.m_default_topic;
+				m_topic=e.m_topic;
+				m_default_level=e.m_default_level;
+				m_level=e.m_level;
+				m_enabled=e.m_enabled; m_ignore_begin_end_count=0; m_open_count=0;
+				m_instance=e.m_instance;
+				m_stream_traits=e.m_stream_traits;
+				sink(e.sink());
+				return *this;
+			}
 			void enabled(bool enabled) { m_enabled=enabled; }
             bool enabled() const { return m_enabled; }
             void enable() { enabled(true); }
@@ -1073,6 +1086,12 @@ namespace litwindow {
 					)
 					:m_default(c, t, is_enabled, target)
 				{
+				}
+				const basic_threadsafe_events &operator=(const basic_threadsafe_events &e)
+				{
+					m_default=e.m_default;
+					m_evt_ptr.reset();
+					return *this;
 				}
 				events_type &operator &&(typename events_type::logmanipulator l)
 				{
