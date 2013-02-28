@@ -88,32 +88,47 @@ void RapidUI::UnsolveAllDataToWindowsRules()
 
 void RapidUI::AddDefaultRulesForWindow(wxWindow *w)
 {
+
+    
+
 	if (w) {
-		tstring windowName=GetWindowName(w);
-		if (windowName==_T("LITWINDOW_RULES")) {
+		//tstring windowName=GetWindowName(w);
+        //std::basic_string<TCHAR, std::char_traits<TCHAR>, std::allocator<TCHAR> > windowName=GetWindowName(w);
+       // std::string //
+		const wchar_t* windowName=GetWindowName(w).t_str();
+
+		if (windowName == _T("LITWINDOW_RULES")) {//_T("LITWINDOW_RULES")) {
 			// this is a 'specially' reserved window name. it should be a wxTextCtrl containing window rules.
-			tstring rules;
+			//tstring rules;
+           // std::string rules;
+            std::stringstream rules;   
 			wxStaticText *the_rules=dynamic_cast<wxStaticText*>(w);
+
 			if (the_rules)
-				rules=the_rules->GetLabel();
+				rules << the_rules->GetLabel().t_str(); 
 			else {
 				wxListBox *lb=dynamic_cast<wxListBox*>(w);
 				wxTextCtrl *tc=dynamic_cast<wxTextCtrl*>(w);
+                
 				if (lb) {
 					wxArrayString value(lb->GetStrings());
+                    
 					for (size_t i=0; i<value.GetCount(); ++i)
-						rules+=value[i]+_T("\n");
+						rules << value[i].t_str() << "\n";
 				} else if (tc) {
-					rules=tc->GetValue();
+					rules << tc->GetValue().t_str();
 				} else
 					throw lwbase_error("Window with name LITWINDOW_RULES found, but it is not of type wxStaticText, wxListBox or wxTextCtrl");
+                
+
 			}
-			AssignRules(rules, tstring(), _T("LITWINDOW_RULES"));
+            
+			AssignRules(s2tstring(rules.str()), tstring(), _T("LITWINDOW_RULES"));
 		} else {
-			if (windowName.size()>0) {
-				accessor theData=GetDataAccessor(windowName.c_str());
+			if (windowName != 0) {
+				accessor theData=GetDataAccessor(windowName);// windowName.c_str());
 				if (theData.is_valid()) {
-					//lw_log() << wxT("Default rule ") << windowName << wxT(" <-> ") << s2tstring(theData.name()) << endl;
+					lw_log() << wxT("Default rule ") << windowName << wxT(" <-> ") << s2tstring(theData.name()) << endl;
 					AssignTwoWay(w, theData);
 					accessor winAccessor(GetWindowAccessor(w));
 					if (winAccessor.is_valid() && winAccessor.is_aggregate()) {
@@ -131,9 +146,10 @@ void RapidUI::AddDefaultRulesForWindow(wxWindow *w)
 						}
 					}
 
-				}/* else
-					lw_log() << "no default for window " << windowName << endl;*/
+				}   // else
+					// lw_log() << "no default for window " << windowName << endl;
 			}
+
 			wxWindowList &children=w->GetChildren();
 			wxWindowList::compatibility_iterator child=children.GetFirst();
 			while (child) {
@@ -141,7 +157,9 @@ void RapidUI::AddDefaultRulesForWindow(wxWindow *w)
 				child=child->GetNext();
 			}
 		}
+        
 	}
+    
 }
 
 void RapidUI::AssignTwoWay(const accessor &value, const accessor &data)
@@ -237,7 +255,7 @@ accessor RapidUI::GetWindowAccessor(wxWindow *w)
 		type=get_prop_type_by_name(t2string(untriedNames[i].wc_str()));
 		if (type==0) {
 			// no accessor found for current class, try base classes
-			wxClassInfo *info=wxClassInfo::FindClass(untriedNames[i].c_str());
+			wxClassInfo *info=wxClassInfo::FindClass(untriedNames[i].wc_str());
 			if (info) {
 				const wxChar *name=info->GetBaseClassName1();
 				if (name)
@@ -265,7 +283,7 @@ accessor RapidUI::GetWindowAccessor(wxWindow *w, const tstring &attributeName)
 			rc=*i.first;
 	} else
 		rc=accessor();
-	wxLogRapidUI(("GetWindowAccessor %s.%s returns %s", GetWindowName(w).c_str(), attributeName.c_str(), accessor_as_debug(rc).c_str()));
+	wxLogRapidUI(("GetWindowAccessor %s.%s returns %s", GetWindowName(w).wc_str(), attributeName.wc_str(), accessor_as_debug(rc).wc_str()));
 	return rc;
 }
 
@@ -273,7 +291,7 @@ accessor RapidUI::GetWindowDefaultValueAccessor(wxWindow *w)
 {
 	accessor value(GetWindowAccessor(w, wxT("Value")));
 	if (!value.is_valid()) {
-		lw_err() << "RapidUI handler for window " << GetWindowName(w) << " type " << w->GetClassInfo()->GetClassName() << " missing." << endl;
+		lw_err() << "RapidUI handler for window " << GetWindowName(w).t_str() << " type " << w->GetClassInfo()->GetClassName() << " missing." << endl;
 		//throw lwbase_error("no RapidUI handler for window found");
 	}
 	return value;
@@ -309,15 +327,19 @@ bool RapidUI::ValueChanged(const const_accessor &value, bool recursive, bool sol
 		wxCommandEvent evt(lwEVT_VALUES_CHANGED);
 		AddPendingEvent(evt);
 	}
+
 	return rc;
+
 }
 
 void RapidUI::AddDefaultRules()
 {
+    
 	m_defaultRulesAdded=true;
 	WindowList::const_iterator i;
 	for (i=m_windowList.begin(); i!=m_windowList.end(); ++i)
 		AddDefaultRulesForWindow(*i);
+    
 }
 
 void RapidUI::NotifyChanged(const const_accessor &value, bool recursive, bool solve_immediately)
@@ -374,7 +396,8 @@ tstring RapidUI::MakeUniqueName(const accessor &a) const
 {
 	ostringstream s;
 	s << hex << (unsigned long*)a.get_this_ptr() << a.class_name();
-	return s2tstring(s.str());
+    tostringstream test;
+	return test.str(); //s2tstring(s.str());
 }
 
 void RapidUI::AddData(const accessor &a, tstring name)

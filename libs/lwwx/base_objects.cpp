@@ -7,7 +7,6 @@
  * $Id: base_objects.cpp,v 1.7 2007/10/26 11:53:01 Hajo Kirchhoff Exp $
  */
 #include "stdwx.h"
-
 using namespace std;
 
 #include <wx/gdicmn.h>
@@ -34,13 +33,30 @@ using namespace std;
 using namespace litwindow;
 
 template <>
-tstring converter<wxString>::to_string(const wxString &s)
+tstring litwindow::converter<wxString>::to_string(const wxString &s)
 {
-    return tstring(s.c_str());
+	MessageBox(
+		NULL,
+		(LPCWSTR)"lwwx library", (LPCWSTR)"base_objects.cpp@tstring litwindow::converter<wxString>::to_string(const wxString &s): (!)maybe porting critical", 
+		MB_OK | MB_ICONINFORMATION);
+
+   //return tstring(s.c_str());
+	return s.wc_str();
 }
 
 template <>
-size_t converter<wxString>::from_string(const tstring &newValue, wxString &v)
+tstring litwindow::converter<wxCStrData>::to_string(const wxCStrData &s)
+{
+	MessageBox(
+		NULL,
+		(LPCWSTR)"lwwx library", (LPCWSTR)"base_objects.cpp@tstring litwindow::converter<wxCStrData>::to_string(const wxCStrData &s): (!)maybe porting critical", 
+		MB_OK | MB_ICONINFORMATION);
+
+	return s.AsWChar();
+}
+
+template <>
+size_t litwindow::converter<wxString>::from_string(const tstring &newValue, wxString &v)
 {
     v=newValue.c_str();
     return v.size();
@@ -57,13 +73,18 @@ tstring litwindow::converter<wxSize>::to_string(const wxSize &v)
 }
 
 template <>
-tstring converter<wxDateTime>::to_string(const wxDateTime &d)
+tstring litwindow::converter<wxDateTime>::to_string(const wxDateTime &d)
 {
-    return tstring(d.IsValid() ? d.Format(wxT("%Y-%m-%d %H:%M:%S")) : wxT("invalid_date"));
+	MessageBox(
+		NULL,
+		(LPCWSTR)"lwwx library", (LPCWSTR)"base_objects.cpp@tstring litwindow::converter<wxDateTime>::to_string(const wxDateTime &d): (!)maybe porting critical", 
+		MB_OK | MB_ICONINFORMATION);
+
+    return d.IsValid() ? d.Format(wxT("%Y-%m-%d %H:%M:%S")).t_str() : _T("invalid_date");
 }
 
 template <>
-size_t converter<wxDateTime>::from_string(const tstring &newValue, wxDateTime &v)
+size_t litwindow::converter<wxDateTime>::from_string(const tstring &newValue, wxDateTime &v)
 {
 	if (newValue==wxT("invalid_date"))
 		v=wxDateTime();
@@ -81,19 +102,25 @@ size_t converter<wxDateTime>::from_string(const tstring &newValue, wxDateTime &v
 	}
 	return sizeof(v);
 }
+
 IMPLEMENT_ADAPTER_TYPE(wxDateTime)
 
 template <>
-tstring converter<wxTimeSpan>::to_string(const wxTimeSpan &s)
+tstring litwindow::converter<wxTimeSpan>::to_string(const wxTimeSpan &s)
 {
+	MessageBox(
+		NULL,
+		(LPCWSTR)"lwwx library", (LPCWSTR)"base_objects.cpp@tstring litwindow::converter<wxTimeSpan>::to_string(const wxTimeSpan &s): (!)maybe porting critical", 
+		MB_OK | MB_ICONINFORMATION);
+
     wxLongLong v=s.GetValue();
     wxString temp;
     temp.Format(wxT("%08x%08x"), v.GetHi(), v.GetLo());
-    return tstring(temp);
+    return temp.t_str();
 }
 
 template <>
-size_t converter<wxTimeSpan>::from_string(const tstring &newValue, wxTimeSpan &v)
+size_t litwindow::converter<wxTimeSpan>::from_string(const tstring &newValue, wxTimeSpan &v)
 {
     long hi, lo;
     if (_stscanf(newValue.substr(0, 8).c_str(), wxT("%08x"), &hi)!=1 || 

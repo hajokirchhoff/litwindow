@@ -76,7 +76,7 @@ namespace litwindow {
 					(assignment_operator_p/*(str_p(_T('=')) | str_p(_T("=="))*/[assign_a(s_assignment)]) >>
 					fully_qualified_identifier[assign_a(right)]
 				)
-					[bind(self.assign_action, ref(left), ref(right), ref(s_assignment))]
+					[boost::bind(self.assign_action, boost::ref(left), boost::ref(right), boost::ref(s_assignment))]
 				;
 				statement = 
 					assign | eps_p;
@@ -97,7 +97,7 @@ namespace litwindow {
 		rules_parser(RapidUI *target, const tstring &default_group)
 			:m_target(target), m_default_group(default_group)
 		{
-			assign_action=bind(&rules_parser::assign, *this, _1, _2, _3);
+			assign_action=boost::bind(&rules_parser::assign, *this, _1, _2, _3);
 		}
 		void assign(const tstring &left, const tstring &right, assignment_type assign_type)
 		{

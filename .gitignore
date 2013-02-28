@@ -48,6 +48,7 @@ libs/lwwx/doc/images/Release
 libs/lwwx/samples/Debug
 libs/lwwx/samples/DebugOptimize
 libs/lwwx/samples/Release
+libs/lwwx/samples/generic_list_mediator/*.aps
 libs/lwwx/samples/generic_list_mediator/Debug
 libs/lwwx/samples/generic_list_mediator/Debug[!!-~]static
 libs/lwwx/samples/generic_list_mediator/DebugOptimize

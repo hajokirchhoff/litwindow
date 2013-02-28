@@ -9,8 +9,12 @@
 #include "stdafx.h"
 #include "./utility.h"
 #include "./connection.h"
-#include <boost/spirit.hpp>
-#include <boost/spirit/actor.hpp>
+
+//#include <boost/spirit.hpp>
+//#include <boost/spirit/actor.hpp>
+
+#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/home/classic/actor.hpp>
 
 #define new DEBUG_NEW
 
@@ -18,7 +22,8 @@ namespace litwindow {
 
 namespace odbc {;
 
-using namespace boost::spirit;
+//using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
 typedef scanner<const TCHAR*> scanner_t;
 typedef rule<scanner_t> trule;

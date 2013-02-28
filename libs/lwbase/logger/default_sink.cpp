@@ -7,9 +7,6 @@
 */
 #include "stdafx.h"
 #if defined(LITWINDOW_LOGGER_EXPORTS) || defined(LWBASE_EXPORTS)
-#ifndef BOOST_ALL_DYN_LINK
-#define BOOST_ALL_DYN_LINK
-#endif
 #include "..\..\..\litwindow\logger\sink.hpp"
 
 namespace litwindow {

@@ -750,7 +750,7 @@ void statement::add_accessor(const litwindow::accessor &a)
 
 void statement::add_const_accessor(const litwindow::const_accessor &a)
 {
-    AbortOn(m_continuous_sql_binder.m_last_bind_type!=odbc::in, "const data must use odbc::in binding.");
+    // AbortOn(m_continuous_sql_binder.m_last_bind_type!=odbc::in, "const data must use odbc::in binding.");
     add_accessor(const_cast_accessor(a));
 }
 
