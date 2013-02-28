@@ -15,8 +15,6 @@
 #define LWBASE_VERSION ((LWBASE_VERSION_MAJOR << 16) | LWBASE_VERSION_MINOR)
 #define LWBASE_LIB_VERSION_STRING "1_0_0"
 
-#define BOOST_ALL_DYN_LINK 1
-
 #include "./platform_toolset.hpp"
 
 #endif
