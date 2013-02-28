@@ -14,7 +14,7 @@
 #endif
 
 
-#include <boost/spirit.hpp>
+//#include <boost/spirit.hpp>
 //#include <boost/spirit/actor.hpp>
 
 
@@ -27,7 +27,7 @@
 #include "statement.h"
 
 
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
 #pragma warning(disable: 4312 4267)
 
@@ -37,8 +37,8 @@ namespace odbc {
 
 #define new DEBUG_NEW
 
-typedef boost::spirit::scanner<const TCHAR*> scanner_t;
-typedef boost::spirit::rule<scanner_t> trule;
+typedef boost::spirit::classic::scanner<const TCHAR*> scanner_t;
+typedef boost::spirit::classic::rule<scanner_t> trule;
 
 
 //distinct_parser<wide_phrase_scanner_t> keyword_p(_T("a-zA-Z0-9_"));

@@ -20,8 +20,8 @@
 #include <boost/spirit/include/classic_core.hpp>
 
 #include <boost/bind.hpp>
-#include "connection.h"
-#include "statement.h"
+#include "litwindow/odbc/connection.h"
+#include "litwindow/odbc/statement.h"
 
 #define new DEBUG_NEW
 

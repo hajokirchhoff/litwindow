@@ -81,9 +81,9 @@ public:
 	static pool_imp_base LWODBC_API& pool() throw();
 
 	enum cursor_implementation_enum {
-		use_odbc_cursors = SQL_CUR_USE_ODBC,
-		use_driver_cursors = SQL_CUR_USE_DRIVER,
-		use_odbc_cursors_if_needed = SQL_CUR_USE_IF_NEEDED
+		//use_odbc_cursors = SQL_CUR_USE_ODBC,
+		use_driver_cursors = SQL_CUR_USE_DRIVER/*,
+		use_odbc_cursors_if_needed = SQL_CUR_USE_IF_NEEDED*/
 	};
 	/** specify which cursor implementation to use */
 	const sqlreturn LWODBC_API &set_cursor_implementation(cursor_implementation_enum crs);

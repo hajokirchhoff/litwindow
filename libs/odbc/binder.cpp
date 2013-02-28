@@ -32,7 +32,7 @@
 
 #include <set>
 #include <iomanip>
-#include "./statement.h"
+#include "litwindow/odbc/statement.h"
 #include <boost/uuid/uuid.hpp>
 #define new DEBUG_NEW
 
@@ -711,7 +711,6 @@ namespace {
 	static register_data_type<bool> tbool(/*LWODBC_SQL_C_BOOL*/SQL_C_BIT, SQL_CHAR);
 	static register_data_type<char> tchar(SQL_C_CHAR, SQL_VARCHAR, 0);
 	static register_data_type<wchar_t> twchar(SQL_C_WCHAR, SQL_WVARCHAR, 0);
-	static register_data_type<wxCStrData> twxCStrData(SQL_C_WCHAR, SQL_WVARCHAR, 0);			// nlf: x31
 	static register_data_type<TIMESTAMP_STRUCT> ttimestampstruct(SQL_C_TIMESTAMP, SQL_TIMESTAMP);
 	static register_data_type<float> tfloat(SQL_C_FLOAT, SQL_REAL); 
 	static register_data_type<double> tdouble(SQL_C_DOUBLE, SQL_DOUBLE);
@@ -861,5 +860,4 @@ litwindow::tstring litwindow::converter<TIMESTAMP_STRUCT>::to_string(const TIMES
 }
 LWL_IMPLEMENT_ACCESSOR(TIMESTAMP_STRUCT);
 
-LWL_IMPLEMENT_ACCESSOR(wxCStrData);
 

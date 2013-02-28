@@ -14,7 +14,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\boost;$(ProjectDir)..\..\..\wxWidgets\include\msvc;$(ProjectDir)..\..\..\wxWidgets\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..;$(ProjectDir)..\..\..\boost;$(ProjectDir)..\..\..\wxWidgets\include\msvc;$(ProjectDir)..\..\..\wxWidgets\include</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />

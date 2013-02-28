@@ -45,6 +45,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)..\stage\lib\</OutDir>
+    <TargetName>$(ProjectName)-vc110-mt-gd-1_0_0</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>$(ProjectName)-vc110-mt-1_0_0</TargetName>
@@ -68,7 +69,6 @@
     <Link>
       <AdditionalLibraryDirectories>..\..\..\boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ImportLibrary>$(OutDir)lwbaseud.lib</ImportLibrary>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>

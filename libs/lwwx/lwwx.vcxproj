@@ -141,7 +141,11 @@
     <IntDir>$(OutDir)$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)debug\lib\</OutDir>
+    <OutDir>$(SolutionDir)..\stage\lib\</OutDir>
+    <TargetName>$(ProjectName)-vc110-mt-gd-1_0_0</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetName>$(ProjectName)-vc110-mt-1_0_0</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -162,12 +166,11 @@
       <PrecompiledHeaderFile>stdwx.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName)ud.dll</OutputFile>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\boost\stage\lib;$(ProjectDir)..\..\..\wxwidgets\lib\vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>lwbaseud.lib;wxbase29ud.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>$(OutDir)\lwwxud.lib</ImportLibrary>
-      <IgnoreSpecificDefaultLibraries>lwbase-vc110-mt-gd-1_0_0.lib</IgnoreSpecificDefaultLibraries>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -212,7 +215,6 @@
       <PrecompiledHeaderFile>stdwx.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName)-vc90-mt-1_0_0.dll</OutputFile>
       <AdditionalLibraryDirectories>$(SolutionDir)..\stage\lib\vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
