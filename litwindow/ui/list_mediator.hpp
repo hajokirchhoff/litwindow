@@ -375,7 +375,7 @@ namespace litwindow {
 			}
 			size_t get_item_count() const
 			{
-				return m_container ? m_container_policies.size(*m_container) : 0;
+				return m_container_policies.size(*m_container);
 			}
 
 			static const size_t npos = (size_t)-1;

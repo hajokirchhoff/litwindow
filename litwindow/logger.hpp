@@ -10,6 +10,9 @@
 #define LITWINDOW_LOGGER_EXPORTS
 #elif defined(LITWINDOW_ALL_DYN_LINK) || defined(LWBASE_DYN_LINK)
 #define LITWINDOW_LOGGER_DYN_LINK
+#ifndef BOOST_ALL_DYN_LINK
+#error Please define BOOST_ALL_DYN_LINK - dynamically linking lwbase requires dynamic boost
+#endif
 #endif
 
 #ifdef LITWINDOW_LOGGER_EXPORTS
@@ -582,8 +585,8 @@ namespace litwindow {
 				} else {
 					_Elem *_Oldptr = _Mysb::pbase();
 #ifdef _MSC_VER
-					std::_Traits_helper::copy_s<_Traits>(_Newptr, _Newsize, _Oldptr, _Oldsize);
-#else
+	//				std::_Traits_helper::copy_s<_Traits>(_Newptr, _Newsize, _Oldptr, _Oldsize);
+//#else
 					std::copy(_Oldptr, _Oldptr+_Oldsize, _Newptr);
 #endif
 					_Mysb::setp(_Newptr, _Newptr + (_Mysb::pptr()-_Oldptr), _Newptr+_Newsize);
