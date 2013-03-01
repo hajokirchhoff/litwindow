@@ -7,12 +7,15 @@
 * $Id: rapidUI_parser.cpp,v 1.5 2007/10/01 14:36:37 Hajo Kirchhoff Exp $
 */
 #include "Stdwx.h"
+#ifdef _DEBUG
+#pragma warning(disable:4503)	// decorated name length exceeded
+#endif
 #include "litwindow/algorithm.h"
 #include "litwindow/logging.h"
 #include "litwindow/constraints.h"
 #include "litwindow/wx/rapidUI.h"
 #include "litwindow/check.hpp"
-#include <boost/spirit.hpp>
+#include <boost/spirit/include/classic.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
@@ -24,13 +27,13 @@ namespace litwindow {
 
 	using namespace boost;
 
-	struct comment_parser:public spirit::grammar<comment_parser>
+	struct comment_parser:public spirit::classic::grammar<comment_parser>
 	{
 		template <typename ScannerT>
 		struct definition {
 			definition(comment_parser const &self)
 			{
-				using namespace spirit;
+				using namespace spirit::classic;
 				oneline_comment =
 					str_p(_T("//")) >>
 					lexeme_d[*(~ chset_p(_T("\r\n")))];
@@ -39,20 +42,20 @@ namespace litwindow {
 				comment =
 					oneline_comment | multiline_comment | space_p;
 			}
-			spirit::rule<ScannerT> const &start() const { return comment; }
-			spirit::rule<ScannerT> multiline_comment, oneline_comment, comment;
+			spirit::classic::rule<ScannerT> const &start() const { return comment; }
+			spirit::classic::rule<ScannerT> multiline_comment, oneline_comment, comment;
 		};
 	};
 
 	comment_parser const comment_p=comment_parser();
 
-	struct rules_grammar:public spirit::grammar<rules_grammar>
+	struct rules_grammar:public spirit::classic::grammar<rules_grammar>
 	{
 		enum assignment_type {
 			assign_oneway,
 			assign_twoway
 		};
-		static const struct assignment_operator:public spirit::symbols<assignment_type, TCHAR> 
+		static const struct assignment_operator:public spirit::classic::symbols<assignment_type, TCHAR> 
 		{
 			assignment_operator()
 			{
@@ -68,7 +71,7 @@ namespace litwindow {
 		struct definition {
 			definition(rules_grammar const &self)
 			{
-				using namespace spirit;
+				using namespace spirit::classic;
 				identifier = (alpha_p | _T('_')) >> *(alnum_p | _T('_'));
 				fully_qualified_identifier = identifier % (str_p(_T('.')) | _T("::"));
 				assign = (
@@ -82,8 +85,8 @@ namespace litwindow {
 					assign | eps_p;
 				statement_list = statement % _T(';');
 			};
-			spirit::rule<ScannerT> const &start() const { return statement_list; }
-			spirit::rule<ScannerT> statement_list, statement, assign, identifier, fully_qualified_identifier;
+			spirit::classic::rule<ScannerT> const &start() const { return statement_list; }
+			spirit::classic::rule<ScannerT> statement_list, statement, assign, identifier, fully_qualified_identifier;
 			tstring left, right;
 			assignment_type s_assignment;
 		};
@@ -116,7 +119,7 @@ namespace litwindow {
 		litwindow::context_t c("RapidUI::add_rules");
 		c["source_url"]=t2string(source_url);
 		rules_parser language(this, to_group);
-		spirit::parse_info<TCHAR const*> info=spirit::parse(rules_list.c_str(), rules_list.c_str()+rules_list.length(), language >> spirit::end_p, comment_p);
+		spirit::classic::parse_info<TCHAR const*> info=spirit::classic::parse(rules_list.c_str(), rules_list.c_str()+rules_list.length(), language >> spirit::classic::end_p, comment_p);
 		if (info.full==false) {
 			c["error location"]=t2string(info.stop);
 			lw_err() << source_url << _T(": rules parser syntax error: ") << tstring(info.stop, 20) << endl;

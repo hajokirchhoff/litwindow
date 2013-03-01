@@ -53,7 +53,7 @@ void lwListAdapterBase::FillList()
 
         MessageBox(
             NULL,
-            (LPCWSTR)"lwwx library", (LPCWSTR)"wxList_objects.cpp@void lwListAdapterBase::FillList(): (!)maybe porting critical",
+            (LPCWSTR)L"lwwx library", (LPCWSTR)L"wxList_objects.cpp@void lwListAdapterBase::FillList(): (!)maybe porting critical",
             MB_OK | MB_ICONINFORMATION);
 
 
@@ -223,7 +223,7 @@ void lwListAdapterBase::SetValue(const accessor &newValue)
 
             MessageBox(
                 NULL,
-                (LPCWSTR)"lwwx library", (LPCWSTR)"void lwListAdapterBase::SetValue(const accessor &newValue): (!)maybe porting critical",
+                (LPCWSTR)L"lwwx library", (LPCWSTR)L"void lwListAdapterBase::SetValue(const accessor &newValue): (!)maybe porting critical",
                 MB_OK | MB_ICONINFORMATION);
 
             for (size_t i=0; i<m_enum_info->enum_count(); ++i)
@@ -232,7 +232,8 @@ void lwListAdapterBase::SetValue(const accessor &newValue)
                 // nlf 03122012:
                 //		zugriff auf wxGetTranslation löst LNK2019 beim binden uas, obwohl inlien deklariert...
                 //		womöglich wird die translation garnicht benötigt, deswegen habe ich sie vorerst aus dem code genommen
-                AppendList( current.m_name, (void*)current.m_value); //orig. code teil AppendList(wxGetTranslation(current.m_name), (void*)current.m_value);
+                //AppendList( current.m_name, (void*)current.m_value); //orig. code teil 
+                AppendList(wxGetTranslation(current.m_name), (void*)current.m_value);
 
             }
 
