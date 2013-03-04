@@ -273,7 +273,7 @@ namespace litwindow {
 		accessor(void *aThisPtr, const schema_base::const_iterator &aThisInfo)
 			:const_accessor(aThisPtr, aThisInfo)
 		{}
-		accessor(const void *aThisPtr, const schema_entry &e)
+		accessor(void *aThisPtr, const schema_entry &e)
 			:const_accessor(aThisPtr, e)
 		{}
 		accessor(void *aThisPtr, prop_t type)
@@ -948,16 +948,6 @@ namespace litwindow {
 	modified in any way. Its lifetime must be longer than the lifetime of the
 	accessor.
 	*/
-	/*
-	template <class Value>
-	inline accessor make_accessor(Value &v)
-    {  // void * p_2v= (void*)&v;
-		return accessor( &v, get_schema_entry<Value>(v) );
-
-//new char(), get_schema_entry<Value>(v));
-        //return accessor(v, const_cast<litwindow::schema_entry &>(get_schema_entry<Value>(v)));
-	}*/
-
 	template <class Value>
 	inline accessor make_accessor(Value &v)
 	{

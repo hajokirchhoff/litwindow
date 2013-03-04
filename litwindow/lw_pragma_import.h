@@ -9,7 +9,7 @@
 
 #ifndef _LITWINDOW_IMPORT_
 #define _LITWINDOW_IMPORT_
-//#define LWL_VERBOSE_BUILD 1
+
 #include "./config.hpp"
 
 #if defined(LWL_USING_DLL) && !defined(LITWINDOW_ALL_DYN_LINK)

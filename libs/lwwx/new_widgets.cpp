@@ -85,8 +85,8 @@ namespace litwindow {
 			m_focused_before_drop_down=FindFocus();
 			m_dropdown_widget=from;
 			wxString parent_name(m_dropdown_widget->GetName());
-			int width=wxConfigBase::Get()->Read(wxString::Format(_T("/dropdown_dialog::DropDownFrom/%s/width"), parent_name.wc_str()), 150);
-			int height=wxConfigBase::Get()->Read(wxString::Format(_T("/dropdown_dialog::DropDownFrom/%s/height"), parent_name.wc_str()), 150);
+			int width=wxConfigBase::Get()->Read(wxString::Format(_T("/dropdown_dialog::DropDownFrom/%s/width"), parent_name.c_str()), 150);
+			int height=wxConfigBase::Get()->Read(wxString::Format(_T("/dropdown_dialog::DropDownFrom/%s/height"), parent_name.c_str()), 150);
 			wxSize sz(from->GetSize());
 			wxPoint ps=from->ClientToScreen(wxPoint(0, 0));
 			wxRect startposition(ps.x, ps.y+sz.y-1, max(sz.x, width), height);
@@ -235,8 +235,8 @@ namespace litwindow {
 			if (m_dropdown_widget) {
 				wxString parent_name(m_dropdown_widget->GetName());
 				wxSize sz(GetSize());
-				wxConfigBase::Get()->Write(wxString::Format(_T("/dropdown_dialog::DropDownFrom/%s/width"), parent_name.wc_str()), sz.GetWidth());
-				wxConfigBase::Get()->Write(wxString::Format(_T("/dropdown_dialog::DropDownFrom/%s/height"), parent_name.wc_str()), sz.GetHeight());
+				wxConfigBase::Get()->Write(wxString::Format(_T("/dropdown_dialog::DropDownFrom/%s/width"), parent_name.c_str()), sz.GetWidth());
+				wxConfigBase::Get()->Write(wxString::Format(_T("/dropdown_dialog::DropDownFrom/%s/height"), parent_name.c_str()), sz.GetHeight());
 			}
 		}
 #pragma endregion
@@ -450,7 +450,7 @@ namespace litwindow {
 				m_user_data=new_user_data;
 				NotifyChanged(*this, "Value");
 			}
-			wxLogDebug(_T("**__%s %d"), text.wc_str(), new_user_data);
+			wxLogDebug(_T("**__%s %d"), text.c_str(), new_user_data);
 		}
 		void dropdown_control::find_user_data_for(const wxString &text, bool partial_match)
 		{

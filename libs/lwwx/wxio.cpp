@@ -18,14 +18,12 @@ namespace litwindow {
 
 	namespace {
 		void render_wxdatetime(tstring &out, const const_accessor &in, const tstring &format)
-        {
+		{
 			wxDateTime value(dynamic_cast_accessor<wxDateTime>(in).get());
-            std::string format_str(t2string(format));            
 			if (value.IsValid())
-				out= out;//value.FormatISODate();//value.Format(wxString(format_str.c_str()) ); // nlf: FAILURE, nicht reproduzierbar, aber erst beim binden und zugriff auf wxDateTime.Format(obwohl in der implib vorhanden) gibt es nichtaufgelöste externals
+				out=value.Format(format.c_str());
 			else
 				out.clear();
-           
 		}
 		dataadapter::register_renderer<wxDateTime, tstring> register_datetime_r(&render_wxdatetime, _T("%c"), dataadapter::renderer<tstring>::get());
 
@@ -120,7 +118,7 @@ struct read_from_config
 		    success=true;
 	    } else {
 		    if (!m_cfg->HasEntry(key)) {
-			    wxLogTrace(wxT("wxio"), wxT("%s is missing from configuration storage. Ignoring."), key.wc_str());
+			    wxLogTrace(wxT("wxio"), wxT("%s is missing from configuration storage. Ignoring."), key.c_str());
 			    success=true;
 		    } else {
 			    try {
@@ -133,7 +131,7 @@ struct read_from_config
 				    } else {
 					    wxString data;
 					    if (m_cfg->Read(key, &data)) {
-						    value.from_string((const TCHAR*)data.wc_str());
+						    value.from_string((const TCHAR*)data.c_str());
 						    success=true;
 					    }
 				    }
@@ -143,7 +141,7 @@ struct read_from_config
 			    }
 		    }
 		    if (!success)
-			    wxLogError(wxT("Reading %s from configuration storage failed!"), key.wc_str());
+			    wxLogError(wxT("Reading %s from configuration storage failed!"), key.c_str());
 	    }
     }
     wxConfigBase *m_cfg;
@@ -178,7 +176,7 @@ struct write_to_config
             m_cfg->DeleteGroup(key);
             while (begin!=end) {
                 tostringstream s;
-                s << currentPath.wc_str() << wxT("/") << key.t_str() << wxT("/") << setw(10) << setfill(wxT('0')) << count;
+                s << currentPath << wxT("/") << key << wxT("/") << setw(10) << setfill(wxT('0')) << count;
                 m_cfg->SetPath(s.str().c_str());
                 (*m_cfg) << *begin;
                 ++begin;
@@ -203,7 +201,7 @@ struct write_to_config
             }
         }
         if (!success)
-            wxLogError(wxT("Writing %s to configuration storage failed!"), key.wc_str());
+            wxLogError(wxT("Writing %s to configuration storage failed!"), key.c_str());
     }
     wxConfigBase *m_cfg;
 };

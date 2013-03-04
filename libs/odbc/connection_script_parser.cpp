@@ -10,18 +10,11 @@
 #include "stdafx.h"
 #include <sqlext.h>
 #include <litwindow/logging.h>
-
-//#include <boost/spirit.hpp>
-//#include <boost/spirit/actor.hpp>
-
 #include <boost/spirit/include/classic.hpp>
-#include <boost/spirit/home/classic/actor.hpp>
-#include <boost/spirit/include/classic_iterator.hpp>
-#include <boost/spirit/include/classic_core.hpp>
-
+#include <boost/spirit/include/classic_actor.hpp>
 #include <boost/bind.hpp>
-#include "litwindow/odbc/connection.h"
-#include "litwindow/odbc/statement.h"
+#include "connection.h"
+#include "statement.h"
 
 #define new DEBUG_NEW
 
@@ -29,13 +22,13 @@ namespace litwindow {
 
 namespace odbc {
 
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
-typedef boost::spirit::classic::position_iterator<const TCHAR*> sql_grammar_iterator_t;
+typedef position_iterator<const TCHAR*> sql_grammar_iterator_t;
 
 namespace {
 
-	typedef boost::spirit::classic::parser_error<tstring, sql_grammar_iterator_t> action_failed;
+	typedef parser_error<tstring, sql_grammar_iterator_t> action_failed;
 
 	struct parser_actions:public boost::noncopyable {
 		parser_actions(connection &operate_on)
@@ -100,26 +93,24 @@ namespace {
 };
 
 template <typename Actions>
-struct script_grammar:public boost::spirit::classic::grammar<script_grammar<Actions> >,boost::noncopyable
+struct script_grammar:public grammar<script_grammar<Actions> >,boost::noncopyable
 {
 	template <typename ScannerT>
 	struct definition
 	{
 		definition(script_grammar const &self)
 		{
-			using namespace boost::spirit::classic;
-
 			Actions &actions=self.actions;
 
 			skip_p
-				=   *boost::spirit::classic::space_p;
+				=   *space_p;
 
 			unquoted_identifier
-				=   ( boost::spirit::classic::alpha_p | _T('#') | _T('_') )
-				>> * (boost::spirit::classic::alnum_p | _T('#') | _T('$') | _T('_'));
+				=   ( alpha_p | _T('#') | _T('_') )
+				>> * (alnum_p | _T('#') | _T('$') | _T('_'));
 
 			quoted_identifier 
-				=   boost::spirit::classic::confix_p(ch_p(_T('"')), *(~ch_p(_T('"'))) % str_p(_T("\"\"")), _T('"'));
+				=   confix_p(ch_p(_T('"')), *(~ch_p(_T('"'))) % str_p(_T("\"\"")), _T('"'));
 
 			identifier
 				=   (
@@ -128,19 +119,19 @@ struct script_grammar:public boost::spirit::classic::grammar<script_grammar<Acti
 				;
 
 			uinteger
-				=   +boost::spirit::classic::digit_p;
+				=   +digit_p;
 			ureal
-				=   +boost::spirit::classic::digit_p >> skip_p >> boost::spirit::classic::ch_p(_T('.')) >> skip_p >> *boost::spirit::classic::digit_p;
+				=   +digit_p >> skip_p >> ch_p(_T('.')) >> skip_p >> *digit_p;
 
 			number
-				=   boost::spirit::classic::longest_d[ ureal | uinteger ];
+				=   longest_d[ ureal | uinteger ];
 
 			string_character
-				=   boost::spirit::classic::str_p(_T("''"))     // two single quotes escape a quote
-				|   ~boost::spirit::classic::ch_p(_T('\''));    // any non-quote character
+				=   str_p(_T("''"))     // two single quotes escape a quote
+				|   ~ch_p(_T('\''));    // any non-quote character
 
 			string_literal 
-				=   boost::spirit::classic::confix_p(ch_p(_T('\'')), *string_character, _T('\''));
+				=   confix_p(ch_p(_T('\'')), *string_character, _T('\''));
 
 			comment
 				=   ( str_p(_T("--")) >> *anychar_p >> eol_p)
@@ -150,18 +141,18 @@ struct script_grammar:public boost::spirit::classic::grammar<script_grammar<Acti
 				=   identifier[boost::bind(&Actions::macro, &actions, _1, _2)];
 
 			macro 
-				=   ( boost::spirit::classic::str_p(_T("$$")) >> macro_name )
-				|   boost::spirit::classic::confix_p(boost::spirit::classic::str_p(_T("$(")), macro_name, boost::spirit::classic::ch_p(_T(')')));
+				=   ( str_p(_T("$$")) >> macro_name )
+				|   confix_p(str_p(_T("$(")), macro_name, ch_p(_T(')')));
 
 			statement_separator
-				=   boost::spirit::classic::ch_p(_T(';')) 
-				|   (_T('!') >> *boost::spirit::classic::blank_p >> boost::spirit::classic::eol_p);
+				=   ch_p(_T(';')) 
+				|   (_T('!') >> *blank_p >> eol_p);
 
 			odbc_escape_type
 				=   unquoted_identifier;
 
 			operator_token
-				=   boost::spirit::classic::ch_p(_T('+'))
+				=   ch_p(_T('+'))
 				|   _T('-')
 				|   _T('/')
 				|   _T('*')
@@ -172,9 +163,9 @@ struct script_grammar:public boost::spirit::classic::grammar<script_grammar<Acti
 				|   _T('(')
 				|   _T(')')
 				|   _T(',')
-				|   (boost::spirit::classic::ch_p(_T('<')) >> skip_p >> _T('='))
-				|   (boost::spirit::classic::ch_p(_T('>')) >> skip_p >> _T('='))
-				|   (boost::spirit::classic::ch_p(_T('<')) >> skip_p >> _T('>'))
+				|   (ch_p(_T('<')) >> skip_p >> _T('='))
+				|   (ch_p(_T('>')) >> skip_p >> _T('='))
+				|   (ch_p(_T('<')) >> skip_p >> _T('>'))
 				;
 
 			odbc_escape_body
@@ -182,12 +173,12 @@ struct script_grammar:public boost::spirit::classic::grammar<script_grammar<Acti
 				|   identifier
 				|   number
 				|   operator_token
-				|   ( (~boost::spirit::classic::ch_p(_T('}')))>> boost::spirit::classic::eps_p[boost::bind(&Actions::log_unknown_input, &actions, _1, _2)] )
+				|   ( (~ch_p(_T('}')))>> eps_p[boost::bind(&Actions::log_unknown_input, &actions, _1, _2)] )
 				) 
 				>> skip_p);
 
 			odbc_escape
-				=   boost::spirit::classic::confix_p(ch_p(_T('{')) >> skip_p, odbc_escape_type >> skip_p >> odbc_escape_body >> skip_p, boost::spirit::classic::ch_p(_T('}')));
+				=   confix_p(ch_p(_T('{')) >> skip_p, odbc_escape_type >> skip_p >> odbc_escape_body >> skip_p, ch_p(_T('}')));
 
 			repeat_until_sequence
 				=       str_p(_T("$#REPEAT"))[boost::bind(&Actions::repeat, &actions, parser_actions::repeat_state)] >> skip_p
@@ -226,8 +217,8 @@ struct script_grammar:public boost::spirit::classic::grammar<script_grammar<Acti
 					>>  *(  ( repeat_until_sequence | statement_separator ) >> skip_p
 					>> ! ( statement >> skip_p ) );
 		}
-		boost::spirit::classic::rule<ScannerT> const &start() const { return script; }
-		boost::spirit::classic::rule<ScannerT>  script, tokens, statement, string_literal, identifier, unquoted_identifier, quoted_identifier, macro,
+		rule<ScannerT> const &start() const { return script; }
+		rule<ScannerT>  script, tokens, statement, string_literal, identifier, unquoted_identifier, quoted_identifier, macro,
 			statement_separator, comment, token, skip_p, macro_name, string_character, odbc_escape, odbc_escape_type, odbc_escape_body, number,
 			operator_token, uinteger, ureal, repeat_until_sequence, repeat_value_marker, unknown_token;
 	};
@@ -267,13 +258,13 @@ sqlreturn connection::execute(const litwindow::tstring &script)
 	m_last_error.clear();
 	parser_actions actions(*this);
 	script_grammar<parser_actions> g(&actions);
-	boost::spirit::classic::parse_info<sql_grammar_iterator_t> pi;
+	parse_info<sql_grammar_iterator_t> pi;
 	sql_grammar_iterator_t begin(script.c_str(), script.c_str()+script.length());
 	sql_grammar_iterator_t end;
 	int last_line, last_column;
 	last_line=last_column=0;
 	try {
-		pi= boost::spirit::classic::parse(begin, end, g);
+		pi=parse(begin, end, g);
 		if (pi.full==false)
 			set_last_error(sqlreturn(_T("error in script"), odbc::err_parsing_SQL_statement));
 	}

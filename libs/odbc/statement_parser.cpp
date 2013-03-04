@@ -14,13 +14,8 @@
 #endif
 
 
-//#include <boost/spirit.hpp>
-//#include <boost/spirit/actor.hpp>
-
-
 #include <boost/spirit/include/classic.hpp>
-#include <boost/spirit/home/classic/actor.hpp>
-
+#include <boost/spirit/include/classic_actor.hpp>
 #include <boost/bind.hpp>
 #include <malloc.h>
 #include <litwindow/logging.h>
@@ -37,8 +32,8 @@ namespace odbc {
 
 #define new DEBUG_NEW
 
-typedef boost::spirit::classic::scanner<const TCHAR*> scanner_t;
-typedef boost::spirit::classic::rule<scanner_t> trule;
+typedef scanner<const TCHAR*> scanner_t;
+typedef rule<scanner_t > trule;
 
 
 //distinct_parser<wide_phrase_scanner_t> keyword_p(_T("a-zA-Z0-9_"));

@@ -292,7 +292,7 @@ void add_group_rule(RapidUI &r, const wxString &target, const E &e)
 	GroupNames m(target);
 	wxString next;
 	while ( !(next=m.Next()).IsEmpty() ) {
-		r.Assign(make_rule(r.GetAccessor((const TCHAR*)next.wc_str()), e), wxT(""));
+		r.Assign(make_rule(r.GetAccessor((const TCHAR*)next.c_str()), e), wxT(""));
 	}
 }
 

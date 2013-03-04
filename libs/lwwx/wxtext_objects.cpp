@@ -32,7 +32,7 @@ namespace litwindow {
 		if (get_value_internal().empty())
 			m_asDouble=numeric_limits<double>::infinity();
 		else {
-			tistringstream s((const TCHAR*)get_value_internal().wc_str());
+			tistringstream s((const TCHAR*)get_value_internal().c_str());
 			m_asDouble=0.0;
 			s >> m_asDouble;
 		}
@@ -152,7 +152,7 @@ namespace litwindow {
 			ChangeValueAccessor(make_accessor(m_asDouble));
 		} else {
 			litwindow::renderer<tstring> &r(litwindow::renderer<tstring>::get());
-			wxString theValue=r(newValue, (const TCHAR*)GetFormat().wc_str());
+			wxString theValue=r(newValue, (const TCHAR*)GetFormat().c_str());
 			// if string is empty, then empty strings will NOT count as NULL
 			m_null_is_empty_string=GetNull() || theValue.empty()==false;
 			set_value_internal(theValue);
@@ -190,7 +190,7 @@ namespace litwindow {
 	void wxStaticTextAdapter::SetValue(const accessor &newValue)
 	{
 		litwindow::renderer<tstring> &r(litwindow::renderer<tstring>::get());
-		m_text=r(newValue, (const TCHAR*)GetFormat().wc_str());
+		m_text=r(newValue, (const TCHAR*)GetFormat().c_str());
 		if (m_text!=m_wnd->GetLabel()) {
 			m_wnd->SetLabel(m_text);
 			litwindow::NotifyChanged(*this, "Value");/* , false, false);

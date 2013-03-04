@@ -10,29 +10,12 @@
 #include <sqlext.h>
 #include <litwindow/dataadapter.h>
 #include <litwindow/logging.h>
-//#include <boost/spirit.hpp>
-//#include <boost/spirit/actor.hpp>
-
-/*
-#include <boost/spirit/home/classic/core.hpp>
-#include <boost/spirit/home/classic/actor.hpp>
-#include <boost/spirit/home/classic/core/primitives/impl/numerics.ipp>
-
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/qi_uint.hpp>
-*/
-
-#include <boost/spirit/include/classic.hpp>
-#include <boost/spirit/home/classic/actor.hpp>
-#include <boost/spirit/include/classic_iterator.hpp>
-#include <boost/spirit/include/classic_core.hpp>
-
-
 #include <boost/bind.hpp>
-
+#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/classic_actor.hpp>
 #include <set>
 #include <iomanip>
-#include "litwindow/odbc/statement.h"
+#include "./statement.h"
 #include <boost/uuid/uuid.hpp>
 #define new DEBUG_NEW
 
@@ -56,23 +39,21 @@ litwindow::tstring litwindow::converter<TIME_STRUCT>::to_string(const TIME_STRUC
 	return out.str();
 }
 namespace {
-	
+	using namespace boost::spirit::classic;
 	template <typename NumberValue>
 	bool parse_time(const litwindow::tstring &newValue, NumberValue &hours, NumberValue &minutes, NumberValue &seconds)
 	{
-		using namespace boost::spirit::classic;
-
 		hours=0; minutes=0; seconds=0;
-		return 
-			parse(
-				newValue.begin(), 
-				newValue.end(), 
-				limit_d(0u, 23u)[uint_parser<NumberValue, 10, 1, 2>()[assign_a(hours)]] >> 
-					!(
-					limit_d(0u, 59u)[uint_parser<NumberValue, 10, 2, 2>()[assign_a(minutes)]] >>
-					!limit_d(0u,59u)[uint_parser<NumberValue, 10, 2, 2>()[assign_a(seconds)]] ) >>
-					!(as_lower_d[str_p(_T("am")) | str_p(_T("pm"))]),
-				space_p | chset_p(_T(":.-"))
+		return parse(
+			newValue.begin(), 
+			newValue.end(), 
+			limit_d(0u, 23u)[uint_parser<NumberValue, 10, 1, 2>()[assign_a(hours)]] >> 
+			!(
+			limit_d(0u, 59u)[uint_parser<NumberValue, 10, 2, 2>()[assign_a(minutes)]] >>
+			!limit_d(0u,59u)[uint_parser<NumberValue, 10, 2, 2>()[assign_a(seconds)]] ) >>
+			!(as_lower_d[str_p(_T("am")) | str_p(_T("pm"))])
+			,
+			space_p | chset_p(_T(":.-"))
 			).full;
 	}
 };
@@ -84,10 +65,10 @@ size_t litwindow::converter<TIME_STRUCT>::from_string(const litwindow::tstring &
 	memset(&t, 0, sizeof(t));
 	{
 		basic_istringstream<TCHAR> in(newValue);
-		use_facet<time_get<TCHAR>>(locale()).get_time(in.rdbuf(), basic_istream<TCHAR>::_Iter(0), in, st, &t);
+		use_facet<time_get<TCHAR	> >(locale()).get_time(in.rdbuf(), basic_istream<TCHAR>::_Iter(0), in, st, &t);
 	}
 	if (st & ios_base::failbit) {
-		int hours=0, minutes=0, seconds=0;
+		size_t hours=0, minutes=0, seconds=0;
 		if (parse_time(newValue, hours, minutes, seconds)==false) {
 			v.hour=v.minute=v.second=0;
 			throw lwbase_error("invalid time format");
@@ -682,7 +663,7 @@ sqlreturn data_type_lookup::get(prop_t type, data_type_info &i)
 	data_type_info_register &the_map(get_data_type_info_register());
 	data_type_info_register::const_iterator data=find_data_type_info(type);
 	if (data==the_map.end())
-		data=find_if(the_map.begin(), the_map.end(), boost::bind(&data_type_info::can_handle, ::_1, type));
+		data=find_if(the_map.begin(), the_map.end(), boost::bind(&data_type_info::can_handle, _1, type));
 	if (data==the_map.end())
 		return sqlreturn(_("There is no registered SQL binder for type ")+s2tstring(type->get_type_name()), odbc::err_no_such_type);
 	i=*data;
@@ -859,5 +840,3 @@ litwindow::tstring litwindow::converter<TIMESTAMP_STRUCT>::to_string(const TIMES
 	return str.str();
 }
 LWL_IMPLEMENT_ACCESSOR(TIMESTAMP_STRUCT);
-
-

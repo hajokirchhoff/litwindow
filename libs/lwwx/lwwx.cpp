@@ -20,9 +20,9 @@ struct get_lwlog_dumper:public wrapping_tstreambuf::dumper_t
 {
     tostream &get()
     {
-        if (!out.is_open()) 
+        if (!out.is_open())
             out.open(t2string(m_file_name).c_str(), ios::app);
-        return out << endl << wxT("************************ ") << m_title << wxT(" ***************************") << endl << wxDateTime::Now().Format(_T("%c")).t_str() << endl;
+        return out << endl << wxT("************************ ") << m_title << wxT(" ***************************") << endl << wxDateTime::Now().Format(_T("%c")) << endl;
     }
     tstring m_file_name;
     tstring m_title;
