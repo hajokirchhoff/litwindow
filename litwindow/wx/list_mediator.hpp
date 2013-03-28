@@ -82,23 +82,44 @@ namespace litwindow {
 			{
 				size_t idx=0;
 				typename Mediator::columns_type &c(m.columns());
+				wxArrayInt cols_order(c.size());
+/*
+				if (This()->column_count(ctrl)) {
+					wxArrayInt cdefault(This()->column_count(ctrl));
+					for (int i=0; i<cdefault.size(); ++i)
+						cdefault[i]=i;
+					ctrl->SetColumnsOrder(cdefault);
+				}
+*/
 				while (idx<c.size()) {
 					if (idx>=This()->column_count(ctrl))
 						This()->insert_column(ctrl, idx, c.column_descriptor(idx));
 					else
 						This()->set_column(ctrl, idx, c.column_descriptor(idx));
+					cols_order[idx]=c.column_descriptor(idx).position();
+					if (cols_order[idx]==-1)
+						cols_order[idx]=(int)idx;
+					else if (cols_order[idx]!=idx)
+						cols_order[idx]=cols_order[idx];
 					++idx;
 				}
 				while (column_count(ctrl)>c.size())
 					This()->remove_column(ctrl, column_count(ctrl)-1);
+				if (!c.empty())
+					ctrl->SetColumnsOrder(cols_order);
 			}
 			template <typename Mediator>
 			void get_columns(Mediator &m, typename Mediator::uicontrol_type *ctrl)
 			{
 				size_t idx=0;
 				typename Mediator::columns_type &c(m.columns());
+				wxArrayInt cols_order;
+				if (This()->column_count(ctrl)>0)
+					cols_order=ctrl->GetColumnsOrder();
 				while (idx<c.size() && idx<This()->column_count(ctrl)) {
 					This()->get_column(ctrl, idx, c.column_descriptor(idx));
+					if (idx<cols_order.size())
+						c.column_descriptor(idx).position(cols_order[idx]);
 					++idx;
 				}
 			}

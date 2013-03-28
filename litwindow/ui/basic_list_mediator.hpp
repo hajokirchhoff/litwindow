@@ -50,18 +50,25 @@ namespace litwindow {
             void visible(bool do_show) { m_visible=do_show; }
 			bool image() const { return m_image; }
 			bool image(bool is_image) { m_image=is_image; }
+			void position(int new_position) { m_position=new_position; }
+			int  position() const { return m_position; }
 			template <typename Archive>
 			void serialize(Archive &ar, const unsigned int version)
 			{
-				ar & BOOST_SERIALIZATION_NVP(m_title) & BOOST_SERIALIZATION_NVP(m_width) & BOOST_SERIALIZATION_NVP(m_visible);				
+				ar & BOOST_SERIALIZATION_NVP(m_title) & BOOST_SERIALIZATION_NVP(m_width) & BOOST_SERIALIZATION_NVP(m_visible);
+				if (version>=1)
+					ar & BOOST_SERIALIZATION_NVP(m_position);
+				else if (Archive::is_loading())
+					m_position=-1;
 			}
 			basic_column_label(const tstring &title, int width=-1, bool visible=true, bool is_image=false)
-				:m_title(title),m_width(width),m_visible(visible),m_image(is_image){}
+				:m_title(title),m_width(width),m_visible(visible),m_image(is_image),m_position(-1){}
 		protected:
 			tstring m_title;
 			int     m_width;
 			bool    m_visible;
 			bool	m_image;
+			int		m_position;
 		};
 
 
@@ -478,6 +485,7 @@ namespace litwindow {
 							columns_t::value_type &current(*i);
 							current.width(src.width());
 							current.visible(src.visible());
+							current.position(src.position());
 						}
 					}
 				};
@@ -810,6 +818,8 @@ namespace litwindow {
 
     }
 }
+
+BOOST_CLASS_VERSION(litwindow::ui::basic_column_label, 1);
 
 #pragma optimize("", on)
 #endif // list_mediator_h__31080910
