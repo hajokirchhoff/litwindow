@@ -5,6 +5,7 @@
 /LICENSE.txt -text
 /README.txt -text
 /build_all_vc2008.bat -text
+libs/litwindow-static.props -text
 libs/litwindow.props -text
 libs/litwindow.vsprops -text
 libs/lwbase-VC90/lwbase-VC90.vcproj -text
