@@ -90,34 +90,42 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\litwindow.props" />
+    <Import Project="..\..\..\..\litwindow-build.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\litwindow.props" />
+    <Import Project="..\..\..\..\litwindow-build.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\litwindow.props" />
+    <Import Project="..\..\..\..\litwindow-build.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\litwindow.props" />
+    <Import Project="..\..\..\..\litwindow-build.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\litwindow.props" />
+    <Import Project="..\..\..\..\litwindow-build.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\litwindow.props" />
+    <Import Project="..\..\..\..\litwindow-build.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\litwindow.props" />
+    <Import Project="..\..\..\..\litwindow-build.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\litwindow.props" />
+    <Import Project="..\..\..\..\litwindow-build.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -125,6 +133,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)..\stage64\lib\</OutDir>
@@ -141,6 +150,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>lib$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">
     <OutDir>$(SolutionDir)..\stage64\lib\</OutDir>
@@ -149,6 +159,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>lib$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">
     <OutDir>$(SolutionDir)..\stage64\lib\</OutDir>
@@ -169,15 +180,14 @@
       <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName)d.exe</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>set PATH=$(ProjectDir)..\..\..\..\boost\stage\lib%3b$(ProjectDir)..\..\..\..\litwindow\stage\lib%3b%25PATH%25
-"$(TargetPath)"
-</Command>
+      <Command>"$(TargetPath)"</Command>
+      <Message>Running lwbase_unittests</Message>
     </PostBuildEvent>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -205,9 +215,8 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>set PATH=$(ProjectDir)..\..\..\..\boost\stage\lib%3b$(ProjectDir)..\..\..\..\litwindow\stage\lib%3b%25PATH%25
-"$(TargetPath)"
-</Command>
+      <Command>"$(TargetPath)"</Command>
+      <Message>Running lwbase_unittests</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -231,9 +240,8 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>set PATH=$(ProjectDir)..\..\..\..\boost\stage\lib%3b$(ProjectDir)..\..\..\..\litwindow\stage\lib%3b%25PATH%25
-"$(TargetPath)"
-</Command>
+      <Command>"$(TargetPath)"</Command>
+      <Message>Running lwbase_unittests</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -260,33 +268,35 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>set PATH=$(ProjectDir)..\..\..\..\boost\stage\lib%3b$(ProjectDir)..\..\..\..\litwindow\stage\lib%3b%25PATH%25
-"$(TargetPath)"
-</Command>
+      <Command>"$(TargetPath)"</Command>
+      <Message>Running lwbase_unittests</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../..;../../../../boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);LWL_VERBOSE_BUILD</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)lib$(ProjectName)d.exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <ShowProgress>LinkVerboseLib</ShowProgress>
     </Link>
+    <PostBuildEvent />
     <PostBuildEvent>
-      <Command>set PATH=$(ProjectDir)..\..\..\..\boost\stage\lib%3b$(ProjectDir)..\..\..\..\litwindow\stage\lib%3b%25PATH%25
-"$(TargetPath)"
-</Command>
+      <Command>"$(TargetPath)"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Running lwbase_unittests</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">
@@ -311,9 +321,8 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>set PATH=$(ProjectDir)..\..\..\..\boost\stage\lib%3b$(ProjectDir)..\..\..\..\litwindow\stage\lib%3b%25PATH%25
-"$(TargetPath)"
-</Command>
+      <Command>"$(TargetPath)"</Command>
+      <Message>Running lwbase_unittests</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">
@@ -329,7 +338,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)lib$(ProjectName).exe</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -337,9 +346,8 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>set PATH=$(ProjectDir)..\..\..\..\boost\stage\lib%3b$(ProjectDir)..\..\..\..\litwindow\stage\lib%3b%25PATH%25
-"$(TargetPath)"
-</Command>
+      <Command>"$(TargetPath)"</Command>
+      <Message>Running lwbase_unittests</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">
@@ -366,9 +374,8 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>set PATH=$(ProjectDir)..\..\..\..\boost\stage\lib%3b$(ProjectDir)..\..\..\..\litwindow\stage\lib%3b%25PATH%25
-"$(TargetPath)"
-</Command>
+      <Command>"$(TargetPath)"</Command>
+      <Message>Running lwbase_unittests</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

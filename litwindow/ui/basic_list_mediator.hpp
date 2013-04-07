@@ -406,7 +406,7 @@ namespace litwindow {
 
 			size_t get_column_index(const wstring &title) const
 			{
-				columns_t::const_iterator i=find_if(columns().begin(), columns().end(), bind(&columns_t::value_type::title, _1)==title);
+				columns_t::const_iterator i=find_if(columns().begin(), columns().end(), boost::bind(&columns_t::value_type::title, _1)==title);
 				if (i==columns().end())
 					throw runtime_error("get_column_index: no such column");
 				return i-columns().begin();
