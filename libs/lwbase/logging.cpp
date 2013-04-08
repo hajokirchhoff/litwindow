@@ -59,7 +59,7 @@ wrapping_tstreambuf::wrapping_tstreambuf(std::streamsize _Count, wrapping_tstrea
 {
 	//str(tstring().resize(_Count));
 	tstring s;
-	s.resize(_Count);
+	s.resize((tstring::size_type)_Count);
 	str(s);
 }
 

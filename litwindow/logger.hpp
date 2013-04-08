@@ -740,6 +740,8 @@ namespace litwindow {
 		// ---------------------------------------------------------------------------------------------
 
         enum enable_state { enabled, disabled };
+#pragma warning(push)
+#pragma warning(disable: 4250)
 		/// Base class for logging events
 		template <
 			typename _Elem,
@@ -820,7 +822,6 @@ namespace litwindow {
 					return operator&&(pFn);
 				}
 			};
-
 
 			basic_events(
 				const component_type &c=default_component<char_type>(),
@@ -1027,6 +1028,7 @@ namespace litwindow {
 			component_type	m_default_component, m_component;
 			topic_type		m_default_topic, m_topic;
 		};
+#pragma warning(pop)
 
 		template <typename _Elem, typename Streambuf>
 		inline basic_events<_Elem, Streambuf> &debug(basic_events<_Elem, Streambuf> &in) { in.level(basic_level<_Elem>::debug); return in; }
