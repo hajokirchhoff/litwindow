@@ -70,7 +70,7 @@ namespace litwindow {
 			static LWODBC_API sqlreturn construct_from_dbms_name(const tstring &name, const tstring &version, const tstring &odbc_connection_string, boost::shared_ptr<dbms_base> &ptr) throw();
 
 			/// take a file name and build an odbc connection string for it
-			static LWODBC_API litwindow::tstring construct_odbc_connection_string_from_file_name(const tstring &file, const tstring &uid=tstring(), const tstring &pwd=tstring(), bool read_only=false) throw();
+			static LWODBC_API litwindow::tstring construct_odbc_connection_string_from_file_name(const tstring &file, const tstring &uid=tstring(), const tstring &pwd=tstring(), bool read_only=false, const tstring &file_type=tstring()) throw();
 
 			LWODBC_API virtual tstring get_dbms_name() const { return tstring(); }
             LWODBC_API virtual tstring get_driver_name() const { return tstring(); }

@@ -100,7 +100,7 @@ public:
 
 	/// Connect to a file based datasource. Iterate over all strategy objects to build a connection string, then open it.
 	/// \p dsn_addition is a string that will be appended to the dsn before opening it. It allows extras such as MS-Excels IMEX=1.
-	const sqlreturn LWODBC_API &open_file(const litwindow::tstring &file, const litwindow::tstring &uid, const litwindow::tstring &pwd, bool read_only=false, const litwindow::tstring &dsn_addition=litwindow::tstring()) throw();
+	const sqlreturn LWODBC_API &open_file(const litwindow::tstring &file, const litwindow::tstring &uid, const litwindow::tstring &pwd, bool read_only=false, const litwindow::tstring &dsn_addition=litwindow::tstring(), const litwindow::tstring &file_type=litwindow::tstring()) throw();
 
 	bool LWODBC_API				set_uid(const tstring &uid) throw();
 	const tstring LWODBC_API		&get_uid() const throw();

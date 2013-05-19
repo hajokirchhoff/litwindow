@@ -69,8 +69,8 @@ namespace litwindow {
 			return fileformat;
 		}
 
-		LWODBC_API litwindow::tstring dbms_base::construct_odbc_connection_string_from_file_name( const tstring &file, const tstring &uid/*=tstring()*/, const tstring &pwd/*=tstring()*/, bool read_only/*=false*/ ) throw()
-{
+		LWODBC_API litwindow::tstring dbms_base::construct_odbc_connection_string_from_file_name( const tstring &file, const tstring &uid/*=tstring()*/, const tstring &pwd/*=tstring()*/, bool read_only/*=false*/, const tstring &file_type/*=tstring()*/ ) throw()
+		{
 			//TODO: This code should be moved into the separate dbms objects
 #ifdef _WIN32
 #define PATH_SEP _T('\\')
@@ -78,7 +78,7 @@ namespace litwindow {
 #error define PATH_SEP appropriately, or better still: use boost::file once it works properly for unicode paths
 #endif
 			tstring rc;
-			tstring extension=file.substr(max(0, file.length()-3));
+			tstring extension=file_type.empty() ? file.substr(max(0, file.length()-3)) : file_type;
 			tstring file_path;
 			size_t file_sep=file.rfind(PATH_SEP);
 			if (file_sep!=tstring::npos)
