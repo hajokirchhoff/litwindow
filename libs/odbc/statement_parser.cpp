@@ -14,15 +14,15 @@
 #endif
 
 
-#include <boost/spirit.hpp>
-#include <boost/spirit/actor.hpp>
+#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/classic_actor.hpp>
 #include <boost/bind.hpp>
 #include <malloc.h>
 #include <litwindow/logging.h>
 #include "statement.h"
 
 
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
 #pragma warning(disable: 4312 4267)
 

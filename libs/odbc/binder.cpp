@@ -11,8 +11,8 @@
 #include <litwindow/dataadapter.h>
 #include <litwindow/logging.h>
 #include <boost/bind.hpp>
-#include <boost/spirit.hpp>
-#include <boost/spirit/actor.hpp>
+#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/classic_actor.hpp>
 #include <set>
 #include <iomanip>
 #include "./statement.h"
@@ -39,7 +39,7 @@ litwindow::tstring litwindow::converter<TIME_STRUCT>::to_string(const TIME_STRUC
 	return out.str();
 }
 namespace {
-	using namespace boost::spirit;
+	using namespace boost::spirit::classic;
 	template <typename NumberValue>
 	bool parse_time(const litwindow::tstring &newValue, NumberValue &hours, NumberValue &minutes, NumberValue &seconds)
 	{

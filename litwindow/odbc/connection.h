@@ -81,9 +81,9 @@ public:
 	static pool_imp_base LWODBC_API& pool() throw();
 
 	enum cursor_implementation_enum {
-		use_odbc_cursors = SQL_CUR_USE_ODBC,
+		//use_odbc_cursors = SQL_CUR_USE_ODBC,
 		use_driver_cursors = SQL_CUR_USE_DRIVER,
-		use_odbc_cursors_if_needed = SQL_CUR_USE_IF_NEEDED
+		//use_odbc_cursors_if_needed = SQL_CUR_USE_IF_NEEDED
 	};
 	/** specify which cursor implementation to use */
 	const sqlreturn LWODBC_API &set_cursor_implementation(cursor_implementation_enum crs);
@@ -100,7 +100,7 @@ public:
 
 	/// Connect to a file based datasource. Iterate over all strategy objects to build a connection string, then open it.
 	/// \p dsn_addition is a string that will be appended to the dsn before opening it. It allows extras such as MS-Excels IMEX=1.
-	const sqlreturn LWODBC_API &open_file(const litwindow::tstring &file, const litwindow::tstring &uid, const litwindow::tstring &pwd, bool read_only=false, const litwindow::tstring &dsn_addition=litwindow::tstring()) throw();
+	const sqlreturn LWODBC_API &open_file(const litwindow::tstring &file, const litwindow::tstring &uid, const litwindow::tstring &pwd, bool read_only=false, const litwindow::tstring &dsn_addition=litwindow::tstring(), const litwindow::tstring &file_type=litwindow::tstring()) throw();
 
 	bool LWODBC_API				set_uid(const tstring &uid) throw();
 	const tstring LWODBC_API		&get_uid() const throw();

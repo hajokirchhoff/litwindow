@@ -371,9 +371,11 @@ namespace litwindow {
 		size_t i;
 		for (i=0; i<sizeof(join)/sizeof(*join); ++i) {
 			if (join[i]->length()) {
-				if (rc.length()) rc+=_T(';');
-				rc+=keyword[i];
-				rc+=*join[i];
+				if (join[i]->empty()==false) {
+					if (rc.length()) rc+=_T(';');
+					rc+=keyword[i];
+					rc+=*join[i];
+				}
 			}
 		}
 		return rc;
@@ -381,7 +383,11 @@ namespace litwindow {
 
 	const sqlreturn &connection::open(const litwindow::tstring &dsn, const litwindow::tstring &uid, const litwindow::tstring &pwd)
 	{
-		set_dsn(dsn);
+		bool is_connection_string=dsn.find_first_of(_T(";="))!=tstring::npos;
+		if (is_connection_string)
+			set_connection_string(dsn);
+		else
+			set_dsn(dsn);
 		set_uid(uid);
 		set_pwd(pwd);
 		(is_open()==false || close().success()) && open();
@@ -632,9 +638,9 @@ namespace litwindow {
 		return m_last_error;
 	}
 
-	const sqlreturn LWODBC_API & connection::open_file( const litwindow::tstring &file, const litwindow::tstring &uid, const litwindow::tstring &pwd, bool read_only/*=false*/, const litwindow::tstring &dsn_addition ) throw()
+	const sqlreturn LWODBC_API & connection::open_file( const litwindow::tstring &file, const litwindow::tstring &uid, const litwindow::tstring &pwd, bool read_only/*=false*/, const litwindow::tstring &dsn_addition/*=litwindow::tstring()*/, const litwindow::tstring &file_type/*=litwindow::tstring()*/ ) throw()
 	{
-		tstring odbc_connection_string=dbms_base::construct_odbc_connection_string_from_file_name(file, uid, pwd, read_only);
+		tstring odbc_connection_string=dbms_base::construct_odbc_connection_string_from_file_name(file, uid, pwd, read_only, file_type);
 		return open(odbc_connection_string+_T(';')+dsn_addition);
 	}
 
