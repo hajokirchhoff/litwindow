@@ -24,9 +24,13 @@
 //#include <boost/archive/text_wiarchive.hpp>
 //#include <boost/archive/text_woarchive.hpp>
 
+#include <boost/version.hpp>
+#if BOOST_VERSION < 104700
 #ifndef BOOST_TYPEOF_SILENT
 #define BOOST_TYPEOF_SILENT
 #endif
+#endif
+
 #include <boost/typeof/typeof.hpp>
 #include <iterator>
 
