@@ -47,6 +47,12 @@ namespace litwindow { namespace ui {
 	};
 
 	
+
+	template <typename ListMediator>
+	boost::shared_ptr<list_edit_mediator<ListMediator> > make_edit_mediator(ListMediator &med)
+	{
+		boost::shared_ptr<list_edit_mediator<ListMediator> > rc(new list_edit_mediator<ListMediator>);
+	}
 	//------------------------------------------------------------------------------------------------------------------------------------
 	template <typename ListMediator>
 	void list_edit_mediator<ListMediator>::selection_changed(list_mediator_t *mediator, handle_type selection)

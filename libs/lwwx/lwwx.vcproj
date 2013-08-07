@@ -751,6 +751,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\litwindow\ui\list_mediator_imp.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\litwindow\wx\lwwx.h"
 				>
 			</File>

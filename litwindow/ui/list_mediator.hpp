@@ -353,30 +353,14 @@ namespace litwindow {
 			{
 				return m_container_policies.get_sort_order();
 			}
-			void set_sort_order(const std::vector<basic_columns_sort_index> &sortorder)
-			{
-				m_container_policies.clear_sort_order();
-				for (size_t i=0; i<sortorder.size(); ++i) {
-					if (sortorder[i].m_column_index>=0)
-						m_container_policies.set_sort_order(*m_container, m_columns, sortorder[i]);
-				}
-			}
-			litwindow::wstring get_item_text(size_t row, size_t col) const
+			void set_sort_order(const std::vector<basic_columns_sort_index> &sortorder);
+			wstring get_item_text(size_t row, size_t col) const
 			{
 				return m_container_policies.get_item_text(*m_container, m_columns, row, col);
 			}
-			int get_item_image(size_t row, size_t col) const
-			{
-				return m_container_policies.get_item_image(*m_container, m_columns, row, col);
-			}
-			litwindow::wstring as_string(const_iterator i) const 
-			{ 
-				return m_container_policies.as_string(*m_container, m_columns, i); 
-			}
-			size_t get_item_count() const
-			{
-				return m_container ? m_container_policies.size(*m_container) : 0;
-			}
+			int get_item_image(size_t row, size_t col) const;
+			wstring as_string(const_iterator i) const;
+			size_t get_item_count() const;
 
 			static const size_t npos = (size_t)-1;
 			size_t get_selection_index() const { return m_uicontrol_policies.get_selection_index(m_uicontrol); }
@@ -403,20 +387,8 @@ namespace litwindow {
 			void set_value_at(size_t idx, const value_type &v) { m_container_policies.set_at(*m_container, idx, v); set_dirty(); }
 
 			void delete_selected_item() { remove(get_selection_index()); }
-			const value_type &get_selected_item() const 
-			{ 
-				if (has_selection()==false) {
-					throw runtime_error("no item selected");
-				}
-				return value_at(get_selection_index()); 
-			}
-			value_type &get_selected_item()
-			{ 
-				if (has_selection()==false) {
-					throw runtime_error("no item selected");
-				}
-				return value_at(get_selection_index()); 
-			}
+			const value_type &get_selected_item() const;
+			value_type &get_selected_item();
 			void modify_selected_item(const value_type &v) { set_value_at(get_selection_index(), v); }
 			void delete_all_items() { m_container_policies.clear(*m_container); set_dirty(); }
 			void append_item(const value_type &v) { m_container_policies.append(*m_container, v); set_dirty(); }
@@ -444,12 +416,7 @@ namespace litwindow {
 			{
 				rc->push_back(idx);
 			}
-			std::vector<size_t> get_selection()
-			{
-				std::vector<size_t> rc;
-				for_each_selected(bind(&list_mediator::visit_index<std::vector<size_t> >, this, &rc, _1));
-				return rc;
-			}
+			std::vector<size_t> get_selection();
 
 			void refresh() { refresh(true); }
 			void refresh(bool force) { if (force) { set_dirty(); /*m_columns.dirty(true);*/ } do_refresh(); }
@@ -458,56 +425,17 @@ namespace litwindow {
 				set_ui(0);
 			}
 			list_mediator():m_dirty(false),m_uicontrol(0),m_container(0){}
-			list_mediator(container_type &c, uicontrol_type *u)
-			{ set_container(c); set_ui(u); }
+			list_mediator(container_type &c, uicontrol_type *u) { set_container(c); set_ui(u); }
 			list_mediator &set(container_type &c) { set_container(c); return *this; }
 			list_mediator &set(uicontrol_type *u) { set_ui(u); return *this; }
 
-			void toggle_show_column(size_t col)
-			{
-				columns().toggle_show(col);
-				refresh();
-			}
+			void toggle_show_column(size_t col);
 
             template <typename Archive>
-            void serialize(Archive &ar, const unsigned int version)
-            {
-				if (Archive::is_saving()) {
-					m_uicontrol_policies.get_columns(*this, m_uicontrol);
-				}
-				ar & BOOST_SERIALIZATION_NVP(m_columns);
-				std::vector<basic_columns_sort_index> sortorder;
-				if (Archive::is_loading()) {
-					ar & boost::serialization::make_nvp("sort-order", sortorder);
-					set_sort_order(sortorder);
-				} else {
-					sortorder = get_sort_order();
-					ar & boost::serialization::make_nvp("sort-order", sortorder);
-				}
-            }
+            void serialize(Archive &ar, const unsigned int version);
 
-			void get_layout_perspective(wstring &layout)
-			{
-				std::wstringstream out;
-				boost::archive::text_woarchive ar(out);
-				ar << boost::serialization::make_nvp("mediator", *this);
-				layout=out.str();
-			}
-			void set_layout_perspective(const wstring &layout)
-			{
-				if (layout.empty()==false && !boost::algorithm::istarts_with(layout, L"<?xml")) {
-					try {
-						std::wstringstream in(layout);
-						boost::archive::text_wiarchive ar(in);
-						ar >> boost::serialization::make_nvp("mediator", *this);
-						refresh(true);
-					}
-					catch (boost::archive::archive_exception &a) {
-						// Invalid archive. Ignore layout perspective.
-						std::string w=a.what();
-					}
-				}
-			}
+			void get_layout_perspective(wstring &layout);
+			void set_layout_perspective(const wstring &layout);
 		protected:
 			columns_type m_columns;
 			uicontrol_type *m_uicontrol;
@@ -515,30 +443,15 @@ namespace litwindow {
 			ContainerPolicies m_container_policies;
 			UIControlPolicies m_uicontrol_policies;
 			bool m_dirty;
-			void do_refresh()
-			{
-				if (m_container && m_uicontrol && !m_columns.empty() && dirty()) {
-					m_uicontrol_policies.begin_update(m_uicontrol);
-					m_container_policies.refresh_handles(*m_container);
-					if (m_columns.dirty()) {
-						m_uicontrol_policies.refresh_columns(*this, m_uicontrol);
-						m_columns.dirty(false);
-					}
-					m_uicontrol_policies.refresh_rows(*this, m_uicontrol);
-					m_uicontrol_policies.end_update(m_uicontrol);
-					m_dirty=false;
-				}
-			}
+			void do_refresh();
 
-			bool dirty() 
-			{
-				return m_dirty || m_columns.dirty();
-			}
+			bool dirty();
 		};
 		
     }
 
 };
 
+#include "list_mediator_imp.hpp"
 
 #endif // list_mediator_h__31080910
