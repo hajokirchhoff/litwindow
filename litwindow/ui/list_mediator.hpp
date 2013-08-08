@@ -325,6 +325,7 @@ namespace litwindow {
 				set_ui(0);
 			}
 			uicontrol_type *get_ui() const { return m_uicontrol; }
+			bool has_ui() const { return m_uicontrol!=0; }
 
 			void set_container(container_type &ctnr)
 			{ 
@@ -337,6 +338,7 @@ namespace litwindow {
 				m_dirty=true;
 			}
 			container_type &get_container() { return *m_container; }
+			bool has_container() const { return m_container!=0; }
 
 			void columns(const columns_type &c) { m_columns=c; set_dirty(); m_columns.dirty(true); }
 			columns_type &columns() { return m_columns; }
@@ -363,7 +365,7 @@ namespace litwindow {
 			size_t get_item_count() const;
 
 			static const size_t npos = (size_t)-1;
-			size_t get_selection_index() const { return m_uicontrol_policies.get_selection_index(m_uicontrol); }
+			size_t get_selection_index() const { return m_uicontrol ? m_uicontrol_policies.get_selection_index(m_uicontrol) : npos; }
 			bool has_selection() const { return get_selection_index()!=npos; }
 			void set_selection_index(size_t i) { m_uicontrol_policies.set_selection_index(m_uicontrol, i); }
 
