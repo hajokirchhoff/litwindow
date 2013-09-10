@@ -333,7 +333,19 @@ tstring converter<tstring>::to_string(const tstring &s)
 {
     return s;
 }
-
+#ifdef _UNICODE
+template <>
+tstring converter<string>::to_string(const string &s)
+{
+	return litwindow::s2tstring(s);
+}
+#else
+template<>
+tstring converter<wstring>::to_string(const wstring &s)
+{
+	return litwindow::w2tstring(s);
+}
+#endif
 template <>
 int converter<unsigned __int64>::to_int(const unsigned __int64 &i)
 {
