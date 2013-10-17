@@ -144,6 +144,12 @@ public:
 		add_accessor(v);
 		return *this;
 	}
+	template <>
+	statement &operator << (const accessor &v)
+	{
+		add_accessor(v);
+		return *this;
+	}
 
 	/// Get the SQLHANDLE of the statement.
 	SQLHANDLE   handle() const { return m_handle; }
