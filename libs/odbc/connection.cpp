@@ -53,6 +53,9 @@ namespace litwindow {
 
 	bool extract_dsn_uid_pwd(const tstring &odbc_connection_string, tstring &dsn, tstring &uid, tstring &pwd, tstring &remaining_connection_string)
 	{
+		dsn.clear();
+		uid.clear();
+		pwd.clear();
 		enum {
 			keyword,
 			value,
@@ -352,6 +355,8 @@ namespace litwindow {
 	{
 		if (extract_dsn_uid_pwd(connection_string, m_dsn, m_uid, m_pwd, m_remaining_connection_string)==false) {
 			m_last_error=sqlreturn(_("Malformed connection string"), err_logic_error);
+		} else {
+			m_last_error.clear();
 		}
 		return m_last_error;
 	}
@@ -641,7 +646,10 @@ namespace litwindow {
 	const sqlreturn LWODBC_API & connection::open_file( const litwindow::tstring &file, const litwindow::tstring &uid, const litwindow::tstring &pwd, bool read_only/*=false*/, const litwindow::tstring &dsn_addition/*=litwindow::tstring()*/, const litwindow::tstring &file_type/*=litwindow::tstring()*/ ) throw()
 	{
 		tstring odbc_connection_string=dbms_base::construct_odbc_connection_string_from_file_name(file, uid, pwd, read_only, file_type);
-		return open(odbc_connection_string+_T(';')+dsn_addition);
+		if (dsn_addition.empty()==false)
+			odbc_connection_string+=_T(';')+dsn_addition;
+		set_dsn(wstring());
+		return open(odbc_connection_string);
 	}
 
 	void connection::set_macro_value( const tstring &name, const tstring &value )
