@@ -21,6 +21,7 @@
 #include "wx/html/htmlwin.h"
 #include "wx/collpane.h"
 ////@end includes
+#include <wx/dialog.h>
 #include "litwindow/wx/extended_error.h"
 #include "litwindow/wx/lwwx.h"
 
@@ -29,6 +30,7 @@
  */
 
 ////@begin forward declarations
+class wxBoxSizer;
 class wxHtmlWindow;
 ////@end forward declarations
 
@@ -59,6 +61,7 @@ class LWWX_API extended_error_dialog: public wxDialog
     DECLARE_DYNAMIC_CLASS( extended_error_dialog )
     DECLARE_EVENT_TABLE()
 
+	bool m_allow_retry;
 public:
     /// Constructors
     extended_error_dialog();
@@ -93,27 +96,56 @@ public:
     static bool ShowToolTips();
 
 ////@begin extended_error_dialog member variables
+    wxBoxSizer* m_main_sizer;
     wxHtmlWindow* m_message;
     wxHtmlWindow* m_detail;
 ////@end extended_error_dialog member variables
+	wxStdDialogButtonSizer* m_standard_buttons;
     void SetMessage(const wxString &message);
     void SetDetails(const wxString &details);
 
-    static int show_error_dialog(const extended_error<char> &e);
-    static int show_error_dialog(const wxString& msg, const wxString &detail);
-    inline static int show(const wxString &msg, const wxString &detail=wxString()) { return show_error_dialog(msg, detail); }
+    static int show_error_dialog(const extended_error<char> &e, const wxString &context=wxEmptyString, bool can_retry=false);
+    static int show_error_dialog(const wxString& msg, const wxString &detail, const wxString &context=wxEmptyString, bool can_retry=false);
+    inline static int show(const wxString &msg, const wxString &detail=wxString(), const wxString &context=wxEmptyString, bool can_retry=false) { return show_error_dialog(msg, detail, context); }
 
     template <typename Exception>
     static int show(const Exception &e)
     {
         return show_error_dialog(make_extended_error<char>(e));
     }
+	template <typename Exception>
+	static int show_exception(const Exception &e, const wxString &context=wxEmptyString, bool can_retry=false)
+	{
+		return show_error_dialog(make_extended_error<char>(e), context, can_retry);
+	}
     static wxString extended_error_dialog::MakeHtml(const wxString &input);
+	template <typename Fnc>
+	static int try_op(Fnc &fnc, const wxString &context=wxString(), bool can_retry=false)
+	{
+		int rc=can_retry ? wxYES : wxOK;
+		try {
+			fnc();
+			rc=wxOK;
+		}
+		catch (std::exception &e) {
+			rc=show_exception(e, context, can_retry);
+		}
+		catch (boost::exception &e) {
+			rc=show_exception(e, context, can_retry);
+		}
+		catch (...) {
+			rc=show(_("Unknown exception"), _("No further details are available."), context, can_retry);
+		}
+		return rc;
+	}
+	bool allow_retry() const { return m_allow_retry; }
+	void allow_retry(bool yes) { m_allow_retry=yes; }
 };
 
-#endif
     // _EXTENDED_ERROR_DIALOG_H_
 
 } /*namespace wx*/ } /*namespace litwindow*/
 
 namespace wx1 = litwindow::wx;
+
+#endif

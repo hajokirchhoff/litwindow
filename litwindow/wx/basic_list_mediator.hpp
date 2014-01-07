@@ -12,6 +12,9 @@
 class wxDataViewCtrl;
 class wxListBox;
 
+wxDECLARE_EXPORTED_EVENT(LWWX_API, lwEVT_GET_LAYOUT_PERSPECTIVE, wxCommandEvent);
+wxDECLARE_EXPORTED_EVENT(LWWX_API, lwEVT_SET_LAYOUT_PERSPECTIVE, wxCommandEvent);
+
 namespace litwindow {
     namespace wx {
 
@@ -34,7 +37,7 @@ namespace litwindow {
                 const wxString &name=wxListCtrlNameStr
                 ):wxListCtrl(parent, id, pos, size, (style& ~ (wxLC_ICON|wxLC_LIST))|wxLC_VIRTUAL|wxLC_REPORT, validator, name) {}
             virtual wxString OnGetItemText(long item, long column) const;
-			virtual int OnGetItemColumnImage(long item, long column) const;
+            virtual int OnGetItemColumnImage(long item, long column) const;
             long GetFirstSelected() const
             {
                 return GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
@@ -112,7 +115,7 @@ namespace litwindow {
             //~wxListCtrl_list_adapter() { if (m_ctrl) m_ctrl->on_get_item_text.clear(); }
             size_t column_count() const { return wnd()->GetColumnCount(); }
             size_t item_count() const { return wnd()->GetItemCount(); }
-            void set_item_count(size_t new_count) { wnd()->SetItemCount(new_count); }
+            void set_item_count(size_t new_count) { wnd()->SetItemCount(static_cast<long>(new_count)); }
             template <typename ColumnsAdapter>
             void setup_columns(const ColumnsAdapter &d) const
             {

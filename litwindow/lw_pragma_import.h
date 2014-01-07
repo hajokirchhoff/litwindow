@@ -23,6 +23,10 @@
 #define LWBASE_DYN_LINK
 #endif
 
+#if defined(LWBASE_DYN_LINK) && !defined(BOOST_ALL_DYN_LINK)
+#error "litwindow dynamic linkage requires boost dynamic linkage"
+#endif
+
 // do not include litwindow auto link info, use boost instead (see below)
 #define LWL_NO_AUTO_LINK 1
 

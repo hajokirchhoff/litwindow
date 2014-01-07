@@ -200,7 +200,8 @@ namespace litwindow {
 		{
 			m_workgroup_db_file=db_name;
 			size_t p=m_workgroup_db_file.find_last_of(_T('.'));
-			m_workgroup_db_file.erase(p);
+			if (p!=tstring::npos)
+				m_workgroup_db_file.erase(p);
 			m_workgroup_db_file.append(_T(".mdw"));
 		}
 

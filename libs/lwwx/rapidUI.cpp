@@ -26,8 +26,8 @@
 #endif
 
 //DEFINE_EVENT_TYPE(lwEVT_COMMIT_PHASE);
-LWWX_API const wxEventType lwEVT_COMMIT_PHASE = wxNewEventType();
-
+wxDEFINE_EVENT(lwEVT_COMMIT_PHASE, wxCommandEvent);
+wxDEFINE_EVENT(lwEVT_VALUES_CHANGED, wxCommandEvent);
 using namespace std;
 
 namespace litwindow {
@@ -304,6 +304,10 @@ bool RapidUI::ValueChanged(const const_accessor &value, bool recursive, bool sol
 			}
 		}
 		--nestingCount;
+	}
+	if (rc) {
+		wxCommandEvent evt(lwEVT_VALUES_CHANGED);
+		AddPendingEvent(evt);
 	}
 	return rc;
 }

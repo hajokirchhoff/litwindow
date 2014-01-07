@@ -309,7 +309,7 @@ sqlreturn catalog::get_table_information(table_information &rc, const tstring &t
 			return m_last_error;
 		}
 		//bind_column(1, result.TABLE_SCHEM);
-		SQLINTEGER row_count;
+		SQLLEN row_count;
 		get_row_count(row_count);
 		rc.m_columns.reserve(row_count > 0 ? row_count+1 : 32);
 		row_count=0;

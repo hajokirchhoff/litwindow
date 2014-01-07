@@ -10,8 +10,8 @@
 #include "stdafx.h"
 #include <sqlext.h>
 #include <litwindow/logging.h>
-#include <boost/spirit.hpp>
-#include <boost/spirit/actor.hpp>
+#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/classic_actor.hpp>
 #include <boost/bind.hpp>
 #include "connection.h"
 #include "statement.h"
@@ -22,7 +22,7 @@ namespace litwindow {
 
 namespace odbc {
 
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
 typedef position_iterator<const TCHAR*> sql_grammar_iterator_t;
 

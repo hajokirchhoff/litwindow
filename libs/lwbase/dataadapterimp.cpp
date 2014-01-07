@@ -48,7 +48,12 @@ IMPLEMENT_ADAPTER_TYPE(litwindow::container)
 IMPLEMENT_ADAPTER_TYPE(litwindow::aggregate)
 IMPLEMENT_ADAPTER_TYPE(litwindow::const_aggregate)
 
+#ifdef _WIN64
+IMPLEMENT_ADAPTER_TYPE(unsigned __int64)
+IMPLEMENT_ADAPTER_TYPE(signed __int64)
+#else
 IMPLEMENT_ADAPTER_TYPE(boost::uint64_t)
+#endif
 
 #define HAS_BOOST_UUID
 #ifdef HAS_BOOST_UUID
@@ -215,17 +220,31 @@ void not_implemented(const string &what)
 #ifndef DOXYGEN_INVOKED
 
 template<>
-size_t converter<boost::uint64_t>::from_string(const tstring &newValue, boost::uint64_t &v)
+size_t converter<unsigned __int64>::from_string(const tstring &newValue, unsigned __int64 &v)
 {
     using namespace boost;
-    v=lexical_cast<uint64_t>(newValue);
+    v=lexical_cast<unsigned __int64>(newValue);
     return sizeof(v);
 }
 template<>
-litwindow::tstring converter<boost::uint64_t>::to_string(const boost::uint64_t &v)
+litwindow::tstring converter<unsigned __int64>::to_string(const unsigned __int64 &v)
 {
     using namespace boost;
     return lexical_cast<litwindow::tstring>(v);
+}
+
+template<>
+size_t converter<signed __int64>::from_string(const tstring &newValue, signed __int64 &v)
+{
+	using namespace boost;
+	v=lexical_cast<signed __int64>(newValue);
+	return sizeof(v);
+}
+template<>
+litwindow::tstring converter<signed __int64>::to_string(const signed __int64 &v)
+{
+	using namespace boost;
+	return lexical_cast<litwindow::tstring>(v);
 }
 
 template <>
@@ -314,7 +333,29 @@ tstring converter<tstring>::to_string(const tstring &s)
 {
     return s;
 }
-
+#ifdef _UNICODE
+template <>
+tstring converter<string>::to_string(const string &s)
+{
+	return litwindow::s2tstring(s);
+}
+#else
+template<>
+tstring converter<wstring>::to_string(const wstring &s)
+{
+	return litwindow::w2tstring(s);
+}
+#endif
+template <>
+int converter<unsigned __int64>::to_int(const unsigned __int64 &i)
+{
+	return static_cast<int>(i);
+}
+template <>
+int converter<signed __int64>::to_int(const signed __int64 &i)
+{
+	return static_cast<int>(i);
+}
 template <>
 int converter<int>::to_int(const int &i)
 {
@@ -342,6 +383,12 @@ template <>
 void converter<long>::from_int(int value, long &member)
 {
       member=value;
+}
+
+template <>
+void converter<unsigned __int64>::from_int(int value, unsigned __int64 &member)
+{
+	member=value;
 }
 
 template <>
@@ -501,7 +548,10 @@ bool converter<short>::is_int() const
 {
 	return true;
 }
-
+template <>
+bool converter<unsigned __int64>::is_int() const { return true; }
+template <>
+bool converter<signed __int64>::is_int() const { return true; }
 template <>
 bool converter<int>::is_int() const
 {

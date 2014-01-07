@@ -10,6 +10,7 @@ namespace litwindow { namespace wx {
     {
         bool checked(const Value &) const { return false; }
         bool checkable(const Value &) const { return false; }
+		bool radio(const Value &v) const { return false; }
         wxString helptext(const Value &) const { return wxEmptyString; }
     };
 
@@ -87,7 +88,7 @@ namespace litwindow { namespace wx {
         void add_to_menu(size_t index)
         {
             if (m_menu) {
-                wxMenuItem *item=m_menu->FindItem(m_start_id+index);
+                wxMenuItem *item=m_menu->FindItem(m_start_id+(int)index);
                 if (item==0) {
                     // no item yet, need to create one
                     size_t insert_position=0;
@@ -106,7 +107,13 @@ namespace litwindow { namespace wx {
                         }
                     } else
                         insert_position=m_menu->GetMenuItemCount();
-                    item=m_menu->Insert(insert_position, m_start_id+index, m_values[index].second);
+					wxItemKind menu_flag = wxITEM_NORMAL;
+					if (m_traits.radio(m_values[index].first)) {
+						menu_flag = wxITEM_RADIO;
+					} else if (m_traits.checkable(m_values[index].first)) {
+						menu_flag = wxITEM_CHECK;
+					}
+                    item=m_menu->Insert(insert_position, m_start_id+(int)index, m_values[index].second, m_traits.helptext(m_values[index].first), menu_flag);
                 }
                 set_menu(index, item);
             }
@@ -115,8 +122,15 @@ namespace litwindow { namespace wx {
         {
             item->SetItemLabel(m_values[index].second);
             const Value &v(m_values[index].first);
-            bool checkable=m_traits.checkable(v);
-            item->SetCheckable(checkable);
+			wxItemKind menu_flag;
+			if (m_traits.radio(v))
+				menu_flag=wxITEM_RADIO;
+			else if (m_traits.checkable(v))
+				menu_flag=wxITEM_CHECK;
+			else
+				menu_flag=wxITEM_NORMAL;
+            bool checkable=menu_flag!=wxITEM_NORMAL;
+            item->SetKind(menu_flag);
             if (checkable)
                 item->Check(m_traits.checked(v));
             item->SetHelp(m_traits.helptext(v));
@@ -124,14 +138,14 @@ namespace litwindow { namespace wx {
         void set_menu(size_t index)
         {
             if (m_menu) {
-                wxMenuItem *item=m_menu->FindItem(m_start_id+index);
+                wxMenuItem *item=m_menu->FindItem(m_start_id+(int)index);
                 set_menu(index, item);
             }
         }
         void remove_menu(size_t index)
         {
             if (m_menu) {
-                m_menu->Destroy(m_start_id+index);
+                m_menu->Destroy(m_start_id+(int)index);
             }
         }
         std::vector<std::pair<Value, wxString> > m_values;

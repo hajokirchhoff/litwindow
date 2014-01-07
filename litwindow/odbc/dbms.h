@@ -42,7 +42,7 @@ namespace litwindow {
 		protected:
 			mutable vector<sql_type_info_result_set> m_type_info; // lazy evaluation, thus -> mutable
 		public:
-			tstring get_type_for(connection *ds, SQLSMALLINT data_type, SQLINTEGER length) const;
+			tstring get_type_for(connection *ds, SQLSMALLINT data_type, SQLLEN length) const;
 		};
 
 		/** Base DBMS strategy class */
@@ -70,7 +70,7 @@ namespace litwindow {
 			static LWODBC_API sqlreturn construct_from_dbms_name(const tstring &name, const tstring &version, const tstring &odbc_connection_string, boost::shared_ptr<dbms_base> &ptr) throw();
 
 			/// take a file name and build an odbc connection string for it
-			static LWODBC_API litwindow::tstring construct_odbc_connection_string_from_file_name(const tstring &file, const tstring &uid=tstring(), const tstring &pwd=tstring(), bool read_only=false) throw();
+			static LWODBC_API litwindow::tstring construct_odbc_connection_string_from_file_name(const tstring &file, const tstring &uid=tstring(), const tstring &pwd=tstring(), bool read_only=false, const tstring &file_type=tstring()) throw();
 
 			LWODBC_API virtual tstring get_dbms_name() const { return tstring(); }
             LWODBC_API virtual tstring get_driver_name() const { return tstring(); }
@@ -141,7 +141,7 @@ namespace litwindow {
 			/// return the closest C data type for the SQL data type
 			virtual SQLSMALLINT sql_to_c_type(SQLSMALLINT sql_type) const = 0;
 			/// return a string that can be used for a column type in a create table statement
-			virtual tstring sql_to_create_table_name(connection *ds, SQLSMALLINT sql_type, SQLINTEGER length) const = 0;
+			virtual tstring sql_to_create_table_name(connection *ds, SQLSMALLINT sql_type, SQLLEN length) const = 0;
 
 			const map<tstring, tstring> &macros() const { return m_macros; }
 
@@ -219,7 +219,7 @@ namespace litwindow {
 			}
 
 			SQLSMALLINT sql_to_c_type(SQLSMALLINT sql_type) const;
-			virtual tstring sql_to_create_table_name(connection *ds, SQLSMALLINT sql_type, SQLINTEGER length) const;
+			virtual tstring sql_to_create_table_name(connection *ds, SQLSMALLINT sql_type, SQLLEN length) const;
 
 			virtual tstring get_sql_for(standard_sql_statement s) const;
 		protected:

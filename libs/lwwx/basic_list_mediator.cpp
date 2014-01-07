@@ -16,3 +16,6 @@ namespace litwindow {
     }
 }
 IMPLEMENT_DYNAMIC_CLASS(litwindow::wx::VirtualListCtrl, wxListCtrl);
+
+wxDEFINE_EVENT(lwEVT_GET_LAYOUT_PERSPECTIVE, wxCommandEvent);
+wxDEFINE_EVENT(lwEVT_SET_LAYOUT_PERSPECTIVE, wxCommandEvent);

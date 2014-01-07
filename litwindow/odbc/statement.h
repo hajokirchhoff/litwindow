@@ -164,7 +164,7 @@ public:
 	\note Not all drivers support this fully. The application must fail gracefully and
 	use an alternative strategy if the row count returns -1
 	*/
-	sqlreturn LWODBC_API get_row_count(SQLINTEGER &rcount);
+	sqlreturn LWODBC_API get_row_count(SQLLEN &rcount);
 
 	/// fetch a row from the result set
 	sqlreturn   LWODBC_API  fetch();
@@ -522,7 +522,7 @@ public:
 	/// query a string type column attribute
 	const sqlreturn	LWODBC_API &get_column_attr(SQLSMALLINT pos, SQLSMALLINT field, tstring &value);
 	/// query an integer type column attribute
-	const sqlreturn	LWODBC_API &get_column_attr(SQLSMALLINT pos, SQLSMALLINT field, SQLINTEGER &value);
+	const sqlreturn	LWODBC_API &get_column_attr(SQLSMALLINT pos, SQLSMALLINT field, SQLLEN &value);
 	/// query a boolean type column attribute
 	const sqlreturn LWODBC_API &get_column_attr(SQLSMALLINT pos, SQLSMALLINT field, bool &value);
 
@@ -531,10 +531,10 @@ public:
 	sqlreturn	get_column_table(SQLSMALLINT pos, tstring &value) 							{ return get_column_attr(pos, SQL_DESC_TABLE_NAME, value); }
 	sqlreturn	get_column_name(SQLSMALLINT pos, tstring &value) 							{ return get_column_attr(pos, SQL_DESC_NAME, value); }
 	sqlreturn	get_column_label(SQLSMALLINT pos, tstring &value)							{ return get_column_attr(pos, SQL_DESC_LABEL, value); }
-	sqlreturn	get_column_type(SQLSMALLINT pos, SQLINTEGER &value)					{ return get_column_attr(pos, SQL_DESC_TYPE, value); }
+	sqlreturn	get_column_type(SQLSMALLINT pos, SQLLEN &value)					{ return get_column_attr(pos, SQL_DESC_TYPE, value); }
 
 	sqlreturn	LWODBC_API get_column_descriptor(SQLSMALLINT pos, column_descriptor &d) const;
-	sqlreturn	get_column_size(SQLSMALLINT pos, SQLUINTEGER &column_size) const;
+	sqlreturn get_column_size(SQLSMALLINT pos, SQLULEN &column_size) const;
 
 	/// Find a column named @p name and return its position.
 	SQLSMALLINT LWODBC_API find_column(const tstring &name) const throw();
@@ -569,7 +569,7 @@ protected:
 
 	sqlreturn   do_bind_parameter( SQLUSMALLINT pposition, SQLSMALLINT in_out, SQLSMALLINT c_type, SQLSMALLINT sql_type, 
 		SQLULEN column_size, SQLSMALLINT decimal_digits, SQLPOINTER buffer, SQLLEN length, SQLLEN *len_ind);
-	sqlreturn   do_bind_column(SQLSMALLINT col, SQLSMALLINT c_type, SQLPOINTER target_ptr, SQLINTEGER size, SQLLEN* len_ind);
+	sqlreturn do_bind_column(SQLSMALLINT col, SQLSMALLINT c_type, SQLPOINTER target_ptr, SQLULEN size, SQLLEN* len_ind);
 
 	/// this binds the given result set column to the parameter of the target statement
 	sqlreturn LWODBC_API feed_column_to_target_parameter(SQLSMALLINT col_position, statement *target, SQLSMALLINT par_pos) const;
@@ -728,7 +728,7 @@ inline sqlreturn statement::bind_column(SQLSMALLINT col, SQLSMALLINT c_type, SQL
 {
 	return m_last_error=m_binder.bind_column(col, c_type, target_ptr, size, len_ind);
 }
-inline sqlreturn statement::do_bind_column(SQLSMALLINT col, SQLSMALLINT c_type, SQLPOINTER target_ptr, SQLINTEGER size, SQLLEN* len_ind)
+inline sqlreturn statement::do_bind_column( SQLSMALLINT col, SQLSMALLINT c_type, SQLPOINTER target_ptr, SQLULEN size, SQLLEN* len_ind )
 {
 	m_last_error=SQLBindCol(handle(), col, c_type, target_ptr, size, len_ind);
 	return m_last_error;

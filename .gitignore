@@ -49,6 +49,7 @@ libs/lwwx/samples/Debug
 libs/lwwx/samples/DebugOptimize
 libs/lwwx/samples/Release
 libs/lwwx/samples/generic_list_mediator/Debug
+libs/lwwx/samples/generic_list_mediator/Debug[!!-~]static
 libs/lwwx/samples/generic_list_mediator/DebugOptimize
 libs/lwwx/samples/generic_list_mediator/Release
 libs/lwwx/samples/generic_list_mediator/VCProjectUnicodeDebug
@@ -68,6 +69,7 @@ libs/odbc/Release
 libs/odbc/build/Debug
 libs/odbc/build/DebugOptimize
 libs/odbc/build/Release
+libs/odbc/unittest/*.user
 libs/odbc/unittest/Debug[!!-~]static
 libs/odbc/unittest/Release
 libs/odbc/unittest/Release[!!-~]static

@@ -196,7 +196,9 @@ litwindow/result.hpp -text
 litwindow/tchar.h -text
 litwindow/tstring.hpp -text
 litwindow/ui/basic_list_mediator.hpp -text
+litwindow/ui/edit_mediator.hpp -text
 litwindow/ui/list_mediator.hpp -text
+litwindow/ui/list_mediator_imp.hpp -text
 litwindow/wx/action_objects.h -text
 litwindow/wx/basic_list_mediator.hpp -text
 litwindow/wx/dynamic_menu.h -text
@@ -207,4 +209,5 @@ litwindow/wx/lwwx.h -text
 litwindow/wx/new_widgets.h -text
 litwindow/wx/rapidUI.h -text
 litwindow/wx/wxio.h -text
+/litwindow_solution.vsprops -text
 /user-config.jam -text

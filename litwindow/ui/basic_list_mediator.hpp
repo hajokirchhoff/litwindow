@@ -19,9 +19,18 @@
 #include <boost/type_traits/add_const.hpp>
 #include <boost/type_traits/add_reference.hpp>
 
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/vector.hpp>
+//#include <boost/archive/text_wiarchive.hpp>
+//#include <boost/archive/text_woarchive.hpp>
+
+#include <boost/version.hpp>
+#if BOOST_VERSION < 104700
 #ifndef BOOST_TYPEOF_SILENT
 #define BOOST_TYPEOF_SILENT
 #endif
+#endif
+
 #include <boost/typeof/typeof.hpp>
 #include <iterator>
 
@@ -45,18 +54,25 @@ namespace litwindow {
             void visible(bool do_show) { m_visible=do_show; }
 			bool image() const { return m_image; }
 			bool image(bool is_image) { m_image=is_image; }
+			void position(int new_position) { m_position=new_position; }
+			int  position() const { return m_position; }
 			template <typename Archive>
 			void serialize(Archive &ar, const unsigned int version)
 			{
-				ar & make_nvp("title", m_title) & make_nvp("width", m_width) & make_nvp("visible", m_visible);				
+				ar & BOOST_SERIALIZATION_NVP(m_title) & BOOST_SERIALIZATION_NVP(m_width) & BOOST_SERIALIZATION_NVP(m_visible);
+				if (version>=1)
+					ar & BOOST_SERIALIZATION_NVP(m_position);
+				else if (Archive::is_loading())
+					m_position=-1;
 			}
 			basic_column_label(const tstring &title, int width=-1, bool visible=true, bool is_image=false)
-				:m_title(title),m_width(width),m_visible(visible),m_image(is_image){}
+				:m_title(title),m_width(width),m_visible(visible),m_image(is_image),m_position(-1){}
 		protected:
 			tstring m_title;
 			int     m_width;
 			bool    m_visible;
 			bool	m_image;
+			int		m_position;
 		};
 
 
@@ -80,6 +96,7 @@ namespace litwindow {
 				:basic_column_label(title, width, true, true), m_text_renderer(0), m_image_index_renderer(i)
 			{}
 
+			basic_column_descriptor():basic_column_label(tstring(), -1, false, false){}
             template <typename Control>
             bool render_element(size_t row, size_t col, Control &c, const value_type &v) const { return false; }
 
@@ -114,6 +131,11 @@ namespace litwindow {
 				render_element(right_string, right);
 				return left_string<right_string;
 			}
+            template <typename Archive>
+            void serialize(Archive &ar, const unsigned int version)
+            {
+				ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(basic_column_label);				
+            }
 		};
 
 		template <typename Value>
@@ -316,6 +338,7 @@ namespace litwindow {
 
             typedef std::vector<column_descriptor_type> columns_t;
             const columns_t &columns() const { return m_column_data; }
+			columns_t &columns() { return m_column_data; }
             std::back_insert_iterator<columns_t> do_add(const column_descriptor_type &d)
             {
                 set_dirty();
@@ -390,6 +413,7 @@ namespace litwindow {
             basic_columns_adapter()
                 :m_dirty(true){ add.set_this(this); }
             const column_descriptor_type &column_descriptor(size_t idx) const { return columns().at(idx); }
+			column_descriptor_type &column_descriptor(size_t idx) { return columns().at(idx); }
 
 			size_t get_column_index(const wstring &title) const
 			{
@@ -426,15 +450,52 @@ namespace litwindow {
             //}
 			void set_dirty() { dirty(true); }
 			void clear_dirty() { dirty(false); }
+			void toggle_show(size_t col)
+			{
+				columns().at(col).visible(!columns().at(col).visible());
+				dirty(true);
+			}
 
 			bool compare(size_t col, const typename column_descriptor_type::value_type &left, const typename column_descriptor_type::value_type &right) const
 			{
-				return columns().at(col).compare(left, right, col);
+				return at(col).compare(left, right, col);
 			}
-        protected:
+	
+            template <typename Archive>
+            void serialize(Archive &ar, const unsigned int version)
+            {
+				if (Archive::is_loading()) {
+					columns_t temp;
+					ar & boost::serialization::make_nvp("m_column_data", temp);
+					merge_in(temp);
+				} else {
+					ar & boost::serialization::make_nvp("m_column_data", m_column_data);
+				}
+            }
+		protected:
         private:
             bool m_dirty;
             columns_t m_column_data;
+
+			void merge_in(const columns_t &in)
+			{
+				struct merge_element
+				{
+					static void do_merge(columns_t &dest, const columns_t::value_type &src)
+					{
+						columns_t::iterator i;
+						i=std::find_if(dest.begin(), dest.end(), boost::bind(&columns_t::value_type::title, _1) == src.title());
+						if (i!=dest.end()) {
+							columns_t::value_type &current(*i);
+							current.width(src.width());
+							current.visible(src.visible());
+							current.position(src.position());
+						}
+					}
+				};
+				for_each(in.begin(), in.end(), boost::bind(&merge_element::do_merge, boost::ref(m_column_data), _1));
+				m_dirty=true;
+			}
             //element_adapter m_element_adapter;
         };
 
@@ -698,6 +759,8 @@ namespace litwindow {
 				ui_adapter().for_each_selected(bind(&basic_list_mediator::visit, this, &rc, _1, f));
 				return rc;
 			}
+			void show_hide_column(int col, bool show_hide);
+			void toggle_show_column(int col);
 
         protected:
             void refresh_columns(bool do_refresh=true);
@@ -737,6 +800,13 @@ namespace litwindow {
             }
         }
 
+		template <typename DatasetAdapter, typename UIControlAdapter, typename ColumnsAdapter>
+		void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, ColumnsAdapter>::toggle_show_column(int col)
+		{
+			columns_adapter().toggle_show(col);
+			refresh_columns(true);
+		}
+
         template <typename DatasetAdapter, typename UIControlAdapter, typename ColumnsAdapter>
         void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, typename ColumnsAdapter>::refresh_list()
         {
@@ -752,6 +822,8 @@ namespace litwindow {
 
     }
 }
+
+BOOST_CLASS_VERSION(litwindow::ui::basic_column_label, 1);
 
 #pragma optimize("", on)
 #endif // list_mediator_h__31080910

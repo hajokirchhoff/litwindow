@@ -55,8 +55,8 @@ struct set_lwlog_dumper
             fn=fName.GetFullPath();
         }
         wxLogNull nul;
-        size_t backups;
-        const size_t no_of_backups=3;
+        int backups;
+        const int no_of_backups=3;
         wxRemoveFile(fn+wxString::Format(wxT(".%d"), no_of_backups));
         for (backups=no_of_backups; backups>0; --backups) {
             wxRenameFile(fn+wxString::Format(wxT(".%d"), backups-1), fn+wxString::Format(wxT(".%d"), backups));
