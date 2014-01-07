@@ -5,9 +5,13 @@
 /LICENSE.txt -text
 /README.txt -text
 /build_all_vc2008.bat -text
+libs/litwindow-static.props -text
+libs/litwindow.props -text
 libs/litwindow.vsprops -text
 libs/lwbase-VC90/lwbase-VC90.vcproj -text
 libs/lwbase-VC90/lwbase-VC90.vcproj.Hurog.Hajo[!!-~]Kirchhoff.user -text
+libs/lwbase-VC90/lwbase-VC90.vcxproj -text
+libs/lwbase-VC90/lwbase-VC90.vcxproj.filters -text
 libs/lwbase/build/Jamfile.v2 -text
 libs/lwbase/check.cpp -text
 libs/lwbase/constraints.cpp -text
@@ -42,6 +46,8 @@ libs/lwbase/unittest/lwbase_unittest.cpp -text
 libs/lwbase/unittest/lwbase_unittest.vcproj -text
 libs/lwbase/unittest/lwbase_unittest.vcproj.Galadriel.Hajo[!!-~]Kirchhoff.user -text
 libs/lwbase/unittest/lwbase_unittest.vcproj.Hurog.Hajo[!!-~]Kirchhoff.user -text
+libs/lwbase/unittest/lwbase_unittest.vcxproj -text
+libs/lwbase/unittest/lwbase_unittest.vcxproj.filters -text
 libs/lwbase/unittest/objectfactorytests.cpp -text
 libs/lwbase/unittest/stdafx.cpp -text
 libs/lwbase/unittest/stdafx.h -text
@@ -66,9 +72,12 @@ libs/lwwx/lwwx.cpp -text
 libs/lwwx/lwwx.pjd -text
 libs/lwwx/lwwx.vcproj -text
 libs/lwwx/lwwx.vcproj.Hurog.Hajo[!!-~]Kirchhoff.user -text
+libs/lwwx/lwwx.vcxproj -text
+libs/lwwx/lwwx.vcxproj.filters -text
 libs/lwwx/new_widgets.cpp -text
 libs/lwwx/rapidUI.cpp -text
 libs/lwwx/rapidUI_parser.cpp -text
+libs/lwwx/samples/generic_list_mediator/generic_list_mediator.props -text
 libs/lwwx/samples/generic_list_mediator/generic_list_mediator.vsprops -text
 libs/lwwx/samples/generic_list_mediator/generic_list_sample.cpp -text
 libs/lwwx/samples/generic_list_mediator/generic_list_sample.h -text
@@ -80,6 +89,8 @@ libs/lwwx/samples/generic_list_mediator/list_mediator.vcproj -text
 libs/lwwx/samples/generic_list_mediator/list_mediator.vcproj.Galadriel.Hajo[!!-~]Kirchhoff.user -text
 libs/lwwx/samples/generic_list_mediator/list_mediator.vcproj.Hurog.Hajo[!!-~]Kirchhoff.user -text
 libs/lwwx/samples/generic_list_mediator/list_mediator.vcproj.ITHILIEN.Hajo[!!-~]Kirchhoff.user -text
+libs/lwwx/samples/generic_list_mediator/list_mediator.vcxproj -text
+libs/lwwx/samples/generic_list_mediator/list_mediator.vcxproj.filters -text
 libs/lwwx/samples/generic_list_mediator/list_mediatorapp.cpp -text
 libs/lwwx/samples/generic_list_mediator/list_mediatorapp.h -text
 libs/lwwx/samples/generic_list_mediator/stdwx.cpp -text
@@ -156,10 +167,14 @@ libs/odbc/unittest/odbc_unittest.vcproj.Hurog.Hajo[!!-~]Kirchhoff.user -text
 libs/odbc/unittest/stdafx.cpp -text
 libs/odbc/unittest/stdafx.h -text
 libs/odbc/utility.cpp -text
+/litwindow-VC110.sln -text
 /litwindow-VC90.sln -text
 /litwindow-VC90.vcproj -text
 /litwindow-VC90.vcproj.Hurog.Hajo[!!-~]Kirchhoff.user -text
 /litwindow-VC90.vcproj.ITHILIEN.Hajo[!!-~]Kirchhoff.user -text
+/litwindow-VC90.vcxproj -text
+/litwindow-VC90.vcxproj.filters -text
+/litwindow-VC90.vcxproj.user -text
 litwindow/algorithm.h -text
 litwindow/auto_link.hpp -text
 litwindow/boost/posix_time.hpp -text
@@ -209,5 +224,6 @@ litwindow/wx/lwwx.h -text
 litwindow/wx/new_widgets.h -text
 litwindow/wx/rapidUI.h -text
 litwindow/wx/wxio.h -text
+/litwindow_solution.props -text
 /litwindow_solution.vsprops -text
 /user-config.jam -text

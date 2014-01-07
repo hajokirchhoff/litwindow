@@ -27,7 +27,7 @@
 #endif
 #ifdef LITWINDOW_LOGGER_MUTEX
 #include <boost/thread/mutex.hpp>
-#include "boost/thread/lock_guard.hpp"
+#include <boost/thread/lock_guard.hpp>
 #include <boost/thread/tss.hpp>
 
 #endif
@@ -582,7 +582,7 @@ namespace litwindow {
 					_Mysb::setp(_Newptr, _Newptr+_Newsize);
 				} else {
 					_Elem *_Oldptr = _Mysb::pbase();
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER<1700
 					std::_Traits_helper::copy_s<_Traits>(_Newptr, _Newsize, _Oldptr, _Oldsize);
 #else
 					std::copy(_Oldptr, _Oldptr+_Oldsize, _Newptr);
@@ -740,6 +740,8 @@ namespace litwindow {
 		// ---------------------------------------------------------------------------------------------
 
         enum enable_state { enabled, disabled };
+#pragma warning(push)
+#pragma warning(disable: 4250)
 		/// Base class for logging events
 		template <
 			typename _Elem,
@@ -820,7 +822,6 @@ namespace litwindow {
 					return operator&&(pFn);
 				}
 			};
-
 
 			basic_events(
 				const component_type &c=default_component<char_type>(),
@@ -1027,6 +1028,7 @@ namespace litwindow {
 			component_type	m_default_component, m_component;
 			topic_type		m_default_topic, m_topic;
 		};
+#pragma warning(pop)
 
 		template <typename _Elem, typename Streambuf>
 		inline basic_events<_Elem, Streambuf> &debug(basic_events<_Elem, Streambuf> &in) { in.level(basic_level<_Elem>::debug); return in; }

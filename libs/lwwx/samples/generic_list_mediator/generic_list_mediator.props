@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <RootDir>$(SolutionDir)..\..\</RootDir>
+    <LibsDir>$(SolutionDir)..\</LibsDir>
+    <LIB_PATH>$(LibsDir)wxWidgets\lib\vc_dll;$(LibsDir)boost\stage\lib;$(LibsDir)litwindow\stage\lib</LIB_PATH>
+    <INCLUDE_PATH>$(LibsDir)litwindow;$(LibsDir)boost</INCLUDE_PATH>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>../../../../../wxwidgets/include/msvc;$(RootDir)extlibs\boost;$(RootDir)extlibs\litwindow;$(LibsDir)litwindow;$(LibsDir)boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOOST_ALL_DYN_LINK;LITWINDOW_ALL_DYN_LINK;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="RootDir">
+      <Value>$(RootDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LibsDir">
+      <Value>$(LibsDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LIB_PATH">
+      <Value>$(LIB_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="INCLUDE_PATH">
+      <Value>$(INCLUDE_PATH)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

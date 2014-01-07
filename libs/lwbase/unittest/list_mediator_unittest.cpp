@@ -10,6 +10,7 @@ using namespace std;
 using namespace boost;
 using namespace litwindow::ui;
 
+
 struct TestData
 {
 	int integer;
@@ -87,15 +88,15 @@ BOOST_AUTO_TEST_CASE(columns_descriptor_test)
 		(L"TestDataAccess",	200,	&TestDataAccess)	// ptr to free function
 		;
 	d.add
-		(L"bind",		100,	bind(&TestDataAccess, _1, 9)) // bind
+		(L"bind",		100,	boost::bind(&TestDataAccess, _1, 9)) // bind
 		(L"name",		100,	&TestData::name)	// ptr to member
 		;
 	bca_t::text_renderer_type renderer;
-	renderer=bind(&TestDataAccess_renderer, _1, _2);
+	renderer=boost::bind(&TestDataAccess_renderer, _1, _2);
 	d.add
 		(L"function-renderer", 10,	renderer)
 		(L"free-renderer", 10,	&TestDataAccess_renderer)
-		(L"bind-renderer", 10, bind(&TestDataAccess_renderer, _1, _2))
+		(L"bind-renderer", 10, boost::bind(&TestDataAccess_renderer, _1, _2))
 		;
 
 	TestData t;
@@ -133,7 +134,7 @@ BOOST_AUTO_TEST_CASE(columns_descriptor_test)
 	d.add
 		(L"formatter-renderer", 10, &TestData::integer, &DataFormatter)
 		(L"formatter-renderer-2", 10, &TestData::calc2, &DataFormatter)
-		(L"bind-formatter-renderer", 10, bind(&TestDataAccess, _1, 9), &StringDataFormatter)
+		(L"bind-formatter-renderer", 10, boost::bind(&TestDataAccess, _1, 9), &StringDataFormatter)
 		(L"free-function-formatter", 10, &TestDataAccess, &StringDataFormatter)
 		;
 	r.clear();
@@ -154,22 +155,22 @@ BOOST_AUTO_TEST_CASE(column_values_test)
 {
 	TestData t;
 	BOOST_CHECK_EQUAL(t.integer, 7);
-	function<int(const TestData&)> f0=bind(&TestData::integer, _1);
-	function<bool(const TestData&)> f1=bind(&TestData::calc, _1);
+	boost::function<int(const TestData&)> f0=boost::bind(&TestData::integer, _1);
+	boost::function<bool(const TestData&)> f1=boost::bind(&TestData::calc, _1);
 	testtemplate<TestData>(&TestData::calc);
-	function<wstring(const TestData&)> f2=bind(&TestDataAccess, _1);
-	function<wstring(const TestData&)> f3=bind(f2, _1);
+	boost::function<wstring(const TestData&)> f2=boost::bind(&TestDataAccess, _1);
+	boost::function<wstring(const TestData&)> f3=boost::bind(f2, _1);
 	BOOST_CHECK_EQUAL(f0(t), 7);
 	BOOST_CHECK_EQUAL(f1(t), true);
 	BOOST_CHECK(f2(t)==wstring(L"name-TestDataAccess"));
 	BOOST_CHECK(f3(t)==wstring(L"name-TestDataAccess"));
 
-	function<int(const TestData&)> f4=bind(&TestData::calc2, _1);
-	function<bool(const TestData&, const TestData&)> c0=bind(f0, t) < bind(f4, t);
+	boost::function<int(const TestData&)> f4=boost::bind(&TestData::calc2, _1);
+	boost::function<bool(const TestData&, const TestData&)> c0=boost::bind(f0, t) < boost::bind(f4, t);
 	BOOST_CHECK(c0(t, t));
 	wstring rc;
 	to_string(f0(t), rc);
 	BOOST_CHECK(rc==L"7");
-	function<void(const TestData&, wstring&)> strg=bind<void>(&to_string<int>, bind(f0, _1), _2);
+	boost::function<void(const TestData&, wstring&)> strg=boost::bind<void>(&to_string<int>, boost::bind(f0, _1), _2);
 }
 

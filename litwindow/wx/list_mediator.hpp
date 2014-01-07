@@ -50,7 +50,7 @@ namespace litwindow {
 			}
 			void OnSetLayoutPerspective(wxCommandEvent &evt)
 			{
-				set_layout_perspective(evt.GetString());
+				set_layout_perspective(evt.GetString().wx_str());
 			}
 		};
 		template <typename UIControlPolicies>

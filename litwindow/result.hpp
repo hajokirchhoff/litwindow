@@ -143,7 +143,7 @@ protected:
 
     ///@name Commonly used WIN32 specializations
     //@{
-#if defined(_WIN32_WINDOWS) || defined(_WIN32_WINNT)
+#if defined(_WIN32_WINDOWS)
 #ifdef _ATL_VER
 template <>
 inline void result_t<HRESULT>::trace_error() const
