@@ -1068,8 +1068,12 @@ namespace litwindow {
 				const _Events &get_default() const { return m_default; }
 				_Events &get() 
 				{ 
-					if (m_evt_ptr.get()==0) 
+					if (m_evt_ptr.get()==0)
+#ifdef DEBUG_NEW
+						m_evt_ptr.reset(DEBUG_NEW _Events(m_default)); 
+#else
 						m_evt_ptr.reset(new _Events(m_default)); 
+#endif
 					return *m_evt_ptr; 
 				}
 				basic_threadsafe_events()
