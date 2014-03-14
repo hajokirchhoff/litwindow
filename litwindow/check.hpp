@@ -100,7 +100,7 @@ namespace litwindow {
 			}
 		}
 
-		inline void Invariant(bool condition, const char* text)
+		inline void Invariant(bool condition, const char* text="Invariant violated")
 		{
 			if (!condition) {
 				throw invariant_violated(text);
