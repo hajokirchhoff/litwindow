@@ -17,5 +17,10 @@ namespace litwindow {
 }
 IMPLEMENT_DYNAMIC_CLASS(litwindow::wx::VirtualListCtrl, wxListCtrl);
 
+void litwindow::wx::VirtualListCtrl::Create( wxWindow *parent, wxWindowID id, const wxPoint &pos/*=wxDefaultPosition*/, const wxSize &size/*=wxDefaultSize*/, long style/*=wxLC_ICON*/, const wxValidator &validator/*=wxDefaultValidator*/, const wxString &name/*=wxListCtrlNameStr*/ )
+{
+	wxListCtrl::Create(parent, id, pos, size, (style& ~ (wxLC_ICON|wxLC_LIST))|wxLC_VIRTUAL|wxLC_REPORT, validator, name);
+}
+
 wxDEFINE_EVENT(lwEVT_GET_LAYOUT_PERSPECTIVE, wxCommandEvent);
 wxDEFINE_EVENT(lwEVT_SET_LAYOUT_PERSPECTIVE, wxCommandEvent);
