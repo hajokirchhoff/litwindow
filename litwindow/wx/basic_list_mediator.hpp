@@ -36,6 +36,14 @@ namespace litwindow {
                 const wxValidator &validator=wxDefaultValidator,
                 const wxString &name=wxListCtrlNameStr
                 ):wxListCtrl(parent, id, pos, size, (style& ~ (wxLC_ICON|wxLC_LIST))|wxLC_VIRTUAL|wxLC_REPORT, validator, name) {}
+			void Create(
+				wxWindow *parent, 
+				wxWindowID id, 
+				const wxPoint &pos=wxDefaultPosition, 
+				const wxSize &size=wxDefaultSize, 
+				long style=wxLC_ICON,
+				const wxValidator &validator=wxDefaultValidator,
+				const wxString &name=wxListCtrlNameStr);
             virtual wxString OnGetItemText(long item, long column) const;
             virtual int OnGetItemColumnImage(long item, long column) const;
             long GetFirstSelected() const
