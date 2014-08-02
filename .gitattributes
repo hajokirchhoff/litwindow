@@ -223,6 +223,7 @@ litwindow/wx/list_mediator.hpp -text
 litwindow/wx/lwwx.h -text
 litwindow/wx/new_widgets.h -text
 litwindow/wx/rapidUI.h -text
+litwindow/wx/wxGrid_mediator.hpp -text
 litwindow/wx/wxio.h -text
 /litwindow_solution.props -text
 /litwindow_solution.vsprops -text
