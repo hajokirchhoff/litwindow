@@ -53,7 +53,7 @@ namespace litwindow {
             bool visible() const { return m_visible; }
             void visible(bool do_show) { m_visible=do_show; }
 			bool image() const { return m_image; }
-			bool image(bool is_image) { m_image=is_image; }
+			void image(bool is_image) { m_image=is_image; }
 			void position(int new_position) { m_position=new_position; }
 			int  position() const { return m_position; }
 			template <typename Archive>

@@ -7,13 +7,13 @@
 * $Id: internals.cpp,v 1.3 2006/06/27 11:23:54 Hajo Kirchhoff Exp $
 */
 #include "stdafx.h"
-#include "internals.h"
+#include "litwindow/odbc/internals.h"
 #include <sqlext.h>
 #include <litwindow/dataadapter.h>
 #include <litwindow/logging.h>
 #include <boost/bind.hpp>
-#include "./lwodbc.h"
-#include "./statement.h"
+#include "litwindow/odbc/lwodbc.h"
+#include "litwindow/odbc/statement.h"
 
 #define new DEBUG_NEW
 

@@ -11,7 +11,7 @@
 #include <malloc.h>
 #include <litwindow/logging.h>
 #include <boost/bind.hpp>
-#include "statement.h"
+#include "litwindow/odbc/statement.h"
 #include "litwindow/check.hpp"
 
 #define new DEBUG_NEW

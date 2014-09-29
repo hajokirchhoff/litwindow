@@ -15,120 +15,99 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="base_objects.h">
+    <ClInclude Include="..\..\litwindow\odbc\internals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stdwx.h">
+    <ClInclude Include="..\..\litwindow\odbc\lwodbc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wxbook_objects.h">
+    <ClInclude Include="..\..\litwindow\odbc\lwodbc_def.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wxbutton_objects.h">
+    <ClInclude Include="..\..\litwindow\odbc\MD5.H">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wxList_objects.h">
+    <ClInclude Include="..\..\litwindow\odbc\odbc_fwd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wxmisc_objects.h">
+    <ClInclude Include="..\..\litwindow\odbc\statement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wxtext_objects.h">
+    <ClInclude Include="..\..\litwindow\odbc\table.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\action_objects.h">
+    <ClInclude Include="..\..\litwindow\odbc\utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\basic_list_mediator.hpp">
+    <ClInclude Include="..\..\litwindow\odbc\binder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\dynamic_menu.h">
+    <ClInclude Include="..\..\litwindow\odbc\catalog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\extended_error.h">
+    <ClInclude Include="..\..\litwindow\odbc\connection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\extended_error_dialog.h">
+    <ClInclude Include="..\..\litwindow\odbc\dbms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\list_mediator.hpp">
+    <ClInclude Include="..\..\litwindow\odbc\dbms_ms_access.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\lwwx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\new_widgets.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\rapidUI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\wxGrid_mediator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\wxio.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\litwindow\ui\basic_list_mediator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\litwindow\ui\edit_mediator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\litwindow\ui\list_mediator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\litwindow\ui\list_mediator_imp.hpp">
+    <ClInclude Include="..\..\litwindow\odbc\dbms_ms_excel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="action_objects.cpp">
+    <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="base_objects.cpp">
+    <ClCompile Include="dbms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="basic_list_mediator.cpp">
+    <ClCompile Include="dbms_ms_access.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="extended_error_dialog.cpp">
+    <ClCompile Include="dbms_ms_excel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lwwx.cpp">
+    <ClCompile Include="internals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="new_widgets.cpp">
+    <ClCompile Include="lwodbc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rapidUI.cpp">
+    <ClCompile Include="MD5.CPP">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rapidUI_parser.cpp">
+    <ClCompile Include="statement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdwx.cpp">
+    <ClCompile Include="statement_parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wxbook_objects.cpp">
+    <ClCompile Include="table.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wxbutton_objects.cpp">
+    <ClCompile Include="utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wxio.cpp">
+    <ClCompile Include="binder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wxList_objects.cpp">
+    <ClCompile Include="catalog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wxmisc_objects.cpp">
+    <ClCompile Include="connection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wxtext_objects.cpp">
+    <ClCompile Include="connection_script_parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

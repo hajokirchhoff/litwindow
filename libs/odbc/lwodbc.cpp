@@ -11,8 +11,8 @@
 #include <sqlext.h>
 #include <malloc.h>
 #include <litwindow/logging.h>
-#include "lwodbc.h"
-#include "connection.h"
+#include "litwindow/odbc/lwodbc.h"
+#include "litwindow/odbc/connection.h"
 #include <iomanip>
 
 #pragma warning(disable: 4312 4267)

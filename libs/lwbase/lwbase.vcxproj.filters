@@ -15,120 +15,99 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="base_objects.h">
+    <ClInclude Include="..\..\litwindow\logging.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stdwx.h">
+    <ClInclude Include="..\..\litwindow\lw_pragma_import.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wxbook_objects.h">
+    <ClInclude Include="..\..\litwindow\lwbase.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wxbutton_objects.h">
+    <ClInclude Include="..\..\litwindow\platform_toolset.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wxList_objects.h">
+    <ClInclude Include="..\..\litwindow\renderer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wxmisc_objects.h">
+    <ClInclude Include="..\..\litwindow\result.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wxtext_objects.h">
+    <ClInclude Include="..\..\litwindow\tchar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\action_objects.h">
+    <ClInclude Include="..\..\litwindow\tstring.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\basic_list_mediator.hpp">
+    <ClInclude Include="..\..\litwindow\algorithm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\dynamic_menu.h">
+    <ClInclude Include="..\..\litwindow\auto_link.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\extended_error.h">
+    <ClInclude Include="..\..\litwindow\check.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\extended_error_dialog.h">
+    <ClInclude Include="..\..\litwindow\config.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\list_mediator.hpp">
+    <ClInclude Include="..\..\litwindow\constraints.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\lwwx.h">
+    <ClInclude Include="..\..\litwindow\dataadapter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\new_widgets.h">
+    <ClInclude Include="..\..\litwindow\dataadaptercontainerimp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\rapidUI.h">
+    <ClInclude Include="..\..\litwindow\dataadapterenum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\wxGrid_mediator.hpp">
+    <ClInclude Include="..\..\litwindow\dataadapterimp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\wx\wxio.h">
+    <ClInclude Include="..\..\litwindow\expr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\ui\basic_list_mediator.hpp">
+    <ClInclude Include="..\..\litwindow\logger.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\litwindow\ui\edit_mediator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\litwindow\ui\list_mediator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\litwindow\ui\list_mediator_imp.hpp">
+    <ClInclude Include="..\..\litwindow\logger\sink.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="action_objects.cpp">
+    <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="base_objects.cpp">
+    <ClCompile Include="dataadapterimp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="basic_list_mediator.cpp">
+    <ClCompile Include="logging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="extended_error_dialog.cpp">
+    <ClCompile Include="lwbase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lwwx.cpp">
+    <ClCompile Include="renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="new_widgets.cpp">
+    <ClCompile Include="tstring.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rapidUI.cpp">
+    <ClCompile Include="check.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rapidUI_parser.cpp">
+    <ClCompile Include="constraints.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdwx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wxbook_objects.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wxbutton_objects.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wxio.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wxList_objects.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wxmisc_objects.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wxtext_objects.cpp">
+    <ClCompile Include="logger\default_sink.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -19,7 +19,7 @@
 #include <boost/bind.hpp>
 #include <malloc.h>
 #include <litwindow/logging.h>
-#include "statement.h"
+#include "litwindow/odbc/statement.h"
 
 
 using namespace boost::spirit::classic;

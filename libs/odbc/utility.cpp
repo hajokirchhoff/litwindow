@@ -7,8 +7,8 @@
  * $Id: utility.cpp,v 1.4 2006/07/29 11:49:19 Hajo Kirchhoff Exp $
  */
 #include "stdafx.h"
-#include "./utility.h"
-#include "./connection.h"
+#include "litwindow/odbc/utility.h"
+#include "litwindow/odbc/connection.h"
 #include <boost/spirit/include/classic.hpp>
 #include <boost/spirit/include/classic_actor.hpp>
 

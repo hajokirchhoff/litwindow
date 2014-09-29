@@ -10,7 +10,7 @@
 #include "stdafx.h"
 #include <malloc.h>
 #include <litwindow/logging.h>
-#include "catalog.h"
+#include "litwindow/odbc/catalog.h"
 
 #define new DEBUG_NEW
 

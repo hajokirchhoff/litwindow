@@ -12,9 +12,9 @@
 #include <malloc.h>
 #include <litwindow/logging.h>
 #include <litwindow/check.hpp>
-#include "connection.h"
-#include "binder.h"
-#include "statement.h"
+#include "litwindow/odbc/connection.h"
+#include "litwindow/odbc/binder.h"
+#include "litwindow/odbc/statement.h"
 
 #define new DEBUG_NEW
 
@@ -66,8 +66,8 @@ namespace litwindow {
 		bool unknown_keyword=false;
 		const TCHAR *p;
 		const TCHAR *begin_keyword;
-		const TCHAR *end_keyword;
-		const TCHAR *begin_value;
+		const TCHAR *end_keyword=NULL;
+		const TCHAR *begin_value=NULL;
 		const TCHAR *end_value;
 		p=begin_keyword=odbc_connection_string.c_str();
 		remaining_connection_string.clear();

@@ -165,11 +165,13 @@ public:
 	/// Create a connection on a specific environment and dbms strategy
 	LWODBC_API connection(dbms_base *dbms_to_use, environment p=get_default_environment());
 
-	/// Copy a connection - open a new connection based on the data of the current connection
+	private:
+		/// Copy a connection - open a new connection based on the data of the current connection
 	LWODBC_API connection(const connection &c);
 
 	/// Assign a connection - close the current connection and open a new connection based on the parameters
 	LWODBC_API const connection &operator =(const connection &c);
+	public:
 
 	/// Free all handles and destroy the connection
 	LWODBC_API ~connection();

@@ -12,6 +12,7 @@ libs/lwbase-VC90/DebugOptimize
 libs/lwbase-VC90/Release
 libs/lwbase/Debug
 libs/lwbase/DebugOptimize
+libs/lwbase/My[!!-~]Amplifier[!!-~]XE[!!-~]Results[!!-~]-[!!-~]lwbase
 libs/lwbase/Release
 libs/lwbase/build/Debug
 libs/lwbase/build/DebugOptimize
@@ -32,6 +33,8 @@ libs/lwbase/unittest/*.user
 libs/lwbase/unittest/Debug
 libs/lwbase/unittest/DebugOptimize
 libs/lwbase/unittest/Release
+libs/lwbase/unittest/x64
+libs/lwbase/x64
 libs/lwwx/*.user
 libs/lwwx/Debug
 libs/lwwx/DebugOptimize
@@ -63,6 +66,7 @@ libs/lwwx/samples/generic_ui/res/Release
 libs/lwwx/samples/rssreader/Debug
 libs/lwwx/samples/rssreader/DebugOptimize
 libs/lwwx/samples/rssreader/Release
+libs/lwwx/x64
 libs/odbc/*.user
 libs/odbc/Debug
 libs/odbc/DebugOptimize
@@ -70,10 +74,12 @@ libs/odbc/Release
 libs/odbc/build/Debug
 libs/odbc/build/DebugOptimize
 libs/odbc/build/Release
+libs/odbc/odbc_unittest/x64
 libs/odbc/unittest/*.user
 libs/odbc/unittest/Debug[!!-~]static
 libs/odbc/unittest/Release
 libs/odbc/unittest/Release[!!-~]static
+libs/odbc/x64
 libs/stage
 /litwindow-VC90.ncb
 /litwindow-VC90.suo

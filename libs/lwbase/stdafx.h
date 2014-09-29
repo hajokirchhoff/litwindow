@@ -1,5 +1,5 @@
 /* 
- * Copyright 2004, Hajo Kirchhoff - Lit Window Productions, http://www.litwindow.com
+ * Copyright 2004-2014, Hajo Kirchhoff - Lit Window Productions, http://www.litwindow.com
  * This file is part of the Lit Window Library. All use of this material - copying
  * in full or part, including in other works, using in non-profit or for-profit work
  * and other uses - is governed by the licence contained in the Lit Window Library 
@@ -25,6 +25,7 @@
 //#define _GLIBCPP_USE_WCHAR_T	1
 //#endif
 
+#include "./targetver.h"
 
 #ifdef wxUSE_GUI
 #include <wx/wxprec.h>

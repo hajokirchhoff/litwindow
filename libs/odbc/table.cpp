@@ -11,7 +11,7 @@
 #include <litwindow/dataadapter.h>
 #include <litwindow/logging.h>
 #include <litwindow/check.hpp>
-#include "table.h"
+#include "litwindow/odbc/table.h"
 
 #define new DEBUG_NEW
 

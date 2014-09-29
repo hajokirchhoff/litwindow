@@ -13,8 +13,8 @@
 #include <boost/spirit/include/classic.hpp>
 #include <boost/spirit/include/classic_actor.hpp>
 #include <boost/bind.hpp>
-#include "connection.h"
-#include "statement.h"
+#include "litwindow/odbc/connection.h"
+#include "litwindow/odbc/statement.h"
 
 #define new DEBUG_NEW
 

@@ -14,11 +14,11 @@
 #include <litwindow/check.hpp>
 #include <litwindow/logging.h>
 #include <io.h>
-#include ".\dbms.h"
-#include "statement.h"
-#include "catalog.h"
+#include "litwindow/odbc/dbms.h"
+#include "litwindow/odbc/statement.h"
+#include "litwindow/odbc/catalog.h"
 #include <boost/format.hpp>
-#include "dbms_ms_access.h"
+#include "litwindow/odbc/dbms_ms_access.h"
 
 using boost::str;
 using boost::basic_format;

@@ -13,8 +13,8 @@
 #include <litwindow/dataadapter.h>
 #include <litwindow/check.hpp>
 #include <io.h>
-#include "./dbms_ms_excel.h"
-#include "statement.h"
+#include "litwindow/odbc/dbms_ms_excel.h"
+#include "litwindow/odbc/statement.h"
 #define new DEBUG_NEW
 
 namespace litwindow {
