@@ -180,7 +180,7 @@ namespace litwindow {
 				Inherited::connect(md, v);
 				v->Connect(wxEventType(wxEVT_COMMAND_LIST_COL_CLICK), wxListEventHandler(uicontrol_policies::OnListColClick), 0, this);
 				on_destroyed=boost::bind(&Mediator::clear_ui, md);
-				on_l_col_clicked=boost::bind(&Mediator::sort_by, md, _1);
+				on_l_col_clicked = boost::bind(&Mediator::sort_by, md, _1, Mediator::sort_automatic);
 				v->Connect(wxEventType(wxEVT_DESTROY), wxObjectEventFunction(&uicontrol_policies::OnDestroy), 0, this);
 			}
 			template <typename Mediator>

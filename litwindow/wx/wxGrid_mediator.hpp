@@ -21,12 +21,12 @@ namespace litwindow
 					~grid_table_base() {}
 					virtual int GetNumberRows()
 					{
-						return m_owner->size();
+						return (int)m_owner->size();
 					}
 		
 					virtual int GetNumberCols()
 					{
-						return m_owner->columns().size();
+						return (int)m_owner->columns().size();
 					}
 		
 					virtual wxString GetValue( int row, int col )
@@ -49,8 +49,8 @@ namespace litwindow
 						{
 							wxGridTableMessage msg( this,
 								wxGRIDTABLE_NOTIFY_ROWS_INSERTED,
-								pos,
-								numRows );
+								(int)pos,
+								(int)numRows );
 
 							GetView()->ProcessTableMessage( msg );
 						}
@@ -64,7 +64,7 @@ namespace litwindow
 						{
 							wxGridTableMessage msg( this,
 								wxGRIDTABLE_NOTIFY_ROWS_APPENDED,
-								numRows );
+								(int)numRows );
 
 							GetView()->ProcessTableMessage( msg );
 						}
@@ -78,8 +78,8 @@ namespace litwindow
 						{
 							wxGridTableMessage msg( this,
 								wxGRIDTABLE_NOTIFY_ROWS_DELETED,
-								pos,
-								numRows );
+								(int)pos,
+								(int)numRows );
 
 							GetView()->ProcessTableMessage( msg );
 						}

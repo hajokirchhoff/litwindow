@@ -309,6 +309,13 @@ namespace litwindow {
 			typedef typename ContainerPolicies::const_iterator const_iterator;
 			typedef typename ContainerPolicies::iterator iterator;
 
+			enum sort_type_enum
+			{
+				sort_automatic = basic_columns_sort_index::sort_automatic,
+				sort_ascending = basic_columns_sort_index::sort_ascending,
+				sort_descending = basic_columns_sort_index::sort_descending
+			};
+
 			void set_ui(uicontrol_type *ctrl)
 			{ 
 				if (m_uicontrol!=ctrl) {
@@ -343,13 +350,21 @@ namespace litwindow {
 			void columns(const columns_type &c) { m_columns=c; set_dirty(); m_columns.dirty(true); }
 			columns_type &columns() { return m_columns; }
 
-			void sort_by(int column_index)
+			void sort_by(int column_index, sort_type_enum sort_type=sort_automatic)
 			{
 				if (column_index>=0)
-					m_container_policies.set_sort_order(*m_container, m_columns, column_index);
+					m_container_policies.set_sort_order(*m_container, m_columns, column_index, basic_columns_sort_index::sort_type_enum(sort_type));
 				else
 					m_container_policies.clear_sort_order();
 				refresh(true);
+			}
+			void sort_by_descending(int column_index)
+			{
+				sort_by(column_index, sort_descending);
+			}
+			void sort_by_ascending(int column_index)
+			{
+				sort_by(column_index, sort_ascending);
 			}
 			std::vector<basic_columns_sort_index> get_sort_order() const
 			{
