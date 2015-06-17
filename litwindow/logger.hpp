@@ -978,6 +978,13 @@ namespace litwindow {
 			{
 				m_component=m_default_component=c; return *this;
 			}
+			void copy_tags_from(const _Myt &r)
+			{
+				m_default_level = r.m_default_level;
+				m_default_component = r.m_default_component;
+				m_default_topic = r.m_default_topic;
+				m_enabled = r.m_enabled;
+			}
 
 			void continue_entry()
 			{
@@ -1076,7 +1083,8 @@ namespace litwindow {
 #else
 						m_evt_ptr.reset(new _Events(m_default)); 
 #endif
-					return *m_evt_ptr; 
+					m_evt_ptr->copy_tags_from(get_default());
+					return *m_evt_ptr;
 				}
 				basic_threadsafe_events()
 				{
@@ -1136,8 +1144,15 @@ namespace litwindow {
 					get_default().set_default_component(component_type(c));
 					get().set_default_component(component_type(c));
 				}
-				void enabled(bool do_enable) { get_default().enabled(do_enable); get().enabled(do_enable); }
-				bool enabled() const { return get_default().enabled(); }
+				void enabled(bool do_enable) 
+				{
+					get_default().enabled(do_enable);
+					get().enabled(do_enable); 
+				}
+				bool enabled() const
+				{
+					return get_default().enabled(); 
+				}
 				void enable() { enabled(true); }
 				void disable() { enabled(false); }
 			};
