@@ -199,7 +199,7 @@ namespace litwindow {
 				int perPage=c->GetCountPerPage();
 				int totalItems=c->GetItemCount();
 				int bottomItem=min(totalItems, topItem+perPage);
-				c->RefreshItems(topItem, bottomItem);
+				c->RefreshItems(topItem, bottomItem-1);
 			}
 			size_t column_count(uicontrol_type *c) const { return c->GetColumnCount(); }
 			void insert_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d)
@@ -325,6 +325,7 @@ namespace litwindow {
 				//toggle_show_column=boost::bind(&Mediator::toggle_show_column, md, _1);
 				//v->Bind(wxEVT_COMMAND_MENU_SELECTED, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnRightClickMenu, this, _1));
 				v->Bind(wxEVT_COMMAND_MENU_SELECTED, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnRightClickMenu<typename Mediator>, this, md, _1));
+				v->Bind(wxEVT_ERASE_BACKGROUND, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnEraseBackground<typename Mediator>, this, _1));
 			}
 			template <typename Mediator>
 			void disconnect(Mediator *md, uicontrol_type *v)
@@ -334,7 +335,58 @@ namespace litwindow {
 			template <typename Mediator>
 			void refresh_rows(Mediator &m, typename Mediator::uicontrol_type *ctrl)
 			{
-				ctrl->SetItemCount((long)m.get_item_count());
+				if (ctrl->GetItemCount() != (long)m.get_item_count())
+					ctrl->SetItemCount((long)m.get_item_count());
+			}
+			template <typename Mediator>
+			void OnEraseBackground(wxEraseEvent & event) {
+				// to prevent flickering, erase only content *outside* of the 
+				// actual list items stuff
+				typename Mediator::uicontrol_type *ctrl = dynamic_cast<Mediator::uicontrol_type*>(event.GetEventObject());
+				if (ctrl && ctrl->GetItemCount() > 0) {
+					wxDC * dc = event.GetDC();
+					assert(dc);
+
+					// get some info
+					wxCoord width = 0, height = 0;
+					ctrl->GetClientSize(&width, &height);
+
+					wxCoord x, y, w, h;
+					dc->SetClippingRegion(0, 0, width, height);
+					dc->GetClippingBox(&x, &y, &w, &h);
+
+					long top_item = ctrl->GetTopItem();
+					long bottom_item = top_item + ctrl->GetCountPerPage();
+					if (bottom_item >= ctrl->GetItemCount()) {
+						bottom_item = ctrl->GetItemCount() - 1;
+					}
+
+					// trick: we want to exclude a couple pixels
+					// on the left side thus use wxLIST_RECT_LABEL
+					// for the top rect and wxLIST_RECT_BOUNDS for bottom
+					// rect
+					wxRect top_rect, bottom_rect;
+					ctrl->GetItemRect(top_item, top_rect, wxLIST_RECT_LABEL);
+					ctrl->GetItemRect(bottom_item, bottom_rect, wxLIST_RECT_BOUNDS);
+
+					// set the new clipping region and do erasing
+					wxRect items_rect(top_rect.GetLeftTop(), bottom_rect.GetBottomRight());
+					wxRegion reg(wxRegion(x, y, w, h));
+					reg.Subtract(items_rect);
+					dc->DestroyClippingRegion();
+					dc->SetDeviceClippingRegion(reg);
+
+					// do erasing
+					dc->SetBackground(wxBrush(ctrl->GetBackgroundColour(), wxSOLID));
+					dc->Clear();
+
+					// restore old clipping region
+					dc->DestroyClippingRegion();
+					dc->SetDeviceClippingRegion(wxRegion(x, y, w, h));
+				}
+				else {
+					event.Skip();
+				}
 			}
 		};
 
