@@ -156,7 +156,7 @@ namespace litwindow {
 			}
 			void set_selection_index(uicontrol_type *ctrl, size_t new_selection)
 			{
-				ctrl->SetSelection(new_selection);
+				ctrl->SetSelection((int)new_selection);
 			}
 			//template <typename Visitor>
 			//void for_each_selected(Visitor v) const

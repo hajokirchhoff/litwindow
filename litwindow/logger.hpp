@@ -463,7 +463,6 @@ namespace litwindow {
 				class const_iterator
 				{
 					const entry *m_ptr;
-					const entry *get_entry() const { return m_ptr; }
 				public:
 					const_iterator(const char_type *p=0)
 						:m_ptr(reinterpret_cast<const entry*>(p)){}
@@ -480,6 +479,7 @@ namespace litwindow {
 					const const_iterator &operator=(const const_iterator &i) { m_ptr=i.m_ptr; return *this; }
 					const entry *operator->() const { return get_entry(); }
 					const entry &operator*() const { return *get_entry(); }
+					const entry *get_entry() const { return m_ptr; }
 				};
 				const_iterator begin() const { return const_iterator(m_begin); }
 				const_iterator end() const { return const_iterator(m_end); }
@@ -1132,6 +1132,10 @@ namespace litwindow {
 				void sink(typename events_type::sink_type *s)
 				{
 					get().sink(s);
+				}
+				typename events_type::sink_type *sink()
+				{
+					return get().sink();
 				}
 				void set_default_topic(const topic_type &t)
 				{
