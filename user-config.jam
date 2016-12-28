@@ -1,0 +1,109 @@
+#######################################################
+#
+# Please modify this file to point to the proper paths.
+#
+#######################################################
+#
+# Change D:/prj/r4000-v4.... to whereever your boost
+# and wxWidgets installation is located.
+#
+
+path-constant BOOST_ROOT : D:/prj/r4000-v4/libs/boost ;
+path-constant WXWIDGETS_ROOT : D:/prj/r4000-v4/libs/wxWidgets ;
+
+
+
+
+
+
+
+
+#######################################################
+
+
+
+project site-config
+	;
+	
+project site-config/wxWidgets ;
+	
+path-constant WXWIDGETS_LIB : $(WXWIDGETS_ROOT)/lib ;
+
+constant wx-ver : 29 ;
+WXBASELIBS = "" _net _xml ;
+WXLIBS = _adv _aui _core _html _media _qa _richtext _stc _xrc ;
+WXEXTLIBS = expat jpeg png regex scintilla tiff zlib ;
+
+WIN32LIBS = kernel32 user32 gdi32 ;
+
+lib $(WIN32LIBS) ;
+
+alias system_libs
+	: $(WIN32LIBS)
+	: <target-os>windows
+	;
+
+for local l in $(WXBASELIBS)
+{
+	lib wxbase$(l)
+		: 
+		:
+		<link>shared,<variant>release:<file>$(WXWIDGETS_LIB)/vc_dll/wxbase$(wx-ver)u$(l).lib
+		<link>static,<variant>release:<file>$(WXWIDGETS_LIB)/vc_lib/wxbase$(wx-ver)u$(l).lib 
+		<link>shared,<variant>debug:<file>$(WXWIDGETS_LIB)/vc_dll/wxbase$(wx-ver)ud$(l).lib
+		<link>static,<variant>debug:<file>$(WXWIDGETS_LIB)/vc_lib/wxbase$(wx-ver)ud$(l).lib
+		:
+		:
+		<library>system_libs
+		;
+}
+
+for local l in $(WXLIBS)
+{
+	lib wx$(l)
+		: 
+		: 
+		<link>shared,<variant>release:<file>$(WXWIDGETS_LIB)/vc_dll/wxmsw$(wx-ver)u$(l).lib
+		<link>static,<variant>release:<file>$(WXWIDGETS_LIB)/vc_lib/wxmsw$(wx-ver)u$(l).lib 
+		<link>shared,<variant>debug:<file>$(WXWIDGETS_LIB)/vc_dll/wxmsw$(wx-ver)ud$(l).lib
+		<link>static,<variant>debug:<file>$(WXWIDGETS_LIB)/vc_lib/wxmsw$(wx-ver)ud$(l).lib
+		;
+}
+
+alias wxWidgets 
+	: wxbase$(WXBASELIBS) wx$(WXLIBS)
+	: 
+	:
+	:
+	<define>UNICODE <define>_UNICODE
+	<conditional>@wxinclude-path
+	<link>shared:<define>WXUSINGDLL
+	;
+
+rule wxlib-path ( properties * )
+{
+	local result = $(WXWIDGETS_LIB)/ ;
+	if <toolset>msvc in $(properties)
+	{
+		result = $(result)vc ;
+	}
+	result = $(result)"_" ;
+	if <link>static in $(properties)
+	{
+		result = $(result)"lib" ;
+	} else {
+		result = $(result)"dll" ;
+	}
+	return $(result) ;
+}
+
+rule wxinclude-path ( properties * )
+{
+	local result = [ wxlib-path $(properties) ] ;
+	result = $(result)/mswu ;
+	if <variant>debug in $(properties)
+	{
+		result = $(result)d ;
+	}
+	return <include>$(result)&&$(WXWIDGETS_ROOT)/include ;
+}

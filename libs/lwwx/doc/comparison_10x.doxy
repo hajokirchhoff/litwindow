@@ -1,0 +1,318 @@
+/*!@page comparison_10x How RapidUI speeds up your work by a magnitude...
+"A factor of 10x" is a bold claim. This comparison shows you how I think the Lit Window Library has the potential to achieve this kind of time saving. The following code snippets are part of the RssReader Tutorial: @ref tutorial_rssreader
+
+@note If you are an impatient reader, you can skip directly to the C++ code comparison here: @ref settings_persistence_read
+
+@section return_of_investment Benefits: Write less code, reduce errors, save time...
+The benefits come at a cost, but only a small one. Read @ref your_data_structures to find out what you need to do to be able to use the Lit Window Library in your application. Now for the benefits...
+
+@subsection example_persistence Example: Persistence
+One of the most common scenarios: you have to load and save the users settings.
+@subsubsection settings_persistence_read Reading settings...
+<table>
+<tr><th>Normal C++ code</th><th>C++ with Lit Window Library</th></tr>
+<tr><td>@code
+void ReadSettings(wxConfigBase &cfg, Settings &s)
+{
+	long l;
+	cfg.Read("/settings/m_nextRefresh", &l);
+	s.m_nextRefresh=wxDateTime(l);
+	cfg.Read("/settings/m_refreshAfter", &l);
+	s.m_refreshAfter=wxTimeSpan(l);
+	// read channels vector
+	cfg.Read("/settings/m_channels/size", &l);
+	size_t i;
+	s.m_channels.clear();
+	for (i=0; i<l; ++i) {
+	   Channel newChannel;
+	   cfg.SetPath(wxString::Format("/settings/m_channels/E%08d", i));
+	   ReadChannel(cfg, newChannel);
+	   s.m_channels.push_back(newChannel);
+	}
+}
+
+void ReadChannel(wxConfigBase &cfg, Channel &newChannel)
+{
+   long l;
+   cfg.Read("m_webAddress", &newChannel.m_newWebAddress);
+   cfg.Read("m_title", &newChannel.m_title);
+   cfg.Read("m_cacheExpires", &l);
+   newChannel.m_cacheExpires=wxTimeSpan(l);
+   cfg.Read("m_lastRead", &l);
+   newChannel.m_lastRead=wxDateTime(l);
+   cfg.Read("m_headlines/size", &l);
+   newChannel.m_headlines.clear();
+   size_t i;
+   for (i=0; i<l; ++i) {
+      cfg.SetPath(wxString::Format("E%08d", i));
+	  Headline newHeadline;
+	  cfg.Read("m_title", &newHeadline.m_title);
+	  cfg.Read("m_body", &newHeadline.m_body);
+	  long publishedTime;
+	  cfg.Read("m_published", &publishedTime);
+	  newHeadline.m_published=wxDateTime(publishedTime);
+	  cfg.Read("m_url", &newHeadline.m_url);
+	  newChannel.m_headlines.push_back(newHeadline);
+	  cfg.SetPath("..");
+   }
+}
+
+@endcode</td><td>@code
+void ReadSettings(wxConfigBase &cfg, Settings &s)
+{
+   cfg >> setpath("/settings") >> s;
+}
+@endcode</td>
+</table>
+<small>View next comparison: @ref implicit_databinding</small>
+
+@subsubsection settings_persistence_write ... and writing settings ...
+But, of course, that's not all. You'll need almost the same code for writing the settings. Here is the code using 
+the Lit Window Library (I'll spare you the normal C++ code).
+@code
+void WriteSettings(wxConfigBase &cfg, Settings &s)
+{
+   cfg << setpath("/settings") << s;
+}
+@endcode
+@subsubsection settings_persistence_add ... and going through it again.
+Now consider the work neccessary if you have to add a member variable to @c Headline. Assume you have to add this:
+@code
+wxString m_notes;   // some user notes
+@endcode
+Here is what you have to do...
+<table>
+<tr><th>Normal C++ code</th><th>C++ with Lit Window Library</th></tr>
+<tr><td>
+- Modify the @c Headline struct.
+- Find the Read method and add @code cfg.Read("m_notes", &newHeadline.m_notes) @endcode
+- Find the Write method and add @code cfg.Write("m_notes", &currentHeadline.m_notes) @endcode
+</td><td>
+- Modify the @c Headline struct.
+- Find the data adapter definition and add
+@code
+PROP(m_notes)
+@endcode
+</td></tr></table>
+Using the Lit Window Library is not only shorter, it also eliminates many possible errors because 
+Read/WriteSettings is very unlikely to be the only place where you would have to add code.
+
+@subsection example_transferdatatowindow Example: Displaying settings in a dialog
+Another very common coding task. Before a dialog is shown, you have to transfer the values from 
+your member variables to the dialog widgets (controls). And when the user presses OK, you have
+to copy the variables back.
+@subsubsection implicit_databinding Implicit data binding by name
+RapidUI has a data binding mechanism that automatically binds widgets and member variables of the same name.
+When you create your dialog resource, you simply give the widgets the same name as the member variable you
+want to use for it.
+
+@note wxWidgets' XRC resource scheme allows widgets to have names rather than numerical IDs. If your GUI 
+framework uses numerical IDs to identify widgets, you need one additional step, but otherwise its the same.
+
+Suppose you want to show a dialog for the Channels structure. You create a dialog template with two edit
+boxes - one for the title and one for the web address - and a spinbutton for the refresh period.
+<table>
+<tr><th>Normal C++ code</th><th>C++ with Lit Window Library</th></tr>
+<tr><td>
+@code
+void MyDialog::TransferData(Channel &s, bool saveData)
+{
+   if (saveData) { // copy values from widgets to data
+      s.m_title=m_title.GetValue();
+	  s.m_webaddress=m_webaddress.GetValue();
+	  s.m_cacheExpires=m_cacheExpires.GetValue();
+   } else {
+      m_title.SetValue(s.m_title);
+	  m_webaddress.SetValue(s.m_webaddress);
+	  m_cacheExpires.SetValue(s.m_cacheExpires);
+   }
+}
+void MyDialog::CreateControls()
+{
+   m_webaddress=wxDynamicCast(FindWindow(XRCID(ID_WEBADDRESS)),
+					wxTextCtrl);
+   m_title=wxDynamicCast(FindWindow(XRCID(ID_TITLE)), 
+					wxTextCtrl);
+   // or any other initialisation code to
+   // init the member variables representing the widgets
+}
+void ShowDialog()
+{
+   Channel channel;
+   MyDialog dlg;
+   dlg.TransferData(channel, false);
+   if (dlg.ShowModal()==IDYES) {
+	  dlg.TransferData(channel, true);
+   }
+}
+@endcode
+</td><td>
+@code
+void ShowDialog()
+{
+   Channel channel;
+   if (litwindow::ShowModalDialog(make_accessor(channel), "ID_CHANNEL_DIALOG")==IDYES) {
+      // do something
+   }
+}
+@endcode
+</td></tr></table>
+<small>View next comparison: @ref filllistbox</small>
+
+The RapidUI mechanism automatically transfers the value of all member variables from the 'channel' struct to their widgets and back.
+
+@subsection really_save_time Example: 'FillListbox()'. The next level of "Reuse"...
+In the early 1990ies 'reuse' was the magic concept that was supposed to finally get us out of the software development dilemma and propel productivity to the next level. It hasn't happened. While you can certainly reuse a listbox, you cannot really reuse a 'channels listbox', i.e. a listbox showing a list of webchannels for an RssReader. With every new application you have to rewrite the same old functions showing the particular data of your application in the widgets. One of my favorites is 'FillListbox'.
+
+@subsubsection filllistbox FillListbox ... - or - a better widget: lwListBox
+The Lit Window Library adds another layer onto a basic GUI framework and enhances the existing widgets. Take a standard listbox. Usually it has the following properties:
+- list of strings
+- index of currently selected string
+
+The Lit Window Library listbox widget adds the following properties:
+_ container of 'things'
+- currently selected 'thing'
+
+The important point is that 'thing' can be any data structure you define, as long as you also provide a data adapter. Here is how it works:
+<table>
+<tr><th>Normal C++ code</th><th>C++ with Lit Window Library</th></tr>
+<tr><td>
+@code
+void FillChannelsListbox(wxListBox *lb, Settings &s)
+{
+   lb->Clear();
+   size_t i;
+   for (i=0; i<s.m_channels.size(); ++i) {
+     lb->AppendString(s.m_channels.at(i).m_title);
+   }
+}
+@endcode
+</td><td>
+@code
+BEGIN_RULES()
+"channelsListbox.Items=s.m_channels"
+"channelsListbox.Column=\"m_title\""
+END_RULES()
+@endcode
+</td>
+</tr>
+</table>
+<small>View next comparison: @ref complex_rules</small>
+
+This example assigns a member variable @c m_channels to the @c Items property of a listbox @c channelsListbox. The @c Items property accepts @b any container. The @c Column property of the listbox contains the name of the member you want to display. If you wanted to show m_webaddress instead, you would simply change the @c Column property.
+
+The same mechanism works for comboboxes, listcontrols, radioboxes, editcontrols etc...
+
+@subsection really_really_save_time Example: Rules. Connecting widgets...
+This last comparison brings everything so far together and adds the final Lit Window Library mechanism: Rules. For the past 15 years or so nearly every GUI programmer has used the 'Methods, Properties, Events' paradigm. Widgets and objects have methods, they have properties and they send or receive events. Todays GUI designers and IDEs make it very easy to throw together a quick prototype of how a GUI should look, but...
+
+@subsubsection connecting_widgets Connecting the widgets takes time and work...
+... its when you want to code the connections between widgets where the hard work begins. With 'connection' I mean the implementation of intercepting events and updating other controls in response. This usually happens in the form of countless OnSomething methods that are called by the framework whenever an event occurs.
+
+@subsubsection connecting_rules A very simple rule...
+Rules are a much more natural way of specifying such a connection. When you think of the requirements your application must meet, you'll probably come across sentences like "Editcontrol B shall be disabled when the Checkbox A is checked". That is a rule.
+<table>
+<tr><th>Normal C++ code</th><th>C++ with Lit Window Library</th></tr>
+<tr><td>
+@code
+void SomeDialog::OnUpdateEditcontrol(wxUpdateEvent &evt)
+{
+   evt.SetEnabled(checkboxA->GetValue()!=1);
+}
+@endcode
+</td><td>@code
+editControlB.Enabled = !checkboxA.Checked
+@endcode
+</td></tr></table>
+@subsubsection complex_rules ... and a very complex rule.
+Most rules are a lot more difficult to implement than the primitive example above. Take the RssReader Tutorial example (@ref tutorial_rssreader). Here a listbox contains a list of available news channels. A second listbox contains the headlines of the currently selected channel. The rule says: 
+@par Rule
+The headlines_listbox shall always display the list of headlines of the currently selected channel. 
+
+In other words: Whenever the user selects a different channel, the headlines_listbox must be updated to reflect that change.
+<table>
+<tr><th>Normal C++ code</th><th>C++ with Lit Window Library</th></tr>
+<tr><td>
+@code
+BEGIN_EVENT_TABLE()
+EVT_LISTBOX(ID_CHANNEL_LISTBOX, OnSelectChannel)
+END_EVENT_TABLE()
+
+void SomeDialog::OnSelectChannel(wxCommandEvent &evt) 
+{
+   int selectedChannelIdx=channelsListbox->GetSelected();
+   if (selectedChannelIdx>=0)
+      FillHeadlinesListbox(
+        g_settings.m_channels.at(selectedChannelIdx).m_headlines);
+   else
+      FillHeadlinesListbox(vector<Headline>());
+}
+
+void SomeDialog::FillHeadlinesListbox(vector<Headline> &headlines)
+{
+   headlinesListbox->Clear();
+   size_t i;
+   for (i=0; i<headlines.size(); ++i) {
+      headlinesListbox->AppendString(headlines.at(i).m_title);
+   }
+}
+@endcode
+</td><td>
+@code
+BEGIN_RULES()
+   headlinesListbox.Column = "m_title"
+   headlinesListbox.Items = channelsListbox.Current.m_headlines
+END_RULES()
+@endcode
+</td></tr></table>
+The first rule selects the member variable @c m_title as the element that is shown in the listbox. The last rule does the work. It ensures that the @c Items property (the list of elements shown) of the @c headlinesListbox is always 'in sync' with the @c m_headlines member variable of the currently selected (property @c Current) element of the @c channelsListbox.
+
+Let me explain a bit more slowly.
+
+- The @c Items property of a listbox accepts any container.
+- The @c Current property of a listbox returns the 'thing' that is currently selected.
+- The 'thing' always has the same type as the elements in the container assigned to @c Items.
+- @c channelsListbox.Items has been assigned a vector<Channel>.
+- @c channelsListbox.Current returns the currently selected element, which is of the type @c Channel.
+- @c channelsListbox.Current.m_headlines is the m_headlines member variable of the currently selected Channel element.
+- The rule assigns the m_headlines member variable of the currently selected Channel element to the @c Items property of the headlinesListbox.
+
+And RapidUI does the rest. It ensures that whenever the user changes the @c channelsListbox selection, all rules depending on @c channelsListbox are reevaluated. As a result, the @c headlinesListbox is updated every time the user changes the selection.
+
+@section your_data_structures Preparing to use the Lit Window Library...
+Most libraries force you to use their data structures. @b They define the structures! You have to learn and use 
+them and live with them, even if they don't quite fit your needs. 
+
+The Lit Window Library works differently. @b You define any data structures you like. To be able to use them, 
+the library needs an adapter for every one of your data structures. This requires some initial work, but
+not very much.
+
+If this is your data structure
+@dontinclude rssreader/data.h
+@skipline struct
+@until g_data
+
+the data adapter definition will look like this
+@dontinclude rssreader/simple_rssreader_app.cpp
+@skip BEGIN_ADAPTER
+@until END_ADAPTER
+@until END_ADAPTER
+@until END_ADAPTER
+
+Let me point out several important things about the data adapter mechanism.
+- You do not have to modify the data structure definition to use data adapters. This is 
+especially important if you are using data structures from a third party library. <b>You can 
+use the Lit Window Libary even with data definitions you can not modify.</b>
+- If you have worked with other "extended runtime information" or "reflection" mechanisms for 
+C++ you will notice that type information is missing from the data adapter definition. The Lit 
+Window Library uses templates to <b>automatically detect the correct type</b> for the 'property'. 
+This not only saves a lot of typing, it also eliminates a lot of possible errors.
+- The example contains a nested vector<> definition. The elements of the vector<Channel> contain
+another vector<Headline>. The data adapter mechanism <b>handles containers</b> with implementations ranging
+from a simple C vector, several STL containers to such complex implementations as ODBC tables. If
+your container implementation is not supported and does not have an STL like interface, you can add your
+own container adapter implementation.
+
+The data adapter definition above is the investment you have to make to use the Lit Window Library.
+
+*/

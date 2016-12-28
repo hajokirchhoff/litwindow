@@ -1,0 +1,27 @@
+# copyright Hajo Kirchhoff
+# Distributed under the Lit Window Library Software License, Version 1.0. 
+
+use-project boost
+  : $(BOOST_ROOT) ;
+
+explicit boost ;
+
+project litwindow/lwbase
+	: requirements <link>shared,<toolset>msvc,<variant>release:<cxxflags>"/wd4275 /wd4251"
+	;
+
+LWBASE_SOURCES = check
+constraints
+dataadapterimp
+logging
+lwbase
+renderer
+tstring
+;
+
+lib lwbase : ../$(LWBASE_SOURCES).cpp /boost//headers
+    :
+    <define>UNICODE <define>_UNICODE
+ 	<link>shared:<define>LWBASE_EXPORTS
+   ;
+

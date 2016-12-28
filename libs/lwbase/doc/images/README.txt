@@ -1,0 +1,1 @@
+This directory contains the image files for the documentation for the lwbase part of the library.

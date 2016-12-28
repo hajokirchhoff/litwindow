@@ -1,0 +1,79 @@
+/**@page building_litwindow Building the Lit Window Library
+
+@section building_requirements Requirements
+Before you can build the Lit Window Library, you must complete the following steps
+-   install wxWidgets 2.4 or 2.5
+-   set the WXWIN environment variable to the path where wxWidgets is installed
+-   build the main wxWidgets libraries either as static or as a DLL
+-   build the XRC resource library from the wxWidgets/contrib/src/xrc directory
+
+The following steps are recommended but optional
+-   build the release version of the xrc resource compiler from the /contrib/utils/wxrc directory
+-   download, install and build the CPPUNIT unittest framework http://sourceforge.net/projects/cppunit/. The Lit Window Library has been developed with CPPUNIT 1.9.10
+-   download and install DialogBlocks http://www.anthemion.co.uk/dialogblocks
+-   download and install Doxygen http://www.doxygen.org if you want to be able to build the documentation
+
+@section directory_layout Lit Window Library directories
+The Lit Window Library directories are as follows
+
+@par doc     
+contains a vision document and the doxygen generated documentation in doc/html
+@par lib
+the library binaries
+@par bin
+any generated binaries that are not libraries
+@par build
+containing all material to build the Lit Window Library and its releases
+@par build/msvc
+the Visual Studio project files and workspaces
+@par build/win_scripts
+scripts for the Windows platform. These scripts build project files, the documentation and other things and are used to prepare a Lit Window Library release. They are not normally of interest to users of the library.
+
+The library is split into two parts, lwbase and lwwx. Each part has the same directory structure. The directories are
+
+@par lwbase/include
+lwbase include files
+@par lwbase/src
+lwbase source files
+@par lwbase/src/doc
+lwbase documentation source files for the doxygen documentation
+@par lwwx/include
+lwwx include files
+@par lwwx/src
+lwwx source files
+@par lwwx/src/doc
+lwwx documentation source files for the doxygen documentation
+@par lwwx/samples
+lwwx samples
+
+@section building_doit Building the library
+There are two sets of MS Visual Studio C++ 6.0 project files.
+@par Building and using static libraries
+Use build/msvc/lwall_lib.dsw
+@par Building and using shared libraries (DLL)
+Use build/msvc/lwall_dll.dsw
+
+@par To build the libraries
+- Open the appropriate project file lwall_lib or lwall_dll.
+- Select 'RssReader' as the application to build.
+- Select the desired configuration, Debug or Release, Multibyte or Unicode charset (Note: Unicode builds usually lack a little behind and may be broken for a while).
+- Hit F7 to build.
+
+@par To run the unittests
+If you have CPPUNIT installed, you can run the unittests to test the lwbase part of the library. Choose 'unittest' from the project file, build and run it.
+
+<b>VERY IMPORTANT NOTE:</b> If you get compiler or linker errors, read the section about @ref compiler_messages before asking for help. The Lit Window Library stretches the capabilities of compilers such as Microsoft Visual Studio C++ 6.0 and sometimes requires special settings to work.
+
+@subsection unittests Running unittests
+Build and run the 'unittests' project. This will build the base library and run a couple of unit tests. As of this writing there exist 39 unittests. They should run okay.
+@note When the unittests finish some error messages will be written to stderr regardless of wether the unittests run okay or flag an error. This is normal because the unittests test errors as well.
+
+@subsection rssreader Running the rssreader tutorial
+The rssreader tutorial project will build lwbase, lwwxwidgets and the rssreader application.
+
+@subsection generic_ui Running the generic_ui application
+generic_ui is just a small and convoluted test application I use for testing various code, but it might be of interest to you as well.
+
+@subsection building_doxygen Building the documentation
+Read build/win_scripts/makedoc.bat to find out how to generate the documentation.
+*/

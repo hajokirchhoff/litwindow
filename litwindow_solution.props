@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <lib32>$(SolutionDir)..\..\stage\lib</lib32>
+    <lib64>$(SolutionDir)..\..\stage64\lib</lib64>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalLibraryDirectories>$(lib32);$(lib32)\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="lib32">
+      <Value>$(lib32)</Value>
+    </BuildMacro>
+    <BuildMacro Include="lib64">
+      <Value>$(lib64)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

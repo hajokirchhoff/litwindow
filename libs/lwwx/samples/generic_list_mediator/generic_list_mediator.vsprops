@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="generic_list_mediator"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="../../../../../wxwidgets/include/msvc;&quot;$(RootDir)extlibs\boost&quot;;&quot;$(RootDir)extlibs\litwindow&quot;;&quot;$(LibsDir)litwindow&quot;;&quot;$(LibsDir)boost&quot;"
+		PreprocessorDefinitions="BOOST_ALL_DYN_LINK;LITWINDOW_ALL_DYN_LINK;WXUSINGDLL"
+	/>
+	<UserMacro
+		Name="RootDir"
+		Value="$(SolutionDir)..\..\"
+	/>
+	<UserMacro
+		Name="LibsDir"
+		Value="$(SolutionDir)..\"
+	/>
+	<UserMacro
+		Name="LIB_PATH"
+		Value="$(LibsDir)wxWidgets\lib\vc_dll;$(LibsDir)boost\stage\lib;$(LibsDir)litwindow\stage\lib"
+	/>
+	<UserMacro
+		Name="INCLUDE_PATH"
+		Value="$(LibsDir)litwindow;$(LibsDir)boost"
+	/>
+</VisualStudioPropertySheet>

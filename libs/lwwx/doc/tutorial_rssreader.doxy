@@ -1,0 +1,499 @@
+
+
+    //-----------------------------------------------------------------------------------------------------------//
+/** @page tutorial_rssreader Tutorial: Writing an RSS Reader...
+This small tutorial walks you through the steps of writing an RSS Reader application.
+
+RSS stands for 'Real Simple Syndication'. An RSS Reader is an application that polls any number of websites supporting the RSS format and extracts the latest headlines and news stories. It is a great way to stay informed and track information on the web without having to browse webpages every day just to find out if they have changed.
+
+The tutorial uses wxWidgets 2.5, Microsoft Visual Studio .NET and the Lit Window Library.
+
+@section requirements Requirements
+The RSS Reader in this tutorial takes its ideas from the free Rss Reader http://www.rssreader.com
+
+@subsection user_requirements User Requirements
+
+@image html rssreaderscreenshot.png "RssReader screenshot"
+@image rtf rssreaderscreenshot.png "RssReader screenshot"
+The RSS Reader main window contains three panels: 
+-   the channels list on the left side of the window
+-   the headlines list on the top right side of the window
+-   the currently selected news item on the bottom right side of the window
+
+A user must be able to
+-   add channels from a webpage
+-   delete channels
+-   modify channel information
+
+To read a news item, a user must be able to
+-   select a channel
+-   select a headline
+-   the corresponding news item shall be displayed
+
+@subsection data_structures Data Structures
+The application has a
+-   global list of channels
+
+Each channel has
+-   a web address
+-   a title
+-   a cache time after which the channel refreshes its data from the webpage
+-   a list of headlines
+-   a @p lastread date containing the date of the last refresh
+
+Each headline has
+-   a title
+-   a body containing the news item in html
+-   a @p published date containing the date the item has been published
+-   a URL pointing to a webpage associated with the news
+
+@subsection next_steps Next Steps
+-#  @ref tutorial_step_1
+-#  @ref tutorial_step_2
+-#  @ref tutorial_step_3
+-#  @ref tutorial_step_4
+
+@note If you just want to know what RapidUI looks like, skip steps one and two and read on with step three @ref tutorial_step_3
+*/
+
+
+    //-----------------------------------------------------------------------------------------------------------//
+/** @page tutorial_step_1 RSS Reader Tutorial Step 1: Creating a UI prototype
+The first step in the tutorial sets up the project, creates a window layout and builds and runs the basic program fragments for the first time.
+
+Skip to @ref tutorial_step_3 if you
+-   know all about setting up wxWidgets projects
+-   only want to read about RapidUI details but don't actually want to write the RSS Reader.
+
+This tutorial uses wxWidgets 2.5. If you haven't installed it already, please download it from http://www.wxwidgets.org and install it.
+
+You will also need DialogBlocks from http://www.anthemion.co.uk/dialogblocks. DialogBlocks is a commercial Dialog designer, but the free, unregistered version suffices for this tutorial.
+
+@section creating_project Creating a Visual Studio Project
+This section walks you through the steps of creating a project file for Visual Studio .NET 2003. Most of the steps apply to other versions of Visual Studio as well. I will keep this section very brief, since I assume you have some knowledge of the Visual Studio IDE.
+
+@subsection creating_project_adding_files Creating the project and adding files
+-#  Start Visual Studio, create a new "Win32" project (@b not a "Win32 Console" project).
+-#  For precompiled headers, create a new file @c stdwx.cpp and add it to the project. Copy the following lines to it:
+@dontinclude rssreader/stdwx.cpp
+@skipline stdwx.h
+-#  Open the "Properties" for this file and select C++|Precompiled Headers in the dialog. Select "All Configurations" from "Configuration" combobox in the upper left corner. <em>If you forget this you will have to redo the changes for a "Release Build". </em>Change the following properties:
+    -   Set "Create/Use precompiled header" to "Create Precompiled Header"
+    -   Set "Create/Use PCH file through" to "stdwx.h"
+-#  Add another file @c stdwx.h, add it to the project and copy the following lines to it:
+@dontinclude rssreader/stdwx.h
+@skipline pragma once
+@until endif
+-#  Open the project properties and select C++|Precompiled headers from the category. You are going to change the default precompiled settings for the project, so that any files you add hereafter will use the new settings. Select "All Configurations" from the "Configuration" combobox. Change the following properties:
+    -   Set "Create/Use precompiled header" to "Use Precompiled Header"
+    -   Set "Create/Use PCH file through" to "stdwx.h"
+-#  Set up the libraries neccessary for wxWidgets. If you don't want to add them to the linker settings, you can also copy the following lines into @c stdwx.cpp:
+@dontinclude rssreader/stdwx.cpp
+@skipline stdwx.h
+@until wxWidgetImport.h
+Now all you have to do is set the correct "additional library path" in the linker settings. Make sure you get the right one, depending on wether you are using wxWidgets as a static library or as a DLL.
+-#  Set up the neccessary preprocessor defines. If you are using wxWidgets and the Lit Window Library as DLLs, you must define WXUSINGDLL and USINGDLL in the preprocessor settings. Remember to make these settings for both, the Debug and Release configuration.
+
+@section using_dialogblocks Using DialogBlocks for the basic layout.
+In this section you will be using DialogBlocks to create the basic window layout as described above.
+
+@subsection creating_frame Creating the frame window
+-#   Start DialogBlocks and create a new project file (*.pjd).
+-#   The Wizard will ask you for information about your dialog. Don't create the dialog, but cancel the Wizard instead.
+-#   Choose   Element | Add Frame   and insert a new frame window. This is going to be our main window. Name the class @p RssMainFrame.
+.
+@subsection creating_layout Creating the layout.
+-#   Add a wxSplitterWindow to the frame. This splitter shall contain the @p Channels listbox in the left pane.
+-#   Add a wxListBox. This is going to be the @p Channels listbox.
+-#   Change the name of this listbox in the "Id Name" field from ID_LISTBOX to @p m_channelsList.
+-#   Add another wxSplitterWindow. This splitter window will appear to the right of the listbox and it shall contain the @p headlines list and the news item.
+-#   Change the orientation (DialogBlocks field "Orientation") of this splitter window to vertical.
+-#  Add a wxListBox. This is going to be the @p Headlines listbox.
+-#  Change the name of the listbox to @p m_headlinesList.
+-#  Add (from the Window submenu) a wxHtmlWindow. This window will contain the selected news item.
+-#  Change the name of the wxHtmlWindow to m_newsItem.
+.
+@subsection adding_menu Adding a menubar
+-#  Add a wxMenuBar (Elements|Menu|wxMenuBar) to the frame.
+-#  Select the menubar and add a "menu" to the menubar. 
+    -   Enter @c &File as the label of the menu.
+-#  Select the menu and add a menu item to it. 
+    -   Enter @c E&xit as the label of the menu item.
+    -   Enter @c wxID_EXIT as the "Id name". DialogBlocks recognizes this name and updates the "Id value" automatically.
+.    
+The basic layout is done.
+
+@subsection creating_code Generating some code.
+DialogBlocks creates the neccessary code for us. To use it with RapidUI you need to use the XRC resource scheme.
+-#  Open the Settings dialog (View|Settings) and select the "XRC Generation" category.
+-#  Check "Generate C++ for using XRC".
+-#  Enter "simple_rssreader.xrc" in the file name field.
+-#  "Save" the project. This will generate "rssmainframe.cpp", "rssmainframe.h" and "simple_rssreader.xrc" in the same directory.
+-#  Add these files to the Visual Studio project.
+
+@subsection auto_xrc_compile Make Visual Studio compile simple_rssreader.xrc automatically.
+This short section covers the settings you have to make so that Visual Studio can automatically compile the *.xrc resource files. This tutorial uses wxrc.exe to create cpp code from an XRC file. To avoid further hassle with precompiled header and other settings, I #include the code generated by wxrc.exe in a standard .cpp file rather than use the generated file directly.
+-#  Compile the program "wxrc.exe" from the wxWidgets @c contrib/utils/wxrc folder. Use the Release build. This will create the file wxrc.exe in a vc_msw subdirectory. wxrc.exe is the resource compiler for XRC files and generates binary or .cpp files from a resource .xrc file.
+-#  In the tutorial project, open the properties for the file @c simple_rssreader.xrc
+-#  Enter the following in "Custom Build Step|General|Command Line". This command tells Visual Studio to execute wxrc.exe to compile the resource file.
+<pre>"$(WXWIN)\contrib\utils\wxrc\vc_msw\wxrc.exe" /c /o"@$(InputDir)@$(InputName)_xrc.inl" "@$(InputPath)"</pre>
+-#  In the "Description" field, enter <pre>"Compiling XRC Resources..."</pre>
+-#  In the "Outputs" field, enter <pre>"$(InputDir)$(InputName)_xrc.inl"</pre>
+-#  Create and add a new .cpp file: @c simple_rssreader_xrc.cpp
+-#  Add the following lines to this file:
+@dontinclude rssreader/simple_rssreader_xrc.cpp
+@skipline stdwx.h
+@until .inl
+This last step includes the wxrc.exe output in a .cpp file. This is just personal preference, because I find it easier this way than to use the wxrc.exe output directly and fiddle with the (precompiled) settings until everything works.
+
+@section writing_app Deriving a class from wxApp
+So far we have got
+- a project file
+- layout and code for the main window
+- an XRC resource file
+
+To run the program for the first time, we still need to derive a "main" class from wxApp, instantiate it and create the MainFrame in the OnInit function.
+-#  Add a new file @c simple_rssreader_app.cpp and copy these lines into it:
+@dontinclude rssreader/simple_rssreader_app.cpp
+@skipline stdwx.h
+@skipline simple_rssreader_app.h
+@skipline DEBUG_NEW
+@until OnInit
+@skipline {
+@skipline InitAllHandlers
+@until IMPLEMENT_APP
+-#  Add a new file @c simple_rssreader_app.h and copy these lines into it:
+@dontinclude rssreader/simple_rssreader_app.h
+@until DECLARE_APP
+-#  Open @c rssmainframe.cpp and insert the following #include statement at the top of the file.
+@dontinclude rssreader/rssmainframe.cpp
+@skipline stdwx.h
+This enabled precompiled headers for this file.
+@note This file has been generated automatically, but DialogBlocks is smart enough to recognize this change and will keep it next time it generates the file.
+@section adding_rc Adding a .RC file and Windows XP manifest.
+Under Windows you need a .rc file and a Windows XP "manifest" if you want to enable XP's visual enhancements for the program.
+-#  Create a new text file and add the following lines to it:
+@dontinclude rssreader/simple_rssreader.rc
+@until endif
+-#  Save the file as @c simple_rssreader.rc.
+-#  Open the properties for this file and add the following include directory to All Configurations:
+<pre>@$(WXWIN)@\include</pre>
+
+The line <pre>//{{NO_DEPENDENCIES}}</pre> tells Visual Studio to ignore any dependencies of this file when checking for modified files. If you omit this line, Visual Studio will ask if you want to build the application everytime you press F5, because it does not recognize that the dependend file wx/msw/wx.rc has not changed.
+
+The remaining files simply include "wx/msw/wx.rc", which contains prebuild wxWidgets resources and a Windows XP manifest.
+@section first_run Building and running the program
+-#  Build the solution. If you get linker errors, make sure you have
+    -   set the correct preprocessor defines: WXUSINGDLL, USINGDLL - if you are using the DLL version
+    -   set the correct linker input path: @$(WXWIN)@\lib@\vc_dll - if you are using the DLL version
+    -   specified the wx libraries, either directly in the linker tab or by adding the #pragma comment statements (see above)
+-#  Run the program.
+
+@image html tutorialstep1.gif "Simple RSS Reader application, Step 1"
+@image rtf  tutorialstep1.gif "Simple RSS Reader application, Step 1"
+
+This is what the result should look like.
+
+Continue with @ref tutorial_step_2
+
+*/
+    //-----------------------------------------------------------------------------------------------------------//
+/** @page tutorial_step_2 RSS Reader Tutorial Step 2: Adding data structures, defining data adapters
+This step shows you how to add data structures to the program and define data adapters, so that RapidUI can use your data structures.
+
+@section data_structures Defining the data structures.
+Let's flesh out the prototype we have so far. 
+@subsection defining_data_structures Declare the data structures.
+First define the neccessary data types. 
+
+Create a new file @c data.h with the following content:
+@dontinclude rssreader/data.h
+@until g_data
+
+@subsection global_storage Create a global RssReaderData variable.
+The application needs some place to store the channels, headlines and settings. The easiest way is to use a global variable @c g_data.
+
+Add the following lines to the main source file @c simple_rssreader_app.cpp
+@dontinclude rssreader/simple_rssreader_app.cpp
+@skipline data.h
+...
+@skipline RssReaderData
+
+@subsection initialise_test_data Init the vector with a test entry.
+Since we haven't coded a way to let the user add channels, lets add some channels directly for testing purposes. Add these lines to SimpleRssReader::OnInit().
+@dontinclude rssreader/simple_rssreader_app.cpp
+@skip ::OnInit
+@until channels.push_back(testChannel)
+This adds a headline with some text to a channel, then adds the channel to the global vector.
+
+@section defining_data_adapters Defining the data adapters
+Now it gets interesting. This is the first time we'll actually use something from the Lit Window Library. The RapidUI mechanism doesn't know anything about the @c struct we have just defined. We need an adapter between the data structures and the RapidUI mechanism. These adapter definitions can go into any source file of your project. Put them into @c simple_rssreader_app.cpp for this tutorial.
+
+@subsection defining_aggregate_adapters Defining adapters for struct datatypes
+@dontinclude rssreader/simple_rssreader_app.cpp
+Include the neccessary header file.
+@skipline litwindow/dataadapter
+Add the data adapter definition.
+@skip BEGIN_ADAPTER
+@until END_ADAPTER
+@until END_ADAPTER
+@until END_ADAPTER
+
+The adapter definition is just a very simple repetition of the struct declaration. BEGIN_ADAPTER(name) / END_ADAPTER encloses the list of the @c struct properties. To add a @c struct member to the adapter, simply add @c PROP(name) to the adapter.
+
+@subsection defining_container_adapters Defining adapters for the container
+Two adapters are still missing. The @c Channel datatype uses a vector<Headline> to store all headlines for a channel and the global variable g_channels uses a vector<Channel> to store all channels. RapidUI does not know anything about these containers, so we need to add another adapter.
+@skipline vector<Headline>
+@until vector<Channel>
+
+These data adapter definitions are the price you have to pay to be able to use the RapidUI mechanism. But its worth it, as you'll see in the next step.
+
+@subsection litwindow_settings Lit Window Library project settings
+Before you can build and run the project, you must make the neccessary settings for the Lit Window Library.
+
+-#  Add the path to the Lit Window Libary include directory to the C++ preprocessor settings.@n Example: c:@\litwindow@\include.
+-#  If you are using the DLL version you must define the USING_DLL preprocessor macro.
+-#  Enable "RunTime Type Information" RTTI in C++|Language.
+-#  Enable "C++ Exceptions" in C++|Code Generation.
+-#  Add the Lit Window Library path to the linker input settings@n Example: c:@\litwindow@\lib
+
+Build the project.
+
+@section summary_2 Step 2 Summary
+Define @c Headline, @c Channel and @c RssData.
+@dontinclude rssreader/data.h
+@skipline struct Headline
+@until g_data
+
+Add data adapters for struct Headline, struct Channel and struct RssData:
+@dontinclude rssreader/simple_rssreader_app.cpp
+@skipline BEGIN_ADAPTER
+@until END_ADAPTER
+@until END_ADAPTER
+@until END_ADAPTER
+
+
+Continue with @ref tutorial_step_3
+
+*/
+
+    //-----------------------------------------------------------------------------------------------------------//
+/** @page tutorial_step_3 RSS Reader Tutorial Step 3: Adding RapidUI
+In step 2 you've added data adapters for your own data types so that RapidUI can work with them. Now its time to create a RapidUI object and let it handle the UI.
+
+@section preparing_rapidui Preparing to use RapidUI
+
+The RapidUI class is designed like a @p Mediator Design Pattern. See the web for more information about this particular design pattern if you are unfamiliar with it. In short: A Mediator object is an object that encapsulates the interdependencies of several objects. Each individual object knows only about the Mediator. It passes any change requests to it along to the Mediator. The Mediator is the only participant that "knows the whole picture". It is the "conductor" of a symphonic "orchester" of individual objects.
+
+@subsection adding_rapidui Adding a RapidUI object to the frame window.
+The first step to using the RapidUI mechanism is to instantiate a RapidUI object.
+
+Add the @c rapidui.h include file to @c rssmainframe.h
+@dontinclude rssreader/rssmainframe.h
+@skipline ////@end includes
+@until rapidui
+Add a RapidUI object to the class declaration RssMainFrame.
+@skipline class RssMainFrame
+@skipline {
+@skipline public:
+@skipline RapidUI
+
+@subsection starting_rules_object Begin a 'rules' section
+Rules - sometimes called constraints - are the power of RapidUI. Traditional UI coding uses a Properties, Methods, Events paradigm. RapidUI adds a fourth element: Properties, Methods, Events and Rules.
+
+Add the following lines to @c rssmainframe.cpp to start a rules section
+@dontinclude rssreader/rssmainframe.cpp
+@skipline BEGIN_RULES
+@skipline END_RULES
+
+The rules section is empty for now. We will fill in some rules in the next step, @ref tutorial_step_4
+
+@subsection initialising_rapidui Initialising the RapidUI mechanism.
+The RapidUI mediator object needs access to three sets of data:
+-#  the @b windows you want it to manage
+-#  the @b data that shall be managed
+-#  the @b rules it shall follow
+
+The @b windows is a collection of one or more wxWindow* pointers. The children of the window you pass to RapidUI are automatically assumed to be under RapidUIs control as well. The tutorial simply uses the top level frame window as the window root for RapidUI. 
+
+The @b data is a collection of data adapters that point to your actual data object. The members of a struct - direct or inherited - are automatically assumed to be part of the RapidUI data collection. The tutorial needs only one data adapter: the adapter to the global variable g_data.
+
+The best place to pass these objects to the RapidUI object is in the RssMainFrame::Create() function in the file @c rssmainframe.cpp:
+@dontinclude rssreader/rssmainframe.cpp
+@skipline RssMainFrame::Create
+@until end RssMainFrame creation
+Add these lines here:
+@skipline m_rapidUI.AddWindow
+@until m_rapidUI.Start
+@note @p make_accessor creates a data adapter for the global variable @p g_channels.
+@note Here is an alternative version:
+@code
+m_rapidUI << this << make_accessor(g_data) << g_rules << RapidUI::Go;
+@endcode
+
+@section build_and_run Build and run the program.
+Build the program. If you are building with DLLs, you will get a linker warning.
+@par
+@code rssmainframe.obj : warning LNK4217: locally defined symbol ?get@?$prop_type_object@URssReaderData@@@
+data_adapter@@SAPAVconverter_base@2@PBURssReaderData@@@Z (public: static class data_adapter::converter_base *
+__cdecl data_adapter::prop_type_object<struct RssReaderData>::get(struct RssReaderData const *)) imported 
+in function "class data_adapter::converter_base * __cdecl data_adapter::get_prop_type<struct RssReaderData>
+(struct RssReaderData const *)" (??$get_prop_type@URssReaderData@@@data_adapter@@YAPAVconverter_base@0@PBURs
+sReaderData@@@Z)
+@endcode
+
+In plain english the warning says
+@par
+A function was marked as 'to be imported from an external DLL', but later defined and exported from the program itself. In other words, the program imports its own function.
+
+You can ignore this warning.
+
+@section summary_3 Step 3 Summary
+Add a RapidUI object to the main frame, pass the window, data and rules to it and call RapidUI::Start.
+@dontinclude rssreader/rssmainframe.cpp
+@skipline m_rapidUI
+@until m_rapidUI.Start
+
+Continue with step 4 @ref tutorial_step_4
+*/
+
+/**@page tutorial_step_4 RSS Reader Tutorial Step 4: Filling in the rules
+RapidUI is ready to spring into action.
+
+@section filling_listbox Fill the channels listbox.
+Let's fill the listbox with the list of channels. 
+@subsection assigning_vector_listbox Assigning the vector<Channels> to the listbox
+
+RapidUI lets you assign the vector<Channels> to the listbox. RapidUI's parser for text-based rules is not finished yet, so we have to use the C++ form.
+<pre>ASSIGN("m_channelsList.Items", "m_channels")</pre>
+-   The name of the listbox control is @c m_channelsList. The @c Items property of the listbox control contains the list of elements. Therefore the left side of the assignment rule is @c m_channelsList.Items.
+-   @c m_channels is the name of the vector<Channels> member variable containing the channels, so the right side of the assignment is @c m_channels.
+
+Add this rule to the rules section.
+@dontinclude rssreader/rssmainframe.cpp
+@skipline BEGIN_RULES
+@skipline m_channelsList.Items
+@skipline END_RULES
+
+@subsection choosing_element Choosing the element to display
+
+Build and run the application. This simple rule fills the listbox with all elements from the channels list. But the list displays the URL instead of the title. The data adapter definition for a @c Channel reads:
+@dontinclude rssreader/simple_rssreader_app.cpp
+@skipline BEGIN_ADAPTER(Channel)
+@until END_ADAPTER
+
+By default the listbox will choose the first member variable of the data adapter, the member variable @c m_webAddress, and display it for all elements. The listbox property @c Column allows you to select a different member variable. Add the following rule:
+
+@dontinclude rssreader/rssmainframe.cpp
+@skipline m_channelsList.Column
+
+Build and run the application. The listbox will now show the title instead of the URL.
+
+@section link_headlines Linking the headlines and the channels listbox together.
+Now it gets interesting. The next rule we are going to add links the headlines listbox to the selection of the channels listbox. When a user selects a channel, the headlines listbox shall display all available headlines for that channel. Everytime the user selects a different channel, the contents of the headlines listbox change.
+
+@image html link_channels_headlines.png "Current channel and list of headlines linked together"
+@image rtf link_channels_headlines.png "Current channel and list of headlines linked together"
+
+@par The requirement in plain english reads
+The headlines listbox shall always contain the list of headlines for the currently selected channel.
+
+@par A slightly more technical version is
+The "Items" property of the headlines listbox shall always contain the list of headlines for the currently selected channel, i.e. the "Current" property of the channels listbox.
+
+or as a rule
+@code
+m_headlinesList.Items = m_channels.Current.m_headlines
+@endcode
+
+@subsection fill_headlines "Filling the headlines listbox" written in C++
+In traditional GUI coding you have to write a function for the 'channel selection has changed' event. This function must then clear the headlines listbox and fill it with new values.
+@code
+void MyFrame::OnChannelsChanged(wxCommandEvent &evt)
+{
+    m_headlinesList.Clear();
+    int selectedChannelIndex=m_channelsList.GetSelection();
+    if (selectedChannelIndex>=0) {
+        Channel &current=g_data.m_channels[selectedChannelIndex];
+        size_t i;
+        for (i=0; i<current.m_headlines.size(); ++i) {
+            m_headlinesList.Append(current.m_headlines[i].m_title);
+        }
+    }
+}
+@endcode
+
+@subsection fill_headlines_rapidui "Filling the headlines listbox" written with RapidUI
+With RapidUI you need exactly one line of code.
+@dontinclude rssreader/rssmainframe.cpp
+@skipline RULE("m_headlinesList.Items"
+
+This is a very good (and working!) example of why I hope to reduce coding time by a factor of 10.
+
+@section link_body Showing the news article for the selected headline.
+Another 'linking' requirement.
+@par Requirement
+The news htmlWindow shall always contain the body of the currently selected headline.
+@par More technical version
+The "Page" property (wxHtmlWindow::SetPage) shall always contain the @p m_body member of the currently selected headline, i.e. the "Current" property of the headlines listbox.
+
+@image html link_headline_news.png "Current headline and html window linked together"
+@image rtf link_headline_news.png "Current headline and html window linked together"
+
+@par As a rule
+@code
+m_newsItem.Page = m_headlinesList.Current.m_body
+@endcode
+
+@subsection fill_body "Showing the news" written in C++
+Like above you have to write a function for the 'headline selection has changed' event. This function copies the m_body member of the currently selected headline and calls wxHtmlWindow::SetPage.
+@code
+void MyFrame::OnHeadlinesChanged(wxCommandEvent &evt)
+{
+    int channelIndex=m_channelsList.GetSelection();
+    int headlineIndex=m_headlinesList.GetSelection();
+    m_newsItem.SetPage((channelIndex>=0 && headlineIndex>=0) ? g_data.m_channels[channelIndex].m_headlines[headlineIndex].m_body);
+}
+@endcode
+
+@subsection fill_body_rapidui "Showing the news" written with RapidUI
+Again, only one line of code (one rule to rule the news).
+@dontinclude rssreader/rssmainframe.cpp
+@skipline RULE("m_newsItem.Page"
+
+@section set_title Displaying the title of the headline in the titlebar of the frame window
+Finally, to show that rules can handle expressions, lets implement the following requirement.
+@par Requirement
+The titlebar of the frame window shall display the title of the currently selected headline prepended by the word 'Headline: '
+@par Technical version
+The "Title" property of the frame window shall always contain the result of the following expression: "Headline: "+m_headlinesList.Current.m_title
+@par As a rule
+@code
+ID_FRAME.Title = wxString("Headline: ")+m_headlinesList.Current.m_title
+@endcode
+
+@subsection set_the_title "Setting the title bar" written in C++
+Since we've already got an event function OnHeadlinesChanged, we can use it and add the following line to it:
+@code
+    this->SetTitle(wxString("Headline: ")+g_data.m_channels[channelIndex].m_headlines[headlineIndex].m_title);
+@endcode
+Except for one thing: When the program starts for the first time, OnHeadlinesChanged will not get called and the title bar will not be set. We must initialise the titlebar to the proper value "Headlines: ", if desired.
+
+@subsection set_the_title "Setting the title bar" written with RapidUI
+The RapidUI rules can handle more than simple assignments. Here is the rule:
+@dontinclude rssreader/rssmainframe.cpp
+@skipline RULE("ID_FRAME
+@note
+ID_FRAME is the (XRC) name of the frame window.
+
+@section summary_4 Step 4 Summary
+RapidUI saves time and code, because writing rules is usually a lot faster and shorter than coding the appropriate 'OnSomethingHappened' event handler. These rules 
+- fill the channels listbox with the title taken from the list of channels
+- fill the headlines listbox with the title taken from the @b currently @b selected headline.
+- set the title of the frame with the title taken from the currently selected headline.
+- show the news in the html window with the body taken from the currently selected headline.
+@dontinclude rssreader/rssmainframe.cpp
+@skipline BEGIN_RULES
+@until END_RULES
+
+*/

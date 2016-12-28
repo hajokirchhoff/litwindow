@@ -1,0 +1,135 @@
+/*!@mainpage Lit Window Library Documentation
+
+Welcome to the "Lit Window Library" documentation pages. Please select a topic from the "Quick overview" below or browse the index.
+
+@par Quick overview
+-	@ref licence
+-	@ref faq
+-   @ref building_litwindow
+-   @ref tutorial_rssreader
+-	@ref comparison_10x
+-	@ref rapiduiIntro
+
+@section quickintro Quick introduction
+@par Can RapidUI really speed up GUI work by a factor of 10?
+Read @ref comparison_10x
+
+@par Got questions?
+Read the @ref faq.
+
+@par Want to try it out?
+Goto Sourceforge http://sourceforge.org/projects/litwindow and download the windows installer.
+
+@par Want to be notified when new releases come out?
+Use the Sourceforge http://sourceforge.org/projects/litwindow tracking mechanism or subscribe to litwindow-announce at http://lists.sourceforge.net/mailman/listinfo/litwindow-announce
+
+
+@par Want to contribute?
+Use Sourceforge http://sourceforge.org/projects/litwindow to participate. <b>Developers with linux knowledge needed to help with porting!</b>
+
+@par Want to support development?
+Use the donation system at http://sourceforge.org/projects/litwindow to donate money, buy products from http://www.litwindow.com or hire me (Hajo Kirchhoff) as a consultant.
+
+@section copyright Copyright
+Copyright 2004, Hajo Kirchhoff, Lit Window Productions, http://www.litwindow.com
+@par
+Please send comments and suggestions to   "library (at) litwindow.com" or use the appropriate SourceForge forums and mailing lists (see above).
+
+@section main_overview Overview
+
+@note This library and the documentation are still under heavy construction. If you want a quick overview, read the @ref faq and the @ref tutorial_rssreader first.
+
+<b>VERY IMPORTANT NOTE:</b> If you get compiler or linker errors, read the section about @ref compiler_messages before asking for help. The Lit Window Library stretches the capabilities of compilers such as Microsoft Visual Studio C++ 6.0 and sometimes requires special settings to work.
+
+*/
+
+/*!@page rapiduiIntro Generic User Interface Mediator Object
+The name @e Mediator is taken from Design Patterns. A Mediator object is "... at run-time responsible for 
+controlling and coordinating the interactions of a group of other objects".
+
+@par Example:
+You have a collection of user interface controls: listboxes, text controls, checkboxes etc... The text control
+shall be enabled only if the checkbox is checked AND the listbox selection is 2. A Mediator object encapsulates
+this behaviour. The individual controls are completely separate, they do not have any interdependencies ("don't
+know each other"). The Mediator object maintains references to all controls. Every control reports only to the
+Mediator object. When a state changes, the Mediator object updates all objects.\n
+Or, in shorter words, <b>the Mediator encapsulates the 'behaviour' of the UI</b>.
+
+@section what_is_rapidUI What is the RapidUI mechanism?
+The RapidUI mechanism is a small set of objects and functions that reduces the drugery work when creating user interface code.
+
+@subsection how_we_write_UI_today How we write UI code today...
+Implementing a user interface typically involves the following steps:
+-# create some data structures that take the user input.
+-# use a UI designer to create a graphical UI layout, place window controls etc...
+-# create a 'dialog' class that represents the UI layout.
+-# write 'TransferDataToDialog' to initialise the UI controls with values from the data structure.
+-# write 'TransferDataFromDialog' to validate the user input and transfer the values back to the data structure.
+-# write 'OnIdle' to update the state of controls that depend on the state of the dialog - enable/disable certain
+	controls when a checkbox is checked/unchecked etc...
+-# write several 'OnAction' functions to be executed when a specific event occurs, such as a button pressed.
+-# compile, test, debug, compile, test, debug, curse & swear, debug, write some more code...
+
+RapidUI aims to reduce the steps 3-8 dramatically. Its most important goal is to provide programmers with a ready
+made library of typical user interface patterns.
+
+@par Example:
+One of the most common user interface patterns is the 'Add/Modify/Delete' pattern. Almost everytime a user is presented
+a list of records, he also should be able to add new records and modify or delete existing records. If you look for it
+you will find the 'Add/Modify/Delete' everywhere:
+- file folders: Add/Modify/Delete files and folders.
+- Programming IDEs: Add/Modify/Delete project items - source files etc...
+- eMail software: Add/Modify/Delete email adresses
+- web browser: Add/Modify/Delete bookmarks
+
+@subsection how_we_write_radidUI_code What UI code looks like with RapidUI...
+Implementing a user interface with rapidUI involves the following steps:
+-# create some data structures that take the user input.
+-# use a UI designer to create a graphical UI layout, place window controls etc.
+-# use rules to describe the interaction between controls and data structures.
+-# Pass data structures, UI layout and rules to a rapidUI Mediator object.
+
+RapidUI design goals are:
+- it shall work with any data structures.
+- it shall work with any user interface layout.
+- the rules shall be independent of the data structures.
+- the rules mechanism shall allow a library of ready made rules, such as 'Add/Modify/Delete' rules.
+- the transition between the rapidUI mechanism and a programming language (C++, Python, etc...) shall be as
+	seamless as possible.
+	
+The last point is especially important if the rapidUI mechanism is to be accepted by programmers. There are two
+reasons for this:
+-#	There is some overhead neccessary to be able to use the rapidUI mechanism. This overhead must be kept to a 
+	minimum, so that using rapidUI makes sense even for very small user interface dialogues.
+-#	rapidUI will be able to handle most, but not all situations. There must be some way to handle special situations,
+	that cannot be implemented easily with rapidUI. In these situations, control-flow must pass from the rapidUI
+	mechanism to hand-crafted code and back again. If the transition between the rapidUI world and the programming
+	language is too difficult or cumbersome, rapidUI will not be used.
+	
+@subsection how_rapidUI_saves_time How RapidUI saves time and effort...
+Step 3 above says: "use rules to describe the interactions between controls and data structures."
+
+This is where rapidUI can save a lot of time.
+
+-# describing interdependencies between controls is a lot faster than hand-coding it.
+-# rules can be put into a library, just like the STL does with containers. Using rules from a library speeds
+   up implementing UI code dramatically.
+   
+@par Example:
+Take the 'Add/Modify/Delete' pattern from above. Rather than hand-crafting the mechanism - and repeating
+this work for every different data structure again and again and again - you simply
+-# define your data structure
+-# design your user interface
+-# use the 'Add/Modify/Delete' rule from the library
+and you are done.
+
+@section rapidui_elements The rapidUI elements...
+
+
+*/
+	//-----------------------------------------------------------------------------------------------------------//
+
+/*!@page licence Licence
+@dontinclude licence.txt
+@until [END LICENCE 'LWWX'
+*/
