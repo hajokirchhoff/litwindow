@@ -63,7 +63,7 @@ sqlreturn statement::describe_column(SQLSMALLINT col, column_descriptor &d)
 	SQLTCHAR buffer[512];
 	SQLTCHAR *name_buffer=buffer;
 	SQLSMALLINT length;
-	m_last_error=SQLDescribeCol(handle(), col, name_buffer, sizeof(buffer), &length, &d.m_sql_type, &d.m_column_size, &d.m_decimal, &d.m_nullable);
+	m_last_error=SQLDescribeCol(handle(), col, name_buffer, sizeof(buffer)/sizeof(*buffer), &length, &d.m_sql_type, &d.m_column_size, &d.m_decimal, &d.m_nullable);
 	if (m_last_error==SQL_SUCCESS_WITH_INFO && m_last_error.is_state(_T("01004"))) {
 		name_buffer=(SQLTCHAR*)_alloca(length+sizeof(TCHAR));
 		m_last_error=SQLDescribeCol(handle(), col, name_buffer, length+sizeof(TCHAR), &length, &d.m_sql_type, &d.m_column_size, &d.m_decimal, &d.m_nullable);
