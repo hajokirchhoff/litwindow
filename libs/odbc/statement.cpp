@@ -71,12 +71,18 @@ sqlreturn statement::describe_column(SQLSMALLINT col, column_descriptor &d)
 	if (m_last_error.success())
 		d.m_name=(TCHAR*)name_buffer;
 	d.m_position=col;
-	get_column_attr(col, SQL_DESC_CASE_SENSITIVE, d.m_case_sensitive).ok() &&
-		get_column_attr(col, SQL_DESC_AUTO_UNIQUE_VALUE, d.m_auto_unique_value).ok() &&
+
+	// sqlite3 odbc driver does not support SQL_DESC_CASE_SENSITIVE and will fail this query.
+	d.m_case_sensitive = false;	// default value, should the next query fail.
+	get_column_attr(col, SQL_DESC_CASE_SENSITIVE, d.m_case_sensitive);
+
+	// now query the rest of the attributes and fail, if one of them is not supported.
+	get_column_attr(col, SQL_DESC_AUTO_UNIQUE_VALUE, d.m_auto_unique_value).ok() &&
 		get_column_attr(col, SQL_DESC_UPDATABLE, d.m_updatable).ok() &&
 		get_column_attr(col, SQL_DESC_SEARCHABLE, d.m_searchable).ok() &&
 		get_column_attr(col, SQL_DESC_OCTET_LENGTH, d.m_octet_length) &&
 		get_column_attr(col, SQL_DESC_UNSIGNED, d.m_unsigned);
+
 	if (m_last_error.ok()==false)
 		return m_last_error;
 	return m_last_error;
@@ -223,7 +229,7 @@ const sqlreturn &statement::set_concurrency(concurrency_enum cy)
 	m_last_error=set_attr(SQL_ATTR_CONCURRENCY, cy);
 	if (m_last_error==SQL_SUCCESS) {
 		// make sure the driver did actually set the value. MySQL ODBC driver for one is broken.
-		SQLUINTEGER value;
+		SQLULEN value;
 		get_attr(SQL_ATTR_CONCURRENCY, value);	// will change m_last_error !!!!
 		if (m_last_error!=SQL_SUCCESS || value!=cy) {
 			lw_err() << _("Broken ODBC driver changes SQL_ATTR_CONCURRENCY option without setting proper return code! ") << get_connection().get_dbms()->get_dbms_name() << endl;
@@ -236,7 +242,7 @@ const sqlreturn &statement::set_concurrency(concurrency_enum cy)
 
 const sqlreturn &statement::get_concurrency(concurrency_enum &cy)
 {
-	SQLUINTEGER value;
+	SQLULEN value;
 	m_last_error=get_attr(SQL_ATTR_CONCURRENCY, value);
 	cy=(concurrency_enum)value;
 	return m_last_error;
@@ -482,14 +488,15 @@ sqlreturn statement::clear()
 	return m_last_error;
 }
 
-const sqlreturn &statement::set_attr(SQLINTEGER attribute, SQLUINTEGER value)
+const sqlreturn &statement::set_attr(SQLINTEGER attribute, SQLULEN value)
 {
 	return m_last_error=SQLSetStmtAttr(handle(), attribute, (SQLPOINTER)value, 0);
 }
 
-const sqlreturn &statement::get_attr(SQLINTEGER attribute, SQLUINTEGER &value)
+const sqlreturn &statement::get_attr(SQLINTEGER attribute, SQLULEN &value)
 {
-	return m_last_error=SQLGetStmtAttr(handle(), attribute, (SQLPOINTER)&value, SQL_IS_UINTEGER, 0);
+	value = 0;
+	return m_last_error = SQLGetStmtAttr(handle(), attribute, (SQLPOINTER)&value, SQL_IS_UINTEGER, 0);
 }
 
 sqlreturn statement::get_row_count(SQLLEN &rcount)

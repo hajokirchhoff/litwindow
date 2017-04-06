@@ -262,7 +262,7 @@ public:
 		keyset_driven_cursor = SQL_CURSOR_KEYSET_DRIVEN
 	};
 	const sqlreturn LWODBC_API &set_cursor_type(cursor_type_enum ct) { return set_attr(SQL_ATTR_CURSOR_TYPE, ct); }
-	const sqlreturn LWODBC_API &get_cursor_type(cursor_type_enum &ct) { return get_attr(SQL_ATTR_CURSOR_TYPE, (SQLUINTEGER&)ct); }
+	const sqlreturn LWODBC_API &get_cursor_type(cursor_type_enum &ct) { SQLULEN value = 0; const sqlreturn &rc = get_attr(SQL_ATTR_CURSOR_TYPE, (SQLULEN&)value); ct = cursor_type_enum(value); return rc; }
 	bool LWODBC_API supports_cursor(cursor_type_enum ct) const;
 
 	enum concurrency_enum {
@@ -340,8 +340,10 @@ public:
 	/// close the current cursor, leave the bindings intact. The statement can be reused immediately with execute.
 	sqlreturn				close_cursor() 		{ SQLCancel(handle()); return m_last_error=SQLFreeStmt(handle(), SQL_CLOSE); }
 
-	const sqlreturn	LWODBC_API &set_attr(SQLINTEGER attribute, SQLUINTEGER value);
-	const sqlreturn	LWODBC_API &get_attr(SQLINTEGER attribute, SQLUINTEGER &value);
+	// See https://docs.microsoft.com/en-us/sql/odbc/reference/syntax/sqlsetstmtattr-function
+	// attributes are configured used SQLULEN types
+	const sqlreturn	LWODBC_API &set_attr(SQLINTEGER attribute, SQLULEN value);
+	const sqlreturn	LWODBC_API &get_attr(SQLINTEGER attribute, SQLULEN &value);
 
 	//-----------------------------------------------------------------------------------------------------------//
 	///@name binding parameters
