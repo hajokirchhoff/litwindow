@@ -74,6 +74,7 @@ sqlreturn statement::describe_column(SQLSMALLINT col, column_descriptor &d)
 
 	// sqlite3 odbc driver does not support SQL_DESC_CASE_SENSITIVE and will fail this query.
 	d.m_case_sensitive = false;	// default value, should the next query fail.
+	ignore_once();
 	get_column_attr(col, SQL_DESC_CASE_SENSITIVE, d.m_case_sensitive);
 
 	// now query the rest of the attributes and fail, if one of them is not supported.
@@ -697,7 +698,7 @@ const sqlreturn &statement::get_column_attr(SQLSMALLINT pos, SQLSMALLINT field, 
 const sqlreturn &statement::get_column_attr(SQLSMALLINT pos, SQLSMALLINT field, bool &value)
 {
 	SQLLEN v=SQL_FALSE;
-	m_last_error=get_column_attr(pos, field, v);
+	get_column_attr(pos, field, v);
 	if (m_last_error.ok())
 		value= v==SQL_TRUE;
 	return m_last_error;
