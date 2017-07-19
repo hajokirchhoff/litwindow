@@ -314,7 +314,7 @@ namespace litwindow {
 		typedef basic_topic<char> topic;
 		typedef basic_topic<wchar_t> wtopic;
 		template <typename _Elem>
-		class basic_level:public basic_tag_with_category<cat_level, _Elem> 
+		class basic_level:public basic_tag_with_category<cat_level, _Elem> , public boost::less_than_comparable<basic_level<_Elem> >
 		{
 			typedef basic_tag_with_category<cat_level, _Elem> inherited;
 		public:
@@ -340,6 +340,7 @@ namespace litwindow {
 			explicit basic_level(const tag_type &t):inherited(t){}
 			explicit basic_level(const _Elem *s):inherited(s){}
 			explicit basic_level(const std::basic_string<_Elem> &s):inherited(s){}
+			inline bool operator<(const basic_level &r) const { return m_index < r.m_index; }
 		};
 		template <>
 		inline static const typename basic_level<char>::tag_type &basic_level<char>::get(basic_level<char>::preset p)
@@ -379,7 +380,7 @@ namespace litwindow {
 		inline const basic_topic<wchar_t> &default_topic() { static basic_topic<wchar_t> g_default(L""); return g_default; }
 
 		template <typename _Elem>
-		inline const basic_level<_Elem> &default_level() { static basic_level<_Elem> g_default(basic_level<_Elem>::info); return g_default; }
+		inline basic_level<_Elem> &default_level() { static basic_level<_Elem> g_default(basic_level<_Elem>::debug); return g_default; }
 
 		//---------------------------------------------------------------------------------------------
 		// 
@@ -812,6 +813,10 @@ namespace litwindow {
 					////(*pFn)(_owner._outstream);
 					return *this;
 				}
+				inserter &operator&&(const typename level_type::preset &l)
+				{
+					_owner.level(l); return *this;
+				}
 				template <typename Value>
 				inserter &operator <<(const Value &v)
 				{
@@ -831,7 +836,7 @@ namespace litwindow {
 				:
 			m_default_component(c), m_component(m_default_component)
 				,m_default_topic(t), m_topic(m_default_topic)
-				,m_default_level(default_level<char_type>()), m_level(m_default_level)
+				, m_default_level(default_level<char_type>()), m_level(m_default_level), m_enabled_level(level_type::debug)
 				,m_enabled(is_enabled!=disabled)
 				,m_ignore_begin_end_count(0)
 				,m_open_count(0)
@@ -846,7 +851,7 @@ namespace litwindow {
 				)
 				:m_default_component(c), m_component(m_default_component)
 				,m_default_topic(t), m_topic(m_default_topic)
-				,m_default_level(default_level<char_type>()), m_level(m_default_level)
+				, m_default_level(default_level<char_type>()), m_level(m_default_level), m_enabled_level(level_type::debug)
 				,m_enabled(is_enabled!=disabled)
 				,m_ignore_begin_end_count(0)
 				,m_open_count(0)
@@ -857,7 +862,7 @@ namespace litwindow {
 			basic_events(const basic_events &e)
 				:m_default_component(e.m_default_component), m_component(e.m_component)
 				,m_default_topic(e.m_default_topic), m_topic(e.m_topic)
-				,m_default_level(e.m_default_level), m_level(e.m_level)
+				, m_default_level(e.m_default_level), m_level(e.m_level), m_enabled_level(e.m_enabled_level)
 				,m_enabled(e.m_enabled), m_ignore_begin_end_count(0), m_open_count(0)
 				,m_instance(e.m_instance)
 				,m_stream_traits(e.m_stream_traits)
@@ -872,6 +877,7 @@ namespace litwindow {
 				m_topic=e.m_topic;
 				m_default_level=e.m_default_level;
 				m_level=e.m_level;
+				m_enabled_level = e.m_enabled_level;
 				m_enabled=e.m_enabled; m_ignore_begin_end_count=0; m_open_count=0;
 				m_instance=e.m_instance;
 				m_stream_traits=e.m_stream_traits;
@@ -885,7 +891,7 @@ namespace litwindow {
 			basic_events(sink_type &target)
 				:m_default_component(default_component<char_type>()), m_component(m_default_component)
 				,m_default_topic(default_topic<char_type>()), m_topic(m_default_topic)
-				,m_default_level(default_level<char_type>()), m_level(m_default_level)
+				, m_default_level(default_level<char_type>()), m_level(m_default_level), m_enabled_level(level_type::debug)
 				,m_enabled(true)
 				,m_ignore_begin_end_count(0)
 				,m_open_count(0)
@@ -907,7 +913,8 @@ namespace litwindow {
 			template <typename Value>
 			void put(const Value &v)
 			{
-                litwindow_logger_find_all_namespaces_operator_insert_to_stream(stream(), v);
+				if (m_level<=m_enabled_level)
+	                litwindow_logger_find_all_namespaces_operator_insert_to_stream(stream(), v);
                 // This here used to be
 				// stream() << v;
                 // but in that case a user defined operator << will not be found if it is not
@@ -932,6 +939,10 @@ namespace litwindow {
 			{
 				return (*l)(*this);
 				//return inserter(r, r.enabled());
+			}
+			_Myt &operator && (const typename level_type::preset l)
+			{
+				return level(l);
 			}
 			_Myt &operator &&(const component_type &c)
 			{
@@ -962,6 +973,10 @@ namespace litwindow {
 			{
 				return level(level_type(l));
 			}
+			_Myt &enable_level(const level_type &l)
+			{
+				m_enabled_level = l; return *this;
+			}
 			_Myt &component(const component_type &c) 
 			{
 				m_component=c; return *this;
@@ -978,11 +993,16 @@ namespace litwindow {
 			{
 				m_component=m_default_component=c; return *this;
 			}
+			_Myt &set_default_level(const level_type &l)
+			{
+				m_default_level = l; return *this;
+			}
 			void copy_tags_from(const _Myt &r)
 			{
 				m_default_level = r.m_default_level;
 				m_default_component = r.m_default_component;
 				m_default_topic = r.m_default_topic;
+				m_enabled_level = r.m_enabled_level;
 				m_enabled = r.m_enabled;
 			}
 
@@ -1032,6 +1052,7 @@ namespace litwindow {
 			friend class inserter;
 			instance_type	m_instance;
 			level_type		m_default_level, m_level;
+			level_type		m_enabled_level;
 			component_type	m_default_component, m_component;
 			topic_type		m_default_topic, m_topic;
 		};
@@ -1147,6 +1168,16 @@ namespace litwindow {
 				{
 					get_default().set_default_component(component_type(c));
 					get().set_default_component(component_type(c));
+				}
+				void enable_level(const typename events_type::level_type &l)
+				{
+					get_default().enable_level(l);
+					get().enable_level(l);
+				}
+				void set_default_level(const typename events_type::level_type &l)
+				{
+					get_default().set_default_level(l);
+					get().set_default_level(l);
 				}
 				void enabled(bool do_enable) 
 				{

@@ -81,21 +81,21 @@ BOOST_AUTO_TEST_CASE(logging_syntax_check)
         test_caller a;
         test && "Hello";
         wstring rc=test.rdbuf()->str();
-        BOOST_CHECK(rc==wstring(L"info\t\t\t0\tHello"));
+        BOOST_CHECK(rc==wstring(L"debug\t\t\t0\tHello"));
     }
     {
         // test contl immediately after level,component,topic
 		test && logger::warning && logger::contl;
         test && L"Ups";
         wstring rc=test.rdbuf()->str();
-        BOOST_CHECK(rc==L"info\t\t\t0\tHellowarning\t\t\t0\tUps");
+        BOOST_CHECK(rc==L"debug\t\t\t0\tHellowarning\t\t\t0\tUps");
     }
     {
         // test contl after some text
         test && logger::error && L"some text - " && logger::contl;
         test && L"some more text";
         wstring rc=test.rdbuf()->str();
-        BOOST_CHECK(rc==L"info\t\t\t0\tHellowarning\t\t\t0\tUpserror\t\t\t0\tsome text - some more text");
+		BOOST_CHECK(rc == L"debug\t\t\t0\tHellowarning\t\t\t0\tUpserror\t\t\t0\tsome text - some more text");
     }
 }
 
