@@ -8,10 +8,12 @@
 */
 
 #include "stdafx.h"
+
 #include <sqlext.h>
 #include <malloc.h>
-#include <litwindow/logging.h>
-#include <litwindow/check.hpp>
+
+#include "litwindow/logging.h"
+#include "litwindow/check.hpp"
 #include "litwindow/odbc/connection.h"
 #include "litwindow/odbc/binder.h"
 #include "litwindow/odbc/statement.h"
@@ -23,6 +25,21 @@
 namespace litwindow {
 
 	namespace odbc {
+
+	//-----------------------------------------------------------------------------------------------------------//
+	//-----------------------------------------------------------------------------------------------------------//
+
+	connection::dbversion &connection::dbversion::operator=(std::wstring &new_version)
+	{
+		std::wistringstream stream(new_version);
+		stream >> major;
+		if (stream.peek() == '.') {
+			stream.ignore();
+			stream >> minor;
+		}
+
+		return *this;
+	}
 
 	//-----------------------------------------------------------------------------------------------------------//
 	//-----------------------------------------------------------------------------------------------------------//
@@ -465,6 +482,11 @@ namespace litwindow {
 		get_info(SQL_DRIVER_NAME, m_dbms_name);
 		get_info(SQL_DBMS_NAME, m_dbms_name).log_errors();
 		get_info(SQL_DBMS_VER, m_dbms_ver).log_errors();
+
+		std::wstring dbms_odbc_ver_string;
+		get_info(SQL_DRIVER_ODBC_VER, dbms_odbc_ver_string);
+		m_dbms_odbc_ver = dbms_odbc_ver_string;
+
 		//if (m_dbms->get_dbms_name()!=m_dbms_name)
 		m_last_error=dbms_base::construct_from_dbms_name(m_dbms_name, m_dbms_ver, m_out_connection_string, m_dbms);
 		if (m_last_error.fail())
@@ -504,6 +526,11 @@ namespace litwindow {
 		lw_log() << _T("Capabilities for ") << m_dbms_name << endl;
 		lw_log() << capabilities_as_string();
 #endif
+		// Copy macros from dbms to connection
+		const dbms_base *const_dbms = m_dbms.get();
+		for (map<tstring, tstring>::const_iterator it = const_dbms->macros().begin(); it != const_dbms->macros().end(); ++it)
+			set_macro_value(L"$$" + (*it).first, (*it).second);
+
 		return m_last_error;
 	}
 

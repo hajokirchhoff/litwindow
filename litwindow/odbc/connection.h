@@ -265,6 +265,18 @@ public:
 	void LWODBC_API set_macro_value(const tstring &name, const tstring &value);
 	tstring get_macro_value(const tstring &name) const;
 	//@}
+
+	struct dbversion {
+		int major;
+		int minor;
+
+		dbversion() : major(0), minor(0) {}
+		dbversion(int new_major, int new_minor) : major(new_major), minor(new_minor) {}
+		dbversion &operator =(std::wstring &new_version);
+	};
+	tstring get_dbms_name() { return m_dbms_name; }
+	dbversion get_odbc_version() { return m_dbms_odbc_ver; }
+
 private:
 	size_t m_nested_transactions;
 	bool m_autocommit_state;	///< autocommit state when no transaction is active - begin_transaction has not been called - m_nested_transactions==0
@@ -299,6 +311,7 @@ private:
 	tstring		m_identifier_quote_char;
 	tstring		m_dbms_name;
 	tstring		m_dbms_ver;
+	dbversion	m_dbms_odbc_ver;
 	SQLUINTEGER m_bookmark_persistence;
 	SQLUINTEGER m_scroll_concurrency;
 
@@ -425,8 +438,8 @@ inline bool connection::is_open_via_SQLConnect() const
 	return m_remaining_connection_string.length()==0;
 }
 inline tstring connection::get_macro_value(const tstring &name) const
-{ 
-	map<tstring, tstring>::const_iterator i=m_macros.find(name); 
+{
+	map<tstring, tstring>::const_iterator i=m_macros.find(name);
 	return i!=m_macros.end() ? i->second : tstring(); 
 }
 

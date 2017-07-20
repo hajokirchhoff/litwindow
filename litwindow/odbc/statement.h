@@ -738,6 +738,11 @@ inline sqlreturn statement::bind_column(SQLSMALLINT col, SQLSMALLINT c_type, SQL
 }
 inline sqlreturn statement::do_bind_column( SQLSMALLINT col, SQLSMALLINT c_type, SQLPOINTER target_ptr, SQLULEN size, SQLLEN* len_ind )
 {
+	connection::dbversion version = get_connection().get_odbc_version();
+	if ((version.major < 3) || ((version.major == 3) && (version.minor < 5))) {
+		if (c_type == SQL_C_GUID)
+			c_type = SQL_C_BINARY;
+	}
 	m_last_error=SQLBindCol(handle(), col, c_type, target_ptr, size, len_ind);
 	return m_last_error;
 }

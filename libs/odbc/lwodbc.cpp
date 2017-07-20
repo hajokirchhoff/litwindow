@@ -281,8 +281,9 @@ void sqlreturn_auto_set_diagnostics::set_log_diagnostics(bool do_log) { g_log_di
 
 bool sqlreturn_auto_set_diagnostics::ignore_once(const TCHAR *state)
 {
+	if (!m_ignore_once.empty())
+		m_ignore_once += _T(',');
 	m_ignore_once+=state;
-	m_ignore_once+= _T(',');
 	return true;
 }
 

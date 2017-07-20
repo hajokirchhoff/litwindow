@@ -432,12 +432,14 @@ const sqlreturn &statement::execute()
 			return m_last_error;
 	}
 
-    // do NOT use this c["SQL_STATEMENT"] here, its verrrrrrry slow
+	// do NOT use this c["SQL_STATEMENT"] here, its verrrrrrry slow
 	//c["SQL_STATEMENT"]=t2string(m_sql_statement);
+	std::wstring current_ignore_once = m_last_error.get_ignore_once();
 	if (close_cursor().log_errors())
 		return m_last_error;
 	if (bind_parameters().fail() || put_parameters().fail())
 		return m_last_error;
+	m_last_error.ignore_once(current_ignore_once.c_str());
 
 	/// some drivers, notably postgres, do not accept SQL_NTS in the len_ind field for character strings
 	/// for these drivers, calculate the actual string length
@@ -545,6 +547,13 @@ sqlreturn statement::do_bind_parameter( SQLUSMALLINT pposition, SQLSMALLINT in_o
 			if (column_size>1)
 				--column_size;
 		}
+	}
+	connection::dbversion version = get_connection().get_odbc_version();
+	if ((version.major < 3) || ((version.major == 3) && (version.minor < 5))) {
+		if (c_type == SQL_C_GUID)
+			c_type = SQL_C_BINARY;
+		if (sql_type == SQL_GUID)
+			sql_type = SQL_BINARY;
 	}
 	m_last_error=SQLBindParameter(handle(), pposition, in_out, c_type, sql_type, column_size, decimal_digits, buffer, length, len_ind);
 	return m_last_error;

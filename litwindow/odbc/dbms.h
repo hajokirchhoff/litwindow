@@ -276,6 +276,16 @@ namespace litwindow {
 			sqlreturn drop_group(connection *ds, const tstring &gid);
 		};
 
+		/** SQLite strategy */
+		class dbms_sqlite :public dbms_generic
+		{
+		public:
+			dbms_sqlite(const tstring &odbcConnection = tstring());
+			virtual tstring get_dbms_name() const { return _T("SQLite"); }
+			static dbms_base *construct(const tstring &odbc_connection) { return new dbms_sqlite(odbc_connection); }
+			static bool can_handle_(const tstring &name, const tstring &version, const tstring &odbc_connection_string);
+		};
+
 		/** Firebird 1.5 strategy */
 		class dbms_firebird:public dbms_generic
 		{

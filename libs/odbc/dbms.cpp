@@ -231,7 +231,7 @@ namespace litwindow {
 			:dbms_generic(odbcConnection) 
 		{
 			macros()[_T("TIMESTAMP")]=_T("DATETIME");
-            macros()[_T("UUID")]=_T("UNIQUEIDENTIFIER");
+			macros()[_T("UUID")]=_T("UNIQUEIDENTIFIER");
 		}
 
 		dbms_mysql::dbms_mysql(const tstring &odbcConnection)
@@ -265,7 +265,7 @@ namespace litwindow {
 			macros()[_T("TRUE")]=_T("TRUE");
 			macros()[_T("FALSE")]=_T("FALSE");
 			macros()[_T("DATETIME")]=_T("TIMESTAMP");
-            macros()[_T("UUID")]=_T("uuid");
+			macros()[_T("UUID")]=_T("uuid");
 		}
 		bool dbms_postgres::has_capability(capabilities c) const
 		{
@@ -294,8 +294,16 @@ namespace litwindow {
 			return s.last_error();
 		}
 
-	//-----------------------------------------------------------------------------------------------------------//
-	//-----------------------------------------------------------------------------------------------------------//
+		//-----------------------------------------------------------------------------------------------------------//
+		//-----------------------------------------------------------------------------------------------------------//
+		dbms_sqlite::dbms_sqlite(const tstring &odbcConnection)
+			:dbms_generic(odbcConnection)
+		{
+			macros()[_T("UUID")] = _T("BLOB");
+		}
+
+		//-----------------------------------------------------------------------------------------------------------//
+		//-----------------------------------------------------------------------------------------------------------//
 		dbms_firebird::dbms_firebird(const tstring &odbcConnection)
 			:dbms_generic(odbcConnection)
 		{
@@ -597,6 +605,10 @@ namespace litwindow {
 				? ds->execute(_T("DROP \"")+uid+_T("\""))
 				: ds->execute(_T("REVOKE \"")+group+_T("\" FROM \"")+uid+_T("\""));
 		}
+		bool dbms_sqlite::can_handle_(const tstring &name, const tstring &version, const tstring &odbc_connection_string)
+		{
+			return name == _T("SQLite");
+		}
 		bool dbms_firebird::can_handle_(const tstring &name, const tstring &version, const tstring &)
 		{
 			return name==_T("Firebird 1.5");
@@ -614,6 +626,7 @@ namespace litwindow {
 			dbms_base::do_register	sql_server(dbms_sql_server::can_handle_, dbms_sql_server::construct);
 			dbms_base::do_register	mysql(dbms_mysql::can_handle_, dbms_mysql::construct);
 			dbms_base::do_register	postgres(dbms_postgres::can_handle_, dbms_postgres::construct);
+			dbms_base::do_register	sqlite(dbms_sqlite::can_handle_, dbms_sqlite::construct);
 			dbms_base::do_register	firebird(dbms_firebird::can_handle_, dbms_firebird::construct);
 		};
 		
