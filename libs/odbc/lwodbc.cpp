@@ -296,10 +296,14 @@ bool sqlreturn_auto_set_diagnostics::is_ignored_state() const
 {
 	if (m_diag==0)
 		return false;
-	size_t i;
 	TCHAR test_state[5];
 	const TCHAR *p=m_ignore_once.c_str();
-	for (i=0; i<m_diag->size() && *p; ++i) {
+	/*
+	 Hier müßte man alle m_ignore_once states mit allen m_diag states vergleichen. Zur Zeit werden
+	 nur alle m_ignore_once states gegen den letzten m_diag state verglichen (.back() in is_state).
+	*/
+	//for (size_t i = 0; i < m_diag->size() && *p; ++i) {
+	while (*p) {
 		while (*p==_T(' ') || *p==_T(','))
 			++p;
 		for (size_t j=0; j<5; ++j) {
@@ -310,10 +314,10 @@ bool sqlreturn_auto_set_diagnostics::is_ignored_state() const
 		}
 		if (test_state[0]==_T('*') && test_state[1]==0)
 			return true;	// ignore everything
-		if (m_diag->is_state(test_state)==false)
-			return false;
+		if (m_diag->is_state(test_state))
+			return true;
 	}
-	return true;
+	return false;
 }
 };
 
