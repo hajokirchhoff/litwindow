@@ -25,6 +25,8 @@
 ////@end includes
 
 #include "litwindow/wx/extended_error_dialog.h"
+// complex needs to be included for boost 1.65.1 classic/phoenix.hpp
+#include <complex>
 #include <boost/spirit/include/classic.hpp>
 #include <boost/spirit/include/phoenix1.hpp>
 
