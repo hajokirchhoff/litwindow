@@ -5,6 +5,8 @@
 #include <iostream>
 #include <string>
 #include <deque>
+#include <list>
+
 #include "../logger.hpp"
 
 namespace litwindow {

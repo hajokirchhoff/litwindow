@@ -305,7 +305,7 @@ namespace litwindow {
 		}
 
 		template <typename RowValue, typename R>
-		basic_column_descriptor<RowValue> make_basic_column_descriptor(const wstring &title, int width, R (RowValue::*r)() const, typename column_accessor<R (RowValue::*)(), RowValue>::formatter_type f)
+		basic_column_descriptor<RowValue> make_basic_column_descriptor_memfnc(const wstring &title, int width, R (RowValue::*r)() const, typename column_accessor<R (RowValue::*)() const, RowValue>::formatter_type f)
 		{
 			basic_column_descriptor<RowValue> rc(title, width);
 			typedef typename boost::remove_reference<R>::type column_value_type;
@@ -313,7 +313,6 @@ namespace litwindow {
 				rc.m_text_renderer=boost::bind(&to_string<column_value_type>, boost::bind(r, _1), _2);
 			else
 				rc.m_text_renderer=boost::bind(f, boost::bind(r, _1), _2);
-				rc.m_text_renderer=boost::bind(&to_string<column_value_type>, boost::bind(r, _1), _2);
 			rc.m_comparator=boost::bind(r, _1) < boost::bind(r, _2);
 			return rc;
 		}
@@ -387,7 +386,7 @@ namespace litwindow {
 				template <typename ValueMember>
 				back_inserter operator()(const tstring &title, int width, ValueMember (value_type::*ptr_mem_fnc)() const, typename column_accessor<ValueMember (value_type::*)() const, value_type>::formatter_type f=0) const
 				{
-					return add(make_basic_column_descriptor<value_type>(title, width, ptr_mem_fnc, f));
+					return add(make_basic_column_descriptor_memfnc<value_type>(title, width, ptr_mem_fnc, f));
 				}
 				template <typename T1>
 				back_inserter operator()(const tstring &title, int width, const T1 &v, typename column_accessor<T1, value_type>::formatter_type f=0, typename boost::disable_if<boost::is_void<typename T1::result_type> >::type *dmy=0) const
@@ -395,7 +394,7 @@ namespace litwindow {
 					return add(make_basic_column_descriptor<value_type>(title, width, v, f));
 				}
 				template <typename TextRenderer>
-				back_inserter operator()(const wstring &title, int width, TextRenderer t, typename boost::enable_if<boost::is_void<typename TextRenderer::result_type> >::type* dmy=0) const
+				back_inserter operator()(const tstring &title, int width, TextRenderer t, typename boost::enable_if<boost::is_void<typename TextRenderer::result_type> >::type* dmy=0) const
 				{
 					return add(column_descriptor_type(title, width, text_renderer_type(t)));
 				}

@@ -1226,7 +1226,7 @@ Use this macro only for older struct/class where you cannot change the struct/cl
 
 /** Define a schema entry for a base class. */
 #define PROP_I(base) \
-	::litwindow::schema_entry(&(litwindow::schema_entry::cast_derived_to_base_t)litwindow::cast_this_to_base_class<PROPCLASS, base >::cast_this_to_base, litwindow::get_prop_type<base >(), #base),
+	::litwindow::schema_entry((litwindow::schema_entry::cast_derived_to_base_t)&litwindow::cast_this_to_base_class<PROPCLASS, base >::cast_this_to_base, litwindow::get_prop_type< base >(), #base),
 
 /**@addgroup extensionobjects extension objects
 An extension object - or co-object - is an object that implements an extension to the original object.

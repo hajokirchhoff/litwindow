@@ -137,32 +137,32 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <TargetName>$(ProjectName)-vc120-mt-gd-1_0_0</TargetName>
+    <TargetName>$(ProjectName)-vc$(PlatformToolsetVersion)-mt-gd-1_0_0</TargetName>
     <OutDir>$(SolutionDir)..\stage\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|Win32'">
-    <TargetName>lib$(ProjectName)-vc120-mt-sgd-1_0_0</TargetName>
+    <TargetName>lib$(ProjectName)-vc$(PlatformToolsetVersion)-mt-sgd-1_0_0</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>$(ProjectName)-vc120-mt-gd-1_0_0</TargetName>
+    <TargetName>$(ProjectName)-vc$(PlatformToolsetVersion)-mt-gd-1_0_0</TargetName>
     <OutDir>$(SolutionDir)..\stage64\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">
-    <TargetName>lib$(ProjectName)-vc120-mt-sgd-1_0_0</TargetName>
+    <TargetName>lib$(ProjectName)-vc$(PlatformToolsetVersion)-mt-sgd-1_0_0</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>$(ProjectName)-vc120-mt-1_0_0</TargetName>
+    <TargetName>$(ProjectName)-vc$(PlatformToolsetVersion)-mt-1_0_0</TargetName>
     <OutDir>$(SolutionDir)..\stage\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|Win32'">
-    <TargetName>lib$(ProjectName)-vc120-mt-s-1_0_0</TargetName>
+    <TargetName>lib$(ProjectName)-vc$(PlatformToolsetVersion)-mt-s-1_0_0</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>$(ProjectName)-vc120-mt-1_0_0</TargetName>
+    <TargetName>$(ProjectName)-vc$(PlatformToolsetVersion)-mt-1_0_0</TargetName>
     <OutDir>$(SolutionDir)..\stage64\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|x64'">
-    <TargetName>lib$(ProjectName)-vc120-mt-s-1_0_0</TargetName>
+    <TargetName>lib$(ProjectName)-vc$(PlatformToolsetVersion)-mt-s-1_0_0</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

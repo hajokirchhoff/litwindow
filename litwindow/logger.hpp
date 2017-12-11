@@ -4,6 +4,7 @@
 /// define this to use boost::mutex
 #define LITWINDOW_LOGGER_MUTEX
 /// define this to use hashmap for basic_tag
+#define _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
 #define LITWINDOW_LOGGER_HASHMAP
 
 #ifdef LWBASE_EXPORTS
@@ -21,6 +22,7 @@
 #endif
 
 #include <iostream>
+#include <string>
 
 #ifdef LITWINDOW_LOGGER_HASHMAP
 #include <hash_map>
@@ -68,7 +70,7 @@ namespace litwindow {
 #if defined(LITWINDOW_LOGGER_HASHMAP) 
 				typedef stdext::hash_map<string_type, index_type> basic_name_map;
 #else
-				typedef map<string_type, index_type> basic_name_map;
+				typedef std::map<string_type, index_type> basic_name_map;
 #endif
 #if defined(_MT) && defined(LITWINDOW_LOGGER_MUTEX)
 				typedef boost::mutex mutex_type;
@@ -287,36 +289,36 @@ namespace litwindow {
 			basic_tag_with_category(typename inherited::index_type i):inherited(i){}
 		};
 
-		namespace {
-            struct cat_component {};
-            struct cat_topic {};
-            struct cat_level {};
-            struct cat_instance {};
+		namespace cat {
+            struct component {};
+            struct topic {};
+            struct level {};
+            struct instance {};
 		};
 		template <typename _Elem>
-		struct basic_component:public basic_tag_with_category<cat_component, _Elem>
+		struct basic_component:public basic_tag_with_category<cat::component, _Elem>
 		{
-			basic_component():basic_tag_with_category<cat_component, _Elem>(){}
-			explicit basic_component(const _Elem *s):basic_tag_with_category<cat_component, _Elem>(s){}
-			explicit basic_component(const std::basic_string<_Elem> &s):basic_tag_with_category<cat_component, _Elem>(s){}
-			explicit basic_component(typename basic_tag_with_category<cat_component, _Elem>::index_type i):basic_tag_with_category<cat_component, _Elem>(i){}
+			basic_component():basic_tag_with_category<cat::component, _Elem>(){}
+			explicit basic_component(const _Elem *s):basic_tag_with_category<cat::component, _Elem>(s){}
+			explicit basic_component(const std::basic_string<_Elem> &s):basic_tag_with_category<cat::component, _Elem>(s){}
+			explicit basic_component(typename basic_tag_with_category<cat::component, _Elem>::index_type i):basic_tag_with_category<cat::component, _Elem>(i){}
 		};
 		template <typename _Elem>
-		struct basic_topic:public basic_tag_with_category<cat_topic, _Elem>
+		struct basic_topic:public basic_tag_with_category<cat::topic, _Elem>
 		{
-			basic_topic():basic_tag_with_category<cat_topic, _Elem>(){}
-			explicit basic_topic(const _Elem *s):basic_tag_with_category<cat_topic, _Elem>(s){}
-			explicit basic_topic(const std::basic_string<_Elem> &s):basic_tag_with_category<cat_topic, _Elem>(s){}
-			explicit basic_topic(typename basic_tag_with_category<cat_topic, _Elem>::index_type i):basic_tag_with_category<cat_topic, _Elem>(i){}
+			basic_topic():basic_tag_with_category<cat::topic, _Elem>(){}
+			explicit basic_topic(const _Elem *s):basic_tag_with_category<cat::topic, _Elem>(s){}
+			explicit basic_topic(const std::basic_string<_Elem> &s):basic_tag_with_category<cat::topic, _Elem>(s){}
+			explicit basic_topic(typename basic_tag_with_category<cat::topic, _Elem>::index_type i):basic_tag_with_category<cat::topic, _Elem>(i){}
 		};
 		typedef basic_component<char> component;
 		typedef basic_component<wchar_t> wcomponent;
 		typedef basic_topic<char> topic;
 		typedef basic_topic<wchar_t> wtopic;
 		template <typename _Elem>
-		class basic_level:public basic_tag_with_category<cat_level, _Elem> , public boost::less_than_comparable<basic_level<_Elem> >
+		class basic_level:public basic_tag_with_category<cat::level, _Elem> , public boost::less_than_comparable<basic_level<_Elem> >
 		{
-			typedef basic_tag_with_category<cat_level, _Elem> inherited;
+			typedef basic_tag_with_category<cat::level, _Elem> inherited;
 		public:
 			enum preset {
 				unknown,
