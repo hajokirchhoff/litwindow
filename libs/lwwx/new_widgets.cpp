@@ -282,7 +282,7 @@ namespace litwindow {
 				mdc.Clear();
 				mdc.DrawRectangle(-1, 0, sz.x+1, sz.y);
 				wxRendererNative::Get().DrawComboBoxDropButton(this, mdc, wxRect(wxPoint(0, 1), sz-wxSize(1,2)), wxCONTROL_FOCUSED);
-				mdc.SetPen(wxPen(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNSHADOW), 1, wxFDIAGONAL_HATCH));
+				mdc.SetPen(wxPen(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNSHADOW), 1, wxPENSTYLE_FDIAGONAL_HATCH));
 				mdc.SetBrush(*wxTRANSPARENT_BRUSH);
 				mdc.DrawRectangle(0, 0, sz.x-1, sz.y-1);
 			}
