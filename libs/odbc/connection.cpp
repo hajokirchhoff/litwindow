@@ -85,7 +85,7 @@ namespace litwindow {
 		const TCHAR *begin_keyword;
 		const TCHAR *end_keyword=NULL;
 		const TCHAR *begin_value=NULL;
-		const TCHAR *end_value;
+		const TCHAR *end_value=nullptr;
 		p=begin_keyword=odbc_connection_string.c_str();
 		remaining_connection_string.clear();
 		if (!*p)
