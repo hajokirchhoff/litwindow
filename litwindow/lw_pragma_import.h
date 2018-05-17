@@ -141,8 +141,8 @@
 #define MSG_SHOWN
 
 #define STL_EXPORT_VECTOR(type) \
-    LWBASE_EXTERN template class LWBASE_API std::allocator<type>; \
-    LWBASE_EXTERN template class LWBASE_API std::vector<type>
+    /*LWBASE_EXTERN template class LWBASE_API std::allocator<type>;*/ \
+    /*LWBASE_EXTERN template class LWBASE_API std::vector<type>*/
 
 
 #if _MSC_VER >= 1300

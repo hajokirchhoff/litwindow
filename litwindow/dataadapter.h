@@ -1289,7 +1289,7 @@ namespace litwindow {
 	}
 
 	// export commonly used templates
-#pragma warning(disable:4231 4275)
+#pragma warning(disable:4231 4275 4251)
 	STL_EXPORT_VECTOR(const accessor*);
 	STL_EXPORT_VECTOR(accessor);
 	STL_EXPORT_VECTOR(const const_accessor*);
