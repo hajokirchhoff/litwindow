@@ -111,6 +111,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_USRDLL;LITWINDOW_ALL_DYN_LINK;BOOST_ALL_DYN_LINK;LWODBC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -147,6 +148,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_USRDLL;LITWINDOW_ALL_DYN_LINK;BOOST_ALL_DYN_LINK;LWODBC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

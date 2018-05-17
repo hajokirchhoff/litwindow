@@ -73,12 +73,14 @@ void lwListAdapterBase::FillList()
 long lwListAdapterBase::GetClientDataSelection() const
 {
 	int index=GetSelection();
+#pragma warning(suppress: 4302 4311)
 	return index!=-1 ? (long)GetClientData(index) : -1;
 }
 
 void lwListAdapterBase::SetClientDataSelection(long clientData)
 {
 	int i=GetCount()-1;
+#pragma warning(suppress: 4302 4311)
 	while (i>=0 && (long)GetClientData(i)!=clientData)
 		--i;
 	SetSelection(i);
@@ -180,7 +182,8 @@ void lwListAdapterBase::SetValue(const accessor &newValue)
             ClearList();
             for (size_t i=0; i<m_enum_info->enum_count(); ++i) {
                 const converter_enum_info::element &current(m_enum_info->enum_value(i));
-                AppendList(tstring(wxGetTranslation(current.m_name)), (void*)current.m_value);
+
+                AppendList(tstring(wxGetTranslation(current.m_name)), (void*)(size_t)current.m_value);
             }
             SetUseClientData(true);
         }
