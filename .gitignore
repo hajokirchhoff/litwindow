@@ -90,3 +90,6 @@ libs/stage
 /litwindow-VC90.vcproj.Galadriel.Hajo[!!-~]Kirchhoff.user
 litwindow/ui/list_mediator.cpp
 /stage
+/libs/odbc/odbc_unittest/dump_lwlog.txt
+/libs/odbc/odbc_unittest/odbc_unittest.vcxproj.user
+/libs/odbc/odbc_unittest/v4.dsn
