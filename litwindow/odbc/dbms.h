@@ -63,8 +63,8 @@ namespace litwindow {
 				has_get_current_sequence_value = 0x20,		///< has get_current_sequence_value
 				last__cap_last
 			};
-			LWODBC_API dbms_base(void);
-			LWODBC_API virtual ~dbms_base(void);
+			LWODBC_API dbms_base();
+			LWODBC_API virtual ~dbms_base();
 
 			/// find a dbms strategy for the driver name and construct a new dbms_base object on the heap
 			static LWODBC_API sqlreturn construct_from_dbms_name(const tstring &name, const tstring &version, const tstring &odbc_connection_string, boost::shared_ptr<dbms_base> &ptr) throw();
@@ -134,7 +134,7 @@ namespace litwindow {
 			virtual bool has_capability(capabilities c) const = 0;
 
 			/// Give the dbms strategy the chance to override some capabilities as returned by ODBC
-			/// This allows the strategy object to make special settings to avoid some of the ODBC driver ideosyncrasies,
+			/// This allows the strategy object to make special settings to avoid some of the ODBC driver idiosyncrasies,
 			/// such as bugs in the MySQL ODBC driver for example.
 			virtual void override_driver_capabilities(connection *) {}
 
@@ -145,9 +145,9 @@ namespace litwindow {
 
 			const map<tstring, tstring> &macros() const { return m_macros; }
 
-			typedef bool (*can_handle_func_t)(const tstring &name, const tstring &version, const tstring &odbc_connection_string);
-			typedef dbms_base *(*creator_func_t)(const tstring &odbc_connection_string);
-			typedef vector<pair<can_handle_func_t, creator_func_t> > creator_t;
+			using can_handle_func_t = bool (*)(const tstring &name, const tstring &version, const tstring &odbc_connection_string);
+			using creator_func_t = dbms_base *(*)(const tstring &odbc_connection_string);
+			using creator_t = vector<pair<can_handle_func_t, creator_func_t> >;
 			static sqlreturn register_dbms(can_handle_func_t, creator_func_t, void *stop_linker_from_removing_me);
 
 			struct do_register
@@ -177,7 +177,7 @@ namespace litwindow {
 				:m_odbc_connection_string(odbc_connection_string)
 			{
 			}
-			tstring get_odbc_connection_string(const tstring &uid, const tstring &pwd, int flags = 0) const
+			tstring get_odbc_connection_string(const tstring &uid, const tstring &pwd, int flags = 0) const override
 			{
 				tstring rc=m_odbc_connection_string;
 				if ((flags & odbc_no_UID) == 0) {
@@ -186,42 +186,42 @@ namespace litwindow {
 				if ((flags & odbc_no_PWD) == 0) {
 					rc.append(_T(";PWD=")).append(pwd);
 				}
-				if ((flags & odbc_no_DATABASE) == 0 && m_database_name.size()>0) {
+				if ((flags & odbc_no_DATABASE) == 0 && !m_database_name.empty()) {
 					rc.append(_T(";DATABASE=")).append(m_database_name);
 				}
 				return rc;
 			}
-			virtual sqlreturn create_user(connection *ds, const tstring &uid, const tstring &pwd);
-			virtual sqlreturn add_user(connection *ds, const tstring &user, const tstring &group);
-			virtual sqlreturn drop_user(connection *ds, const tstring &uid, const tstring &group);
-			virtual sqlreturn change_password(connection *ds, const tstring &oldpw, const tstring &newpw, const tstring &uid);
+			sqlreturn create_user(connection *ds, const tstring &uid, const tstring &pwd) override;
+			sqlreturn add_user(connection *ds, const tstring &user, const tstring &group) override;
+			sqlreturn drop_user(connection *ds, const tstring &uid, const tstring &group) override;
+			sqlreturn change_password(connection *ds, const tstring &oldpw, const tstring &newpw, const tstring &uid) override;
 
-			virtual sqlreturn create_group(connection *ds, const tstring &gid);
-			virtual sqlreturn drop_group(connection *ds, const tstring &gid);
+			sqlreturn create_group(connection *ds, const tstring &gid) override;
+			sqlreturn drop_group(connection *ds, const tstring &gid) override;
 
-			virtual sqlreturn create_database(connection *ds, const tstring &database_name);
-			virtual sqlreturn create_schema(connection *ds, const tstring &schema_name);
-			virtual sqlreturn drop_schema(connection *ds, const tstring &schema_name);
-			virtual sqlreturn use_database(connection *ds, const tstring &database_name);
-			virtual sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw();
-			virtual void set_database_name(const tstring &database)
+			sqlreturn create_database(connection *ds, const tstring &database_name) override;
+			sqlreturn create_schema(connection *ds, const tstring &schema_name) override;
+			sqlreturn drop_schema(connection *ds, const tstring &schema_name) override;
+			sqlreturn use_database(connection *ds, const tstring &database_name) override;
+			sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw() override;
+			void set_database_name(const tstring &database) override
 			{
 				m_database_name=database;
 			}
-			virtual tstring get_database_name() const
+			tstring get_database_name() const override
 			{
 				return m_database_name;
 			}
-			bool has_capability(dbms_base::capabilities c) const
+			bool has_capability(dbms_base::capabilities c) const override
 			{
 				static const int general_capabilities=(has_user_accounts | has_schema);
 				return ((int)c & general_capabilities) == (int)c;
 			}
 
-			SQLSMALLINT sql_to_c_type(SQLSMALLINT sql_type) const;
-			virtual tstring sql_to_create_table_name(connection *ds, SQLSMALLINT sql_type, SQLLEN length) const;
+			SQLSMALLINT sql_to_c_type(SQLSMALLINT sql_type) const override;
+			tstring sql_to_create_table_name(connection *ds, SQLSMALLINT sql_type, SQLLEN length) const override;
 
-			virtual tstring get_sql_for(standard_sql_statement s) const;
+			tstring get_sql_for(standard_sql_statement s) const override;
 		protected:
 			dbms_type_mapper m_type_mapper;
 			tstring m_odbc_connection_string;
@@ -233,15 +233,15 @@ namespace litwindow {
 		{
 		public:
 			dbms_sql_server(const tstring &odbcConnection=tstring());
-			virtual tstring get_dbms_name() const { return _T("SQL Server"); }
-			virtual sqlreturn create_database(connection *ds, const tstring &database_name);
-			virtual sqlreturn create_user(connection *ds, const tstring &uid, const tstring &pwd);
-			virtual sqlreturn add_user(connection *ds, const tstring &user, const tstring &group);
-			virtual sqlreturn drop_user(connection *ds, const tstring &uid, const tstring &group);
-			virtual sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw();
-			virtual sqlreturn create_group(connection *ds, const tstring &gid);
-			virtual sqlreturn drop_group(connection *ds, const tstring &gid);
-			bool has_capability(capabilities c) const { return dbms_generic::has_capability(c) || c==has_get_current_sequence_value; }
+			tstring get_dbms_name() const override { return _T("SQL Server"); }
+			sqlreturn create_database(connection *ds, const tstring &database_name) override;
+			sqlreturn create_user(connection *ds, const tstring &uid, const tstring &pwd) override;
+			sqlreturn add_user(connection *ds, const tstring &user, const tstring &group) override;
+			sqlreturn drop_user(connection *ds, const tstring &uid, const tstring &group) override;
+			sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw() override;
+			sqlreturn create_group(connection *ds, const tstring &gid) override;
+			sqlreturn drop_group(connection *ds, const tstring &gid) override;
+			bool has_capability(capabilities c) const override { return dbms_generic::has_capability(c) || c==has_get_current_sequence_value; }
 
 			static dbms_base *construct(const tstring &odbc_connection) { return new dbms_sql_server(odbc_connection); }
 			static bool can_handle_(const tstring &name, const tstring &version, const tstring &odbc_connection_string);
@@ -252,9 +252,9 @@ namespace litwindow {
 		{
 		public:
 			dbms_mysql(const tstring &odbcConnection=tstring());
-			virtual tstring get_dbms_name() const { return _T("MySQL"); }
+			tstring get_dbms_name() const override { return _T("MySQL"); }
 			static dbms_base *construct(const tstring &odbc_connection) { return new dbms_mysql(odbc_connection); }
-			void override_driver_capabilities(connection *c);
+			void override_driver_capabilities(connection *c) override;
 			static bool can_handle_(const tstring &name, const tstring &version, const tstring &odbc_connection_string);
 		};
 
@@ -263,17 +263,17 @@ namespace litwindow {
 		{
 		public:
 			dbms_postgres(const tstring &odbcConnection=tstring());
-			virtual tstring get_dbms_name() const { return _T("PostgreSQL"); }
+			tstring get_dbms_name() const override { return _T("PostgreSQL"); }
 			static dbms_base *construct(const tstring &odbc_connection) { return new dbms_postgres(odbc_connection); }
-			bool has_capability(capabilities c) const;
-			virtual sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw();
+			bool has_capability(capabilities c) const override;
+			sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw() override;
 			static bool can_handle_(const tstring &name, const tstring &version, const tstring &odbc_connection_string);
 
-			virtual sqlreturn add_user(connection *ds, const tstring &user, const tstring &group);
-			virtual sqlreturn drop_user(connection *ds, const tstring &uid, const tstring &group);
+			sqlreturn add_user(connection *ds, const tstring &user, const tstring &group) override;
+			sqlreturn drop_user(connection *ds, const tstring &uid, const tstring &group) override;
 
-			sqlreturn create_group(connection *ds, const tstring &gid);
-			sqlreturn drop_group(connection *ds, const tstring &gid);
+			sqlreturn create_group(connection *ds, const tstring &gid) override;
+			sqlreturn drop_group(connection *ds, const tstring &gid) override;
 		};
 
 		/** SQLite strategy */
@@ -281,9 +281,12 @@ namespace litwindow {
 		{
 		public:
 			dbms_sqlite(const tstring &odbcConnection = tstring());
-			virtual tstring get_dbms_name() const { return _T("SQLite"); }
+			tstring get_dbms_name() const override { return _T("SQLite"); }
 			static dbms_base *construct(const tstring &odbc_connection) { return new dbms_sqlite(odbc_connection); }
 			static bool can_handle_(const tstring &name, const tstring &version, const tstring &odbc_connection_string);
+
+			virtual void override_driver_capabilities(connection *c) override;
+
 		};
 
 		/** Firebird 1.5 strategy */
@@ -291,10 +294,10 @@ namespace litwindow {
 		{
 		public:
 			dbms_firebird(const tstring &odbcConnection=tstring());
-			virtual tstring get_dbms_name() const { return _T("Firebird"); }
+			tstring get_dbms_name() const override { return _T("Firebird"); }
 			static dbms_base *construct(const tstring &odbc_connection) { return new dbms_firebird(odbc_connection); }
 			static bool can_handle_(const tstring &name, const tstring &version, const tstring &odbc_connection_string);
-			void override_driver_capabilities(connection *c);
+			void override_driver_capabilities(connection *c) override;
 		};
 
 	};

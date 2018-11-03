@@ -609,6 +609,16 @@ namespace litwindow {
 		{
 			return name == _T("SQLite");
 		}
+
+		void dbms_sqlite::override_driver_capabilities(connection *c)
+		{
+			SQLUINTEGER clear_flags;
+			// SQLBulkOperations with SQL_ADD is broken: The driver adds a scheme to the table, which is not really present.
+			// Example: For a database "v4.db" and a table "test" the driver wants to insert into "v4.db.test", which returns a "table is not present".
+			clear_flags |= SQL_CA1_BULK_ADD;
+			c->clear_cursor_attributes1(clear_flags);
+		}
+
 		bool dbms_firebird::can_handle_(const tstring &name, const tstring &version, const tstring &)
 		{
 			return name==_T("Firebird 1.5");

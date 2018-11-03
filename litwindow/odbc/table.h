@@ -59,7 +59,7 @@ public:
 		const sqlreturn &open(Value &v, bool updatable=true, bool scrollable=true) throw()
 	{
 		bind(v) && open(updatable, scrollable);
-		return m_last_error();
+		return m_last_error;
 	}
 	inline const sqlreturn open_read_only() throw() { return open(false, true); }
 	inline const sqlreturn open_read_only_forward() throw() { return open(false, false); }
