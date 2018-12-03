@@ -4,6 +4,10 @@
 #include "litwindow/logger.hpp"
 #include "litwindow/logger/sink.hpp"
 #include "boost/thread/thread.hpp"
+#include "boost/shared_ptr.hpp"
+#include "boost/smart_ptr/make_shared_object.hpp"
+#include "boost/scope_exit.hpp"
+#include "boost/atomic/atomic.hpp"
 
 #define new DEBUG_NEW
 
@@ -206,4 +210,63 @@ BOOST_AUTO_TEST_CASE(simple_memory_sink)
 {
 	simple_memory_sink_test("Event ", "long: ");
 	simple_memory_sink_test(L"Eventl ", L"longl: ");
+}
+
+#ifdef _DEBUG
+const static int outer_thread_count = 10;
+const static int inner_repeat_count = 5;
+const static int inner_thread_count = 5;
+const static int innermost_log_loop_count = 100;
+#else
+const static int outer_thread_count = 10;
+const static int inner_repeat_count = 10;
+const static int inner_thread_count = 20;
+const static int innermost_log_loop_count = 500;
+#endif
+
+BOOST_AUTO_TEST_CASE(multithreading_logger)
+{
+	std::wostringstream out;
+	auto wml = boost::make_shared<logger::wostream_logsink>(out);
+	logger::default_sink<wchar_t>()->add_sink(wml);
+	BOOST_SCOPE_EXIT(wml)
+	{
+		logger::default_sink<wchar_t>()->remove_sink(wml);
+	} BOOST_SCOPE_EXIT_END;
+	boost::atomic<int> internal_success{ 0 };
+	
+	boost::function<void()> work = [&internal_success]()
+	{
+		for (int repeat_count = 0; repeat_count < inner_repeat_count; ++repeat_count) {
+			std::wstring wcomp(L"comp-" + boost::lexical_cast<std::wstring>(repeat_count));
+			logger::threadsafe::wevents log(wcomp.c_str(), L"testlog");
+			std::vector<boost::thread> internal_threads(inner_thread_count);
+			boost::function<void()> internal_work = [&log]() {
+				for (int i = 0; i < innermost_log_loop_count; ++i) {
+					log && L"Some Test with index " && i;
+					boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
+				}
+			};
+			for (auto &t : internal_threads) {
+				t = std::move(boost::thread(internal_work));
+			}
+			for (auto &t : internal_threads) {
+				if (t.try_join_for(boost::chrono::seconds(180)))
+					++internal_success;
+			}
+		}
+	};
+	std::vector<boost::thread> threads(outer_thread_count);
+	for (auto &t : threads) {
+		t = std::move(boost::thread(work));
+	}
+	int success = 0;
+	for (auto &t : threads) {
+		if (t.try_join_for(boost::chrono::seconds(180)))
+			++success;
+	}
+	BOOST_CHECK_EQUAL(success, threads.size());
+	BOOST_CHECK_EQUAL(internal_success, threads.size() * inner_thread_count * inner_repeat_count);
+	auto text = out.str();
+	BOOST_CHECK_EQUAL(text.empty(), false);
 }
