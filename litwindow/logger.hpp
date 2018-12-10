@@ -568,8 +568,6 @@ namespace litwindow {
 
 			virtual int_type overflow(int_type _Meta = traits_type::eof() )
 			{
-				if (traits_type::eq_int_type(traits_type::eof(), _Meta))
-					return traits_type::not_eof(_Meta);
 				// if room in buffer, then store element
 				if (_Mysb::pptr()!=0 && _Mysb::pptr() < _Mysb::epptr()) {
 					*_Mysb::pptr() = traits_type::to_char_type(_Meta);
