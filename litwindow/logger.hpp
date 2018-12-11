@@ -572,7 +572,7 @@ namespace litwindow {
 				if (_Mysb::pptr()!=0 && _Mysb::pptr() < _Mysb::epptr()) {
 					*_Mysb::pptr() = traits_type::to_char_type(_Meta);
 					_Mysb::pbump(1);
-					return _Meta;
+					return !traits_type::eof();
 				}
 				// grow buffer
 				size_t _Oldsize = _Mysb::pptr() == 0 ? 0 : _Mysb::epptr() - _Mysb::pbase();
@@ -595,7 +595,7 @@ namespace litwindow {
 				m_state |= _Allocated;
 				*_Mysb::pptr() = traits_type::to_char_type(_Meta);
 				_Mysb::pbump(1);
-				return _Meta;
+				return !traits_type::eof();
 			}
 			void set_end_of_log_entry(int_type new_end_of_Log_entry)
 			{
