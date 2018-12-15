@@ -583,6 +583,9 @@ namespace litwindow {
 					_Mysb::setp(_Newptr, _Newptr+_Newsize);
 				} else {
 					_Elem *_Oldptr = _Mysb::pbase();
+					/* TODO: m_begin_data und m_current_entry müssen korrigiert werden,
+					* wenn der Speicher hier neu alloziert wird!!!!
+					**/
 #if defined(_MSC_VER) && _MSC_VER<1700
 					std::_Traits_helper::copy_s<_Traits>(_Newptr, _Newsize, _Oldptr, _Oldsize);
 #else
