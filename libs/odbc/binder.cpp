@@ -20,6 +20,7 @@
 #define new DEBUG_NEW
 
 using boost::uuids::uuid;
+using namespace std;
 
 template <>
 litwindow::tstring litwindow::converter<TIME_STRUCT>::to_string(const TIME_STRUCT &v)

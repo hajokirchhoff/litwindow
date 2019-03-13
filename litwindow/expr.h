@@ -19,7 +19,6 @@
 #include "./dataadapter.h"
 
 namespace litwindow {
-using namespace std;
 
 /**@defgroup expr Expressions
     */
@@ -27,7 +26,7 @@ using namespace std;
 
 //#region expression objects
 
-typedef vector<const_accessor> expr_accessors;
+typedef std::vector<const_accessor> expr_accessors;
 
 enum dependency_t {
     no_dependency,

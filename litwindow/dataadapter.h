@@ -35,6 +35,7 @@ namespace litwindow {
 	class const_aggregate;
 	class aggregate;
     class converter_enum_info;
+	using std::string;
 
 	/** const_accessor objects are the most fundamental data adapters, providing basic, readonly access to objects.
 	A const_accessor can point to objects of any kind and provides basic readonly access to the values of these objects.
@@ -706,7 +707,7 @@ namespace litwindow {
 		- inherited.m_member
 		- m_aggregate.m_member
 		*/
-		pair<const_iterator,bool> LWBASE_API find_scope(const string &propName) const
+		std::pair<const_iterator,bool> LWBASE_API find_scope(const string &propName) const
 		{
 			return find_scope(propName, false);
 		}
@@ -715,12 +716,12 @@ namespace litwindow {
 		/** This method works like find_scope, but it searches not only the inheritance hierarchy, but member aggregates as well.
 		It does not have a C++ equivalent.
 		*/
-		pair<const_iterator,bool> LWBASE_API find_anywhere(const string &propName) const
+		std::pair<const_iterator,bool> LWBASE_API find_anywhere(const string &propName) const
 		{
 			return find_scope(propName, true);
 		}
 
-		pair<const_iterator,bool> LWBASE_API find_scope(const string &propName, bool search_member_aggregates) const;
+		std::pair<const_iterator,bool> LWBASE_API find_scope(const string &propName, bool search_member_aggregates) const;
 
 		/// find a member of the name @p propName.
 		/** Unlike find_scope or find_anywhere this method searches only in the immediate data adapter definition. It does
@@ -744,7 +745,7 @@ namespace litwindow {
 		*/
 		const_accessor operator[](const char *propName) const
 		{
-			pair<const_iterator,bool> it=find_scope(propName);
+			std::pair<const_iterator,bool> it=find_scope(propName);
 			if (it.second==false)
 				throw lwbase_error(propName+string(": no such property"));
 			return *it.first;
@@ -870,17 +871,17 @@ namespace litwindow {
 			}
 		};
 
-		pair<iterator,bool> LWBASE_API find_scope(const string &propName) const
+		std::pair<iterator,bool> LWBASE_API find_scope(const string &propName) const
 		{
 			return find_scope(propName, false);
 		}
 
-		pair<iterator, bool> LWBASE_API find_anywhere(const string &propName) const
+		std::pair<iterator, bool> LWBASE_API find_anywhere(const string &propName) const
 		{
 			return find_scope(propName, true);
 		}
 
-		pair<iterator, bool> LWBASE_API find_scope(const string &propName, bool search_member_aggregates) const;
+		std::pair<iterator, bool> LWBASE_API find_scope(const string &propName, bool search_member_aggregates) const;
 
 		iterator find(const char *propName) const
 		{
@@ -892,7 +893,7 @@ namespace litwindow {
 		}
 		accessor operator[](const char *propName) const
 		{
-			pair<iterator, bool> it=find_scope(propName);
+			std::pair<iterator, bool> it=find_scope(propName);
 			if (it.second==false)
 				throw lwbase_error(propName+string(": no such property"));
 			return *it.first;

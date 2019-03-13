@@ -198,7 +198,7 @@ namespace litwindow {
 				int topItem=c->GetTopItem();
 				int perPage=c->GetCountPerPage();
 				int totalItems=c->GetItemCount();
-				int bottomItem=min(totalItems, topItem+perPage);
+				int bottomItem=std::min(totalItems, topItem+perPage);
 				c->RefreshItems(topItem, bottomItem-1);
 			}
 			size_t column_count(uicontrol_type *c) const { return c->GetColumnCount(); }

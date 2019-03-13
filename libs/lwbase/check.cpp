@@ -15,6 +15,8 @@
 
 namespace litwindow {
 	namespace checks {
+		using std::endl;
+
 		static char exceptionContextBuffer[8192];
 		static unsigned nextFreeChar=0;
 		static unsigned nextFreePointer=sizeof exceptionContextBuffer-sizeof (unsigned);

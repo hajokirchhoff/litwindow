@@ -17,6 +17,7 @@
 #endif
 
 namespace litwindow {
+	using std::runtime_error;
 
 	template <typename Splitter>
 	Splitter split_string(const tstring &in, Splitter splitter, const tstring &delimiters, const tstring &quotes, const tstring &equal_sign)
@@ -151,7 +152,7 @@ namespace litwindow {
 		void operator()(const tstring &left, const tstring &right) const
 		{
 			if (to_insert->insert(make_pair(left, right)).second==false)
-				throw runtime_error("duplicate values in split_string");
+				throw std::runtime_error("duplicate values in split_string");
 		}
 	};
 	std::map<tstring, tstring> split_string(const tstring &in, const tstring &delimiters, const tstring &quotes, const tstring &equal_sign)

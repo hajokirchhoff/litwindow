@@ -26,7 +26,6 @@ wxDECLARE_EXPORTED_EVENT(LWWX_API, lwEVT_VALUES_CHANGED, wxCommandEvent);
 
 namespace litwindow {
 
-using namespace std;
 //#pragma warning(disable:4660)
 //LWWX_STL_VECTOR_EXPORT(tstring);
 #ifdef not

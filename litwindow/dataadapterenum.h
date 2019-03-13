@@ -146,7 +146,7 @@ namespace litwindow {
         size_t from_string(const schema_entry *entry, const tstring &value, prop_ptr member_ptr)
         {
             if (my_adapter().find(value, member(member_ptr))==false)
-                throw runtime_error("invalid value");
+                throw std::runtime_error("invalid value");
             return sizeof(value_type);
         }
         const converter_enum_info *get_enum_info() const { return this; }
