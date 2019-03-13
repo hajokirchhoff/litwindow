@@ -15,6 +15,7 @@
 #include <wx/filename.h>
 
 namespace litwindow {
+	using namespace std;
 
 struct get_lwlog_dumper:public wrapping_tstreambuf::dumper_t
 {

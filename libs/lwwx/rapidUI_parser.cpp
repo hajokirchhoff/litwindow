@@ -26,6 +26,7 @@
 namespace litwindow {
 
 	using namespace boost;
+	using namespace std;
 
 	struct comment_parser:public spirit::classic::grammar<comment_parser>
 	{

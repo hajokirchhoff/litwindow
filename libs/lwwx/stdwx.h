@@ -24,8 +24,6 @@
 #include <map>
 #include <utility>
 
-using namespace std;
-
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 
 #ifdef _DEBUG
