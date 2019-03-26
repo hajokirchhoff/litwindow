@@ -318,6 +318,15 @@ tstring converter<bool>::to_string(const bool &b)
     str << (b ? _T("1") : _T("0"));
     return str.str();
 }
+
+template <>
+tstring converter<uint16_t>::to_string(const uint16_t &ui)
+{
+	tostringstream str;
+	str << ui;
+	return str.str();
+}
+
 template <>
 size_t converter<bool>::from_string(const tstring &newvalue, bool &member)
 {
