@@ -42,8 +42,10 @@ const sqlreturn &statement::delete_row()
 const sqlreturn &statement::insert_row()
 {
 	m_last_error.clear();
-	(needs_bind_columns()==false || bind_columns()) &&
-	(needs_put_columns()==false || put_columns()) &&
+	(needs_bind_parameters() == false || bind_parameters()) &&
+		(needs_put_parameters() == false || put_parameters()) &&
+	//(needs_bind_columns()==false || bind_columns()) &&
+	//(needs_put_columns()==false || put_columns()) &&
 		(m_last_error=SQLBulkOperations(handle(), SQL_ADD));
 	return m_last_error;
 }
@@ -418,6 +420,10 @@ void statement::clear_result_set()
 
 const sqlreturn &statement::prepare()
 {
+	if (m_state == setting_statement) {
+		if (set_statement(m_sql_statement).log_errors())
+			return m_last_error;
+	}
 	m_last_error=SQLPrepare(handle(), (SQLTCHAR*)m_sql_statement.c_str(), m_sql_statement.length());
 	if (m_last_error)
 		m_is_prepared=true;

@@ -150,6 +150,18 @@ public:
 		add_accessor(v);
 		return *this;
 	}
+	template <>
+	statement &operator << (const_accessor &v)
+	{
+		add_const_accessor(v);
+		return *this;
+	}
+	template <>
+	statement &operator << (const const_accessor &v)
+	{
+		add_const_accessor(v);
+		return *this;
+	}
 
 	/// Get the SQLHANDLE of the statement.
 	SQLHANDLE   handle() const { return m_handle; }
@@ -313,9 +325,9 @@ public:
 	static bool LWODBC_API g_use_SQLBulkOperations;
 	/** \brief Check if the driver supports updating the row in the result set of this statement. */
 	//TODO: remove 'return false' again
-	bool has_update_row() throw() { return g_use_SQLSetPos && has_POS_UPDATE(); }
-	bool has_delete_row() throw() { return g_use_SQLSetPos && has_POS_DELETE(); }
-	bool has_insert_row() throw() { return g_use_SQLBulkOperations && has_BULK_ADD(); }
+	bool has_update_row() throw() { return g_use_SQLSetPos && is_open() && has_POS_UPDATE(); }
+	bool has_delete_row() throw() { return g_use_SQLSetPos && is_open() && has_POS_DELETE(); }
+	bool has_insert_row() throw() { return g_use_SQLBulkOperations && is_open() && has_BULK_ADD(); }
 	/** \brief Update the current row - write it back to the SQL data source using SQLSetPos.
 		This command attempts to update the values in the current row of the current
 		SELECT statement. Not all drivers support this. Check has_update()  before calling this.
@@ -374,6 +386,13 @@ public:
 		sqlreturn				bind_parameter(const tstring &name, Value &v, SQLLEN *len_ind=0)
 	{
 		const accessor a(make_accessor(v));
+		return bind_parameter_accessor(name, a, len_ind);
+	}
+	template <class Value>
+		sqlreturn				bind_parameter(const tstring &name, const Value &v, SQLLEN *len_ind=0)
+	{
+			//TODO: Hier unbedingt sicherstellen, dass nur bind_type::in erlaubt ist
+		const accessor a(const_cast_accessor(make_const_accessor(v)));
 		return bind_parameter_accessor(name, a, len_ind);
 	}
 	template <typename Value>
