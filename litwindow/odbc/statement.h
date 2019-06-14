@@ -49,6 +49,10 @@ struct parameter {
 	parameter():m_bind_type(unknown_bind_type),m_position(-1),m_parameter_name(_T("NOSUCHPARAMETERNAME__NOSUCHPARAMETERNAME__")) {}
 
 	bool operator==(const tstring &name) const { return m_parameter_name==name; }
+	void set_bind_type(bind_type new_bind_type)
+	{
+		m_bind_type = new_bind_type;
+	}
 };
 
 typedef vector<parameter> parameters_t;

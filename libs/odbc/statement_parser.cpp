@@ -157,10 +157,10 @@ bool statement::do_parse_bindings()
 
 			assertion<const TCHAR*> expect_bind_type(_T("bind type must be one of [bindto, in, out, inout]"));
 			trule bound_type = expect_bind_type(    
-				as_lower_d[_("bindto")] [assign_a(new_parameter.m_bind_type, bindto)] 
-			|   as_lower_d[_("in")]     [assign_a(new_parameter.m_bind_type, in)]
-			|   as_lower_d[_("out")]    [assign_a(new_parameter.m_bind_type, out)]
-			|   as_lower_d[_("inout")]  [assign_a(new_parameter.m_bind_type, inout)] );
+				as_lower_d[_("bindto")] [boost::bind(&parameter::set_bind_type, boost::ref(new_parameter), odbc::bindto)]
+			|   as_lower_d[_("in")]     [boost::bind(&parameter::set_bind_type, boost::ref(new_parameter), odbc::in)]
+			|   as_lower_d[_("out")]    [boost::bind(&parameter::set_bind_type, boost::ref(new_parameter), odbc::out)]
+			|   as_lower_d[_("inout")]  [boost::bind(&parameter::set_bind_type, boost::ref(new_parameter), odbc::inout)] );
 
 			trule bound_to = (ch_p(_('(')) >> *space_p >> _('[') >> *space_p >> bound_type >> *space_p >> _(']') >> *space_p >> simple_id[assign_a(new_parameter.m_parameter_name)] >> *space_p>> _(')'))
 				[boost::bind(&statement::add_bind_marker, this, boost::ref(sym), boost::ref(new_parameter), boost::ref(next_column_number), boost::ref(next_parameter_number), _1, _2)];
