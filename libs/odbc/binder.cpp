@@ -751,8 +751,11 @@ namespace {
     } g_uuid_bind_helper;
     static register_data_type<uuid> tuuid(SQL_C_GUID, SQL_GUID, 0, &g_uuid_bind_helper);
 
-struct tstring_bind_helper:public extended_bind_helper
+template <typename Char, int SqlChar>
+struct string_bind_helper:public extended_bind_helper
 {
+	using tstring = std::basic_string<Char>;
+	using TCHAR = Char;
 	virtual SQLULEN prepare_bind_buffer(data_type_info &info, statement &s, bind_type bind_howto) const
 	{
 		SQLSMALLINT pos=info.m_position;
@@ -760,7 +763,7 @@ struct tstring_bind_helper:public extended_bind_helper
 		info.m_target_ptr=0;	// tell the binder we need an intermediate buffer
 		sqlreturn rc;
 		if (bind_howto==bindto) {
-			if (info.m_sql_type==SQL_TVARCHAR)
+			if (info.m_sql_type==SqlChar)
 				sz=maximum_text_column_length_retrieved;
 			else {
 				rc=s.get_column_size(pos, sz);
@@ -784,7 +787,7 @@ struct tstring_bind_helper:public extended_bind_helper
 		sqlreturn rc;
 		typed_accessor<tstring> a=dynamic_cast_accessor<tstring>(info.m_accessor);
 		if (info.m_len_ind_p && (*info.m_len_ind_p==SQL_NULL_DATA || *info.m_len_ind_p==0))
-			a.set(_T(""));
+			a.set(tstring());
 		else 
 			a.set(tstring((const TCHAR*)info.m_target_ptr));
 		return sqlreturn(SQL_SUCCESS);
@@ -823,9 +826,13 @@ struct tstring_bind_helper:public extended_bind_helper
 	{
 		return SQL_NTS;
 	}
-} g_tstring_bind_helper;
+};
 
-static register_data_type<tstring> ttstring(SQL_C_TCHAR, SQL_TVARCHAR, 0, &g_tstring_bind_helper);
+string_bind_helper<char, SQL_CHAR> g_string_bind_helper;
+string_bind_helper<wchar_t, SQL_WCHAR> g_wstring_bind_helper;
+
+static register_data_type<string> tbind_string(SQL_C_CHAR, SQL_VARCHAR, 0, &g_string_bind_helper);
+static register_data_type<wstring> tbind_wstring(SQL_C_WCHAR, SQL_WVARCHAR, 0, &g_wstring_bind_helper);
 };
 
 };
