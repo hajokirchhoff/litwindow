@@ -409,7 +409,12 @@ public:
 	{
 		return bind_parameter_accessor(position, in_out, a, len_ind);
 	}
-
+	template <typename Value>
+	sqlreturn	bind_parameter_aggregate(const Value &v)
+	{
+		auto agg(const_cast_accessor(make_const_accessor(v)).get_aggregate());
+		return m_binder.bind_parameter(agg);
+	}
 	/// Special bind_parameter version if you need greater control over the bind options. Accepts a bind_task object.
 	sqlreturn				bind_parameter(const bind_task &task);
 
@@ -472,7 +477,6 @@ public:
 	}
 	sqlreturn               unbind_columns()        
 	{ 
-		m_binder.unbind_columns();
 		return reset_column_bindings();
 	}
 
