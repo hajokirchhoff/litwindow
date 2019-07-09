@@ -12,7 +12,7 @@
 
 using namespace litwindow;
 
-const wstring sqLite3Connection = L"Driver={SQLite3 ODBC Driver};Database=v4.db;stepapi=0;notxn=0;shortnames=0;longnames=0;nocreat=0;nowchar=0;fksupport=0;oemcp=0;bigint=0;jdconv=0";
+const wstring sqLite3Connection = L"Driver={SQLite3 ODBC Driver};Database=v4.db;stepapi=0;notxn=0;shortnames=0;longnames=0;nocreat=0;nowchar=0;fksupport=1;oemcp=0;bigint=0;jdconv=0";
 
 void odbc_create_empty_table_test()
 {
