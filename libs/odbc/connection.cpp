@@ -12,6 +12,8 @@
 #include <sqlext.h>
 #include <malloc.h>
 
+#include <boost/thread/mutex.hpp>
+
 #include "litwindow/logging.h"
 #include "litwindow/check.hpp"
 #include "litwindow/odbc/connection.h"
@@ -83,8 +85,8 @@ namespace litwindow {
 		bool unknown_keyword=false;
 		const TCHAR *p;
 		const TCHAR *begin_keyword;
-		const TCHAR *end_keyword=NULL;
-		const TCHAR *begin_value=NULL;
+		const TCHAR *end_keyword=nullptr;
+		const TCHAR *begin_value=nullptr;
 		const TCHAR *end_value=nullptr;
 		p=begin_keyword=odbc_connection_string.c_str();
 		remaining_connection_string.clear();
@@ -125,7 +127,7 @@ namespace litwindow {
 						memcpy(the_keyword, begin_keyword, min(sizeof(the_keyword), (end_keyword-begin_keyword)*sizeof(*begin_keyword)));
 						use_facet<ctype<TCHAR> >(locale()).toupper(the_keyword, the_keyword+sizeof(the_keyword)/sizeof(*the_keyword));
 						tstring k(the_keyword, end_keyword-begin_keyword);
-						tstring *assign_value=0;
+						tstring *assign_value=nullptr;
 						if (k==_T("DSN"))
 							assign_value=&dsn;
 						else if (k==_T("UID"))
@@ -167,45 +169,63 @@ namespace litwindow {
 		class pool:public connection::pool_imp_base
 		{
 		protected:
-			typedef connection::shared_ptr entry;
-			typedef vector<pair<tstring, entry> > entries_t;
+			using entry = connection::shared_ptr;
+			using entries_t = vector<pair<tstring, entry> >;
 			entries_t m_entries;
+			using mutex = boost::mutex;
+			using scoped_lock = mutex::scoped_lock;
+			mutex m_lock;
 		public:
-
-			connection::shared_ptr get(const tstring &name)
+			connection::shared_ptr open(const tstring &name = tstring()) override
 			{
-				entry &e=find_entry(name);
+				scoped_lock l(m_lock);
+				connection::shared_ptr rc = do_find_entry(name);
+				if (!rc->is_open())
+					rc->open();
+				return rc;
+			}
+
+			connection::shared_ptr get(const tstring &name) override
+			{
+				entry e=find_entry(name);
 				return e;
 			}
-			void set(const tstring &dsn, const tstring &uid, const tstring &pwd, const tstring &name)
+			void set(const tstring &dsn, const tstring &uid, const tstring &pwd, const tstring &name) override
 			{
 				set(_T("DSN=")+dsn+_T(";UID=")+uid+_T(";PWD=")+pwd, name);
 			}
-			void set(const tstring &connection_string, const tstring &name)
+			void set(const tstring &connection_string, const tstring &name) override
 			{
-				entry &e=find_entry(name);
+				entry e=find_entry(name);
 				e->set_connection_string(connection_string);
 			}
-			void put(const tstring &name, connection::shared_ptr connection)
+			void put(const tstring &name, connection::shared_ptr connection) override
 			{
-				entry &e=find_entry(name);
+				entry e=find_entry(name);
 				e=connection;
 			}
-			entry &find_entry(const tstring &name)
+			entry find_entry(const tstring &name)
+			{
+				scoped_lock l(m_lock);
+				return do_find_entry(name);
+			}
+
+			entry do_find_entry(const tstring &name)
 			{
 				entries_t::iterator i;
 				for (i=m_entries.begin(); i!=m_entries.end() && i->first!=name; ++i)
 					;
 				if (i==m_entries.end()) {
-					m_entries.push_back(make_pair(name, entry()));
+					m_entries.emplace_back(name, entry());
 					i=m_entries.end()-1;
 				}
-				if (i->second.get()==0)
+				if (i->second.get()==nullptr)
 					i->second.reset(new connection);
 				return i->second;
 			}
-			void close_all()
+			void close_all() override
 			{
+				scoped_lock l(m_lock);
 				entries_t::iterator i;
 				for (i=m_entries.begin(); i!=m_entries.end(); ++i) {
 					i->second.reset();
@@ -352,7 +372,7 @@ namespace litwindow {
 
 	const sqlreturn &connection::free_handle()
 	{
-		m_last_error.set_handles(0, 0);
+		m_last_error.set_handles(0, nullptr);
 		SQLHANDLE h=handle();
 		m_handle=SQL_NULL_HANDLE;
 		return m_last_error=SQLFreeHandle(SQL_HANDLE_DBC, h);
@@ -420,7 +440,7 @@ namespace litwindow {
 	{
 		if (is_open())
 			return m_last_error=SQL_SUCCESS;
-		if (hwnd!=0 && completion==SQL_DRIVER_NOPROMPT)
+		if (hwnd!=nullptr && completion==SQL_DRIVER_NOPROMPT)
 			completion=SQL_DRIVER_COMPLETE;
 		if (is_open_via_SQLConnect() && completion==SQL_DRIVER_NOPROMPT) {
 			// SQLConnect was defined before 'const' came around. Thus it has SQLTCHAR* as parameters instead of
@@ -528,8 +548,8 @@ namespace litwindow {
 #endif
 		// Copy macros from dbms to connection
 		const dbms_base *const_dbms = m_dbms.get();
-		for (map<tstring, tstring>::const_iterator it = const_dbms->macros().begin(); it != const_dbms->macros().end(); ++it)
-			set_macro_value(L"$$" + (*it).first, (*it).second);
+		for (const auto & it : const_dbms->macros())
+			set_macro_value(L"$$" + it.first, it.second);
 
 		return m_last_error;
 	}
@@ -617,7 +637,7 @@ namespace litwindow {
 
 	sqlreturn connection::get_attribute(SQLINTEGER attribute, SQLUINTEGER &value)
 	{
-		m_last_error=SQLGetConnectAttr(handle(), attribute, &value, SQL_IS_UINTEGER, 0);
+		m_last_error=SQLGetConnectAttr(handle(), attribute, &value, SQL_IS_UINTEGER, nullptr);
 		return m_last_error;
 	}
 

@@ -69,12 +69,7 @@ public:
 		virtual void LWODBC_API set(const tstring &connection_string, const tstring &name=tstring()) = 0;
 		virtual void LWODBC_API put(const tstring &name, shared_ptr connection) = 0;
 		virtual void LWODBC_API close_all() = 0;
-		shared_ptr open(const tstring &name=tstring())
-		{
-			shared_ptr rc=get(name);
-			if (!rc->is_open()) rc->open();
-			return rc;
-		}
+		virtual shared_ptr open(const tstring &name = tstring()) = 0;
 	};
 
 	/// return the ODBC named connection pool
