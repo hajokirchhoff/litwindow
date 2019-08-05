@@ -271,6 +271,7 @@ public:
 	};
 	tstring get_dbms_name() { return m_dbms_name; }
 	dbversion get_odbc_version() { return m_dbms_odbc_ver; }
+	dbversion get_driver_version() { return m_dbms_driver_ver; }
 
 private:
 	size_t m_nested_transactions;
@@ -307,6 +308,7 @@ private:
 	tstring		m_dbms_name;
 	tstring		m_dbms_ver;
 	dbversion	m_dbms_odbc_ver;
+	dbversion	m_dbms_driver_ver;
 	SQLUINTEGER m_bookmark_persistence;
 	SQLUINTEGER m_scroll_concurrency;
 

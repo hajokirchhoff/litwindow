@@ -503,9 +503,11 @@ namespace litwindow {
 		get_info(SQL_DBMS_NAME, m_dbms_name).log_errors();
 		get_info(SQL_DBMS_VER, m_dbms_ver).log_errors();
 
-		std::wstring dbms_odbc_ver_string;
-		get_info(SQL_DRIVER_ODBC_VER, dbms_odbc_ver_string);
-		m_dbms_odbc_ver = dbms_odbc_ver_string;
+		std::wstring ver_string;
+		get_info(SQL_DRIVER_ODBC_VER, ver_string);
+		m_dbms_odbc_ver = ver_string;
+		get_info(SQL_DRIVER_VER, ver_string);
+		m_dbms_driver_ver = ver_string;
 
 		//if (m_dbms->get_dbms_name()!=m_dbms_name)
 		m_last_error=dbms_base::construct_from_dbms_name(m_dbms_name, m_dbms_ver, m_out_connection_string, m_dbms);
