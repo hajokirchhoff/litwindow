@@ -87,7 +87,7 @@ namespace {
 		}
 		void log_(sql_grammar_iterator_t first, sql_grammar_iterator_t last, const TCHAR *log_prefix)
 		{
-			lw_log() << log_prefix << tstring(first, last) << endl;
+			//lw_log() << log_prefix << tstring(first, last) << endl;
 		}
 	};
 };
