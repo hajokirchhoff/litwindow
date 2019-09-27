@@ -1144,6 +1144,10 @@ namespace litwindow {
 				{
 					return get().level(l);
 				}
+				events_type &operator && (const typename events_type::level_type::preset l)
+				{
+					return get().level(l);
+				}
 				events_type &operator &&(const typename events_type::topic_type &t)
 				{
 					return get().topic(t);
