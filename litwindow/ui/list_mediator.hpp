@@ -62,7 +62,7 @@ namespace litwindow {
 			}
 			void push_sort(int new_column, const ColumnDescriptor &d, basic_columns_sort_index::sort_type_enum t=sort_automatic)
 			{
-				sort_columns_t::iterator i=find_if(m_sort_columns.begin(), m_sort_columns.end(), boost::bind(&sort_column::m_column_index, _1)==new_column);
+				typename sort_columns_t::iterator i=find_if(m_sort_columns.begin(), m_sort_columns.end(), boost::bind(&sort_column::m_column_index, _1)==new_column);
 				bool sortascending;
 				if (i==m_sort_columns.end()) {
 					sortascending= t!=basic_columns_sort_index::sort_descending;
@@ -82,7 +82,7 @@ namespace litwindow {
 			std::vector<basic_columns_sort_index> get_sort_columns() const
 			{
 				std::vector<basic_columns_sort_index> rc;
-				for (sort_columns_t::const_iterator i=m_sort_columns.begin(); i!=m_sort_columns.end(); ++i) 
+				for (typename sort_columns_t::const_iterator i=m_sort_columns.begin(); i!=m_sort_columns.end(); ++i) 
 				{
 					rc.push_back(basic_columns_sort_index(i->m_column_index, i->m_sort_ascending));
 				}
@@ -90,7 +90,7 @@ namespace litwindow {
 			}
 			bool compare(const value_type &left, const value_type &right) const
 			{
-				sort_columns_t::const_iterator i=m_sort_columns.begin();
+				typename sort_columns_t::const_iterator i=m_sort_columns.begin();
 				while (i!=m_sort_columns.end() && i->is_valid()) {
 					const sort_columns_t::value_type &current(*i);
 					const value_type *l, *r;
@@ -186,8 +186,8 @@ namespace litwindow {
 			void refresh_handles(container_type &c) const
 			{
 				m_handles.resize(c.size());
-				sorted_handles_t::iterator n=m_handles.begin();
-				for (container_type::iterator i=c.begin(); i!=c.end(); ++i) {
+				typename sorted_handles_t::iterator n=m_handles.begin();
+				for (typename container_type::iterator i=c.begin(); i!=c.end(); ++i) {
 					*n++=i;
 				}
 				if (m_sort_fnc)
@@ -292,7 +292,6 @@ namespace litwindow {
 			typedef stl_container_policies<std::list<Value> > Inherited;
 		public:
 		};
-
 		
 		//------------------------------------------------------------------------------------------------------------------------------------
 		
@@ -307,7 +306,7 @@ namespace litwindow {
 			typedef typename UIControlPolicies::uicontrol_type uicontrol_type;
 
 			typedef typename ContainerPolicies::const_iterator const_iterator;
-			typedef typename ContainerPolicies::iterator iterator;
+			//typedef typename ContainerPolicies::iterator iterator;
 
 			enum sort_type_enum
 			{

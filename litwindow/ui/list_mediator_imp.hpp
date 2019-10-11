@@ -92,7 +92,7 @@ template <typename Container, typename UIControl, typename ContainerPolicies/*=c
 typename litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UIControlPolicies>::value_type & litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UIControlPolicies>::get_selected_item()
 {
 	if (has_selection()==false) {
-		throw runtime_error("no item selected");
+		throw std::runtime_error("no item selected");
 	}
 	return value_at(get_selection_index());
 }
@@ -101,7 +101,7 @@ template <typename Container, typename UIControl, typename ContainerPolicies/*=c
 const typename litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UIControlPolicies>::value_type & litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UIControlPolicies>::get_selected_item() const
 {
 	if (has_selection()==false) {
-		throw runtime_error("no item selected");
+		throw std::runtime_error("no item selected");
 	}
 	return value_at(get_selection_index());
 }

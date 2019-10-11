@@ -155,7 +155,7 @@ void sqlreturn::append_diag(const sqldiag &r)
 //-----------------------------------------------------------------------------------------------------------//
 
 
-bool sql_diagnostic_records::is_state(TCHAR state[5]) const
+bool LWODBC_API sql_diagnostic_records::is_state(const TCHAR state[5]) const
 {
 	if (m_records.size()==0)
 		return false;				// no state at all

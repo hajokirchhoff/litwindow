@@ -168,6 +168,7 @@
     <ClInclude Include="..\..\litwindow\ui\edit_mediator.hpp" />
     <ClInclude Include="..\..\litwindow\ui\list_mediator.hpp" />
     <ClInclude Include="..\..\litwindow\ui\list_mediator_imp.hpp" />
+    <ClInclude Include="..\..\litwindow\ui\odbc_list_mediator.hpp" />
     <ClInclude Include="..\..\litwindow\wx\action_objects.h" />
     <ClInclude Include="..\..\litwindow\wx\basic_list_mediator.hpp" />
     <ClInclude Include="..\..\litwindow\wx\dynamic_menu.h" />

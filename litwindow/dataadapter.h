@@ -1668,7 +1668,7 @@ namespace litwindow {
     template <typename AggregateType, typename ValueType>
     ValueType get_value(AggregateType &ag, const char *member_name)
     {
-        dynamic_cast_accessor<ValueType>(make_const_aggregate()[member_name]).get<ValueType>();
+        dynamic_cast_accessor<ValueType>(make_const_aggregate(ag)[member_name]).get<ValueType>();
     }
 
 	/** converter class calling external (non-member) functions to get or set a value. */

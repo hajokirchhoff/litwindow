@@ -81,11 +81,10 @@ BOOST_AUTO_TEST_CASE(columns_descriptor_test)
 	//te(&TestDataAccess);
 	typedef basic_columns_adapter<basic_column_descriptor<TestData> > bca_t;
 	bca_t d;
-	d.add
-		(L"integer",	10,		&TestData::integer)	// ptr to member
-		(L"calc",		20,		&TestData::calc)	// ptr to member_function with overload
-		(L"calc2",		100,	&TestData::calc2)	// ptr to member without overload
-		(L"TestDataAccess",	200,	&TestDataAccess)	// ptr to free function
+	d.add(L"integer", 10, &TestData::integer);	// ptr to member
+	d.add(L"calc", 20, &TestData::calc);			// ptr to member_function with overload
+	d.add(L"calc2", 100, &TestData::calc2);	// ptr to member without overload
+	d.add(L"TestDataAccess",	200,	&TestDataAccess)	// ptr to free function
 		;
 	d.add
 		(L"bind",		100,	boost::bind(&TestDataAccess, _1, 9)) // bind
