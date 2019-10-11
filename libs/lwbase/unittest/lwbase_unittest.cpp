@@ -6,7 +6,6 @@
 #include "boost/thread/thread.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/smart_ptr/make_shared_object.hpp"
-#include "boost/scope_exit.hpp"
 #include "boost/atomic/atomic.hpp"
 
 #define new DEBUG_NEW
@@ -177,10 +176,10 @@ void simple_memory_sink_test(const _Elem *prefix1, const _Elem *prefix2)
 		}
 	}
 	{
-		basic_memory_logsink<_Elem, 1024>::const_iterator i=sink.begin();
+		typename basic_memory_logsink<_Elem, 1024>::const_iterator i=sink.begin();
 		size_t count=1;
 		while (i!=sink.end() && count<first_count) {
-			const basic_memory_logsink<_Elem, 1024>::entry &current(*i);
+			const typename basic_memory_logsink<_Elem, 1024>::entry &current(*i);
 			basic_ostringstream<_Elem> str;
 			str << prefix1 << count;
 			BOOST_CHECK(str.str()==current.str());

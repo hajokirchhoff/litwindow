@@ -117,6 +117,7 @@ $(TargetPath)</Command>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\..;..\..\..\..\boost</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -165,6 +166,7 @@ $(TargetPath)</Command>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\..;..\..\..\..\boost</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
