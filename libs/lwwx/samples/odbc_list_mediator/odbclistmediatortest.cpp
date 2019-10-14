@@ -93,15 +93,11 @@ bool ODBClistmediatortest::Create( wxWindow* parent, wxWindowID id, const wxStri
 	m_static_mediator.refresh();
 
 
-	odbc_mediator::columns_type::column_descriptor_type::text_renderer_type fnc;
-	ui::odbc_column c("one");
-	//fnc = boost::bind(&ui::odbc_column::operator(), c, _1, _2);
-
-	odbc_mediator::columns_type::column_descriptor_type ca(L"one", 10, c);
-	odbc_mediator::columns_type cols;
-	cols.columns() = { ca };
 	m_odbc_mediator.columns() = {
-		ca
+		{L"id", 30, ui::odbc_column("id") },
+		{ L"one", 100, ui::odbc_column("one") },
+		{ L"two", 100, ui::odbc_column("two") },
+		{ L"three", 100, ui::odbc_column("three") },
 	};
 	m_odbc_mediator.set(m_odbc_list).set(m_odbc_container);
 	m_odbc_mediator.refresh();
@@ -224,12 +220,5 @@ void ODBClistmediatortest::OnSqlExecuteClick( wxCommandEvent& event )
 	m_odbc_container.set_connection(*odbc::default_connection());
 	rc = m_odbc_container.set_statement(m_sql_statement->GetValue().ToStdWstring());
 	rc = m_odbc_container.execute();
-	SQLLEN rowcount;
-	rc = m_odbc_container.get_row_count(rowcount);
-	int count = 0;
-	while (m_odbc_container.fetch()) {
-		++count;
-	}
-	rc = m_odbc_container.get_row_count(rowcount);
 }
 

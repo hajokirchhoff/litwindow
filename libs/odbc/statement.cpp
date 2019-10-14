@@ -303,21 +303,22 @@ bool statement::is_scrollable()
 const sqlreturn &statement::get_data_as_string(SQLUSMALLINT col, tstring &rc, SQLLEN *len_ind_p/* =0 */)
 {
 	rc.clear();
-	SQLLEN len;
-	TCHAR *buffer=0;
-	if (get_data(col, SQL_C_TCHAR, buffer, 0, &len).fail()) {
+	rc.resize(20);
+	SQLLEN len = rc.size();
+	TCHAR* buffer = const_cast<TCHAR*>(rc.data());
+	if (get_data(col, SQL_C_TCHAR, buffer, rc.size(), &len).fail()) {
 		return m_last_error;
 	}
 	if (len_ind_p)
 		*len_ind_p=len;
 	if (len!=SQL_NULL_DATA) {
-		if (len>=0x10000) {
-			lw_err() << _("E92001: column length too large for get_data_as_string - truncated at 0x10000") << endl;
-			len=0x10000;
+		if (len > rc.size()) {
+			rc.resize(len);
+			if (get_data(col, SQL_C_TCHAR, const_cast<TCHAR*>(rc.data()), len, len_ind_p))
+				;
 		}
-		buffer=(TCHAR*)_alloca(len*sizeof(TCHAR));
-		if (get_data(col, SQL_C_TCHAR, buffer, len, len_ind_p))
-			rc=tstring(buffer, len);
+		else
+			rc.resize(wcslen(const_cast<TCHAR*>(rc.data())));
 	}
 	return m_last_error;
 }

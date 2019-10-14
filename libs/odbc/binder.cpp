@@ -688,7 +688,8 @@ namespace {
 	static register_data_type<unsigned long> tulong(SQL_C_ULONG, SQL_INTEGER);
 	static register_data_type<unsigned int>tuint(SQL_C_ULONG, SQL_INTEGER);
 	static register_data_type<unsigned short> tushort(SQL_C_USHORT, SQL_INTEGER);
-
+	static register_data_type<long long> tlonglong(SQL_C_SBIGINT, SQL_BIGINT);
+	static register_data_type<unsigned long long> tulonglong(SQL_C_UBIGINT, SQL_BIGINT);
 #define LWODBC_SQL_C_BOOL SQL_C_CHAR
 	static register_data_type<bool> tbool(/*LWODBC_SQL_C_BOOL*/SQL_C_BIT, SQL_CHAR);
 	static register_data_type<char> tchar(SQL_C_CHAR, SQL_VARCHAR, 0);

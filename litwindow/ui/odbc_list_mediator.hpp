@@ -5,7 +5,10 @@
 
 namespace litwindow { namespace ui {
 
-	struct odbc_record {};
+	struct odbc_record
+	{
+		odbc::statement& stmt;
+	};
 
 	struct odbc_iterator {};
 
@@ -35,6 +38,8 @@ namespace litwindow { namespace ui {
 		{
 // 			const handle_type& h(get_row(row));
 			ui_string rcstring;
+			auto rc = c.fetch_absolute(row + 1);
+			columns.render_element_at(column, rcstring, odbc_record{ c });
 //			bool rc = columns.render_element_at(column, rcstring, handle_to_value(h));
 			return rcstring;
 		}
@@ -54,10 +59,14 @@ namespace litwindow { namespace ui {
 		}
 		size_t size(container_type& c) const
 		{
-			SQLLEN rcount;
-			c.get_row_count(rcount);
-			if (rcount == -1)
-				rcount = 0;
+			SQLLEN rcount = 0;
+			if (c.is_open()) {
+				std::wstring stmt = L"SELECT COUNT(*) FROM (" + c.get_statement() + L")";
+				odbc::statement count(stmt, c.get_connection());
+				count.bind_column(1, rcount);
+				auto rc = count.execute();
+				auto rc2 = count.fetch();
+			}
 			return rcount;
 		}
 	};
@@ -76,15 +85,14 @@ namespace litwindow { namespace ui {
 	struct odbc_column
 	{
 		odbc_column(const std::string& colname) :m_colname(colname) {}
-		void render(const odbc_record &record, std::wstring &rc)
-		{
-			rc.clear();
-		}
 		void operator()(const odbc_record& record, std::wstring& rc)
 		{
-			rc.clear();
+			if (m_colno < 0)
+				m_colno = record.stmt.find_column(litwindow::s2tstring(m_colname));
+			record.stmt.get_data_as_string(m_colno, rc);
 		}
 		std::string m_colname;
+		int m_colno = -1;
 	};
 }
 }
