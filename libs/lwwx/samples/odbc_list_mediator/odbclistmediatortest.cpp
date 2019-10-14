@@ -96,8 +96,13 @@ bool ODBClistmediatortest::Create( wxWindow* parent, wxWindowID id, const wxStri
 	odbc_mediator::columns_type::column_descriptor_type::text_renderer_type fnc;
 	ui::odbc_column c("one");
 	//fnc = boost::bind(&ui::odbc_column::operator(), c, _1, _2);
-	m_odbc_mediator.columns().add(L"one", 100, c);
-	m_odbc_mediator.columns().add(L"two", 100, c);
+
+	odbc_mediator::columns_type::column_descriptor_type ca(L"one", 10, c);
+	odbc_mediator::columns_type cols;
+	cols.columns() = { ca };
+	m_odbc_mediator.columns() = {
+		ca
+	};
 	m_odbc_mediator.set(m_odbc_list).set(m_odbc_container);
 	m_odbc_mediator.refresh();
 

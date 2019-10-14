@@ -114,13 +114,11 @@ public:
 	};
 	using test_container=std::vector<three_columns>;
 
-	using odbc_container = odbc::statement;
-
 	litwindow::wx::list_mediator<test_container, VirtualListCtrl> m_static_mediator;
-	using odbc_mediator = litwindow::wx::list_mediator<odbc_container, VirtualListCtrl>;
+	using odbc_mediator = litwindow::wx::list_mediator<ui::odbc_container, VirtualListCtrl>;
 	odbc_mediator m_odbc_mediator;
 	test_container m_static_container;
-	odbc_container m_odbc_container;
+	ui::odbc_container m_odbc_container;
 };
 
 #endif

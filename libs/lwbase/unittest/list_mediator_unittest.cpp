@@ -75,11 +75,39 @@ void DataFormatter(int i, wstring &r)
 	r=lexical_cast<wstring>(i*3);
 }
 
+BOOST_AUTO_TEST_CASE(columns_descriptor_test_new)
+{
+	struct functor_object
+	{
+		functor_object(const char* name):m_name(name) {}
+		void operator()(const TestData& d, wstring& rc) {}
+		std::string m_name;
+	};
+	using bca_t = basic_columns_adapter<basic_column_descriptor<TestData> >;
+	bca_t cols;
+	cols.columns().emplace_back(L"end", 10);
+	cols.columns().emplace_back(L"integer", -1, &TestData::integer);
+
+	boost::function<void(const TestData&, tstring&)> fn = functor_object("hallo");
+
+	basic_column_descriptor<TestData> test_functor(L"testfunctor", 30, functor_object("hallo"));
+	cols.columns() =
+	{
+	{L"integer", -1, &TestData::integer},
+	{L"calc", 20, &TestData::calc},
+	{L"calc2", 22, &TestData::calc2},
+	{L"functor", 30, functor_object("hallo")},
+	{L"freeFunction", 40, &TestDataAccess},
+	{L"bind", 99, boost::bind(&TestDataAccess, _1, 9)},
+	{L"free-renderer", 50, &TestDataAccess_renderer}
+	};
+}
+
 BOOST_AUTO_TEST_CASE(columns_descriptor_test)
 {
 	//te(bind(&TestDataAccess_renderer, _1, _2));
 	//te(&TestDataAccess);
-	typedef basic_columns_adapter<basic_column_descriptor<TestData> > bca_t;
+	using bca_t = basic_columns_adapter<basic_column_descriptor<TestData> >;
 	bca_t d;
 	d.add(L"integer", 10, &TestData::integer);	// ptr to member
 	d.add(L"calc", 20, &TestData::calc);			// ptr to member_function with overload

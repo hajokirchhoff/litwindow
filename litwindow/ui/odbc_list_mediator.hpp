@@ -62,9 +62,15 @@ namespace litwindow { namespace ui {
 		}
 	};
 
+	using odbc_container = litwindow::odbc::statement;
+
 	template <>
-	class container_policies<litwindow::odbc::statement> :public odbc_container_policies
+	class container_policies<odbc_container> :public odbc_container_policies
 	{
+	public:
+		using odbc_record = value_type;
+		using column_descriptor = basic_column_descriptor<value_type>;
+		using columns_type = basic_columns_adapter<column_descriptor>;
 	};
 
 	struct odbc_column
@@ -74,7 +80,7 @@ namespace litwindow { namespace ui {
 		{
 			rc.clear();
 		}
-		void operator()(const odbc_record& record, std::wstring& rc) const
+		void operator()(const odbc_record& record, std::wstring& rc)
 		{
 			rc.clear();
 		}
