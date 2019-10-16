@@ -38,7 +38,7 @@ namespace litwindow { namespace ui {
 		{
 // 			const handle_type& h(get_row(row));
 			ui_string rcstring;
-			auto rc = c.fetch_absolute(row + 1);
+			auto rc = c.fetch_absolute(static_cast<SQLINTEGER>(row) + 1);
 			columns.render_element_at(column, rcstring, odbc_record{ c });
 //			bool rc = columns.render_element_at(column, rcstring, handle_to_value(h));
 			return rcstring;
@@ -61,7 +61,7 @@ namespace litwindow { namespace ui {
 		{
 			SQLLEN rcount = 0;
 			if (c.is_open()) {
-				std::wstring stmt = L"SELECT COUNT(*) FROM (" + c.get_statement() + L")";
+				std::wstring stmt = L"SELECT COUNT(*) FROM (" + c.get_statement() + L") AS total";
 				odbc::statement count(stmt, c.get_connection());
 				count.bind_column(1, rcount);
 				auto rc = count.execute();
