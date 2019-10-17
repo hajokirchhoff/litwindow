@@ -54,6 +54,15 @@ namespace {
 			tstring value=m_connection.get_dbms()->get_macro_value(tstring(first, last));
 			m_current_statement.append(value);
 		}
+		void macro_fnc(sql_grammar_iterator_t first, sql_grammar_iterator_t last)
+		{
+			auto split = first;
+			while (*split != ' ' && split!=last)
+				++split;
+			auto name_end = split++;
+			tstring value = m_connection.get_dbms()->get_macro_value(tstring(first, name_end), tstring(split, last));
+			m_current_statement.append(value);
+		}
 		void out(sql_grammar_iterator_t first, sql_grammar_iterator_t last)
 		{
 			m_current_statement.append(first, last);
@@ -138,11 +147,14 @@ struct script_grammar:public grammar<script_grammar<Actions> >,boost::noncopyabl
 				|   confix_p(str_p("/*"), *anychar_p, str_p("*/"));
 
 			macro_name
-				=   identifier[boost::bind(&Actions::macro, &actions, _1, _2)];
+				= identifier[boost::bind(&Actions::macro, &actions, _1, _2)];
+
+			macro_function
+				= (identifier >> skip_p >> *(~ch_p(')')))[boost::bind(&Actions::macro_fnc, &actions, _1, _2)];
 
 			macro 
 				=   ( str_p(_T("$$")) >> macro_name )
-				|   confix_p(str_p(_T("$(")), macro_name, ch_p(_T(')')));
+				|   confix_p(str_p(_T("$(")), (macro_function | macro_name), ch_p(_T(')')));
 
 			statement_separator
 				=   ch_p(_T(';')) 
@@ -219,7 +231,7 @@ struct script_grammar:public grammar<script_grammar<Actions> >,boost::noncopyabl
 		}
 		rule<ScannerT> const &start() const { return script; }
 		rule<ScannerT>  script, tokens, statement, string_literal, identifier, unquoted_identifier, quoted_identifier, macro,
-			statement_separator, comment, token, skip_p, macro_name, string_character, odbc_escape, odbc_escape_type, odbc_escape_body, number,
+			statement_separator, comment, token, skip_p, macro_name, macro_function, string_character, odbc_escape, odbc_escape_type, odbc_escape_body, number,
 			operator_token, uinteger, ureal, repeat_until_sequence, repeat_value_marker, unknown_token;
 	};
 

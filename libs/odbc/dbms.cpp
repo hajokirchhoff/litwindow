@@ -19,6 +19,10 @@
 #include "litwindow/odbc/catalog.h"
 #include <boost/format.hpp>
 #include "litwindow/odbc/dbms_ms_access.h"
+#include "boost/uuid/string_generator.hpp"
+#include "boost/uuid/uuid_io.hpp"
+#include "boost/lexical_cast.hpp"
+#include "litwindow/tstring.hpp"
 
 using boost::str;
 using boost::basic_format;
@@ -127,6 +131,13 @@ namespace litwindow {
 			macros()[_T("BOOLEAN")]=_T("bit");
 			macros()[_T("TRUE")]=_T("1");
 			macros()[_T("FALSE")]=_T("0");
+			macro_fncs()[_T("UUID")] = [](const tstring &parameters) {
+				boost::uuids::string_generator strgen;
+				bool remove_quotes = parameters.size() > 2 && parameters.front() == _T('\'') && parameters.back() == _T('\'');
+				auto uuid_val = strgen(remove_quotes ? parameters.substr(1, 36) : parameters);
+				tstring rc = _T("{guid '") + boost::lexical_cast<tstring>(uuid_val) + _T("'}");
+				return rc;
+			};
 		}
 
 		dbms_base::~dbms_base(void)
@@ -227,6 +238,12 @@ namespace litwindow {
 			return i==m_macros.end() ? macro_name : i->second;
 		}
 
+		tstring dbms_base::get_macro_value(const tstring &macro_name, const tstring &macro_parameters) const
+		{
+			auto i = m_macro_fncs.find(macro_name);
+			return i == m_macro_fncs.end() ? macro_name : i->second(macro_parameters);
+		}
+
 		dbms_sql_server::dbms_sql_server(const tstring &odbcConnection)
 			:dbms_generic(odbcConnection) 
 		{
@@ -266,6 +283,15 @@ namespace litwindow {
 			macros()[_T("FALSE")]=_T("FALSE");
 			macros()[_T("DATETIME")]=_T("TIMESTAMP");
 			macros()[_T("UUID")]=_T("uuid");
+
+			macro_fncs()[_T("UUID")] = [](const tstring &parameters) {
+				boost::uuids::string_generator strgen;
+				bool remove_quotes = parameters.size() > 2 && parameters.front() == _T('\'') && parameters.back() == _T('\'');
+				auto uuid_val = strgen(remove_quotes ? parameters.substr(1, 36) : parameters);
+				tstring rc = _T("uuid '") + boost::lexical_cast<tstring>(uuid_val) + _T("'");
+				return rc;
+			};
+
 		}
 		bool dbms_postgres::has_capability(capabilities c) const
 		{
@@ -300,6 +326,21 @@ namespace litwindow {
 			:dbms_generic(odbcConnection)
 		{
 			macros()[_T("UUID")] = _T("BLOB");
+			macro_fncs()[_T("UUID")] = [](const tstring &parameters) {
+				boost::uuids::string_generator strgen;
+				bool remove_quotes = parameters.size() > 2 && parameters.front() == _T('\'') && parameters.back() == _T('\'');
+				auto uuid_val = strgen(remove_quotes ? parameters.substr(1, 36) : parameters);
+				static const _TCHAR hex_[] = _T("0123456789ABCDEF");
+				tstring rc(_T('#'), 35);
+				rc[0] = _T('X'); rc[1] = _T('\''); rc.back() = rc[1];
+				for (int idx = 0; idx <= 15; ++idx) {
+					int idx0 = uuid_val.data[idx] & 0xf;
+					int idx1 = (uuid_val.data[idx] >> 4) & 0xf;
+					rc[2 + idx * 2] = hex_[idx1];
+					rc[3 + idx * 2] = hex_[idx0];
+				}
+				return rc;
+			};
 		}
 
 		//-----------------------------------------------------------------------------------------------------------//

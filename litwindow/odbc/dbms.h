@@ -17,6 +17,7 @@
 #include <litwindow/dataadapter.h>
 #include <map>
 #include <boost/smart_ptr.hpp>
+#include <boost/function.hpp>
 #include <map>
 #pragma warning(push, 4)
 
@@ -129,6 +130,7 @@ namespace litwindow {
 			virtual tstring get_database_name() const = 0;
 
 			virtual tstring get_macro_value(const tstring &macro_name) const;
+			virtual tstring get_macro_value(const tstring &macro_name, const tstring &macro_parameters) const;
 
 			/// query the capabilities of the dbms
 			virtual bool has_capability(capabilities c) const = 0;
@@ -158,15 +160,22 @@ namespace litwindow {
 				}
 			};
 
+			///! allow for idiosyncrasies of the specific odbc driver in the way it wants uuids bound to columns.
+			///! the public postgresql odbc driver up to version 11.0 does not handle UUIDs correctly.
+			virtual unsigned char get_uuid_variant(const unsigned char *uuid_data) const { return (uuid_data[8]&0xe0); }
+
+
 		protected:
 			static creator_t &get_dbms_register();
 			map<tstring, tstring> &macros() { return m_macros; }
+			map<tstring, boost::function<tstring(const tstring&)>> &macro_fncs() { return m_macro_fncs; }
 
 			tstring get_sql_column_name(const const_accessor &a) const;
 			tstring m_error_log;
 			bool_result call_SQLConfigDataSource(SQLHWND hwnd,  const tstring &command);
 			static tstring csvdelimiter();
 			map<tstring, tstring> m_macros;
+			map<tstring, boost::function<tstring(const tstring&)>> m_macro_fncs;
 		};
 
 		/** Generic DBMS strategy. Used if no other, more specific strategy is available. */
@@ -274,6 +283,13 @@ namespace litwindow {
 
 			sqlreturn create_group(connection *ds, const tstring &gid) override;
 			sqlreturn drop_group(connection *ds, const tstring &gid) override;
+
+			///! The public postgres odbc drivers up to version 11 do not handle RFC_422 UUIDs correctly.
+			///! They treat them as MS variant with the weird swapped byte order rather than storing them
+			///! as "network" byte order.
+			///! The binder queries this function to determine how it should bind the data.
+			///! Returning 0xc0 in any case here forces the binder to treat all uuids as MS variant.
+			unsigned char get_uuid_variant(const unsigned char * /*uuid_data*/) const override { return 0xc0; }
 		};
 
 		/** SQLite strategy */

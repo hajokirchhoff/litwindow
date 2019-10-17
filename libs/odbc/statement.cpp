@@ -568,7 +568,7 @@ sqlreturn statement::do_bind_parameter( SQLUSMALLINT pposition, SQLSMALLINT in_o
 
 const sqlreturn &statement::put_columns() 
 {
-	return m_last_error=m_binder.do_put_columns();
+	return m_last_error=m_binder.do_put_columns(*this);
 }
 
 sqlreturn statement::fetch()

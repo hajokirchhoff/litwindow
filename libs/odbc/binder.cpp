@@ -364,14 +364,14 @@ sqlreturn binder::binder_lists::set_column_state(SQLUSMALLINT col, SQLLEN len_in
 	*m_index[col]->m_bind_info.m_len_ind_p=len_ind;
 	return sqlreturn(SQL_SUCCESS);
 }
-sqlreturn binder::binder_lists::put()
+sqlreturn binder::binder_lists::put(statement &stmt)
 {
 	sqlreturn rc;
 	size_t i;
 	for (i=0; i<m_elements.size() && rc; ++i) {
 		bind_task &b(m_elements[i]);
 		if (b.m_bind_info.m_helper) {
-			rc=b.m_bind_info.m_helper->put_data(b.m_bind_info);
+			rc=b.m_bind_info.m_helper->put_data(b.m_bind_info, stmt);
 		}
 	}
 	return rc;
@@ -566,7 +566,7 @@ SQLSMALLINT binder::find_column_by_target(const const_accessor &a) const
 
 sqlreturn binder::do_put_parameters(statement &s)
 {
-	return m_parameters.put();
+	return m_parameters.put(s);
 }
 sqlreturn binder::do_get_parameters(statement &s)
 {
@@ -718,18 +718,24 @@ namespace {
             } else {
                 boost::uint8_t guiddata[16];
                 boost::uint8_t *p=guiddata;
-                const boost::uint8_t *g=(const boost::uint8_t*)info.m_target_ptr;
-                *p++=g[3]; *p++=g[2]; *p++=g[1]; *p++=g[0];
-                *p++=g[5]; *p++=g[4];
-                *p++=g[7]; *p++=g[6];
-                memcpy(p, g+8, 8);
+				const boost::uint8_t *g = (const boost::uint8_t*)info.m_target_ptr;
+				auto uuid_variant = s.get_connection().get_dbms()->get_uuid_variant(g);
+				if (uuid_variant == 0xc0) { // This is the microsoft variant
+					*p++ = g[3]; *p++ = g[2]; *p++ = g[1]; *p++ = g[0];
+					*p++ = g[5]; *p++ = g[4];
+					*p++ = g[7]; *p++ = g[6];
+					memcpy(p, g + 8, 8);
+				}
+				else {
+					memcpy(p, g, 16);
+				}
                 uuid temp;
                 std::copy(guiddata+0, guiddata+16, temp.begin());
                 a.set(temp);
             }
             return sqlreturn(SQL_SUCCESS);
         }
-        sqlreturn put_data(data_type_info &info) const
+        sqlreturn put_data(data_type_info &info, statement &s) const
         {
             if (info.m_len_ind_p==0 || (*info.m_len_ind_p!=SQL_NULL_DATA && *info.m_len_ind_p!=SQL_DEFAULT_PARAM)) {
                 typed_accessor<uuid> a=dynamic_cast_accessor<uuid>(info.m_accessor);
@@ -738,10 +744,16 @@ namespace {
                 uuid val(a.get());
                 uuid::iterator src=val.begin();
                 boost::uint8_t *dst=(boost::uint8_t*)info.m_target_ptr;
-                dst[3]=*src++; dst[2]=*src++; dst[1]=*src++; dst[0]=*src++;
-                dst[5]=*src++; dst[4]=*src++;
-                dst[7]=*src++; dst[6]=*src++;
-                memcpy(dst+8, src, 8);
+				auto uuid_variant = s.get_connection().get_dbms()->get_uuid_variant(src);
+				if (uuid_variant == 0xc0) { // This is the microsoft variant
+					dst[3] = *src++; dst[2] = *src++; dst[1] = *src++; dst[0] = *src++;
+					dst[5] = *src++; dst[4] = *src++;
+					dst[7] = *src++; dst[6] = *src++;
+					memcpy(dst + 8, src, 8);
+				}
+				else {
+					memcpy(dst, src, 16);
+				}
             }
             return sqlreturn(SQL_SUCCESS);
         }
@@ -793,7 +805,7 @@ struct string_bind_helper:public extended_bind_helper
 			a.set(tstring((const TCHAR*)info.m_target_ptr));
 		return sqlreturn(SQL_SUCCESS);
 	}
-	sqlreturn put_data(data_type_info &info) const
+	sqlreturn put_data(data_type_info &info, statement &) const
 	{
 		bool data_truncated=false;
 // 		if (info.m_len_ind_p)

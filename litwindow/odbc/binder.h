@@ -160,7 +160,7 @@ struct extended_bind_helper
 	/// get the data from the statement
 	virtual sqlreturn get_data(data_type_info &info, statement &s) const = 0;
 	/// copy data to the column buffer
-	virtual sqlreturn put_data(data_type_info &info) const = 0;
+	virtual sqlreturn put_data(data_type_info &info, statement &s) const = 0;
 	/// get the current length of the data
 	virtual SQLINTEGER get_length(data_type_info &info) const = 0;
 };
@@ -297,7 +297,7 @@ protected:
 
 	bool needs_put_columns() const throw() { return m_columns.m_needs_put; }
 	/// called before insert via SQLBulkOperations - copy the values of the bound column variables to the column buffer
-	sqlreturn do_put_columns() throw() { return m_columns.put(); }
+	sqlreturn do_put_columns(statement &s) throw() { return m_columns.put(s); }
 
 	void reset_column_bindings() { m_columns.reset(); }
 
@@ -356,7 +356,7 @@ protected:
 		binder_lists():m_needs_bind(false),m_needs_get(false),m_needs_put(false),m_version(0),m_use_cache(false) {}
 		sqlreturn prepare_binding(statement &s, bool bind_as_columns, size_t columns_to_expect=0) throw();
 		sqlreturn do_get_columns_or_parameters(statement &s, bool type_is_columns);
-		sqlreturn put() throw();
+		sqlreturn put(statement &stmt) throw();
 		size_t size() const { return m_elements.size(); }
 		sqlreturn set_column_state(SQLUSMALLINT col, SQLLEN len_ind) throw();
 
