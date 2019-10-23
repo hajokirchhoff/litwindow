@@ -303,19 +303,26 @@ bool statement::is_scrollable()
 const sqlreturn &statement::get_data_as_string(SQLUSMALLINT col, tstring &rc, SQLLEN *len_ind_p/* =0 */)
 {
 	rc.clear();
-	rc.resize(20);
-	SQLLEN len = rc.size();
+	rc.resize(30);
+	SQLLEN len = rc.size()*sizeof(TCHAR);
 	TCHAR* buffer = const_cast<TCHAR*>(rc.data());
-	if (get_data(col, SQL_C_TCHAR, buffer, rc.size(), &len).fail()) {
+	if (get_data(col, SQL_C_TCHAR, buffer, rc.size()*sizeof(TCHAR), &len).fail()) {
 		return m_last_error;
 	}
 	if (len_ind_p)
 		*len_ind_p=len;
 	if (len!=SQL_NULL_DATA) {
-		if (len > rc.size()) {
-			rc.resize(len);
-			if (get_data(col, SQL_C_TCHAR, const_cast<TCHAR*>(rc.data()), len, len_ind_p))
-				;
+		if (rc.back() == '\0')
+			rc.pop_back();
+		if (len > static_cast<SQLLEN>(rc.size()*sizeof(TCHAR))) {
+			size_t prev_size = rc.size();
+			rc.resize(len/sizeof(TCHAR)+1);
+			SQLLEN len2;
+			auto err_code = get_data(col, SQL_C_TCHAR, const_cast<TCHAR*>(rc.data() + prev_size), (rc.size() - prev_size) * sizeof(TCHAR), &len2);
+			if (len_ind_p)
+				*len_ind_p = len2;
+			if (rc.back() == '\0')
+				rc.pop_back();
 		}
 		else
 			rc.resize(wcslen(const_cast<TCHAR*>(rc.data())));

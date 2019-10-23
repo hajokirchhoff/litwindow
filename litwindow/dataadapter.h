@@ -915,12 +915,12 @@ namespace litwindow {
 
 	/// execute f() for each member of an aggregate including inherited members
 	template <class _A, class _F>
-	_F for_each_member(_A &a, _F f)
+	_F for_each_member(_A &a, _F &f)
 	{
 		typename _A::iterator_type i;
 		for (i=a.begin(); i!=a.end(); ++i) {
 			if (i->is_aggregate())
-				f=for_each_member(i->get_aggregate(), f);
+				for_each_member(i->get_aggregate(), f);
 			else
 				f(*i);
 		}

@@ -38,8 +38,10 @@ namespace litwindow { namespace ui {
 		{
 // 			const handle_type& h(get_row(row));
 			ui_string rcstring;
-			auto rc = c.fetch_absolute(static_cast<SQLINTEGER>(row) + 1);
-			columns.render_element_at(column, rcstring, odbc_record{ c });
+			if (columns.at(column).visible()) {
+				auto rc = c.fetch_absolute(static_cast<SQLINTEGER>(row) + 1);
+				columns.render_element_at(column, rcstring, odbc_record{ c });
+			}
 //			bool rc = columns.render_element_at(column, rcstring, handle_to_value(h));
 			return rcstring;
 		}
