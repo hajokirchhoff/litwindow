@@ -260,6 +260,13 @@ public:
 		return m_last_error=SQLGetData(handle(), col, c_type, buffer, buffer_length, len_ind_p);
 	}
 	const sqlreturn LWODBC_API &get_data_as_string(SQLUSMALLINT col, tstring &rc, SQLLEN *len_ind_p=0);
+
+	const sqlreturn LWODBC_API &get_data(SQLUSMALLINT col, const accessor &acc, SQLLEN *len_ind_p = nullptr);
+	template <typename Value>
+	const sqlreturn &get_data(SQLUSMALLINT col, Value &v, SQLLEN *len_ind_p = nullptr)
+	{
+		return get_data(col, make_accessor(v), len_ind_p);
+	}
 	///@name Setting cursor type and features
 	/// Use these methods to query and set the cursortype and features for the statement.
 	//@{

@@ -40,7 +40,15 @@ namespace litwindow { namespace ui {
 			ui_string rcstring;
 			if (columns.at(column).visible()) {
 				auto rc = c.fetch_absolute(static_cast<SQLINTEGER>(row) + 1);
-				columns.render_element_at(column, rcstring, odbc_record{ c });
+				if (rc.no_data()) {
+					return _T("nodata");
+				}
+				else if (rc.fail()) {
+					return _("error");
+				}
+				else {
+					columns.render_element_at(column, rcstring, odbc_record{ c });
+				}
 			}
 //			bool rc = columns.render_element_at(column, rcstring, handle_to_value(h));
 			return rcstring;
@@ -96,5 +104,28 @@ namespace litwindow { namespace ui {
 		std::string m_colname;
 		int m_colno = -1;
 	};
-}
-}
+
+
+	template <typename Value>
+	void render_as_string(const odbc_record &record, int colno, std::wstring &rc);
+
+	template <typename Value>
+	struct typed_odbc_column
+	{
+		typed_odbc_column(const std::string &colname) :m_colname(colname) {}
+		void operator()(const odbc_record &record, std::wstring &rc)
+		{
+			if (m_colno < 0)
+				m_colno = record.stmt.find_column(litwindow::s2tstring(m_colname));
+			render_as_string<Value>(record, m_colno, rc);
+		}
+		std::string m_colname;
+		int m_colno = -1;
+	};
+
+	template <typename Value>
+	typed_odbc_column<Value> odbc_type(const std::string &colname)
+	{
+		return typed_odbc_column<Value>(colname);
+	}
+} }

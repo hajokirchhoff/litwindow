@@ -330,6 +330,39 @@ const sqlreturn &statement::get_data_as_string(SQLUSMALLINT col, tstring &rc, SQ
 	return m_last_error;
 }
 
+const sqlreturn LWODBC_API & statement::get_data(SQLUSMALLINT col, const accessor &acc, SQLLEN *len_ind_p)
+{
+	bind_task bi;
+	sqlreturn rc = m_binder.get_bind_info(acc, bi.m_bind_info);
+	if (rc.ok()) {
+		bi.m_bind_info.m_len_ind_p = len_ind_p;
+		bi.m_in_out = out;
+		bi.m_by_position = col;
+		SQLULEN intermediate_buffer_size = 0;
+		std::vector<uint8_t> intermediate_buffer;
+
+		SQLPOINTER buffer;
+		SQLLEN buffer_length = 0;
+		if (bi.m_bind_info.m_helper) {
+				// this is an extended binder, prepare the intermediate buffer if neccessary
+			intermediate_buffer_size += bi.m_bind_info.m_helper->prepare_bind_buffer(bi.m_bind_info, *this, bindto);
+			intermediate_buffer.resize(intermediate_buffer_size);
+			buffer = intermediate_buffer.data();
+			buffer_length = intermediate_buffer_size;
+		}
+		else {
+			buffer = bi.m_bind_info.m_target_ptr;
+			buffer_length = bi.m_bind_info.m_target_size;
+		}
+		get_data(col, bi.m_bind_info.m_c_type, buffer, buffer_length, len_ind_p);
+		if (bi.m_bind_info.m_helper) {
+			rc = bi.m_bind_info.m_helper->get_data(bi.m_bind_info, *this);
+		}
+	}
+	m_last_error = rc;
+	return m_last_error;
+}
+
 sqlreturn statement::get_scroll_options(SQLUINTEGER &options) const
 {
 	return get_connection().get_info(SQL_SCROLL_OPTIONS, options);
