@@ -105,14 +105,30 @@ namespace litwindow { namespace ui {
 		int m_colno = -1;
 	};
 
+	template <typename Value>
+	struct typed_odbc_column
+	{
+		typed_odbc_column(const std::string &colname):m_colname(colname) {}
+		const Value &operator()(const odbc_record &record)
+		{
+			if (m_colno < 0)
+				m_colno = record.stmt.find_column(litwindow::s2tstring(m_colname));
+			record.stmt.get_data(m_colno, m_value);
+			return m_value;
+		}
+		std::string m_colname;
+		int m_colno = -1;
+		Value m_value;
+	};
+
 
 	template <typename Value>
 	void render_as_string(const odbc_record &record, int colno, std::wstring &rc);
 
 	template <typename Value>
-	struct typed_odbc_column
+	struct typed_odbc_column_formatter
 	{
-		typed_odbc_column(const std::string &colname) :m_colname(colname) {}
+		typed_odbc_column_formatter(const std::string &colname) :m_colname(colname) {}
 		void operator()(const odbc_record &record, std::wstring &rc)
 		{
 			if (m_colno < 0)
@@ -124,8 +140,8 @@ namespace litwindow { namespace ui {
 	};
 
 	template <typename Value>
-	typed_odbc_column<Value> odbc_type(const std::string &colname)
+	typed_odbc_column_formatter<Value> odbc_type(const std::string &colname)
 	{
-		return typed_odbc_column<Value>(colname);
+		return typed_odbc_column_formatter<Value>(colname);
 	}
 } }

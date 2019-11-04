@@ -31,7 +31,6 @@
 #endif
 #endif
 
-#include <boost/typeof/typeof.hpp>
 #include <iterator>
 
 //#pragma optimize("ty", on)
@@ -96,30 +95,77 @@ namespace litwindow {
 			image_index_renderer_type m_image_index_renderer;
 			comparator_type m_comparator;
 
-			basic_column_descriptor(const tstring &title, int width=-1, text_renderer_type v=text_renderer_type())
-                :basic_column_label(title, width, true, false), m_text_renderer(v), m_image_index_renderer(0)
-            {}
-
+			basic_column_descriptor(const tstring &title, int width)
+				:basic_column_label(title, width)
+			{}
+/*
 			template <typename Accessor, typename Formatter>
-			basic_column_descriptor(const tstring& title, int width, const Accessor& acc, const Formatter& fmt)
+			basic_column_descriptor(const tstring& title, int width, boost::function<Accessor(const Value&)> acc, const Formatter& fmt)
 				: basic_column_descriptor(title, width)
 			{
 				m_text_renderer = boost::bind(fmt, boost::bind(acc, _1), _2);
 				m_comparator = boost::bind(acc, _1) < boost::bind(acc, _2);
 			}
-			template <typename Val>
-			basic_column_descriptor(const tstring& title, int width, Val(Value::* memptr))
+*/
+/*
+			template <typename Accessor>
+			basic_column_descriptor(const tstring &title, int width, Accessor acc)
 				: basic_column_descriptor(title, width)
 			{
-				m_text_renderer = boost::bind(&to_string<Val>, boost::bind(memptr, _1), _2);
-				m_comparator = boost::bind(memptr, _1) < boost::bind(memptr, _2);
+				using ColType = typename std::result_of<Accessor(value_type)>::type;
+				m_text_renderer = boost::bind(&to_string<ColType>, acc, _1);
 			}
-			template <typename Val>
-			basic_column_descriptor(const tstring& title, int width, Val(Value::* memfunptr)()const)
-				: basic_column_descriptor(title, width, memfunptr, &to_string<Val>){}
-			template <typename Val>
-			basic_column_descriptor(const tstring& title, int width, Val(*fnc)(const Value&))
-				: basic_column_descriptor(title, width, fnc, &to_string<Val>) {}
+*/
+
+			///! Constructor for accessor functor
+			template <typename Accessor, typename ValueType = value_type, typename ColumnType = std::result_of<Accessor(const ValueType&)>::type>
+			basic_column_descriptor(const tstring &title, int width, Accessor acc)
+				:basic_column_label(title, width)
+			{
+				m_text_renderer = boost::bind(&to_string<ColumnType>, boost::bind<ColumnType>(acc, _1), _2);
+				m_comparator = boost::bind<ColumnType>(acc, _1) < boost::bind<ColumnType>(acc, _2);
+			}
+			///! Constructor for accessor functor with separate formatter
+			template <typename Accessor, typename Formatter, typename ValueType = value_type, typename ColumnType = std::result_of<Accessor(const ValueType&)>::type>
+			basic_column_descriptor(const tstring &title, int width, Accessor acc, const Formatter &fmt)
+				:basic_column_label(title, width)
+			{
+				m_text_renderer = boost::bind(fmt, boost::bind<ColumnType>(acc, _1), _2);
+				m_comparator = boost::bind<ColumnType>(acc, _1) < boost::bind<ColumnType>(acc, _2);
+			}
+
+			///! Constructor for text renderer functor
+			template <typename Accessor, typename std::enable_if<std::is_void<typename std::result_of<Accessor(const value_type &, wstring&)>::type>::value, int>::type = 0 >
+			basic_column_descriptor(const tstring &title, int width, Accessor acc)
+				: basic_column_label(title, width)
+			{
+				m_text_renderer = acc;// boost::bind<void>(acc, _1, _2);
+			}
+
+			///! Constructor for pointer to member function
+			template <typename ColumnType>
+			basic_column_descriptor(const tstring &title, int width, ColumnType (Value::*acc)() const)
+				:basic_column_label(title, width)
+			{
+				m_text_renderer = boost::bind(&to_string<ColumnType>, boost::bind<ColumnType>(acc, _1), _2);
+				m_comparator = boost::bind<ColumnType>(acc, _1) < boost::bind<ColumnType>(acc, _2);
+			}
+			///! Constructor for pointer to free function
+			template <typename ColumnType>
+			basic_column_descriptor(const tstring &title, int width, ColumnType (*acc)(const Value&))
+				: basic_column_label(title, width)
+			{
+				m_text_renderer = boost::bind(&to_string<ColumnType>, boost::bind<ColumnType>(acc, _1), _2);
+				m_comparator = boost::bind<ColumnType>(acc, _1) < boost::bind<ColumnType>(acc, _2);
+			}
+			///! Constructor for pointer to boost::function
+			template <typename ColumnType>
+			basic_column_descriptor(const tstring &title, int width, boost::function<ColumnType(const Value&)> acc)
+				: basic_column_label(title, width)
+			{
+				m_text_renderer = boost::bind(&to_string<ColumnType>, boost::bind<ColumnType>(acc, _1), _2);
+				m_comparator = boost::bind<ColumnType>(acc, _1) < boost::bind<ColumnType>(acc, _2);
+			}
 
 			basic_column_descriptor():basic_column_label(tstring(), -1, false, false){}
             template <typename Control>

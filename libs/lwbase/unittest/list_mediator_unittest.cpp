@@ -75,22 +75,69 @@ void DataFormatter(int i, wstring &r)
 	r=lexical_cast<wstring>(i*3);
 }
 
+template <typename Value>
+struct functor_accessor
+{
+	functor_accessor(const char* name, const Value &v) :m_name(name), m_v(v) {}
+	Value operator()(const TestData &d) { return m_v; }
+	std::string m_name;
+	Value m_v;
+};
+
+struct functor_object
+{
+	functor_object(const char* name) :m_name(name) {}
+	void operator()(const TestData& d, wstring& rc) {}
+	std::string m_name;
+};
+
+void fmt_float(float f, wstring &rc)
+{
+	rc = L"test";
+}
+
 BOOST_AUTO_TEST_CASE(columns_descriptor_test_new)
 {
-	struct functor_object
-	{
-		functor_object(const char* name):m_name(name) {}
-		void operator()(const TestData& d, wstring& rc) {}
-		std::string m_name;
-	};
+
+	using float_functor_accessor = functor_accessor<float>;
 	using bca_t = basic_columns_adapter<basic_column_descriptor<TestData> >;
 	bca_t cols;
 	cols.columns().emplace_back(L"end", 10);
 	cols.columns().emplace_back(L"integer", -1, &TestData::integer);
 
+	using Func = int(*)(const TestData&);
+
+	if (boost::is_void <std::result_of<Func(const TestData&)>>::value) {
+
+	}
+	using Func2 = functor_accessor<float>;
+
 	boost::function<void(const TestData&, tstring&)> fn = functor_object("hallo");
 
+	using call_type = decltype(functor_object("hallo"));
+
 	basic_column_descriptor<TestData> test_functor(L"testfunctor", 30, functor_object("hallo"));
+
+	boost::function<float(const TestData&)> __fnc = float_functor_accessor("Hi", 4.f);
+
+	using testdatacolumn = basic_column_descriptor<TestData>;
+
+	testdatacolumn::text_renderer_type tr = functor_object("Test");
+
+	boost::function<float(const TestData&)> accfnc = float_functor_accessor("test", 3.f);
+
+	testdatacolumn test_float_functor(L"testfunctor", 30, float_functor_accessor("test", 3.f));
+
+	testdatacolumn fmt_float_test(L"float_functor", 20, float_functor_accessor("test", 3.0f), &fmt_float );
+	testdatacolumn free_fnc(L"freefnc", 20, boost::bind(&TestDataAccess, _1, 9));
+
+	cols.columns() = {
+		{ L"float_functor", 20, float_functor_accessor("test", 3.0f) },
+		{L"float_functor", 20, float_functor_accessor("test", 3.0f), &fmt_float},
+	};
+
+	testdatacolumn t3(L"calc", 20, &TestData::calc);
+
 	cols.columns() =
 	{
 	{L"integer", -1, &TestData::integer},
