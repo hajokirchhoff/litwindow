@@ -47,7 +47,7 @@ namespace litwindow {
             /// set the column width
             void width(int new_width) { m_width=new_width; }
             /// return the column width
-            int width() const { return m_width; }
+            int width() const { return m_width<0 ? -m_width : m_width; }
             /// visibility
             bool visible() const { return m_visible; }
             void visible(bool do_show) { m_visible=do_show; }
@@ -55,14 +55,35 @@ namespace litwindow {
 			void image(bool is_image) { m_image=is_image; }
 			void position(int new_position) { m_position=new_position; }
 			int  position() const { return m_position; }
+
+			enum col_alignment {
+				left = 0,
+				right = 1,
+				center = 2
+			};
+			col_alignment alignment() const { return m_align; }
+			void alignment(col_alignment new_align) { m_align = new_align; }
+
 			template <typename Archive>
 			void serialize(Archive &ar, const unsigned int version)
 			{
 				ar & BOOST_SERIALIZATION_NVP(m_title) & BOOST_SERIALIZATION_NVP(m_width) & BOOST_SERIALIZATION_NVP(m_visible);
-				if (version>=1)
+				if (version >= 1)
 					ar & BOOST_SERIALIZATION_NVP(m_position);
 				else if (Archive::is_loading())
-					m_position=-1;
+					m_position = -1;
+				if (version >= 2)
+					ar & BOOST_SERIALIZATION_NVP(m_align);
+				else {
+					if (Archive::is_loading()) {
+						if (m_width < 0) {
+							m_align = right;
+							m_width = -m_width;
+						}
+						else
+							m_align = left;
+					}
+				}
 			}
 			basic_column_label(const tstring &title, int width=-1, bool visible=true, bool is_image=false)
 				:m_title(title),m_width(width),m_visible(visible),m_image(is_image),m_position(-1){}
@@ -72,6 +93,7 @@ namespace litwindow {
 			bool    m_visible;
 			bool	m_image;
 			int		m_position;
+			col_alignment m_align = left;
 		};
 
 		template <typename Value>
@@ -475,6 +497,7 @@ namespace litwindow {
 							current.width(src.width());
 							current.visible(src.visible());
 							current.position(src.position());
+							current.alignment(src.alignment());
 						}
 					}
 				};
@@ -808,7 +831,7 @@ namespace litwindow {
     }
 }
 
-BOOST_CLASS_VERSION(litwindow::ui::basic_column_label, 1);
+BOOST_CLASS_VERSION(litwindow::ui::basic_column_label, 2);
 
 #pragma optimize("", on)
 #endif // list_mediator_h__31080910

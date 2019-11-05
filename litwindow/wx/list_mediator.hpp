@@ -210,6 +210,14 @@ namespace litwindow {
 				wxListItem it;
 				it.SetText(d.title());
 				it.SetWidth(d.visible() ? d.width() : 0);
+				wxListColumnFormat alg;
+				if (d.alignment() == ui::basic_column_label::center)
+					alg = wxLIST_FORMAT_CENTER;
+				else if (d.alignment() == ui::basic_column_label::right)
+					alg = wxLIST_FORMAT_RIGHT;
+				else
+					alg = wxLIST_FORMAT_LEFT;
+				it.SetAlign(alg);
 				c->InsertColumn(static_cast<long>(idx), it);
 			}
 			void set_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d) 
@@ -217,17 +225,30 @@ namespace litwindow {
 				wxListItem it;
 				it.SetText(d.title());
 				it.SetWidth(d.visible() ? d.width() : 0);
-				it.SetAlign(wxLIST_FORMAT_LEFT);
-				it.SetMask(wxLIST_MASK_TEXT | wxLIST_MASK_WIDTH | wxLIST_MASK_FORMAT);
+				wxListColumnFormat alg;
+				if (d.alignment() == ui::basic_column_label::center)
+					alg = wxLIST_FORMAT_CENTER;
+				else if (d.alignment() == ui::basic_column_label::right)
+					alg = wxLIST_FORMAT_RIGHT;
+				else
+					alg = wxLIST_FORMAT_LEFT;
+				it.SetAlign(alg);
 				c->SetColumn(static_cast<long>(idx), it);
 			}
 			void get_column(uicontrol_type *c, size_t idx, ui::basic_column_label &d)
 			{
 				wxListItem it;
-				it.SetMask(wxLIST_MASK_TEXT | wxLIST_MASK_WIDTH);
+				it.SetMask(wxLIST_MASK_TEXT | wxLIST_MASK_WIDTH | wxLIST_MASK_FORMAT);
 				c->GetColumn(static_cast<long>(idx), it);
+				int width = it.GetWidth();
+				if (it.GetAlign() == wxLIST_FORMAT_RIGHT)
+					d.alignment(ui::basic_column_label::right);
+				else if (it.GetAlign() == wxLIST_FORMAT_CENTER)
+					d.alignment(ui::basic_column_label::center);
+				else
+					d.alignment(ui::basic_column_label::left);
 				if (d.visible())
-					d.width(it.GetWidth());
+					d.width(width);
 			}
 			void remove_column(uicontrol_type *c, size_t idx) 
 			{
