@@ -33,16 +33,26 @@ template <typename Container, typename UIControl, typename ContainerPolicies/*=c
 void litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UIControlPolicies>::set_layout_perspective( const wstring &layout )
 {
 	if (layout.empty()==false && !boost::algorithm::istarts_with(layout, L"<?xml")) {
+		std::wstring previous_layout;
+		get_layout_perspective(previous_layout);
 		try {
 			std::wstringstream in(layout);
 			boost::archive::text_wiarchive ar(in);
 			ar >> boost::serialization::make_nvp("mediator", *this);
-			refresh(true);
 		}
-		catch (boost::archive::archive_exception &a) {
+		catch (boost::archive::archive_exception &) {
 			// Invalid archive. Ignore layout perspective.
-			std::string w=a.what();
+			try {
+				std::wstringstream in(previous_layout);
+				boost::archive::text_wiarchive ar(in);
+				ar >> boost::serialization::make_nvp("mediator", *this);
+			}
+			catch (...) {
+			// catch-all to prevent double exception caused by a programming error. previous_layout really should be serializeable, but
+			// perhaps it's not.
+			}
 		}
+		refresh(true);
 	}
 }
 
