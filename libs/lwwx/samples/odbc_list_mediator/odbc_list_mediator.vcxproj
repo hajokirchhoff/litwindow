@@ -77,7 +77,6 @@ cd &gt;test.txt
     </CustomBuild>
     <CustomBuildStep>
       <Command>rem IncrediBuild_AllowOverlaprem IncrediBuild_AllowOverlap
-cd &gt;test.txt
 "$(ProgramFiles)\DialogBlocks\dialogblocks.exe" /r /i "%(Filename).pjd" &amp; set errorlevel=0 &amp; copy "%(Filename).zip" "$(OutDir)%(Filename).zip" /Y</Command>
     </CustomBuildStep>
     <CustomBuildStep>
@@ -114,7 +113,6 @@ cd &gt;test.txt
     </CustomBuild>
     <CustomBuildStep>
       <Command>rem IncrediBuild_AllowOverlaprem IncrediBuild_AllowOverlap
-cd &gt;test.txt
 "$(ProgramFiles)\DialogBlocks\dialogblocks.exe" /r /i "%(Filename).pjd" &amp; set errorlevel=0 &amp; copy "%(Filename).zip" "$(OutDir)%(Filename).zip" /Y</Command>
     </CustomBuildStep>
     <CustomBuildStep>
