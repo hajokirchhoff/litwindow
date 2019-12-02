@@ -711,7 +711,7 @@ namespace litwindow {
             basic_list_mediator()
                 :m_needs_refresh_columns(true){}
 
-            void get_item_text(size_t row, size_t col, tstring &rc) const
+            void get_item_text(size_t row, size_t col, tstring &rc)
             {
                 const columns_adapter_type &ca(columns_adapter());
                 ca.render_element_at(col, rc, dataset_adapter().value_at(row));
@@ -769,7 +769,6 @@ namespace litwindow {
 			}
 			void show_hide_column(int col, bool show_hide);
 			void toggle_show_column(int col);
-
         protected:
             void refresh_columns(bool do_refresh=true);
             void refresh_list();

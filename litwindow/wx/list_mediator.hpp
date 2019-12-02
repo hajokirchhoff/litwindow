@@ -75,6 +75,7 @@ namespace litwindow {
 			{
 
 			}
+			std::pair<int, int> get_cache_hint(uicontrol_type *) { return std::make_pair(-1, -1); }
 		};
 		template <typename UIControlPolicies>
 		class basic_wxcontrol_with_columns_policies:public basic_wxcontrol_with_rows_policies<UIControlPolicies>
@@ -281,6 +282,10 @@ namespace litwindow {
 					}
 				}
 			}
+			std::pair<int, int> get_cache_hint(uicontrol_type *ctrl)
+			{
+				return std::make_pair(ctrl->GetTopItem(), ctrl->GetCountPerPage());
+			}
 		protected:
 			boost::function<void()> on_destroyed;
 			boost::function<void(int col)> on_l_col_clicked;
@@ -349,7 +354,7 @@ namespace litwindow {
 				//toggle_show_column=boost::bind(&Mediator::toggle_show_column, md, _1);
 				//v->Bind(wxEVT_COMMAND_MENU_SELECTED, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnRightClickMenu, this, _1));
 				v->Bind(wxEVT_COMMAND_MENU_SELECTED, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnRightClickMenu<Mediator>, this, md, _1));
-				v->Bind(wxEVT_ERASE_BACKGROUND, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnEraseBackground<Mediator>, this, _1));
+				v->Bind(wxEVT_ERASE_BACKGROUND, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnEraseBackground<Mediator>, this, md, _1));
 			}
 			template <typename Mediator>
 			void disconnect(Mediator *md, uicontrol_type *v)
@@ -363,7 +368,7 @@ namespace litwindow {
 					ctrl->SetItemCount((long)m.get_item_count());
 			}
 			template <typename Mediator>
-			void OnEraseBackground(wxEraseEvent & event) {
+			void OnEraseBackground(Mediator *m, wxEraseEvent & event) {
 				// to prevent flickering, erase only content *outside* of the 
 				// actual list items stuff
 				typename Mediator::uicontrol_type *ctrl = dynamic_cast<typename Mediator::uicontrol_type*>(event.GetEventObject());
@@ -380,7 +385,7 @@ namespace litwindow {
 					dc->GetClippingBox(&x, &y, &w, &h);
 
 					long top_item = ctrl->GetTopItem();
-					long bottom_item = top_item + ctrl->GetCountPerPage();
+					long bottom_item = top_item + ctrl->GetCountPerPage() + 1;
 					if (bottom_item >= ctrl->GetItemCount()) {
 						bottom_item = ctrl->GetItemCount() - 1;
 					}
@@ -407,6 +412,8 @@ namespace litwindow {
 					// restore old clipping region
 					dc->DestroyClippingRegion();
 					dc->SetDeviceClippingRegion(wxRegion(x, y, w, h));
+
+					m->set_cache_hint(get_cache_hint(ctrl));
 				}
 				else {
 					event.Skip();

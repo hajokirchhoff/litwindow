@@ -145,7 +145,8 @@ namespace litwindow {
             wxString on_get_item_text(long item, long column)
             {
                 tstring rc;
-                m_get_text(item, column, rc);
+				if (item>=wnd()->GetTopItem() && item<wnd()->GetTopItem()+wnd()->GetCountPerPage())
+	                m_get_text(item, column, rc);
                 return rc;
             }
             //mediator *m_mediator;

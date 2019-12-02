@@ -73,7 +73,9 @@ namespace litwindow { namespace ui {
 				else if (st == sort_type::sort_automatic)
 					st = sort_type::sort_ascending;
 				emplace_back(column_index, st, colname);
+				++m_version;
 			}
+			size_t m_version = 0;
 		} m_sorting;
 
 		using container_type = litwindow::odbc::statement;
@@ -109,25 +111,6 @@ namespace litwindow { namespace ui {
 			//bool rc = columns.render_element_image_at(column, idx, handle_to_value(h));
 			return idx;
 		}
-		ui_string get_item_text(container_type& c, const columns_type& columns, size_t row, size_t column) const
-		{
-// 			const handle_type& h(get_row(row));
-			ui_string rcstring;
-			if (columns.at(column).visible()) {
-				auto rc = c.fetch_absolute(static_cast<SQLINTEGER>(row) + 1);
-				if (rc.no_data()) {
-					return _T("nodata");
-				}
-				else if (rc.fail()) {
-					return _("error");
-				}
-				else {
-					columns.render_element_at(column, rcstring, odbc_record{ c });
-				}
-			}
-//			bool rc = columns.render_element_at(column, rcstring, handle_to_value(h));
-			return rcstring;
-		}
 		void set_sort_order(const container_type& c, const columns_type& columns, int column_index, basic_columns_sort_index::sort_type_enum sort_type = basic_columns_sort_index::sort_automatic)
 		{
 			if (column_index < columns.size()) {
@@ -145,18 +128,6 @@ namespace litwindow { namespace ui {
 		{
 			return std::vector<basic_columns_sort_index>();
 		}
-		size_t size(container_type& c) const
-		{
-			SQLLEN rcount = 0;
-			if (c.is_open()) {
-				std::wstring stmt = L"SELECT COUNT(*) FROM (" + c.get_statement() + L") AS total";
-				odbc::statement count(stmt, c.get_connection());
-				count.bind_column(1, rcount);
-				auto rc = count.execute();
-				auto rc2 = count.fetch();
-			}
-			return rcount;
-		}
 	};
 
 	using odbc_container = litwindow::odbc::statement;
@@ -164,27 +135,129 @@ namespace litwindow { namespace ui {
 	template <>
 	class container_policies<odbc_container> :public odbc_container_policies
 	{
+		using cache_hint_t = std::pair<long, long>;
+		cache_hint_t m_cache_hint = { -1, -1 };
+		cache_hint_t m_requested_cache_hint = { -1, -1 };
+		bool m_need_cache_refresh = true;
+		litwindow::odbc::statement m_stmt;
+		litwindow::tstring m_original_sql, m_where_filter, m_limit;
+		size_t m_sort_order_version = 0;
+		bool set_statement(container_type& cnt)
+		{
+			bool needs_statement_refresh = true;
+			if (needs_statement_refresh) {
+				m_stmt.set_connection(cnt.get_connection());
+				m_stmt.set_cursor_type(odbc::statement::static_cursor);
+				m_original_sql = cnt.get_statement();
+				m_stmt.set_statement(m_original_sql);
+			}
+			return needs_statement_refresh;
+		}
+		int begin_cache() const { return m_cache_hint.first; }
+		int end_cache() const { return begin_cache() + cache_size(); }
+		int cache_size() const { return m_cache_hint.second; }
+		bool has_cache() const { return begin_cache() != -1; }
 	public:
 		using odbc_record = value_type;
+
+		bool set_cache_hint(cache_hint_t cache_hint)
+		{
+			bool rc;
+			cache_hint.second += 1;
+			if (cache_hint.first < 0)
+				cache_hint.first = 0;
+			if (m_requested_cache_hint != cache_hint) {
+				rc = true;
+				m_requested_cache_hint = cache_hint;
+				m_cache_hint = m_requested_cache_hint;
+				if (has_cache())
+					m_limit = L" LIMIT " + boost::lexical_cast<std::wstring>(cache_size() + 1) + L" OFFSET " + boost::lexical_cast<std::wstring>(begin_cache());
+				else
+					m_limit.clear();
+				m_cache_hint = cache_hint;
+				m_need_cache_refresh = true;
+			}
+			else
+				rc = false;
+			return rc;
+		}
+		void refresh_cache(int row)
+		{
+			cache_hint_t ch;
+			if (row >= end_cache())
+				set_cache_hint(std::make_pair(row, cache_size()));
+			else if (row < begin_cache())
+				set_cache_hint(std::make_pair(row - cache_size() + 1, cache_size()));
+			do_refresh_cache(true);
+		}
 		//using column_descriptor = basic_column_descriptor<value_type>;
 		//using columns_type = basic_columns_adapter<column_descriptor>;
-		void refresh_handles(container_type& cnt)
+		ui_string get_item_text(container_type&, const columns_type& columns, size_t row, size_t column)
 		{
-			auto where_filter = build_where_filter();
-			if (where_filter.empty() == false) {
-				if (m_original_statement.empty())
-					m_original_statement = cnt.get_statement();
-				cnt.set_statement(L"SELECT * FROM (" + m_original_statement + L") AS sorted_query ORDER BY " + where_filter);
+			ui_string rcstring;
+			if (columns.at(column).visible()) {
+				int cached_row;
+				if (has_cache()) {
+					cached_row = static_cast<int>(row) - begin_cache();
+					if (m_need_cache_refresh || cached_row > cache_size() || cached_row < 0)
+						refresh_cache(static_cast<int>(row));
+					if (row < begin_cache() || row >= end_cache())
+						return _("nodata");
+					cached_row = static_cast<int>(row) - begin_cache();
+				}
+				else
+					cached_row = static_cast<int>(row);
+				auto rc = m_stmt.fetch_absolute(static_cast<SQLINTEGER>(cached_row) + 1);
+				if (rc.no_data()) {
+					return _("nodata");
+				}
+				else if (rc.fail()) {
+					return _("error");
+				}
+				else {
+					columns.render_element_at(column, rcstring, odbc_record{ m_stmt });
+				}
 			}
-/*
- *
-			auto count = cnt.get_column_count();
-			tstring name;
-			auto cls = cnt.get_column_name(1, name);
-*/
-			cnt.execute();
+//			bool rc = columns.render_element_at(column, rcstring, handle_to_value(h));
+			return rcstring;
 		}
-		tstring m_original_statement;
+		void refresh_handles(container_type& cnt, const cache_hint_t &cache_hint)
+		{
+			bool needs_statement_refresh = set_statement(cnt);
+			if (m_sort_order_version != m_sorting.m_version) {
+				needs_statement_refresh = true;
+				m_sort_order_version = m_sorting.m_version;
+				m_where_filter = build_where_filter();
+				if (m_where_filter.empty() == false) {
+					m_where_filter = L" ORDER BY " + m_where_filter;
+				}
+			}
+			if (set_cache_hint(cache_hint)) {
+				needs_statement_refresh = true;
+			}
+			do_refresh_cache(needs_statement_refresh);
+		}
+
+		void do_refresh_cache(bool needs_statement_refresh)
+		{
+			if (needs_statement_refresh)
+				m_stmt.set_statement(L"SELECT * FROM (" + m_original_sql + L") AS sorted_query " + m_where_filter + m_limit);
+			m_need_cache_refresh = false;
+			m_stmt.execute();
+		}
+
+		size_t size(container_type& c) const
+		{
+			SQLLEN rcount = 0;
+			if (m_stmt.is_open()) {
+				std::wstring stmt = L"SELECT COUNT(*) FROM (" + m_original_sql + L") AS total";
+				odbc::statement count(stmt, m_stmt.get_connection());
+				count.bind_column(1, rcount);
+				count.execute();
+				count.fetch();
+			}
+			return rcount;
+		}
 	};
 
 	struct odbc_column

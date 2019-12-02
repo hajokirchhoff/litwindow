@@ -194,6 +194,10 @@ namespace litwindow {
 					m_sort_fnc(m_handles.begin(), m_handles.end());
 				m_handles_dirty=false;
 			}
+			void refresh_handles(container_type& c, const std::pair<long, long>&) const
+			{
+				refresh_handles(c);
+			}
 			bool comparator(const container_type &c, const columns_type &columns, int column_index, const handle_type &left, const handle_type &right)
 			{
 				return columns.compare(column_index, *left, *right);
@@ -266,6 +270,7 @@ namespace litwindow {
 			stl_container_policies()
 				:m_handles_dirty(true){}
 
+			void set_cache_hint(const std::pair<long, long>&) {}
 		protected:
 			handle_policies_type m_handle_policies;
 			mutable bool m_handles_dirty;
@@ -370,7 +375,7 @@ namespace litwindow {
 				return m_container_policies.get_sort_order();
 			}
 			void set_sort_order(const std::vector<basic_columns_sort_index> &sortorder);
-			wstring get_item_text(size_t row, size_t col) const
+			wstring get_item_text(size_t row, size_t col)
 			{
 				return m_container_policies.get_item_text(*m_container, m_columns, row, col);
 			}
@@ -452,6 +457,11 @@ namespace litwindow {
 
 			void get_layout_perspective(wstring &layout);
 			void set_layout_perspective(const wstring &layout);
+
+			void set_cache_hint(const std::pair<long, long>& cache_hint)
+			{
+				m_container_policies.set_cache_hint(cache_hint);
+			}
 		protected:
 			columns_type m_columns;
 			uicontrol_type *m_uicontrol;
