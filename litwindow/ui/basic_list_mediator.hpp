@@ -86,7 +86,7 @@ namespace litwindow {
 				}
 			}
 			basic_column_label(const tstring &title, int width=-1, bool visible=true, bool is_image=false)
-				:m_title(title),m_width(width),m_visible(visible),m_image(is_image),m_position(-1){}
+				:m_title(title),m_width(width),m_visible(visible),m_image(is_image),m_position(-1),m_align(width<-1 ? right : left){}
 		protected:
 			tstring m_title;
 			int     m_width;
