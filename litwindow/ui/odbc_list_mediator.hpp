@@ -138,7 +138,6 @@ namespace litwindow { namespace ui {
 		using cache_hint_t = std::pair<long, long>;
 		cache_hint_t m_cache_hint = { -1, -1 };
 		cache_hint_t m_requested_cache_hint = { -1, -1 };
-		bool m_need_cache_refresh = true;
 		litwindow::odbc::statement m_stmt;
 		litwindow::tstring m_original_sql, m_where_filter, m_limit;
 		size_t m_sort_order_version = 0;
@@ -166,16 +165,11 @@ namespace litwindow { namespace ui {
 			cache_hint.second += 1;
 			if (cache_hint.first < 0)
 				cache_hint.first = 0;
+			if (cache_hint.second < 10)
+				cache_hint.second = 10;
 			if (m_requested_cache_hint != cache_hint) {
 				rc = true;
 				m_requested_cache_hint = cache_hint;
-				m_cache_hint = m_requested_cache_hint;
-				if (has_cache())
-					m_limit = L" LIMIT " + boost::lexical_cast<std::wstring>(cache_size() + 1) + L" OFFSET " + boost::lexical_cast<std::wstring>(begin_cache());
-				else
-					m_limit.clear();
-				m_cache_hint = cache_hint;
-				m_need_cache_refresh = true;
 			}
 			else
 				rc = false;
@@ -184,9 +178,9 @@ namespace litwindow { namespace ui {
 		void refresh_cache(int row)
 		{
 			cache_hint_t ch;
-			if (row >= end_cache())
+			if (row >= m_requested_cache_hint.first + m_requested_cache_hint.second)
 				set_cache_hint(std::make_pair(row, cache_size()));
-			else if (row < begin_cache())
+			else if (row < m_requested_cache_hint.first)
 				set_cache_hint(std::make_pair(row - cache_size() + 1, cache_size()));
 			do_refresh_cache(true);
 		}
@@ -199,7 +193,7 @@ namespace litwindow { namespace ui {
 				int cached_row;
 				if (has_cache()) {
 					cached_row = static_cast<int>(row) - begin_cache();
-					if (m_need_cache_refresh || cached_row > cache_size() || cached_row < 0)
+					if (cached_row >= cache_size() || cached_row < 0)
 						refresh_cache(static_cast<int>(row));
 					if (row < begin_cache() || row >= end_cache())
 						return _("nodata");
@@ -240,9 +234,16 @@ namespace litwindow { namespace ui {
 
 		void do_refresh_cache(bool needs_statement_refresh)
 		{
+			if (m_cache_hint != m_requested_cache_hint) {
+				m_cache_hint = m_requested_cache_hint;
+				if (has_cache())
+					m_limit = L" LIMIT " + boost::lexical_cast<std::wstring>(cache_size() + 1) + L" OFFSET " + boost::lexical_cast<std::wstring>(begin_cache());
+				else
+					m_limit.clear();
+				needs_statement_refresh = true;
+			}
 			if (needs_statement_refresh)
 				m_stmt.set_statement(L"SELECT * FROM (" + m_original_sql + L") AS sorted_query " + m_where_filter + m_limit);
-			m_need_cache_refresh = false;
 			m_stmt.execute();
 		}
 
