@@ -15,6 +15,7 @@
     <ProjectGuid>{B54C4138-5F23-40DC-8FBA-59F7BFCE7AF4}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>odbclistmediator</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
