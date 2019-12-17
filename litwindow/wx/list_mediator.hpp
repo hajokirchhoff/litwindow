@@ -366,6 +366,7 @@ namespace litwindow {
 			{
 				if (ctrl->GetItemCount() != (long)m.get_item_count())
 					ctrl->SetItemCount((long)m.get_item_count());
+				m.set_cache_hint(get_cache_hint(ctrl));
 			}
 			template <typename Mediator>
 			void OnEraseBackground(Mediator *m, wxEraseEvent & event) {
