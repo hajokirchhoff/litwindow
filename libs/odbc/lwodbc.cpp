@@ -268,7 +268,7 @@ void sqlreturn_auto_set_diagnostics::get_diagnostics()
 {
 	if (m_htype!=0 && m_handle!=0) {
 		copy_on_write()->get_diagnostic_records(m_htype, m_handle);
-		if (m_log_errors && g_log_diagnostics && has_diagnostics() && (m_ignore_once.length()==0 || is_ignored_state()==false) ) {
+		if (m_log_errors && g_log_diagnostics && has_diagnostics() && (m_ignore_once.length()==0 || is_ignored_state()==false) && !success()) {
 			lw_log() << as_string();
 		}
 	} else
