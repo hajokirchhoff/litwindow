@@ -144,7 +144,7 @@ namespace litwindow {
 			basic_column_descriptor(const tstring &title, int width, Accessor acc)
 				:basic_column_label(title, width)
 			{
-				m_text_renderer = boost::bind(&to_string<ColumnType>, boost::bind<ColumnType>(acc, _1), _2);
+				m_text_renderer = boost::bind<void>(&to_string<ColumnType>, boost::bind<ColumnType>(acc, _1), _2);
 				m_comparator = boost::bind<ColumnType>(acc, _1) < boost::bind<ColumnType>(acc, _2);
 			}
 			///! Constructor for accessor functor with separate formatter
@@ -152,7 +152,7 @@ namespace litwindow {
 			basic_column_descriptor(const tstring &title, int width, Accessor acc, const Formatter &fmt)
 				:basic_column_label(title, width)
 			{
-				m_text_renderer = boost::bind(fmt, boost::bind<ColumnType>(acc, _1), _2);
+				m_text_renderer = boost::bind<void>(fmt, boost::bind<ColumnType>(acc, _1), _2);
 				m_comparator = boost::bind<ColumnType>(acc, _1) < boost::bind<ColumnType>(acc, _2);
 			}
 

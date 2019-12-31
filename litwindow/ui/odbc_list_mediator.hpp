@@ -2,6 +2,9 @@
 #include "litwindow/ui/list_mediator.hpp"
 #include "litwindow/odbc/statement.h"
 #include <string>
+#include "boost/algorithm/string/classification.hpp"
+#include "boost/algorithm/string/split.hpp"
+#include "boost/range/iterator_range.hpp"
 
 namespace litwindow { namespace ui {
 
@@ -52,15 +55,15 @@ namespace litwindow { namespace ui {
 				static const ui_string __DESC__ = s2tstring("DESC");
 				return m_sort_ascending == sort_descending ? __DESC__ : __ASC__;
 			}
-			odbc_columns_sort_index(int idx, sort_type_enum sort, const ui_string &str)
+			odbc_columns_sort_index(int idx, sort_type_enum sort, const ui_string& str)
 				:basic_columns_sort_index(idx, sort == sort_ascending), m_column_name(str) {}
 		};
 		struct sorter :public std::vector<odbc_columns_sort_index>
 		{
 			using sort_type = basic_columns_sort_index::sort_type_enum;
-			void push_sort(int column_index, const ui_string &colname, sort_type st = sort_type::sort_automatic)
+			void push_sort(int column_index, const ui_string& colname, sort_type st = sort_type::sort_automatic)
 			{
-				auto current = std::find_if(begin(), end(), [=](const auto &i) { return i.m_column_index == column_index; });
+				auto current = std::find_if(begin(), end(), [=](const auto& i) { return i.m_column_index == column_index; });
 				if (current != end()) {
 					if (st == sort_type::sort_automatic) {
 						if (current->sort_type() == sort_type::sort_ascending && current + 1 == end())
@@ -317,4 +320,5 @@ namespace litwindow { namespace ui {
 	{
 		return typed_odbc_column_formatter<Value>(colname);
 	}
+
 } }
