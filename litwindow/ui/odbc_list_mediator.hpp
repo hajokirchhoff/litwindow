@@ -78,6 +78,11 @@ namespace litwindow { namespace ui {
 				emplace_back(column_index, st, colname);
 				++m_version;
 			}
+			void clear()
+			{
+				std::vector<odbc_columns_sort_index>::clear();
+				++m_version;
+			}
 			size_t m_version = 0;
 		} m_sorting;
 
@@ -126,10 +131,15 @@ namespace litwindow { namespace ui {
 		}
 		void clear_sort_order()
 		{
+			m_sorting.clear();
 		}
 		std::vector<basic_columns_sort_index> get_sort_order() const
 		{
 			return std::vector<basic_columns_sort_index>();
+		}
+		void clear(container_type &c)
+		{
+
 		}
 	};
 
@@ -192,7 +202,7 @@ namespace litwindow { namespace ui {
 		ui_string get_item_text(container_type&, const columns_type& columns, size_t row, size_t column)
 		{
 			ui_string rcstring;
-			if (columns.at(column).visible()) {
+			if (column<columns.size() && columns.at(column).visible()) {
 				int cached_row;
 				if (has_cache()) {
 					cached_row = static_cast<int>(row) - begin_cache();

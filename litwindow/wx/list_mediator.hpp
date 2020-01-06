@@ -85,7 +85,6 @@ namespace litwindow {
 			template <typename Mediator>
 			void refresh_columns(Mediator &m, typename Mediator::uicontrol_type *ctrl)
 			{
-				size_t idx=0;
 				typename Mediator::columns_type &c(m.columns());
 				wxArrayInt cols_order(c.size());
 /*
@@ -96,6 +95,9 @@ namespace litwindow {
 					ctrl->SetColumnsOrder(cdefault);
 				}
 */
+				while (This()->column_count(ctrl) > c.size())
+					This()->remove_column(ctrl, this->column_count(ctrl) - 1);
+				size_t idx=0;
 				while (idx<c.size()) {
 					if (idx>=This()->column_count(ctrl))
 						This()->insert_column(ctrl, idx, c.column_descriptor(idx));
@@ -108,8 +110,6 @@ namespace litwindow {
 						cols_order[idx]=cols_order[idx];
 					++idx;
 				}
-				while (this->column_count(ctrl)>c.size())
-					This()->remove_column(ctrl, this->column_count(ctrl)-1);
 				if (!c.empty())
 					This()->columns_order(ctrl, cols_order);
 			}
@@ -196,13 +196,17 @@ namespace litwindow {
 				}
 				on_destroyed.clear();
 			}
-			void begin_update(uicontrol_type *c) { }
+			void begin_update(uicontrol_type *c)
+			{
+				c->Freeze();
+			}
 			void end_update(uicontrol_type *c)
 			{
 				int topItem=c->GetTopItem();
 				int perPage=c->GetCountPerPage();
 				int totalItems=c->GetItemCount();
 				int bottomItem=std::min(totalItems, topItem+perPage);
+				c->Thaw();
 				c->RefreshItems(topItem, bottomItem-1);
 			}
 			size_t column_count(uicontrol_type *c) const { return c->GetColumnCount(); }
