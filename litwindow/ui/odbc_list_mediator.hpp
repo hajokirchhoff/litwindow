@@ -135,11 +135,15 @@ namespace litwindow { namespace ui {
 		}
 		std::vector<basic_columns_sort_index> get_sort_order() const
 		{
-			return std::vector<basic_columns_sort_index>();
+			std::vector<basic_columns_sort_index> rc;
+			for (const auto& e : m_sorting) {
+				rc.push_back(e);
+			}
+			return rc;
 		}
 		void clear(container_type &c)
 		{
-
+			clear_sort_order();
 		}
 	};
 
