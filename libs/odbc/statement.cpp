@@ -207,7 +207,8 @@ void statement::init()
 	m_state=uninitialised;
 	m_emulate_optimistic_concurrency=false;
 	m_handle=0;
-	m_sql_statement.clear();
+	m_original_sql_statement.clear();
+	m_parsed_sql_statement.clear();
 	m_last_error.clear();
 	m_is_prepared=false;
 	m_state=uninitialised;
@@ -427,7 +428,7 @@ sqlreturn statement::set_statement(const tstring &sql_statement)
 {
 	close_cursor();
 	clear_result_set();
-	m_sql_statement=sql_statement; 
+	m_original_sql_statement=sql_statement; 
 	m_last_error.clear();
 	m_is_prepared=false;
 	m_state=statement_set;
@@ -462,10 +463,10 @@ void statement::clear_result_set()
 const sqlreturn &statement::prepare()
 {
 	if (m_state == setting_statement) {
-		if (set_statement(m_sql_statement).log_errors())
+		if (set_statement(m_original_sql_statement).log_errors())
 			return m_last_error;
 	}
-	m_last_error=SQLPrepare(handle(), (SQLTCHAR*)m_sql_statement.c_str(), m_sql_statement.length());
+	m_last_error=SQLPrepare(handle(), (SQLTCHAR*)m_parsed_sql_statement.c_str(), m_parsed_sql_statement.length());
 	if (m_last_error)
 		m_is_prepared=true;
 	return m_last_error;
@@ -475,7 +476,7 @@ const sqlreturn &statement::execute()
 {
 	litwindow::context_t c("statement::execute");
 	if (m_state==setting_statement) {
-		if (set_statement(m_sql_statement).log_errors())
+		if (set_statement(m_original_sql_statement).log_errors())
 			return m_last_error;
 	}
 
@@ -495,7 +496,7 @@ const sqlreturn &statement::execute()
 		if (m_is_prepared)
 			m_last_error=SQLExecute(handle());
 		else {
-			m_last_error=SQLExecDirect(handle(), (SQLTCHAR*)m_sql_statement.c_str(), m_sql_statement.length());
+			m_last_error=SQLExecDirect(handle(), (SQLTCHAR*)m_parsed_sql_statement.c_str(), m_parsed_sql_statement.length());
 		}
 	}
 	/// reset the len_ind field to SQL_NTS for all parameters where the actual length string was calculated as a workaround
@@ -534,7 +535,8 @@ sqlreturn statement::clear()
 	m_state=closed;
 	m_is_prepared=false;
 	m_continuous_sql_binder.clear();
-	m_sql_statement.clear();
+	m_original_sql_statement.clear();
+	m_parsed_sql_statement.clear();
 	return m_last_error;
 }
 
@@ -788,11 +790,11 @@ statement &statement::operator <<(const TCHAR *stmt)
 {
 	if (m_state!=reset && m_state!=setting_statement && m_state!=closed) {
 		clear();
-		m_sql_statement.clear();
+		m_original_sql_statement.clear();
 	}
 	m_state=setting_statement;
 	m_continuous_sql_binder.m_last_was_parameter=false;
-	m_sql_statement.append(stmt);
+	m_original_sql_statement.append(stmt);
 	return *this;
 }
 
@@ -801,8 +803,8 @@ void statement::add_accessor(const litwindow::accessor &a)
 #ifdef _NOT
 	m_state=setting_statement;
 	if (m_continuous_sql_binder.m_last_was_parameter)
-		m_sql_statement.append(1, _T(','));
-	m_sql_statement.append(1, _T('?'));
+		m_original_sql_statement.append(1, _T(','));
+	m_original_sql_statement.append(1, _T('?'));
 #endif // _NOT
 
 	if (m_continuous_sql_binder.m_last_bind_type==bindto)

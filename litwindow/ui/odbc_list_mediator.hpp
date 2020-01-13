@@ -43,6 +43,28 @@ namespace litwindow { namespace ui {
 		std::string m_sql_column_name;
 	};
 
+	class odbc_container :private litwindow::odbc::statement
+	{
+	public:
+		using statement::set_connection;
+		using statement::get_connection;
+		using statement::set_statement;
+		using statement::get_statement;
+		using statement::execute;
+		using statement::set_cursor_type;
+		friend class odbc_container_policies;
+		litwindow::odbc::sqlreturn set_statement(const litwindow::tstring& stmt)
+		{
+			m_parameter_bindings.clear();
+			return statement::set_statement(stmt);
+		}
+		void set_parameter_bindings(const boost::function<void(litwindow::odbc::statement&)>& fnc)
+		{
+			m_parameter_bindings = fnc;
+		}
+		boost::function<void(litwindow::odbc::statement&)> m_parameter_bindings;
+	};
+
 	class odbc_container_policies
 	{
 	public:
@@ -86,7 +108,7 @@ namespace litwindow { namespace ui {
 			size_t m_version = 0;
 		} m_sorting;
 
-		using container_type = litwindow::odbc::statement;
+		using container_type = odbc_container;
 		using container_policies_type = odbc_container_policies;
 		using value_type = odbc_record;
 
@@ -147,8 +169,6 @@ namespace litwindow { namespace ui {
 		}
 	};
 
-	using odbc_container = litwindow::odbc::statement;
-
 	template <>
 	class container_policies<odbc_container> :public odbc_container_policies
 	{
@@ -158,6 +178,7 @@ namespace litwindow { namespace ui {
 		litwindow::odbc::statement m_stmt;
 		litwindow::tstring m_original_sql, m_where_filter, m_limit;
 		size_t m_sort_order_version = 0;
+		boost::function<void(litwindow::odbc::statement&)> m_parameter_bindings;
 		bool set_statement(container_type& cnt)
 		{
 			bool needs_statement_refresh = true;
@@ -166,6 +187,9 @@ namespace litwindow { namespace ui {
 				m_stmt.set_cursor_type(odbc::statement::static_cursor);
 				m_original_sql = cnt.get_statement();
 				m_stmt.set_statement(m_original_sql);
+				m_parameter_bindings = cnt.m_parameter_bindings;
+				if (m_parameter_bindings)
+					m_parameter_bindings(m_stmt);
 			}
 			return needs_statement_refresh;
 		}
@@ -259,8 +283,11 @@ namespace litwindow { namespace ui {
 					m_limit.clear();
 				needs_statement_refresh = true;
 			}
-			if (needs_statement_refresh)
+			if (needs_statement_refresh) {
 				m_stmt.set_statement(L"SELECT * FROM (" + m_original_sql + L") AS sorted_query " + m_where_filter + m_limit);
+				if (m_parameter_bindings)
+					m_parameter_bindings(m_stmt);
+			}
 			m_stmt.execute();
 		}
 
@@ -271,10 +298,11 @@ namespace litwindow { namespace ui {
 				std::wstring stmt = L"SELECT COUNT(*) FROM (" + m_original_sql + L") AS total";
 				odbc::statement count(stmt, m_stmt.get_connection());
 				count.bind_column(1, rcount);
+				if (m_parameter_bindings)
+					m_parameter_bindings(count);
 				count.execute();
 				count.fetch();
-			}
-			return rcount;
+			}			return rcount;
 		}
 	};
 

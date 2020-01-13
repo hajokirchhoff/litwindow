@@ -175,7 +175,7 @@ public:
 
 	/// set an sql statement
 	sqlreturn   LWODBC_API  set_statement(const tstring &sql_statement);
-	const tstring LWODBC_API &get_statement() const { return m_sql_statement; }
+	const tstring LWODBC_API &get_statement() const { return m_original_sql_statement; }
 
 	/// prepares the statement for execution
 	const sqlreturn LWODBC_API &prepare();
@@ -711,7 +711,8 @@ private:
 	/// basic initialisation without a connection
 	void	init();
 
-	tstring     m_sql_statement;
+	tstring		m_original_sql_statement;	///< The original SQL statement, including bind markers.
+	tstring     m_parsed_sql_statement;	///< The statement after parsing, before executing: parameter bind markers have been removed
 	SQLHANDLE   m_handle;
 	mutable map<tstring, tstring> m_macros;
 
