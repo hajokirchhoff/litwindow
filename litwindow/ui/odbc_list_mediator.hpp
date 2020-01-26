@@ -313,7 +313,10 @@ namespace litwindow { namespace ui {
 		{
 			if (m_colno < 0)
 				m_colno = record.stmt.find_column(litwindow::s2tstring(m_colname));
-			record.stmt.get_data_as_string(m_colno, rc);
+			if (m_colno<0)
+				rc = L"?<" + litwindow::s2tstring(m_colname) + L">?";
+			else
+				record.stmt.get_data_as_string(m_colno, rc);
 		}
 		std::string get_column_name() const { return m_colname; }
 		std::string m_colname;
