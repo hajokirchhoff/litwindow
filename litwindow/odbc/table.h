@@ -92,6 +92,9 @@ public:
 	const sqlreturn LWODBC_API &insert_row() throw();
 
 	bool set_table(const tstring &table_name) throw() { m_table_name=table_name; return true; }
+
+	/** Tell the table to ignore the case in the column names. Default is false. Must call before 'open'. */
+	void set_ignore_case(bool do_ignore) { m_ignore_case = do_ignore; }
 protected:
 	void init(shared_connection &s);
 	void init(connection &c);
@@ -108,6 +111,7 @@ protected:
 	statement m_delete_statement;
 	SQLLEN m_delete_row_count;
 	statement m_insert_statement;
+	bool m_ignore_case = false;
 };
 
 };

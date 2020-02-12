@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   <Type Name="litwindow::odbc::sqlreturn">
-    <DisplayString Condition="m_rc!=0">FAIL m_rc={m_rc}, {m_diag->m_records[0].msg}</DisplayString>
+    <DisplayString Condition="m_rc!=0">FAIL m_rc={m_rc}, {m_diag.px->m_records[0].msg}</DisplayString>
     <DisplayString Condition="m_rc==0">Success</DisplayString>
   </Type>
 </AutoVisualizer>
