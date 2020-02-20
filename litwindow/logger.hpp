@@ -40,6 +40,12 @@
 #endif
 #include <limits>
 
+template <typename _Elem, typename V>
+inline std::basic_ostream<_Elem> &litwindow_logger_find_all_namespaces_operator_insert_to_stream(std::basic_ostream<_Elem> &o, const V &v)
+{
+	return (o << v);
+}
+
 namespace litwindow {
 	/// encapsules the litwindow logging library
 	namespace logger {
@@ -184,7 +190,7 @@ namespace litwindow {
 			}
 			static typename container_type::iterator find_name(const name_type &n)
 			{
-				typename details::defaults<_Elem>::mutex_lock_type<_Lock> lock(g_lock());
+				typename details::defaults<_Elem>::template mutex_lock_type<_Lock> lock(g_lock());
 				container_type &c(name_container());
 				std::pair<typename container_type::iterator, bool> i=c.insert(std::make_pair(n, c.size()));
 				if (i.second) {
@@ -1400,12 +1406,6 @@ namespace litwindow {
 		* \endcode
 		*/
 	}
-}
-
-template <typename _Elem, typename V>
-inline std::basic_ostream<_Elem> &litwindow_logger_find_all_namespaces_operator_insert_to_stream(std::basic_ostream<_Elem> &o, const V &v)
-{
-    return (o << v);
 }
 
 #include "logger/sink.hpp"

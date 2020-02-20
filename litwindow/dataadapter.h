@@ -235,22 +235,12 @@ namespace litwindow {
 		}
 
 		template <typename Value>
-		Value get() const
-		{
-			return dynamic_cast_accessor<Value>(*this).get();
-		}
+		Value get() const;
 
 		/// store, possibly cast \p this into \p a
 		void query_value(const accessor &a);
 		template <typename Value>
-		void query_value(Value &v)
-		{
-			typed_const_accessor<Value> a(dynamic_cast_accessor<Value>(*this));
-			if (a.is_valid())
-				a.get(v);
-			else
-				query_value(make_accessor(v));
-		}
+		void query_value(Value &v);
 		template <typename Value>
 		void get(Value &v)
 		{
@@ -333,15 +323,7 @@ namespace litwindow {
 
 		void assign_value(const const_accessor &source);
 		template <typename Value>
-		void assign_value(const Value &v)
-		{
-			typed_accessor<Value> t(dynamic_cast_accessor<Value>(*this));
-			if (t.is_valid())
-				t.set(v);
-			else {
-				assign_value(make_const_accessor(v));
-			}
-		}
+		void assign_value(const Value &v);
 		template <>
 		void assign_value(const int &i);
 
@@ -588,6 +570,22 @@ namespace litwindow {
 		return typed_const_accessor<Value>(p);
 	}
 	//@}
+	
+	template <typename Value>
+	void const_accessor::query_value(Value &v)
+	{
+		typed_const_accessor<Value> a(dynamic_cast_accessor<Value>(*this));
+		if (a.is_valid())
+			a.get(v);
+		else
+			query_value(make_accessor(v));
+	}
+
+	template <typename Value>
+	Value const_accessor::get() const
+	{
+		return dynamic_cast_accessor<Value>(*this).get();
+	}
 
 	//-----------------------------------------------------------------------------------------------------------//
 	//-----------------------------------------------------------------------------------------------------------//
@@ -981,6 +979,17 @@ namespace litwindow {
 			assign_value(make_const_accessor(i));
 	}
 
+
+	template <typename Value>
+	void accessor::assign_value(const Value &v)
+	{
+		typed_accessor<Value> t(dynamic_cast_accessor<Value>(*this));
+		if (t.is_valid())
+			t.set(v);
+		else {
+			assign_value(make_const_accessor(v));
+		}
+	}
 
 	inline const_aggregate const_accessor::get_aggregate() const
 	{

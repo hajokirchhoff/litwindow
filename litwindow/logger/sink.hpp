@@ -114,7 +114,7 @@ namespace litwindow {
 					o << e.component() << sep;
 				if (topic)
 					o << e.topic() << sep;
-				o << e.str() << endl;
+				o << e.str() << std::endl;
 			}
 		};
 
