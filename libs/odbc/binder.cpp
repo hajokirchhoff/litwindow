@@ -17,6 +17,7 @@
 #include <iomanip>
 #include "litwindow/odbc/statement.h"
 #include <boost/uuid/uuid.hpp>
+#include "boost/logic/tribool.hpp"
 #define new DEBUG_NEW
 
 using boost::uuids::uuid;
@@ -457,7 +458,7 @@ sqlreturn binder::binder_lists::prepare_binding(statement &s, bool bind_as_colum
 		m_index[b.m_by_position]=&m_elements[i];
 		b.m_bind_info.m_position=b.m_by_position;
 		if (b.m_bind_info.m_helper) {
-			// this is an extended binder, prepare the intermediate buffer if neccessary
+			// this is an extended binder, prepare the intermediate buffer if necessary
 			m_intermediate_buffer_size+=b.m_bind_info.m_helper->prepare_bind_buffer(b.m_bind_info, s, bind_as_columns ? bindto : bind_type(b.m_in_out));
 		}
 		if (bind_as_columns==false && (b.m_bind_info.m_column_size==0 || b.m_bind_info.m_column_size==SQL_NTS) && b.m_bind_info.m_accessor.is_valid()) {
@@ -700,24 +701,24 @@ namespace {
 	static register_data_type<double> tdouble2(SQL_C_DOUBLE, SQL_FLOAT);
 	static register_data_type<TIME_STRUCT> ttime_struct(SQL_C_TIME, SQL_TIME);
 
-    struct tuuid_bind_helper:public extended_bind_helper
-    {
-        // unfortunately for us, uuid stores the uuid bytes in a different order
-        // than used by ODBC (under Windows at least)
-        virtual SQLULEN prepare_bind_buffer(data_type_info &info, statement &s, bind_type bind_howto) const
-        {
-            info.m_target_ptr=0;
-            info.m_target_size=16;
-            return 16;
-        }
-        virtual sqlreturn get_data(data_type_info &info, statement &s) const
-        {
-            typed_accessor<uuid> a=dynamic_cast_accessor<uuid>(info.m_accessor);
-            if (info.m_len_ind_p && (*info.m_len_ind_p==SQL_NULL_DATA || *info.m_len_ind_p==0)) {
-                a.set(uuid());
-            } else {
-                boost::uint8_t guiddata[16];
-                boost::uint8_t *p=guiddata;
+	struct tuuid_bind_helper:public extended_bind_helper
+	{
+		// unfortunately for us, uuid stores the uuid bytes in a different order
+		// than used by ODBC (under Windows at least)
+		virtual SQLULEN prepare_bind_buffer(data_type_info &info, statement &s, bind_type bind_howto) const
+		{
+			info.m_target_ptr=0;
+			info.m_target_size=16;
+			return 16;
+		}
+		virtual sqlreturn get_data(data_type_info &info, statement &s) const
+		{
+			typed_accessor<uuid> a=dynamic_cast_accessor<uuid>(info.m_accessor);
+			if (info.m_len_ind_p && (*info.m_len_ind_p==SQL_NULL_DATA || *info.m_len_ind_p==0)) {
+				a.set(uuid());
+			} else {
+				boost::uint8_t guiddata[16];
+				boost::uint8_t *p=guiddata;
 				const boost::uint8_t *g = (const boost::uint8_t*)info.m_target_ptr;
 				auto uuid_variant = s.get_connection().get_dbms()->get_uuid_variant(g);
 				if (uuid_variant == 0xc0) { // This is the microsoft variant
@@ -729,21 +730,21 @@ namespace {
 				else {
 					memcpy(p, g, 16);
 				}
-                uuid temp;
-                std::copy(guiddata+0, guiddata+16, temp.begin());
-                a.set(temp);
-            }
-            return sqlreturn(SQL_SUCCESS);
-        }
-        sqlreturn put_data(data_type_info &info, statement &s) const
-        {
-            if (info.m_len_ind_p==0 || (*info.m_len_ind_p!=SQL_NULL_DATA && *info.m_len_ind_p!=SQL_DEFAULT_PARAM)) {
-                typed_accessor<uuid> a=dynamic_cast_accessor<uuid>(info.m_accessor);
-                if (info.m_target_size<16)
-                    return sqlreturn(_("String data right truncation (tstring)"), err_data_right_truncated, _T("22001"));
-                uuid val(a.get());
-                uuid::iterator src=val.begin();
-                boost::uint8_t *dst=(boost::uint8_t*)info.m_target_ptr;
+				uuid temp;
+				std::copy(guiddata+0, guiddata+16, temp.begin());
+				a.set(temp);
+			}
+			return sqlreturn(SQL_SUCCESS);
+		}
+		sqlreturn put_data(data_type_info &info, statement &s) const
+		{
+			if (info.m_len_ind_p==0 || (*info.m_len_ind_p!=SQL_NULL_DATA && *info.m_len_ind_p!=SQL_DEFAULT_PARAM)) {
+				typed_accessor<uuid> a=dynamic_cast_accessor<uuid>(info.m_accessor);
+				if (info.m_target_size<16)
+					return sqlreturn(_("String data right truncation (tstring)"), err_data_right_truncated, _T("22001"));
+				uuid val(a.get());
+				uuid::iterator src=val.begin();
+				boost::uint8_t *dst=(boost::uint8_t*)info.m_target_ptr;
 				auto uuid_variant = s.get_connection().get_dbms()->get_uuid_variant(src);
 				if (uuid_variant == 0xc0) { // This is the microsoft variant
 					dst[3] = *src++; dst[2] = *src++; dst[1] = *src++; dst[0] = *src++;
@@ -754,15 +755,66 @@ namespace {
 				else {
 					memcpy(dst, src, 16);
 				}
-            }
-            return sqlreturn(SQL_SUCCESS);
-        }
-        SQLINTEGER get_length(data_type_info &info) const
-        {
-            return 16;
-        }
-    } g_uuid_bind_helper;
-    static register_data_type<uuid> tuuid(SQL_C_GUID, SQL_GUID, 0, &g_uuid_bind_helper);
+			}
+			return sqlreturn(SQL_SUCCESS);
+		}
+		SQLINTEGER get_length(data_type_info &info) const
+		{
+			return 16;
+		}
+	} g_uuid_bind_helper;
+	static register_data_type<uuid> tuuid(SQL_C_GUID, SQL_GUID, 0, &g_uuid_bind_helper);
+
+
+	struct ttribool_bind_helper: public extended_bind_helper {
+
+
+		SQLULEN prepare_bind_buffer(data_type_info& info, statement& s, bind_type bind_howto) const override
+		{
+			info.m_target_ptr = 0;
+			info.m_target_size = 4;
+			return 4;
+		}
+
+		sqlreturn get_data(data_type_info& info, statement& s) const override
+		{
+			typed_accessor<boost::tribool> a = dynamic_cast_accessor<boost::tribool>(info.m_accessor);
+			if (info.m_len_ind_p && (*info.m_len_ind_p == SQL_NULL_DATA || *info.m_len_ind_p == 0)) {
+				a.set(boost::tribool());
+			}
+			else {
+				auto g = reinterpret_cast<const char*>(info.m_target_ptr);
+				switch (*g)
+				{
+				case 0: a.set(boost::tribool(false)); break;
+				case 1: a.set(boost::tribool(true)); break;
+				default:
+				case 2: a.set(boost::tribool(boost::indeterminate)); break;
+				}
+			}
+			return sqlreturn(SQL_SUCCESS);
+		}
+
+		sqlreturn put_data(data_type_info& info, statement& s) const override
+		{
+			if (info.m_len_ind_p == nullptr || (*info.m_len_ind_p != SQL_NULL_DATA && *info.m_len_ind_p != SQL_DEFAULT_PARAM)) {
+				typed_accessor<boost::tribool> a = dynamic_cast_accessor<boost::tribool>(info.m_accessor);
+				auto val(a.get());
+				auto dst = reinterpret_cast<char*>(info.m_target_ptr);
+				if (val == false) *dst = 0;
+				else if (val == true) *dst = 1;
+				else *dst = 2;
+			}
+			return sqlreturn(SQL_SUCCESS);
+		}
+
+		SQLINTEGER get_length(data_type_info& info) const override
+		{
+			return 1;
+		}
+
+	} g_tribool_bind_helper;
+	static register_data_type<boost::tribool> ttribool(SQL_C_CHAR, SQL_CHAR, 1, &g_tribool_bind_helper);
 
 template <typename Char, int SqlChar>
 struct string_bind_helper:public extended_bind_helper

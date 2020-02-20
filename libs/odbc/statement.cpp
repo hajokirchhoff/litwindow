@@ -345,11 +345,13 @@ const sqlreturn LWODBC_API & statement::get_data(SQLUSMALLINT col, const accesso
 		SQLPOINTER buffer;
 		SQLLEN buffer_length = 0;
 		if (bi.m_bind_info.m_helper) {
-				// this is an extended binder, prepare the intermediate buffer if neccessary
+				// this is an extended binder, prepare the intermediate buffer if necessary
 			intermediate_buffer_size += bi.m_bind_info.m_helper->prepare_bind_buffer(bi.m_bind_info, *this, bindto);
 			intermediate_buffer.resize(intermediate_buffer_size);
 			buffer = intermediate_buffer.data();
 			buffer_length = intermediate_buffer_size;
+			bi.m_bind_info.m_target_ptr = buffer;
+			bi.m_bind_info.m_target_size = intermediate_buffer_size;
 		}
 		else {
 			buffer = bi.m_bind_info.m_target_ptr;
