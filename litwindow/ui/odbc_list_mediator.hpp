@@ -302,7 +302,8 @@ namespace litwindow { namespace ui {
 					m_parameter_bindings(count);
 				count.execute();
 				count.fetch();
-			}			return rcount;
+			}
+			return rcount;
 		}
 	};
 
@@ -323,6 +324,35 @@ namespace litwindow { namespace ui {
 		int m_colno = -1;
 	};
 
+	struct enum_odbc_column
+	{
+		enum_odbc_column(const std::string& colname, litwindow::prop_t enum_type)
+			:m_colname(colname), m_enum_type(enum_type) {}
+
+		void operator()(const odbc_record& record, std::wstring& rc)
+		{
+			if (m_colno < 0)
+				m_colno = record.stmt.find_column(litwindow::s2tstring(m_colname));
+			if (m_colno < 0)
+				rc = L"?<" + litwindow::s2tstring(m_colname) + L">?";
+			else {
+				int64_t val;
+				SQLLEN len_ind = sizeof(val);
+				record.stmt.get_data(m_colno, val, &len_ind);
+				if (len_ind == SQL_NULL_DATA) {
+					rc = L"<null>";
+				}
+				else {
+					rc = m_enum_type->to_string(m_enum_type->get_schema_entry(), &val);
+				}
+			}
+		}
+		std::string get_column_name() const { return m_colname; }
+		std::string m_colname;
+		litwindow::prop_t m_enum_type = nullptr;
+		int m_colno = -1;
+	};
+
 	template <typename Value>
 	struct typed_odbc_column
 	{
@@ -340,8 +370,7 @@ namespace litwindow { namespace ui {
 		int m_colno = -1;
 		Value m_value;
 	};
-
-
+	
 	template <typename Value>
 	void render_as_string(const odbc_record &record, int colno, std::wstring &rc);
 

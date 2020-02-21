@@ -54,6 +54,11 @@ namespace litwindow {
 			rc.add(e);
 			return rc;
 		}
+        enum_adapter operator+(int next_val)
+        {
+            m_next_value = next_val;
+            return *this;
+        }
         enum_adapter operator+(const inserter &r)
         {
             enum_adapter rc(*this);

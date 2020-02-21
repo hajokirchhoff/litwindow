@@ -666,8 +666,19 @@ sqlreturn data_type_lookup::get(prop_t type, data_type_info &i)
 	data_type_info_register::const_iterator data=find_data_type_info(type);
 	if (data==the_map.end())
 		data=find_if(the_map.begin(), the_map.end(), boost::bind(&data_type_info::can_handle, _1, type));
-	if (data==the_map.end())
-		return sqlreturn(_("There is no registered SQL binder for type ")+s2tstring(type->get_type_name()), odbc::err_no_such_type);
+	if (data == the_map.end()) {
+		// Now see if this is an enum, which can be bound as an INT
+		if (type->is_enum()) {
+			auto enum_size = type->get_sizeof(nullptr);
+			switch (enum_size)
+			{
+			case 2: return get(litwindow::get_prop_type<int16_t>(), i);
+			case 4: return get(litwindow::get_prop_type<int32_t>(), i);
+			case 8: return get(litwindow::get_prop_type<int64_t>(), i);
+			}
+		}
+		return sqlreturn(_("There is no registered SQL binder for type ") + s2tstring(type->get_type_name()), odbc::err_no_such_type);
+	}
 	i=*data;
 	return sqlreturn(SQL_SUCCESS);
 }
@@ -693,6 +704,7 @@ namespace {
 	static register_data_type<unsigned long long> tulonglong(SQL_C_UBIGINT, SQL_BIGINT);
 #define LWODBC_SQL_C_BOOL SQL_C_CHAR
 	static register_data_type<bool> tbool(/*LWODBC_SQL_C_BOOL*/SQL_C_BIT, SQL_CHAR);
+	static register_data_type<int8_t> tint8_t(SQL_C_CHAR, SQL_CHAR);
 	static register_data_type<char> tchar(SQL_C_CHAR, SQL_VARCHAR, 0);
 	static register_data_type<wchar_t> twchar(SQL_C_WCHAR, SQL_WVARCHAR, 0);
 	static register_data_type<TIMESTAMP_STRUCT> ttimestampstruct(SQL_C_TIMESTAMP, SQL_TIMESTAMP);

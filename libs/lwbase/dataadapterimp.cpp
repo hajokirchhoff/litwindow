@@ -29,6 +29,7 @@ using namespace litwindow;
 
 //#pragma warning(disable: 4518) /* disable '__declspec(dllimport)' unexpected here */
 
+IMPLEMENT_ADAPTER_TYPE(int8_t)
 IMPLEMENT_ADAPTER_TYPE(int)
 IMPLEMENT_ADAPTER_TYPE(short)
 IMPLEMENT_ADAPTER_TYPE(float)
