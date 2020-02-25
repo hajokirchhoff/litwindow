@@ -925,10 +925,6 @@ litwindow::tstring litwindow::converter<TIMESTAMP_STRUCT>::to_string(const TIMES
 }
 LWL_IMPLEMENT_ACCESSOR(TIMESTAMP_STRUCT);
 
-
-
-#define LWL_IMPLEMENT_OPTIONAL(tp) \
-	LWL_IMPLEMENT_ACCESSOR(boost::optional<tp>)
 LWL_IMPLEMENT_OPTIONAL(double);
 LWL_IMPLEMENT_OPTIONAL(long);
 LWL_IMPLEMENT_OPTIONAL(int);
