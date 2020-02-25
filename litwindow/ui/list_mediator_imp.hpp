@@ -18,11 +18,11 @@ void litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UICon
 {
 	if (m_container && m_uicontrol && !m_columns.empty() && dirty()) {
 		m_uicontrol_policies.begin_update(m_uicontrol);
-		m_container_policies.refresh_handles(*m_container, m_uicontrol_policies.get_cache_hint(m_uicontrol));
 		if (m_columns.dirty()) {
 			m_uicontrol_policies.refresh_columns(*this, m_uicontrol);
 			m_columns.dirty(false);
 		}
+		m_container_policies.refresh_handles(*m_container, m_uicontrol_policies.get_cache_hint(m_uicontrol));
 		m_uicontrol_policies.refresh_rows(*this, m_uicontrol);
 		m_uicontrol_policies.end_update(m_uicontrol);
 		m_dirty=false;
