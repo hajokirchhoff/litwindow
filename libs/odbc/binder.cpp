@@ -692,7 +692,6 @@ data_type_info::data_type_info(prop_t type, SQLSMALLINT c_type, SQLSMALLINT sql_
 	m_column_size=(SQLUINTEGER)col_size;
 }
 
-
 namespace {
 	static register_data_type<long> tlong(SQL_C_SLONG, SQL_INTEGER);
 	static register_data_type<int> tint(SQL_C_SLONG, SQL_INTEGER);
@@ -925,3 +924,28 @@ litwindow::tstring litwindow::converter<TIMESTAMP_STRUCT>::to_string(const TIMES
 	return str.str();
 }
 LWL_IMPLEMENT_ACCESSOR(TIMESTAMP_STRUCT);
+
+
+
+#define LWL_IMPLEMENT_OPTIONAL(tp) \
+	LWL_IMPLEMENT_ACCESSOR(boost::optional<tp>)
+LWL_IMPLEMENT_OPTIONAL(double);
+LWL_IMPLEMENT_OPTIONAL(long);
+LWL_IMPLEMENT_OPTIONAL(int);
+LWL_IMPLEMENT_OPTIONAL(short);
+LWL_IMPLEMENT_OPTIONAL(unsigned long);
+LWL_IMPLEMENT_OPTIONAL(unsigned int);
+LWL_IMPLEMENT_OPTIONAL(unsigned short);
+LWL_IMPLEMENT_OPTIONAL(long long);
+LWL_IMPLEMENT_OPTIONAL(unsigned long long);
+LWL_IMPLEMENT_OPTIONAL(bool);
+LWL_IMPLEMENT_OPTIONAL(int8_t);
+LWL_IMPLEMENT_OPTIONAL(char);
+LWL_IMPLEMENT_OPTIONAL(wchar_t);
+LWL_IMPLEMENT_OPTIONAL(TIMESTAMP_STRUCT);
+LWL_IMPLEMENT_OPTIONAL(float);
+LWL_IMPLEMENT_OPTIONAL(TIME_STRUCT);
+LWL_IMPLEMENT_OPTIONAL(boost::uuids::uuid);
+LWL_IMPLEMENT_OPTIONAL(boost::tribool);
+LWL_IMPLEMENT_OPTIONAL(std::string);
+LWL_IMPLEMENT_OPTIONAL(std::wstring);
