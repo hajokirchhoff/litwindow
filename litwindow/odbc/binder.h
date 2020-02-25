@@ -427,22 +427,17 @@ protected:
 	{
 	public:
 		extended_optional_bind_helper(extended_bind_helper* original_bind_helper)
-			:m_original_bind_helper(original_bind_helper) {}
+			:m_original_bind_helper(original_bind_helper)
+		{
+		}
 		SQLULEN prepare_bind_buffer(data_type_info& info, statement& s, bind_type bind_howto) const override
 		{
 			SQLULEN rc;
 			auto &a = dynamic_cast_accessor<boost::optional<Value>>(info.m_accessor).get_ref();
 			if (m_original_bind_helper) {
 				data_type_info original_info(info);
-				if (!a) {
-					Value v;
-					original_info.m_accessor = litwindow::make_accessor(v);
-					rc = info.m_target_size = m_original_bind_helper->prepare_bind_buffer(original_info, s, bind_howto);
-				}
-				else {
-					original_info.m_accessor = litwindow::make_accessor(a.get());
-					rc = info.m_target_size = m_original_bind_helper->prepare_bind_buffer(original_info, s, bind_howto);
-				}
+				original_info.m_accessor = get_helper_accessor(a);
+				rc = info.m_target_size = m_original_bind_helper->prepare_bind_buffer(original_info, s, bind_howto);
 				info.m_target_ptr = original_info.m_target_ptr;
 			}
 			else {
@@ -485,9 +480,9 @@ protected:
 				*info.m_len_ind_p = SQLLEN(SQL_NULL_DATA);
 				return sqlreturn(SQL_SUCCESS);
 			}
-			data_type_info original_info(info);
 			auto& v(optional_a.get());
 			if (m_original_bind_helper) {
+				data_type_info original_info(info);
 				original_info.m_accessor = litwindow::make_accessor(v);
 				return m_original_bind_helper->put_data(original_info, s);
 			}
@@ -499,28 +494,21 @@ protected:
 			if (m_original_bind_helper) {
 				data_type_info original_info(info);
 				boost::optional<Value>& v_optional = dynamic_cast_accessor<boost::optional<Value>>(info.m_accessor).get_ref();
-				if (!v_optional) {
-					Value v;
-					original_info.m_accessor = litwindow::make_accessor(v);
-					return m_original_bind_helper->get_length(original_info);
-				}
-				original_info.m_accessor = litwindow::make_accessor(v_optional.get());
+				original_info.m_accessor = get_helper_accessor(v_optional);
 				m_original_bind_helper->get_length(original_info);
 			}
 			return sizeof(Value);
 		}
 	protected:
-		litwindow::accessor unwrap(const litwindow::accessor& in, bool construct_value) const
+		accessor get_helper_accessor(boost::optional<Value>& val) const
 		{
-			auto& ac(dynamic_cast_accessor<boost::optional<Value>>(in).get_ref());
-			if (!ac && construct_value)
-				ac.emplace(Value());
-			if (!ac)
-				return litwindow::accessor();
-			auto& v(ac.get());
-			return litwindow::make_accessor(v);
+			if (val) return litwindow::make_accessor(val.get());
+			if (!m_helper_value)
+				m_helper_value.emplace(Value());
+			return litwindow::make_accessor(m_helper_value.get());
 		}
 		extended_bind_helper* m_original_bind_helper;
+		mutable boost::optional<Value> m_helper_value;
 	};
 	extended_optional_bind_helper m_bind_helper_wrapper;
 };
