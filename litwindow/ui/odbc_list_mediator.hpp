@@ -197,8 +197,16 @@ namespace litwindow { namespace ui {
 		int end_cache() const { return begin_cache() + cache_size(); }
 		int cache_size() const { return m_cache_hint.second; }
 		bool has_cache() const { return begin_cache() != -1; }
+
+		odbc_record m_at_record{ m_stmt };
 	public:
 		using odbc_record = value_type;
+
+		value_type &at(container_type &c, size_t idx)
+		{
+			auto rc = m_stmt.fetch_absolute(static_cast<SQLINTEGER>(idx + 1));
+			return m_at_record;
+		}
 
 		bool set_cache_hint(cache_hint_t cache_hint)
 		{
