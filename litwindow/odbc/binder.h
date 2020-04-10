@@ -495,7 +495,7 @@ protected:
 				data_type_info original_info(info);
 				boost::optional<Value>& v_optional = dynamic_cast_accessor<boost::optional<Value>>(info.m_accessor).get_ref();
 				original_info.m_accessor = get_helper_accessor(v_optional);
-				m_original_bind_helper->get_length(original_info);
+				return m_original_bind_helper->get_length(original_info);
 			}
 			return sizeof(Value);
 		}
