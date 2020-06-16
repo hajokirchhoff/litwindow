@@ -72,7 +72,7 @@
     <OutDir>$(SolutionDir)..\stage\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>$(ProjectName)-vc$(PlatformToolsetVersion)-mt-gd-1_0_0</TargetName>
+    <TargetName>$(ProjectName)-vc$(PlatformToolsetVersion)-mt-gd-$(Platform)-1_0_0</TargetName>
     <OutDir>$(SolutionDir)..\stage64\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -80,7 +80,7 @@
     <OutDir>$(SolutionDir)..\stage\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>$(ProjectName)-vc$(PlatformToolsetVersion)-mt-1_0_0</TargetName>
+    <TargetName>$(ProjectName)-vc$(PlatformToolsetVersion)-mt-$(Platform)-1_0_0</TargetName>
     <OutDir>$(SolutionDir)..\stage64\lib\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -114,7 +114,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\..\stage64\lib;..\..\..\..\stage64\lib\vc_x64_dll</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\stage64\lib;..\..\..\..\stage64\lib\vc_x64_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -156,7 +156,7 @@
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\..\..\stage64\lib;..\..\..\..\stage64\lib\vc_x64_dll</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\stage64\lib;..\..\..\..\stage64\lib\vc_x64_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

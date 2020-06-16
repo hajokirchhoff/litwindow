@@ -62,7 +62,7 @@ namespace litwindow {
 			}
 			void push_sort(int new_column, const ColumnDescriptor &d, basic_columns_sort_index::sort_type_enum t=sort_automatic)
 			{
-				typename sort_columns_t::iterator i=find_if(m_sort_columns.begin(), m_sort_columns.end(), boost::bind(&sort_column::m_column_index, _1)==new_column);
+				typename sort_columns_t::iterator i=find_if(m_sort_columns.begin(), m_sort_columns.end(), boost::bind(&sort_column::m_column_index, boost::placeholders::_1)==new_column);
 				bool sortascending;
 				if (i==m_sort_columns.end()) {
 					sortascending= t!=basic_columns_sort_index::sort_descending;
@@ -210,7 +210,7 @@ namespace litwindow {
 			{
 				if (column_index<columns.size()) {
 					m_sorting.push_sort(column_index, columns.at(column_index), sort_type);
-					m_sort_fnc=bind(&container_policies_type::do_sort, _1, _2, boost::ref(m_sorting));
+					m_sort_fnc=bind(&container_policies_type::do_sort, boost::placeholders::_1, boost::placeholders::_2, boost::ref(m_sorting));
 				}
 			}
 			void set_sort_order(const container_type &c, const columns_type &columns, int column_index)
@@ -417,7 +417,7 @@ namespace litwindow {
 			template <typename Fnc>
 			void for_each_selected(Fnc f) const
 			{
-				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(f, _1));
+				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(f, boost::placeholders::_1));
 			}
 			template <typename ResultSet, typename Fnc>
 			void visit(ResultSet* rc, size_t idx, Fnc f) const
@@ -430,7 +430,7 @@ namespace litwindow {
 			void get_selection(Fnc f, ResultSet &r) const
 			{
 				r.clear();
-				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(&list_mediator::visit<ResultSet, Fnc>, this, &r, _1, f));
+				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(&list_mediator::visit<ResultSet, Fnc>, this, &r, boost::placeholders::_1, f));
 			}
 			template <typename ResultSet>
 			void visit_index(ResultSet *rc, size_t idx) const

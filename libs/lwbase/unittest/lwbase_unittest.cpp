@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #define BOOST_TEST_MAIN
-#include <boost/test/auto_unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include "litwindow/logger.hpp"
 #include "litwindow/logger/sink.hpp"
 #include "boost/thread/thread.hpp"

@@ -94,7 +94,7 @@ template <typename Container, typename UIControl, typename ContainerPolicies/*=c
 std::vector<size_t> litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UIControlPolicies>::get_selection()
 {
 	std::vector<size_t> rc;
-	for_each_selected(bind(&list_mediator::visit_index<std::vector<size_t> >, this, &rc, _1));
+	for_each_selected(bind(&list_mediator::visit_index<std::vector<size_t> >, this, &rc, boost::placeholders::_1));
 	return rc;
 }
 
