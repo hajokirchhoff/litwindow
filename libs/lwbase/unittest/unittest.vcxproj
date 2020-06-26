@@ -174,6 +174,8 @@ $(TargetPath)</Command>
     </Link>
     <PostBuildEvent>
       <Command>cd "$(SolutionDir)..\stage64\lib"
+rem wait 3 seconds for nuget to copy the boost unittest dll to the output directory
+ping localhost -n 3 &gt;nul
 $(TargetPath)</Command>
       <Message>Running Unittest $(TargetName)</Message>
     </PostBuildEvent>
