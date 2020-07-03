@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\..\build\packages\boost.1.73.0-1.iterator-debug-level-0.1.73.0.1\build\native\boost.1.73.0-1.iterator-debug-level-0.props" Condition="Exists('..\..\..\..\build\packages\boost.1.73.0-1.iterator-debug-level-0.1.73.0.1\build\native\boost.1.73.0-1.iterator-debug-level-0.props')" />
+  <Import Project="..\..\..\..\build\packages\boost.1.73.0.1\build\native\boost.props" Condition="Exists('..\..\..\..\build\packages\boost.1.73.0.1\build\native\boost.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -227,13 +227,13 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\..\build\packages\boost.1.73.0-1.iterator-debug-level-0.1.73.0.1\build\native\boost.1.73.0-1.iterator-debug-level-0.targets" Condition="Exists('..\..\..\..\build\packages\boost.1.73.0-1.iterator-debug-level-0.1.73.0.1\build\native\boost.1.73.0-1.iterator-debug-level-0.targets')" />
+    <Import Project="..\..\..\..\build\packages\boost.1.73.0.1\build\native\boost.targets" Condition="Exists('..\..\..\..\build\packages\boost.1.73.0.1\build\native\boost.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\build\packages\boost.1.73.0-1.iterator-debug-level-0.1.73.0.1\build\native\boost.1.73.0-1.iterator-debug-level-0.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\build\packages\boost.1.73.0-1.iterator-debug-level-0.1.73.0.1\build\native\boost.1.73.0-1.iterator-debug-level-0.props'))" />
-    <Error Condition="!Exists('..\..\..\..\build\packages\boost.1.73.0-1.iterator-debug-level-0.1.73.0.1\build\native\boost.1.73.0-1.iterator-debug-level-0.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\build\packages\boost.1.73.0-1.iterator-debug-level-0.1.73.0.1\build\native\boost.1.73.0-1.iterator-debug-level-0.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\build\packages\boost.1.73.0.1\build\native\boost.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\build\packages\boost.1.73.0.1\build\native\boost.props'))" />
+    <Error Condition="!Exists('..\..\..\..\build\packages\boost.1.73.0.1\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\build\packages\boost.1.73.0.1\build\native\boost.targets'))" />
   </Target>
 </Project>
