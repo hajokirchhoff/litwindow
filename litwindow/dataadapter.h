@@ -1029,7 +1029,7 @@ namespace litwindow {
 	inline accessor converter_value_base<Value>::clone(const schema_entry *e, const_prop_ptr member_ptr) const
 	{
 		Value *v=new Value;
-		std::auto_ptr<Value> guard(v);
+		std::unique_ptr<Value> guard(v);
 		get_value(*v, e, member_ptr);
 		accessor rc=make_accessor(*v);
 		guard.release();
