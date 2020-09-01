@@ -1276,6 +1276,34 @@ namespace litwindow {
 };
 
 
+template <class _Cont, class _Iter/*=typename _Cont::iterator*/, class _Value/*=typename _Cont::value_type */>
+bool litwindow::container_iterator<_Cont, _Iter, _Value>::erase_from(container& where)
+{
+	typed_accessor<_Cont> c = dynamic_cast_accessor<_Cont>(where);
+	if (c.is_valid() == false)
+		throw lwbase_error("container type and iterator do not match");
+	return eraser(c.get_ref(), i);
+}
+
+template <class _Cont, class _Iter/*=typename _Cont::iterator*/, class _Value/*=typename _Cont::value_type */>
+bool litwindow::container_iterator<_Cont, _Iter, _Value>::insert_into(container& where, const accessor& what)
+{
+	typed_accessor<_Cont> c = dynamic_cast_accessor<_Cont>(where);
+	typed_const_accessor<_Value> v = dynamic_cast_accessor<_Value>(what);
+	if (c.is_valid() == false)
+		throw lwbase_error("container type and iterator do not match");
+	if (v.is_valid() == false)
+		throw lwbase_error("container type and value type do not match");
+	return inserter(c.get_ref(), v, i);
+}
+
+template <class _Cont, class _Iter/*=typename _Cont::iterator*/, class _Value/*=typename _Cont::value_type */>
+void litwindow::container_iterator<_Cont, _Iter, _Value>::verify_valid_container(const container& where) const
+{
+	if (!where.is_type(get_prop_type<_Cont>()))
+		throw lwbase_error("container and iterator type mismatch.");
+}
+
 namespace litwindow {
 	tstring LWBASE_API accessor_as_debug(const const_accessor &a);
 	tstring LWBASE_API accessor_as_debug(const const_accessor &a, bool show_type);

@@ -169,28 +169,9 @@ public:
         while (off--)
             inc();
     }
-    void verify_valid_container(const container &where) const
-    {
-        if (!where.is_type(get_prop_type<_Cont>()))
-            throw lwbase_error("container and iterator type mismatch.");
-    }
-    virtual bool insert_into(container &where, const accessor &what)
-    {
-        typed_accessor<_Cont> c=dynamic_cast_accessor<_Cont>(where);
-        typed_const_accessor<_Value> v=dynamic_cast_accessor<_Value>(what);
-        if (c.is_valid()==false)
-            throw lwbase_error("container type and iterator do not match");
-        if (v.is_valid()==false)
-            throw lwbase_error("container type and value type do not match");
-        return inserter(c.get_ref(), v, i);
-    }
-    virtual bool erase_from(container &where)
-    {
-        typed_accessor<_Cont> c=dynamic_cast_accessor<_Cont>(where);
-        if (c.is_valid()==false)
-            throw lwbase_error("container type and iterator do not match");
-        return eraser(c.get_ref(), i);
-    }
+    void verify_valid_container(const container &where) const;
+    virtual bool insert_into(container &where, const accessor &what);
+    virtual bool erase_from(container &where);
 };
 
 template <class Container, class Iterator>
