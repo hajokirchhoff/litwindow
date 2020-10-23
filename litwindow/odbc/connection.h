@@ -371,9 +371,9 @@ protected:
 
 typedef connection::shared_ptr shared_connection;
 
-inline shared_connection LWODBC_API named_connection(const tstring &name)
+inline shared_connection LWODBC_API named_connection(const tstring& name, bool do_open = true)
 {
-	return connection::pool().open(name);
+	return do_open ? connection::pool().open(name) : connection::pool().get(name);
 }
 inline shared_connection LWODBC_API default_connection()
 {
