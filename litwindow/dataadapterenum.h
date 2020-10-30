@@ -128,6 +128,7 @@ namespace litwindow {
     class converter_enum:public converter<ENUM_TYPE>, public converter_enum_info
     {
     public:
+        using converter<ENUM_TYPE>::member;
         converter_enum(const std::string &_type_name, const prop_type_registrar *r)
             :converter/*_value_base*/<ENUM_TYPE>(_type_name, r)
         {}
