@@ -354,7 +354,7 @@ public:
 	const sqlreturn LWODBC_API &get_cursor_name(tstring &cursor_name);
 
 	/// move on to the next result set if the SQL statement returned more than one result set
-	sqlreturn	LWODBC_API	more_results();
+	const sqlreturn	LWODBC_API &more_results();
 
 	/// close the current statement and unbind all columns/parameters.
 	/// The statement can be reused with a different statement or the same statement and a different execution.
