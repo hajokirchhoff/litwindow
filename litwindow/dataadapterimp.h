@@ -381,6 +381,7 @@ namespace litwindow {
 			}
 			return *rc;
 		}
+		const std::type_info& get_typeid() const;
 	};
 
 	/*! @} */
@@ -478,6 +479,8 @@ namespace litwindow {
 
         /// return enum access
         virtual const converter_enum_info *get_enum_info() const { return 0; }
+
+		virtual const std::type_info& get_typeid() const = 0;
 	};
 
 	/** converter for abstract aggregates. */
@@ -499,6 +502,7 @@ namespace litwindow {
 		{}
 		const prop_type_registrar *get_registrar() const { return registrar; }
 		std::string get_type_name() const { return type_name; }
+		const std::type_info& get_typeid() const override { return typeid(Value); }
 		virtual bool has_copy() const { return false; }
 		//virtual void get_value(Value &v, const schema_entry *e, const_prop_ptr member_ptr) const = 0;
 		//virtual const Value *get_ptr(const schema_entry *e, const_prop_ptr member_ptr) const = 0;
@@ -603,6 +607,7 @@ namespace litwindow {
 		{}
 		//const prop_type_registrar *get_registrar() const { return registrar; }
 		std::string get_type_name() const { return type_name; }
+		const std::type_info& get_typeid() const { return typeid(Value); }
 		virtual bool has_copy() const { return value_traits_t<Value>().has_copy(); }
 		virtual void get_value(Value &v, const schema_entry *e, const_prop_ptr member_ptr) const = 0;
 		virtual const Value *get_ptr(const schema_entry *e, const_prop_ptr member_ptr) const = 0;
@@ -775,6 +780,13 @@ namespace litwindow {
 			return tstring();
 		}
 	};
+
+
+	inline const std::type_info& schema_entry::get_typeid() const
+	{
+		return m_type->get_typeid();
+	}
+
 
 	//-----------------------------------------------------------------------------------------------------------//
 	/** Base type object for old style c vector [] data types.

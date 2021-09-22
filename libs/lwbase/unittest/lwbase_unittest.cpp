@@ -221,8 +221,8 @@ struct a_test_struct
 };
 
 LWL_BEGIN_AGGREGATE(a_test_struct)
-PROP_ANN(aString, { "aString_ann", "Test" }, { "SomeOtherString", "Test" }, "AnnoWithNoValue")
 PROP(anInt)
+PROP_ANN(aString, { "aString_ann", "Test" }, { "SomeOtherString", "Test" }, "AnnoWithNoValue")
 PROP(someFloat, { "PrimaryKey" }, {"ODBC_TYPE", "SINGLE"})
 LWL_END_AGGREGATE()
 
@@ -254,6 +254,9 @@ BOOST_AUTO_TEST_CASE(dataadapter_annotations)
 	for (auto j : expected) {
 		BOOST_CHECK_EQUAL(annotations_found.count(j), 1);
 	}
+
+	BOOST_CHECK(someFloatSchemaEntry.get_typeid() == typeid(float));
+	BOOST_CHECK(aString_entry.get_typeid() == typeid(std::string));
 }
 
 #ifdef _DEBUG

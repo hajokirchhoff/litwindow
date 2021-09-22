@@ -826,6 +826,7 @@ void schema_base::free_strings()
     aggregate adapters allow access to individual members of an aggregate data type (struct or class). It is
     a collection of accessors. Each accessor represents a member pointer.
     */
+
 }
 
 #include <malloc.h>
