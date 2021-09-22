@@ -7,6 +7,8 @@
 #include "boost/shared_ptr.hpp"
 #include "boost/smart_ptr/make_shared_object.hpp"
 #include "boost/atomic/atomic.hpp"
+#include "litwindow/dataadapter.h"
+#include <set>
 
 #define new DEBUG_NEW
 
@@ -209,6 +211,49 @@ BOOST_AUTO_TEST_CASE(simple_memory_sink)
 {
 	simple_memory_sink_test("Event ", "long: ");
 	simple_memory_sink_test(L"Eventl ", L"longl: ");
+}
+
+struct a_test_struct
+{
+	std::string aString;
+	int anInt;
+	float someFloat;
+};
+
+LWL_BEGIN_AGGREGATE(a_test_struct)
+PROP_ANN(aString, { "aString_ann", "Test" }, { "SomeOtherString", "Test" }, "AnnoWithNoValue")
+PROP(anInt)
+PROP(someFloat, { "PrimaryKey" }, {"ODBC_TYPE", "SINGLE"})
+LWL_END_AGGREGATE()
+
+BOOST_AUTO_TEST_CASE(dataadapter_annotations)
+{
+	const auto& aSchem = litwindow::schema<a_test_struct>::get_schema();
+	const auto& aString_entry = aSchem["aString"];
+	BOOST_CHECK_EQUAL(std::string(aString_entry.m_class_name), "a_test_struct");
+	const auto& iann = aString_entry["aString_ann"];
+	BOOST_CHECK_EQUAL(iann.m_str_value, "Test");
+	BOOST_CHECK_EQUAL(aString_entry["AnnoWithNoValue"].str_value(), nullptr);
+	BOOST_CHECK_EQUAL(aString_entry["None"].is_valid(), false);
+
+	BOOST_CHECK_EQUAL(aSchem["aString"]["SomeOtherString"].str_value(), "Test");
+
+	BOOST_CHECK_EQUAL(aSchem["anInt"]["Annotation"].is_valid(), false);
+
+	const auto& someFloatSchemaEntry = aSchem["someFloat"];
+
+	BOOST_CHECK_EQUAL(someFloatSchemaEntry["PrimaryKey"].is_valid(), true);
+	BOOST_CHECK_EQUAL(someFloatSchemaEntry["ODBC_TYPE"].str_value(), "SINGLE");
+
+	std::set<std::string> annotations_found;
+	for (auto j : aString_entry.m_annotations) {
+		annotations_found.insert(j.m_name);
+	}
+	BOOST_CHECK_EQUAL(annotations_found.size(), 3);
+	auto expected = { "AnnoWithNoValue", "aString_ann", "SomeOtherString" };
+	for (auto j : expected) {
+		BOOST_CHECK_EQUAL(annotations_found.count(j), 1);
+	}
 }
 
 #ifdef _DEBUG
