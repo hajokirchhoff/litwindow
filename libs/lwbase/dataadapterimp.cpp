@@ -616,12 +616,18 @@ tstring converter<float>::to_string(const float &f)
 void schema_base::init(const schema_entry *staticArray, const char *aClassName)
 {
     classname=aClassName;
-    while (staticArray->m_name) {
+	while (staticArray->m_entry_type != schema_entry::invalid) {
             // First insert this schema entry into the 'this_schema' vector used for simple iterators
-        this_schema.push_back(*staticArray);
-        this_schema.back().m_class_name=classname;
-        this_schema.back().m_name=strdup(this_schema.back().m_name);
-
+		if (staticArray->m_entry_type == schema_entry::annotation_entry) {
+            if (this_schema.empty())
+                throw std::logic_error("PROP_ANN must be used _after_ the PROP declaration");
+            this_schema.back().m_annotations.insert(this_schema.back().m_annotations.end(), staticArray->m_annotations.begin(), staticArray->m_annotations.end());
+        }
+        else {
+            this_schema.push_back(*staticArray);
+            this_schema.back().m_class_name = classname;
+            this_schema.back().m_name = strdup(this_schema.back().m_name);
+        }
         //@todo add a check to ensure that the element is unique
         staticArray++;
     }

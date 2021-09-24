@@ -199,7 +199,8 @@ namespace litwindow {
 			inherited,
 			coobject,
 			getter_setter_func,
-			ext_getter_setter_func
+			ext_getter_setter_func,
+			annotation_entry
 		} m_entry_type;
 		//! pointer to a function that casts the parameter to a base this ptr
 		typedef void * (*cast_derived_to_base_t)(void* from_derived, void* to_base);
@@ -230,6 +231,8 @@ namespace litwindow {
 			,m_offset(anOffset)
 			,m_annotations(ilist)
 		{
+			if (anOffset == size_t(-1))
+				m_entry_type = annotation_entry;
 		}
 		/// Create an empty entry.
 		schema_entry(const char *propName=0)
@@ -1241,8 +1244,8 @@ litwindow::tstring litwindow::converter<boost::optional<tp>>::to_string(const bo
 #define PROP(variable, ...) \
 	PROPENTRY(offsetof(PROPCLASS, variable), PROPTYPE(variable), #variable, { __VA_ARGS__ })
 
-#define PROP_ANN(variable, ...) \
-	PROPENTRY(offsetof(PROPCLASS, variable), PROPTYPE(variable), #variable, { __VA_ARGS__ })
+#define PROP_ANN(...) \
+	PROPENTRY(size_t(-1), nullptr, nullptr, { __VA_ARGS__ })
 
 /** Define a schema entry for an old style C std::string (null terminated char*).
 This macro defines a null terminated C std::string as a property. @note std::string/wstring is strongly preferred to char[].

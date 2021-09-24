@@ -222,7 +222,8 @@ struct a_test_struct
 
 LWL_BEGIN_AGGREGATE(a_test_struct)
 PROP(anInt)
-PROP_ANN(aString, { "aString_ann", "Test" }, { "SomeOtherString", "Test" }, "AnnoWithNoValue")
+PROP(aString)
+PROP_ANN({ "aString_ann", "Test" }, { "SomeOtherString", "Test" }, "AnnoWithNoValue")
 PROP(someFloat, { "PrimaryKey" }, {"ODBC_TYPE", "SINGLE"})
 LWL_END_AGGREGATE()
 
