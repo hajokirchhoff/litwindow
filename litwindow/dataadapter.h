@@ -1695,6 +1695,47 @@ namespace litwindow {
 			(this_ptr(a_this_ptr)->*setter)(v);
 		}
 
+		bool is_enum() const override
+		{
+			return m_actual_type->is_enum();
+		}
+
+		bool is_c_vector() const override
+		{
+			return m_actual_type->is_c_vector();
+		}
+
+		bool is_container() const override
+		{
+			return m_actual_type->is_container();
+		}
+
+		bool is_const_container() const override
+		{
+			return m_actual_type->is_const_container();
+		}
+
+		const std::type_info& get_typeid() const override
+		{
+			return m_actual_type->get_typeid();
+		}
+
+		int to_int(const schema_entry* entry, const_prop_ptr a_this_ptr) override
+		{
+			GetPointer getter = GetterSetterPointer<GetPointer, SetPointer>::get_getter(entry->m_getter_setter);
+			Value v = (this_ptr(a_this_ptr)->*getter)();
+			return make_const_accessor(v).to_int();
+		}
+
+		void from_int(const schema_entry* entry, int value, prop_ptr a_this_ptr) override
+		{
+			SetPointer setter = GetterSetterPointer<GetPointer, SetPointer>::get_setter(entry->m_getter_setter);
+			Value v;
+			accessor a(make_accessor(v));
+			a.from_int(value);
+			(this_ptr(a_this_ptr)->*setter)(v);
+		}
+
 	};
 
     template <typename AggregateType, typename ValueType>
