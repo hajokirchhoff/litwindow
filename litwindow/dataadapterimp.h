@@ -324,39 +324,8 @@ namespace litwindow {
 		/// calculate the memory address of the object that this schema_entry points to.
 		/// Input: Base address of the accessor/aggregate
 		/// Output: Address of the member
-		prop_ptr member_ptr(const void* t) const
-		{
-			void* aThisPtr = const_cast<void*>(t);
-			switch (m_entry_type) {
-			case inherited:
-				/// calculate base pointer from current address. Call conversion method stored in m_cast_derived_to_base
-				aThisPtr = m_cast_derived_to_base(aThisPtr, aThisPtr);
-				break;
-			case coobject:
-			{
-				static unsigned loop_detection = 0;
-				// if this test fails, the coobject creation is caught in an endless loop.
-				// most likely case: the constructor of a coobject tries to access
-				// a property of the original object. the search for this property
-				// tries to create another coobject, since the first coobject has not yet
-				// been created. the other coobject constructor again tries to access
-				// the property and so on...
-				if (++loop_detection == 100)
-					throw litwindow::lwbase_error("Coobject creation loop! See comments in " __FILE__);
-				aThisPtr = m_get_co_object(aThisPtr);
-				--loop_detection;
-			} break;
-			case plain_old_type:
-				/// plain old types are simply stored 'm_offset' bytes from the base pointer.
-				aThisPtr = reinterpret_cast<unsigned char*>(aThisPtr) + m_offset;
-				break;
-			case getter_setter_func:
-			case ext_getter_setter_func:
-				/// will never be called as get/set members use a different way of accessing the pointer
-				break;
-			}
-			return reinterpret_cast<prop_ptr>(aThisPtr);
-		}
+		inline prop_ptr member_ptr(const void* t) const;
+		inline prop_ptr aggregate_ptr(const void* t) const;
 		bool is_inherited() const
 		{
 			return m_entry_type==inherited;
@@ -479,6 +448,8 @@ namespace litwindow {
 
 		/// return the size of an object in bytes
 		virtual size_t get_sizeof(const schema_entry *e) const = 0;
+		/// get a const_prop_ptr (const void*) to the value - if possible
+		virtual const_prop_ptr get_prop_ptr(const schema_entry* e, const_prop_ptr member_ptr) const = 0;
 
         /// return enum access
         virtual const converter_enum_info *get_enum_info() const { return 0; }
@@ -518,6 +489,10 @@ namespace litwindow {
 		//        throw litwindow::lwbase_error("type mismatch");
 		//     set_value(v.get(), e, member_ptr);
 		//}
+		[[noreturn]] const_prop_ptr get_prop_ptr(const schema_entry* e, const_prop_ptr member_ptr) const override
+		{
+			throw litwindow::lwbase_error("not implemented");
+		}
 
 		virtual bool is_int() const
 		{
@@ -614,6 +589,10 @@ namespace litwindow {
 		virtual bool has_copy() const { return value_traits_t<Value>().has_copy(); }
 		virtual void get_value(Value &v, const schema_entry *e, const_prop_ptr member_ptr) const = 0;
 		virtual const Value *get_ptr(const schema_entry *e, const_prop_ptr member_ptr) const = 0;
+		const_prop_ptr get_prop_ptr(const schema_entry* e, const_prop_ptr member_ptr) const override
+		{
+			return const_prop_ptr(get_ptr(e, member_ptr));
+		}
 		virtual size_t get_sizeof(const schema_entry *e) const = 0;
 		virtual Value *get_ptr(const schema_entry *e, prop_ptr member_ptr) const = 0;
 		virtual void set_value(const Value &v, const schema_entry *e, prop_ptr member_ptr) = 0;
@@ -788,6 +767,57 @@ namespace litwindow {
 	inline const std::type_info& schema_entry::get_typeid() const
 	{
 		return m_type->get_typeid();
+	}
+
+	inline prop_ptr schema_entry::member_ptr(const void* t) const
+	{
+		void* aThisPtr = const_cast<void*>(t);
+		switch (m_entry_type) {
+		case inherited:
+			/// calculate base pointer from current address. Call conversion method stored in m_cast_derived_to_base
+			aThisPtr = m_cast_derived_to_base(aThisPtr, aThisPtr);
+			break;
+		case coobject:
+		{
+			static unsigned loop_detection = 0;
+			// if this test fails, the coobject creation is caught in an endless loop.
+			// most likely case: the constructor of a coobject tries to access
+			// a property of the original object. the search for this property
+			// tries to create another coobject, since the first coobject has not yet
+			// been created. the other coobject constructor again tries to access
+			// the property and so on...
+			if (++loop_detection == 100)
+				throw litwindow::lwbase_error("Coobject creation loop! See comments in " __FILE__);
+			aThisPtr = m_get_co_object(aThisPtr);
+			--loop_detection;
+		} break;
+		case plain_old_type:
+			/// plain old types are simply stored 'm_offset' bytes from the base pointer.
+			aThisPtr = reinterpret_cast<unsigned char*>(aThisPtr) + m_offset;
+			break;
+		case getter_setter_func:
+		case ext_getter_setter_func:
+			/// will never be called as get/set members use a different way of accessing the pointer
+			// The getter needs to be passed the 'this' pointer of the aggregate, rather than
+			// the specific pointer to the member itself
+			auto this_rc = const_cast<prop_ptr>(m_type->get_prop_ptr(this, t));
+/*
+			if (this_rc != nullptr)
+				aThisPtr = this_rc;
+*/
+			break;
+		}
+		return reinterpret_cast<prop_ptr>(aThisPtr);
+	}
+
+	inline prop_ptr schema_entry::aggregate_ptr(const void* t) const
+	{
+		prop_ptr rc;
+		if (m_entry_type == getter_setter_func)
+			rc = const_cast<prop_ptr>(m_type->get_prop_ptr(this, t));
+		else
+			rc = member_ptr(t);
+		return rc;
 	}
 
 

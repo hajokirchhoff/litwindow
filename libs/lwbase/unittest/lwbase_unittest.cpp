@@ -15,6 +15,42 @@
 using namespace litwindow;
 using namespace std;
 
+template <typename Value>
+struct mem_ptr_lvalue
+{
+	static const bool value = false;
+};
+
+template <typename RC, typename Ptr>
+struct mem_ptr_lvalue<RC (Ptr::*)()>
+{
+	static const bool value = true;
+	using type = RC;
+};
+
+struct scratch_test_pad
+{
+	int val = 0;
+	int& memfn()
+	{
+		return val;
+	}
+};
+
+BOOST_AUTO_TEST_CASE(CPP_Scratch_Pad)
+{
+	using getter = int& (scratch_test_pad::*)()const;
+	auto memptr = &scratch_test_pad::memfn;
+	using memptr_t = decltype(memptr);
+
+	BOOST_CHECK_EQUAL(mem_ptr_lvalue<memptr_t>::value, true);
+
+	using T = std::conditional_t<mem_ptr_lvalue<memptr_t>::value, mem_ptr_lvalue<memptr_t>::type, void>;
+
+	std::remove_reference_t<mem_ptr_lvalue<memptr_t>::type> v = 10;
+	BOOST_CHECK_EQUAL(v, 10);
+}
+
 BOOST_AUTO_TEST_CASE(simple_log_name)
 {
     using namespace logger;
