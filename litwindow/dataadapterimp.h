@@ -816,7 +816,7 @@ namespace litwindow {
 		if (m_entry_type == getter_setter_func)
 			rc = const_cast<prop_ptr>(m_type->get_prop_ptr(this, t));
 		else
-			rc = member_ptr(t);
+			rc = prop_ptr(t);
 		return rc;
 	}
 
