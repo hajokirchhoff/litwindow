@@ -125,7 +125,7 @@ $(TargetPath)</Command>
     </Link>
     <PostBuildEvent>
       <Command>cd "$(SolutionDir)..\stage64\lib"
-$(TargetPath)</Command>
+"$(TargetPath)"</Command>
       <Message>Running Unittest $(TargetName)</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -175,7 +175,7 @@ $(TargetPath)</Command>
     </Link>
     <PostBuildEvent>
       <Command>cd "$(SolutionDir)..\stage64\lib"
-$(TargetPath)</Command>
+"$(TargetPath)"</Command>
       <Message>Running Unittest $(TargetName)</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
