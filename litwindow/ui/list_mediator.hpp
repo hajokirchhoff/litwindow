@@ -62,7 +62,7 @@ namespace litwindow {
 			}
 			void push_sort(int new_column, const ColumnDescriptor &d, basic_columns_sort_index::sort_type_enum t=sort_automatic)
 			{
-				sort_columns_t::iterator i=find_if(m_sort_columns.begin(), m_sort_columns.end(), boost::bind(&sort_column::m_column_index, _1)==new_column);
+				typename sort_columns_t::iterator i=find_if(m_sort_columns.begin(), m_sort_columns.end(), boost::bind(&sort_column::m_column_index, boost::placeholders::_1)==new_column);
 				bool sortascending;
 				if (i==m_sort_columns.end()) {
 					sortascending= t!=basic_columns_sort_index::sort_descending;
@@ -82,7 +82,7 @@ namespace litwindow {
 			std::vector<basic_columns_sort_index> get_sort_columns() const
 			{
 				std::vector<basic_columns_sort_index> rc;
-				for (sort_columns_t::const_iterator i=m_sort_columns.begin(); i!=m_sort_columns.end(); ++i) 
+				for (typename sort_columns_t::const_iterator i=m_sort_columns.begin(); i!=m_sort_columns.end(); ++i) 
 				{
 					rc.push_back(basic_columns_sort_index(i->m_column_index, i->m_sort_ascending));
 				}
@@ -90,7 +90,7 @@ namespace litwindow {
 			}
 			bool compare(const value_type &left, const value_type &right) const
 			{
-				sort_columns_t::const_iterator i=m_sort_columns.begin();
+				typename sort_columns_t::const_iterator i=m_sort_columns.begin();
 				while (i!=m_sort_columns.end() && i->is_valid()) {
 					const sort_columns_t::value_type &current(*i);
 					const value_type *l, *r;
@@ -186,13 +186,17 @@ namespace litwindow {
 			void refresh_handles(container_type &c) const
 			{
 				m_handles.resize(c.size());
-				sorted_handles_t::iterator n=m_handles.begin();
-				for (container_type::iterator i=c.begin(); i!=c.end(); ++i) {
+				typename sorted_handles_t::iterator n=m_handles.begin();
+				for (typename container_type::iterator i=c.begin(); i!=c.end(); ++i) {
 					*n++=i;
 				}
 				if (m_sort_fnc)
 					m_sort_fnc(m_handles.begin(), m_handles.end());
 				m_handles_dirty=false;
+			}
+			void refresh_handles(container_type& c, const std::pair<long, long>&) const
+			{
+				refresh_handles(c);
 			}
 			bool comparator(const container_type &c, const columns_type &columns, int column_index, const handle_type &left, const handle_type &right)
 			{
@@ -206,7 +210,7 @@ namespace litwindow {
 			{
 				if (column_index<columns.size()) {
 					m_sorting.push_sort(column_index, columns.at(column_index), sort_type);
-					m_sort_fnc=bind(&container_policies_type::do_sort, _1, _2, boost::ref(m_sorting));
+					m_sort_fnc=bind(&container_policies_type::do_sort, boost::placeholders::_1, boost::placeholders::_2, boost::ref(m_sorting));
 				}
 			}
 			void set_sort_order(const container_type &c, const columns_type &columns, int column_index)
@@ -266,6 +270,7 @@ namespace litwindow {
 			stl_container_policies()
 				:m_handles_dirty(true){}
 
+			void set_cache_hint(const std::pair<long, long>&) {}
 		protected:
 			handle_policies_type m_handle_policies;
 			mutable bool m_handles_dirty;
@@ -292,7 +297,6 @@ namespace litwindow {
 			typedef stl_container_policies<std::list<Value> > Inherited;
 		public:
 		};
-
 		
 		//------------------------------------------------------------------------------------------------------------------------------------
 		
@@ -307,7 +311,7 @@ namespace litwindow {
 			typedef typename UIControlPolicies::uicontrol_type uicontrol_type;
 
 			typedef typename ContainerPolicies::const_iterator const_iterator;
-			typedef typename ContainerPolicies::iterator iterator;
+			//typedef typename ContainerPolicies::iterator iterator;
 
 			enum sort_type_enum
 			{
@@ -371,7 +375,7 @@ namespace litwindow {
 				return m_container_policies.get_sort_order();
 			}
 			void set_sort_order(const std::vector<basic_columns_sort_index> &sortorder);
-			wstring get_item_text(size_t row, size_t col) const
+			wstring get_item_text(size_t row, size_t col)
 			{
 				return m_container_policies.get_item_text(*m_container, m_columns, row, col);
 			}
@@ -413,7 +417,7 @@ namespace litwindow {
 			template <typename Fnc>
 			void for_each_selected(Fnc f) const
 			{
-				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(f, _1));
+				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(f, boost::placeholders::_1));
 			}
 			template <typename ResultSet, typename Fnc>
 			void visit(ResultSet* rc, size_t idx, Fnc f) const
@@ -426,7 +430,7 @@ namespace litwindow {
 			void get_selection(Fnc f, ResultSet &r) const
 			{
 				r.clear();
-				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(&list_mediator::visit<ResultSet, Fnc>, this, &r, _1, f));
+				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(&list_mediator::visit<ResultSet, Fnc>, this, &r, boost::placeholders::_1, f));
 			}
 			template <typename ResultSet>
 			void visit_index(ResultSet *rc, size_t idx) const
@@ -453,6 +457,11 @@ namespace litwindow {
 
 			void get_layout_perspective(wstring &layout);
 			void set_layout_perspective(const wstring &layout);
+
+			void set_cache_hint(const std::pair<long, long>& cache_hint)
+			{
+				m_container_policies.set_cache_hint(cache_hint);
+			}
 		protected:
 			columns_type m_columns;
 			uicontrol_type *m_uicontrol;

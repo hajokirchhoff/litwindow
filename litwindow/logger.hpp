@@ -40,6 +40,12 @@
 #endif
 #include <limits>
 
+template <typename _Elem, typename V>
+inline std::basic_ostream<_Elem> &litwindow_logger_find_all_namespaces_operator_insert_to_stream(std::basic_ostream<_Elem> &o, const V &v)
+{
+	return (o << v);
+}
+
 namespace litwindow {
 	/// encapsules the litwindow logging library
 	namespace logger {
@@ -184,7 +190,7 @@ namespace litwindow {
 			}
 			static typename container_type::iterator find_name(const name_type &n)
 			{
-				details::defaults<_Elem>::mutex_lock_type<_Lock> lock(g_lock());
+				typename details::defaults<_Elem>::template mutex_lock_type<_Lock> lock(g_lock());
 				container_type &c(name_container());
 				std::pair<typename container_type::iterator, bool> i=c.insert(std::make_pair(n, c.size()));
 				if (i.second) {
@@ -342,7 +348,7 @@ namespace litwindow {
 			explicit basic_level(const tag_type &t):inherited(t){}
 			explicit basic_level(const _Elem *s):inherited(s){}
 			explicit basic_level(const std::basic_string<_Elem> &s):inherited(s){}
-			inline bool operator<(const basic_level &r) const { return m_index < r.m_index; }
+			inline bool operator<(const basic_level &r) const { return this->m_index < r.m_index; }
 		};
 		template <>
 		inline static const typename basic_level<char>::tag_type &basic_level<char>::get(basic_level<char>::preset p)
@@ -405,7 +411,7 @@ namespace litwindow {
 			typedef typename _Traits::int_type int_type;
 			typedef typename _Traits::pos_type pos_type;
 			typedef typename _Traits::off_type off_type;
-			typedef basic_streambuf<_Elem, _Traits> _Mysb;
+			typedef std::basic_streambuf<_Elem, _Traits> _Mysb;
 			typedef _Alloc allocator_type;
 			typedef basic_level<_Elem> level_type;
 			typedef basic_component<_Elem> component_type;
@@ -413,7 +419,12 @@ namespace litwindow {
 			typedef basic_logsink<_Elem> sink_type;
 			typedef basic_instance<_Elem> instance_type;
 			typedef time_t timestamp_type;
+			typedef typename _Mysb::char_type char_type;
+
+			using _Mysb::traits_type;
 		private:
+			using _Mysb::pptr;
+			using _Mysb::sputc;
 			struct entry
 			{
 				timestamp_type  m_timestamp;
@@ -433,7 +444,7 @@ namespace litwindow {
 				topic_type		topic() const { return topic_type(m_topic); }
 				level_type		level() const { return level_type(m_level); }
 				instance_type	instance() const { return instance_type(m_instance); }
-				void			index(size_t new_index) { m_index=unsigned long(new_index); }
+				void			index(size_t new_index) { m_index=static_cast<unsigned long>(new_index); }
 				size_t			index() const { return m_index; }
 				timestamp_type	timestamp() const { return m_timestamp; }
 				size_t          full_size_in_bytes() const 
@@ -509,7 +520,7 @@ namespace litwindow {
 			template <typename Value>
 			void do_put(const Value &v)
 			{
-				sputn((const char_type*)&v, (sizeof(v)+sizeof(char_type)-1)/sizeof(char_type));
+				_Mysb::sputn((const char_type*)&v, (sizeof(v)+sizeof(char_type)-1)/sizeof(char_type));
 			}
 			size_t count() const { return pptr()-m_begin_data; }
 			timestamp_type timestamp() const { return time(0); }
@@ -542,7 +553,7 @@ namespace litwindow {
 			/// specify flush period: write to sink after a timespan of \p p
 			void sync_period(timestamp_type p)		{ m_sync_period=p; }
 
-			void    level(const level_type &lvl)		{ current_entry()->m_level=unsigned short(lvl.index()); }
+			void    level(const level_type &lvl)		{ current_entry()->m_level=static_cast<unsigned short>(lvl.index()); }
 			size_t  level() const					{ return m_current_entry->m_level; }
 			void    topic(const topic_type &t)		{ current_entry()->m_topic=(unsigned short)t.index(); }
 			size_t  topic() const					{ return m_current_entry->m_topic; }
@@ -1395,12 +1406,6 @@ namespace litwindow {
 		* \endcode
 		*/
 	}
-}
-
-template <typename _Elem, typename V>
-inline std::basic_ostream<_Elem> &litwindow_logger_find_all_namespaces_operator_insert_to_stream(std::basic_ostream<_Elem> &o, const V &v)
-{
-    return (o << v);
 }
 
 #include "logger/sink.hpp"

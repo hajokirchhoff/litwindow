@@ -183,8 +183,8 @@ bool statement::do_parse_bindings()
 			rule<scanner<const TCHAR*> > my_skipper = space_p;
 
 			macro_count=0;
-			rc=parse(m_sql_statement.c_str(), stmt).full;
-			m_sql_statement=out_stream.str();
+			rc=parse(m_original_sql_statement.c_str(), stmt).full;
+			m_parsed_sql_statement=out_stream.str();
 		} while (rc && macro_count>0);
 	}
 	catch (parser_error<const TCHAR*, const TCHAR*> &e) {

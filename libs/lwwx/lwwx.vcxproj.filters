@@ -84,6 +84,9 @@
     <ClInclude Include="..\..\litwindow\ui\list_mediator_imp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\litwindow\ui\odbc_list_mediator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="action_objects.cpp">
@@ -131,5 +134,8 @@
     <ClCompile Include="wxtext_objects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

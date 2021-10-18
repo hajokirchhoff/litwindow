@@ -313,10 +313,13 @@ public:
 	}
 };
 
+template <typename E>
+class rule_expr_assign_concrete;
+
 template <class E>
 rule_expr *make_rule(const accessor &target, const E &e)
 {
-	return new rule_expr(target, new rule_expr_assign_concrete<E>(dynamic_cast_accessor<E::value_type> (target), e));
+	return new rule_expr(target, new rule_expr_assign_concrete<E>(dynamic_cast_accessor<typename E::value_type> (target), e));
 }
 
 ///@}
@@ -572,7 +575,7 @@ public:
 			// the target is itself an accessor
 			return 0;
 		}
-		E::value_type v=the_expr.evaluate(s->get_symbol_table());
+		typename E::value_type v=the_expr.evaluate(s->get_symbol_table());
 		tstring value=make_const_accessor(v).to_string();
 		return new value_assign_string(typed_target.get_accessor(), value) ;
 	}

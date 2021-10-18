@@ -207,7 +207,8 @@ void statement::init()
 	m_state=uninitialised;
 	m_emulate_optimistic_concurrency=false;
 	m_handle=0;
-	m_sql_statement.clear();
+	m_original_sql_statement.clear();
+	m_parsed_sql_statement.clear();
 	m_last_error.clear();
 	m_is_prepared=false;
 	m_state=uninitialised;
@@ -224,6 +225,12 @@ const sqlreturn &statement::get_cursor_name(tstring &cursor_name)
 		cursor_name=b;
 	} else
 		cursor_name=buffer;
+	return m_last_error;
+}
+
+const sqlreturn &statement::more_results()
+{
+	m_last_error = SQLMoreResults(handle());
 	return m_last_error;
 }
 
@@ -303,22 +310,65 @@ bool statement::is_scrollable()
 const sqlreturn &statement::get_data_as_string(SQLUSMALLINT col, tstring &rc, SQLLEN *len_ind_p/* =0 */)
 {
 	rc.clear();
-	SQLLEN len;
-	TCHAR *buffer=0;
-	if (get_data(col, SQL_C_TCHAR, buffer, 0, &len).fail()) {
+	rc.resize(30);
+	SQLLEN len = rc.size()*sizeof(TCHAR);
+	TCHAR* buffer = const_cast<TCHAR*>(rc.data());
+	if (get_data(col, SQL_C_TCHAR, buffer, rc.size()*sizeof(TCHAR), &len).fail()) {
 		return m_last_error;
 	}
 	if (len_ind_p)
 		*len_ind_p=len;
 	if (len!=SQL_NULL_DATA) {
-		if (len>=0x10000) {
-			lw_err() << _("E92001: column length too large for get_data_as_string - truncated at 0x10000") << endl;
-			len=0x10000;
+		if (rc.back() == '\0')
+			rc.pop_back();
+		if (len > static_cast<SQLLEN>(rc.size()*sizeof(TCHAR))) {
+			size_t prev_size = rc.size();
+			rc.resize(len/sizeof(TCHAR)+1);
+			SQLLEN len2;
+			auto err_code = get_data(col, SQL_C_TCHAR, const_cast<TCHAR*>(rc.data() + prev_size), (rc.size() - prev_size) * sizeof(TCHAR), &len2);
+			if (len_ind_p)
+				*len_ind_p = len2;
+			if (rc.back() == '\0')
+				rc.pop_back();
 		}
-		buffer=(TCHAR*)_alloca(len*sizeof(TCHAR));
-		if (get_data(col, SQL_C_TCHAR, buffer, len, len_ind_p))
-			rc=tstring(buffer, len);
+		else
+			rc.resize(wcslen(const_cast<TCHAR*>(rc.data())));
 	}
+	return m_last_error;
+}
+
+const sqlreturn LWODBC_API & statement::get_data(SQLUSMALLINT col, const accessor &acc, SQLLEN *len_ind_p)
+{
+	bind_task bi;
+	sqlreturn rc = m_binder.get_bind_info(acc, bi.m_bind_info);
+	if (rc.ok()) {
+		bi.m_bind_info.m_len_ind_p = len_ind_p;
+		bi.m_in_out = out;
+		bi.m_by_position = col;
+		SQLULEN intermediate_buffer_size = 0;
+		std::vector<uint8_t> intermediate_buffer;
+
+		SQLPOINTER buffer;
+		SQLLEN buffer_length = 0;
+		if (bi.m_bind_info.m_helper) {
+				// this is an extended binder, prepare the intermediate buffer if necessary
+			intermediate_buffer_size += bi.m_bind_info.m_helper->prepare_bind_buffer(bi.m_bind_info, *this, bindto);
+			intermediate_buffer.resize(intermediate_buffer_size);
+			buffer = intermediate_buffer.data();
+			buffer_length = intermediate_buffer_size;
+			bi.m_bind_info.m_target_ptr = buffer;
+			bi.m_bind_info.m_target_size = intermediate_buffer_size;
+		}
+		else {
+			buffer = bi.m_bind_info.m_target_ptr;
+			buffer_length = bi.m_bind_info.m_target_size;
+		}
+		get_data(col, bi.m_bind_info.m_c_type, buffer, buffer_length, len_ind_p);
+		if (bi.m_bind_info.m_helper) {
+			rc = bi.m_bind_info.m_helper->get_data(bi.m_bind_info, *this);
+		}
+	}
+	m_last_error = rc;
 	return m_last_error;
 }
 
@@ -386,7 +436,7 @@ sqlreturn statement::set_statement(const tstring &sql_statement)
 {
 	close_cursor();
 	clear_result_set();
-	m_sql_statement=sql_statement; 
+	m_original_sql_statement=sql_statement; 
 	m_last_error.clear();
 	m_is_prepared=false;
 	m_state=statement_set;
@@ -421,10 +471,10 @@ void statement::clear_result_set()
 const sqlreturn &statement::prepare()
 {
 	if (m_state == setting_statement) {
-		if (set_statement(m_sql_statement).log_errors())
+		if (set_statement(m_original_sql_statement).log_errors())
 			return m_last_error;
 	}
-	m_last_error=SQLPrepare(handle(), (SQLTCHAR*)m_sql_statement.c_str(), m_sql_statement.length());
+	m_last_error=SQLPrepare(handle(), (SQLTCHAR*)m_parsed_sql_statement.c_str(), m_parsed_sql_statement.length());
 	if (m_last_error)
 		m_is_prepared=true;
 	return m_last_error;
@@ -434,7 +484,7 @@ const sqlreturn &statement::execute()
 {
 	litwindow::context_t c("statement::execute");
 	if (m_state==setting_statement) {
-		if (set_statement(m_sql_statement).log_errors())
+		if (set_statement(m_original_sql_statement).log_errors())
 			return m_last_error;
 	}
 
@@ -454,7 +504,7 @@ const sqlreturn &statement::execute()
 		if (m_is_prepared)
 			m_last_error=SQLExecute(handle());
 		else {
-			m_last_error=SQLExecDirect(handle(), (SQLTCHAR*)m_sql_statement.c_str(), m_sql_statement.length());
+			m_last_error=SQLExecDirect(handle(), (SQLTCHAR*)m_parsed_sql_statement.c_str(), m_parsed_sql_statement.length());
 		}
 	}
 	/// reset the len_ind field to SQL_NTS for all parameters where the actual length string was calculated as a workaround
@@ -493,7 +543,8 @@ sqlreturn statement::clear()
 	m_state=closed;
 	m_is_prepared=false;
 	m_continuous_sql_binder.clear();
-	m_sql_statement.clear();
+	m_original_sql_statement.clear();
+	m_parsed_sql_statement.clear();
 	return m_last_error;
 }
 
@@ -567,7 +618,7 @@ sqlreturn statement::do_bind_parameter( SQLUSMALLINT pposition, SQLSMALLINT in_o
 
 const sqlreturn &statement::put_columns() 
 {
-	return m_last_error=m_binder.do_put_columns();
+	return m_last_error=m_binder.do_put_columns(*this);
 }
 
 sqlreturn statement::fetch()
@@ -747,11 +798,11 @@ statement &statement::operator <<(const TCHAR *stmt)
 {
 	if (m_state!=reset && m_state!=setting_statement && m_state!=closed) {
 		clear();
-		m_sql_statement.clear();
+		m_original_sql_statement.clear();
 	}
 	m_state=setting_statement;
 	m_continuous_sql_binder.m_last_was_parameter=false;
-	m_sql_statement.append(stmt);
+	m_original_sql_statement.append(stmt);
 	return *this;
 }
 
@@ -760,8 +811,8 @@ void statement::add_accessor(const litwindow::accessor &a)
 #ifdef _NOT
 	m_state=setting_statement;
 	if (m_continuous_sql_binder.m_last_was_parameter)
-		m_sql_statement.append(1, _T(','));
-	m_sql_statement.append(1, _T('?'));
+		m_original_sql_statement.append(1, _T(','));
+	m_original_sql_statement.append(1, _T('?'));
 #endif // _NOT
 
 	if (m_continuous_sql_binder.m_last_bind_type==bindto)

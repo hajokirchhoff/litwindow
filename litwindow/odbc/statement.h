@@ -175,7 +175,7 @@ public:
 
 	/// set an sql statement
 	sqlreturn   LWODBC_API  set_statement(const tstring &sql_statement);
-	const tstring LWODBC_API &get_statement() const { return m_sql_statement; }
+	const tstring LWODBC_API &get_statement() const { return m_original_sql_statement; }
 
 	/// prepares the statement for execution
 	const sqlreturn LWODBC_API &prepare();
@@ -260,6 +260,13 @@ public:
 		return m_last_error=SQLGetData(handle(), col, c_type, buffer, buffer_length, len_ind_p);
 	}
 	const sqlreturn LWODBC_API &get_data_as_string(SQLUSMALLINT col, tstring &rc, SQLLEN *len_ind_p=0);
+
+	const sqlreturn LWODBC_API &get_data(SQLUSMALLINT col, const accessor &acc, SQLLEN *len_ind_p = nullptr);
+	template <typename Value>
+	const sqlreturn &get_data(SQLUSMALLINT col, Value &v, SQLLEN *len_ind_p = nullptr)
+	{
+		return get_data(col, make_accessor(v), len_ind_p);
+	}
 	///@name Setting cursor type and features
 	/// Use these methods to query and set the cursortype and features for the statement.
 	//@{
@@ -347,7 +354,7 @@ public:
 	const sqlreturn LWODBC_API &get_cursor_name(tstring &cursor_name);
 
 	/// move on to the next result set if the SQL statement returned more than one result set
-	sqlreturn	LWODBC_API	more_results();
+	const sqlreturn	LWODBC_API &more_results();
 
 	/// close the current statement and unbind all columns/parameters.
 	/// The statement can be reused with a different statement or the same statement and a different execution.
@@ -704,7 +711,8 @@ private:
 	/// basic initialisation without a connection
 	void	init();
 
-	tstring     m_sql_statement;
+	tstring		m_original_sql_statement;	///< The original SQL statement, including bind markers.
+	tstring     m_parsed_sql_statement;	///< The statement after parsing, before executing: parameter bind markers have been removed
 	SQLHANDLE   m_handle;
 	mutable map<tstring, tstring> m_macros;
 

@@ -371,66 +371,67 @@ protected:
 
 typedef connection::shared_ptr shared_connection;
 
-inline shared_connection LWODBC_API named_connection(const tstring &name)
+inline shared_connection LWODBC_API named_connection(const tstring& name, bool do_open = true)
 {
-	return connection::pool().open(name);
+	return do_open ? connection::pool().open(name) : connection::pool().get(name);
 }
 inline shared_connection LWODBC_API default_connection()
 {
 	return named_connection(tstring());
 }
 
-inline sqlreturn connection::set_read_only(bool yes)
+inline sqlreturn connection::set_read_only(bool yes) throw()
 {
 	return set_attribute(SQL_ATTR_ACCESS_MODE, yes ? SQL_MODE_READ_ONLY : SQL_MODE_READ_WRITE);
 }
-inline const sqlreturn &connection::set_autocommit_on(bool yes)
+inline const sqlreturn &connection::set_autocommit_on(bool yes) throw()
 {
 	if (m_nested_transactions==0)
 		m_autocommit_state=yes;
 	return set_attribute(SQL_ATTR_AUTOCOMMIT, yes ? SQL_AUTOCOMMIT_ON : SQL_AUTOCOMMIT_OFF);
 }
-inline bool connection::is_autocommit_on()
+inline bool connection::is_autocommit_on() throw()
 {
 	SQLUINTEGER value;
 	get_attribute(SQL_ATTR_AUTOCOMMIT, value);
 	return value==SQL_AUTOCOMMIT_ON;
 }
-inline sqlreturn connection::set_current_catalog(const tstring &catalog)
+inline sqlreturn connection::set_current_catalog(const tstring &catalog) throw()
 {
 	return set_attribute(SQL_ATTR_CURRENT_CATALOG, catalog);
 }
-inline sqlreturn connection::get_current_catalog(tstring &catalog)
+inline sqlreturn connection::get_current_catalog(tstring &catalog) throw()
 {
 	return get_attribute(SQL_ATTR_CURRENT_CATALOG, catalog);
 }
-inline tstring connection::get_out_connection_string() const
+inline tstring connection::get_out_connection_string() const throw()
 {
 	return m_out_connection_string;
 }
-inline bool connection::set_uid(const tstring &uid)
+inline bool connection::set_uid(const tstring &uid) throw()
 {
 	m_uid=uid;
 	return true;
 }
-inline bool connection::set_pwd(const tstring &pwd)
+inline bool connection::set_pwd(const tstring &pwd) throw()
 {
 	m_pwd=pwd;
 	return true;
 }
-inline const tstring &connection::get_pwd() const
+inline const tstring &connection::get_pwd() const throw()
 {
 	return m_pwd;
 }
-inline const tstring &connection::get_uid() const
+inline const tstring &connection::get_uid() const throw()
 {
 	return m_uid;
 }
-inline const tstring &connection::get_dsn() const
+inline const tstring& connection::get_dsn() const  throw()
+
 {
 	return m_dsn;
 }
-inline bool connection::is_open_via_SQLConnect() const
+inline bool connection::is_open_via_SQLConnect() const throw()
 {
 	return m_remaining_connection_string.length()==0;
 }

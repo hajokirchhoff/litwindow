@@ -25,7 +25,7 @@
 #else
 #define DEBUG_NEW new
 #endif
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/function.hpp>
 //#include <cppunit/ui/text/TestRunner.h>
 //#include <cppunit/extensions/HelperMacros.h>

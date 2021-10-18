@@ -14,6 +14,7 @@
 #endif
 
 #include <map>
+#include "./dataadapterimp.h"
 
 namespace litwindow {
 
@@ -168,28 +169,9 @@ public:
         while (off--)
             inc();
     }
-    void verify_valid_container(const container &where) const
-    {
-        if (!where.is_type(get_prop_type<_Cont>()))
-            throw lwbase_error("container and iterator type mismatch.");
-    }
-    virtual bool insert_into(container &where, const accessor &what)
-    {
-        typed_accessor<_Cont> c=dynamic_cast_accessor<_Cont>(where);
-        typed_const_accessor<_Value> v=dynamic_cast_accessor<_Value>(what);
-        if (c.is_valid()==false)
-            throw lwbase_error("container type and iterator do not match");
-        if (v.is_valid()==false)
-            throw lwbase_error("container type and value type do not match");
-        return inserter(c.get_ref(), v, i);
-    }
-    virtual bool erase_from(container &where)
-    {
-        typed_accessor<_Cont> c=dynamic_cast_accessor<_Cont>(where);
-        if (c.is_valid()==false)
-            throw lwbase_error("container type and iterator do not match");
-        return eraser(c.get_ref(), i);
-    }
+    void verify_valid_container(const container &where) const;
+    virtual bool insert_into(container &where, const accessor &what);
+    virtual bool erase_from(container &where);
 };
 
 template <class Container, class Iterator>
@@ -217,11 +199,11 @@ public:
 	}
 	const_container_iterator_imp_base *get_const_begin(const schema_entry *se, const_prop_ptr member_ptr) const
 	{
-		return make_const_container_const_iterator<Container>(member(member_ptr).begin());
+		return make_const_container_const_iterator<Container>(this->member(member_ptr).begin());
 	}
 	const_container_iterator_imp_base *get_const_end(const schema_entry *se, const_prop_ptr member_ptr) const
 	{
-		return make_const_container_const_iterator<Container>(member(member_ptr).end());
+		return make_const_container_const_iterator<Container>(this->member(member_ptr).end());
 	}
 };
 
@@ -229,7 +211,7 @@ template <class Container>
 class container_converter:public const_container_converter<Container>
 {
 public:
-    container_converter(const string &name, const prop_type_registrar *r)
+	container_converter(const string& name, const prop_type_registrar* r)
         :const_container_converter<Container>(name, r)
     {}
 	bool is_container() const
@@ -238,11 +220,11 @@ public:
 	}
     container_iterator_imp_base *get_begin(const schema_entry *se, prop_ptr member_ptr) const
     {
-        return make_container_iterator<Container, Container::iterator, Container::value_type>(member(member_ptr).begin());
+        return make_container_iterator<Container, Container::iterator, Container::value_type>(this->member(member_ptr).begin());
     }
     container_iterator_imp_base *get_end(const schema_entry *se, prop_ptr member_ptr) const
     {
-        return make_container_iterator<Container, Container::iterator, Container::value_type>(member(member_ptr).end());
+        return make_container_iterator<Container, Container::iterator, Container::value_type>(this->member(member_ptr).end());
     }
 };
 

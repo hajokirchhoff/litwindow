@@ -1112,6 +1112,17 @@ namespace litwindow {
 #define LWL_IMPLEMENT_ACCESSOR(tp) \
 	IMPLEMENT_ADAPTER_TYPE_ds(tp, LWBASE_DLL_EXPORT)
 
+//! Implement the "boost::optional" wrapper adapter for a type
+#define LWL_IMPLEMENT_OPTIONAL(tp) \
+	LWL_IMPLEMENT_ACCESSOR(boost::optional<tp>) \
+template <> \
+litwindow::tstring litwindow::converter<boost::optional<tp>>::to_string(const boost::optional<tp>& v) \
+{ \
+	if (!v) \
+		return L"<none>"; \
+	return litwindow::make_const_accessor(v.get()).to_string(); \
+}
+
 #define _NOTHING
 
 #define LWL_IMPLEMENT_INLINE_ACCESSOR(tp) \

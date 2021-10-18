@@ -18,11 +18,11 @@ void litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UICon
 {
 	if (m_container && m_uicontrol && !m_columns.empty() && dirty()) {
 		m_uicontrol_policies.begin_update(m_uicontrol);
-		m_container_policies.refresh_handles(*m_container);
 		if (m_columns.dirty()) {
 			m_uicontrol_policies.refresh_columns(*this, m_uicontrol);
 			m_columns.dirty(false);
 		}
+		m_container_policies.refresh_handles(*m_container, m_uicontrol_policies.get_cache_hint(m_uicontrol));
 		m_uicontrol_policies.refresh_rows(*this, m_uicontrol);
 		m_uicontrol_policies.end_update(m_uicontrol);
 		m_dirty=false;
@@ -33,16 +33,26 @@ template <typename Container, typename UIControl, typename ContainerPolicies/*=c
 void litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UIControlPolicies>::set_layout_perspective( const wstring &layout )
 {
 	if (layout.empty()==false && !boost::algorithm::istarts_with(layout, L"<?xml")) {
+		std::wstring previous_layout;
+		get_layout_perspective(previous_layout);
 		try {
 			std::wstringstream in(layout);
 			boost::archive::text_wiarchive ar(in);
 			ar >> boost::serialization::make_nvp("mediator", *this);
-			refresh(true);
 		}
-		catch (boost::archive::archive_exception &a) {
+		catch (boost::archive::archive_exception &) {
 			// Invalid archive. Ignore layout perspective.
-			std::string w=a.what();
+			try {
+				std::wstringstream in(previous_layout);
+				boost::archive::text_wiarchive ar(in);
+				ar >> boost::serialization::make_nvp("mediator", *this);
+			}
+			catch (...) {
+			// catch-all to prevent double exception caused by a programming error. previous_layout really should be serializeable, but
+			// perhaps it's not.
+			}
 		}
+		refresh(true);
 	}
 }
 
@@ -84,7 +94,7 @@ template <typename Container, typename UIControl, typename ContainerPolicies/*=c
 std::vector<size_t> litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UIControlPolicies>::get_selection()
 {
 	std::vector<size_t> rc;
-	for_each_selected(bind(&list_mediator::visit_index<std::vector<size_t> >, this, &rc, _1));
+	for_each_selected(bind(&list_mediator::visit_index<std::vector<size_t> >, this, &rc, boost::placeholders::_1));
 	return rc;
 }
 
@@ -92,7 +102,7 @@ template <typename Container, typename UIControl, typename ContainerPolicies/*=c
 typename litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UIControlPolicies>::value_type & litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UIControlPolicies>::get_selected_item()
 {
 	if (has_selection()==false) {
-		throw runtime_error("no item selected");
+		throw std::runtime_error("no item selected");
 	}
 	return value_at(get_selection_index());
 }
@@ -101,7 +111,7 @@ template <typename Container, typename UIControl, typename ContainerPolicies/*=c
 const typename litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UIControlPolicies>::value_type & litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UIControlPolicies>::get_selected_item() const
 {
 	if (has_selection()==false) {
-		throw runtime_error("no item selected");
+		throw std::runtime_error("no item selected");
 	}
 	return value_at(get_selection_index());
 }

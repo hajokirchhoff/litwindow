@@ -103,7 +103,7 @@ public:
 
 	LWODBC_API const sqldiag & diag(int idx=-1) const;
 
-	bool LWODBC_API is_state(TCHAR state[5]) const;
+	bool LWODBC_API is_state(const TCHAR state[5]) const;
 
 	void append_diag(const sqldiag &r);
 	void clear() { m_records.clear(); }
@@ -178,7 +178,7 @@ public:
 
 	void clear() throw()							{ set(SQL_SUCCESS); }
 
-	bool LWODBC_API	is_state(TCHAR state[5]) const				///< test if the first sqlreturn diagnostics record has a given state
+	bool LWODBC_API	is_state(const TCHAR state[5]) const				///< test if the first sqlreturn diagnostics record has a given state
 	{ return m_diag && m_diag->is_state(state); }
 
 	tstring LWODBC_API as_string() const throw();					///< format the error as a string so that it can be shown to the user

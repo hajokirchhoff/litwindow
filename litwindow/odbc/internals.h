@@ -97,10 +97,10 @@ protected:
 };
 
 template <class Value>
-bool scope_index<Value>::add(const tstring &name, scope sc, const Value &v, bool set_if_exists)
+bool scope_index<Value>::add(const tstring &name, scope sc, const Value &v, bool set_if_exists) throw()
 {
 	names_t &named_map(m_scope_map[sc]);
-	names_t::iterator name_i=named_map.find(name);
+	typename names_t::iterator name_i=named_map.find(name);
 	if (name_i==named_map.end()) {
 		name_i=named_map.insert(make_pair(name, v)).first;
 		return true;
@@ -112,9 +112,9 @@ bool scope_index<Value>::add(const tstring &name, scope sc, const Value &v, bool
 }
 
 template <class Value>
-const Value &scope_index<Value>::find(const tstring &name, const scope &sc, const Value &default_value) const
+const Value &scope_index<Value>::find(const tstring &name, const scope &sc, const Value &default_value) const throw()
 {
-	scopes_t::const_iterator i=m_scope_map.find(sc);
+	typename scopes_t::const_iterator i=m_scope_map.find(sc);
 	bool find_any=false;
 	if (i==m_scope_map.end()) {
 		if (sc.table.length()==0 || sc.schema.length()==0 || sc.catalog.length()==0 ||
@@ -125,7 +125,7 @@ const Value &scope_index<Value>::find(const tstring &name, const scope &sc, cons
 	}
 	while (i!=m_scope_map.end()) {
 		if (find_any==false || sc.partial_match(i->first)) {
-			names_t::const_iterator name_i=i->second.find(name);
+			typename names_t::const_iterator name_i=i->second.find(name);
 			if (name_i!=i->second.end())
 				return name_i->second;
 		}

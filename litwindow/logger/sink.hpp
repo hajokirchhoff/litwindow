@@ -36,7 +36,7 @@ namespace litwindow {
             {
 				mutex_lock_type l(m_lock);
 				do_put(e);
-				for (sink_chain_type::const_iterator i=m_sink_chain.begin(); i!=m_sink_chain.end(); ++i)
+				for (typename sink_chain_type::const_iterator i=m_sink_chain.begin(); i!=m_sink_chain.end(); ++i)
 					(*i)->do_put(e);
             }
             void clear()
@@ -114,7 +114,7 @@ namespace litwindow {
 					o << e.component() << sep;
 				if (topic)
 					o << e.topic() << sep;
-				o << e.str() << endl;
+				o << e.str() << std::endl;
 			}
 		};
 
@@ -131,12 +131,13 @@ namespace litwindow {
 			}
 			void format(const formatter_type &e) { m_formatter=e; }
 			formatter_type &format() { return m_formatter; }
+			using entries = typename basic_logsink<typename _OStream::char_type>::entries;
 		protected:
 			formatter_type m_formatter;
 			stream_type *m_out;
 			virtual void do_put(const entries &e)
 			{
-				entries::const_iterator i;
+				typename entries::const_iterator i;
 				for (i=e.begin(); i!=e.end(); ++i) {
 					m_formatter(*m_out, *i);
 				}
@@ -152,6 +153,9 @@ namespace litwindow {
 		public:
 			typedef typename basic_logsink<_Elem>::entries entries;
             typedef typename entries::entry entry;
+			using basic_logsink<_Elem>::mutex_lock_type;
+			using basic_logsink<_Elem>::m_lock;
+
             basic_memory_logsink():m_page_count(0),m_first_entry_index(0),m_next_entry_index(0)
             {
             }
@@ -212,7 +216,7 @@ namespace litwindow {
                         while (reinterpret_cast<const unsigned char*>(n)+sizeof(_Elem)<=end_ptr()) {
                             *n++=*f++;
                         }
-                        copy_e.m_length=unsigned short(f-e.begin_data());
+                        copy_e.m_length=static_cast<unsigned short>(f-e.begin_data());
                         m_next=end_ptr();
                     } else {
                         memcpy(m_next, &e, e.full_size_in_bytes());
@@ -349,7 +353,7 @@ namespace litwindow {
 			{
                 if (m_current==0)
                     alloc_new_page();
-                entries::const_iterator i;
+                typename entries::const_iterator i;
                 for (i=e.begin(); i!=e.end(); ++i)
                     put_entry(*i);
 			}

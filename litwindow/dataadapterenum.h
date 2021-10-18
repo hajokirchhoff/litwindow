@@ -54,6 +54,11 @@ namespace litwindow {
 			rc.add(e);
 			return rc;
 		}
+        enum_adapter operator+(int next_val)
+        {
+            m_next_value = next_val;
+            return *this;
+        }
         enum_adapter operator+(const inserter &r)
         {
             enum_adapter rc(*this);
@@ -123,6 +128,7 @@ namespace litwindow {
     class converter_enum:public converter<ENUM_TYPE>, public converter_enum_info
     {
     public:
+        using converter<ENUM_TYPE>::member;
         converter_enum(const std::string &_type_name, const prop_type_registrar *r)
             :converter/*_value_base*/<ENUM_TYPE>(_type_name, r)
         {}

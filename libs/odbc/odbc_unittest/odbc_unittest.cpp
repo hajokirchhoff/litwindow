@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #define BOOST_TEST_MAIN
-#include <boost/test/auto_unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 
 #include "litwindow/dataadapter.h"
 #include "litwindow/odbc/table.h"
 #include "litwindow/odbc/connection.h"
 #include "boost/lexical_cast.hpp"
+#include "boost/optional/optional.hpp"
 
 #define new DEBUG_NEW
 
@@ -38,7 +39,9 @@ void odbc_create_empty_table_test()
 CREATE TABLE test (
 	id integer primary key,
 	val real,
-	textval text
+	textval text,
+	optional_val real,
+	optional_textval text
 )
 )");
 	rc = stmt.execute();
@@ -66,6 +69,8 @@ struct test_struct
 	int m_id;
 	float m_val;
 	wstring m_textval;
+	boost::optional<float> m_optional_val;
+	boost::optional<std::string> m_optional_textval;
 };
 
 /*! Hier das zugehörige Databinding.
@@ -73,6 +78,8 @@ struct test_struct
  *! Weitere Infos im litwindow dataadapter Unittest.
  *! */
 LWL_BEGIN_AGGREGATE(test_struct)
+PROP(m_optional_textval)
+PROP(m_optional_val)
 PROP(m_id)
 PROP(m_val)
 PROP(m_textval)
@@ -87,7 +94,7 @@ void odbc_insert_rows()
 	odbc::table t(L"test");
 
 	// Jetzt eine Variable für test_struct anlegen und mit Werten füllen.
-	test_struct my_struct{ 5, 9.5f, L"ein Test" };
+	test_struct my_struct{ 5, 9.5f, L"ein Test", 413.f, "optionaler string" };
 
 	// Hier wird die Tabelle geöffnet und an die Variable gebunden.
 	t.open(my_struct);
@@ -105,13 +112,62 @@ void odbc_insert_rows()
 		my_struct.m_id = i;
 		my_struct.m_val = float(i);
 		my_struct.m_textval = boost::lexical_cast<std::wstring>(i);
+		if ((i % 2) == 0)
+			my_struct.m_optional_val = float(i) + 2;
+		else
+			my_struct.m_optional_val = boost::none;
+		if ((i % 3) == 0)
+			my_struct.m_optional_textval = boost::lexical_cast<std::string>(100 + i);
+		else
+			my_struct.m_optional_textval = boost::none;
 		t.insert_row();
 	}
 
+}
+
+void odbc_verify_rows()
+{
+	odbc::connection::pool().set(sqLite3Connection);
+	// Turn on exceptions
+	odbc::connection::pool().get()->set_throw_on_error_default(true);
+
+	odbc::table t(L"test");
+
+	test_struct my_struct;
+	t.open(my_struct);
+
+	int i = 0;
+	while (t.fetch().success() && t.last_error().no_data() == false) {
+		if (i == 5) {
+			// Diese Zeile wurde oben zuallererst explizit eingefügt.
+			// Da m_val der Primary Key ist, wird sie beim neuerlichen insert_row
+			// nicht überschrieben.
+			BOOST_CHECK_EQUAL(my_struct.m_val, 9.5f);
+			BOOST_CHECK(my_struct.m_textval == L"ein Test");
+			BOOST_CHECK(my_struct.m_optional_val == 413.f);
+			BOOST_CHECK(my_struct.m_optional_textval == std::string("optionaler string"));
+		}
+		else {
+			BOOST_CHECK_EQUAL(my_struct.m_id, i);
+			BOOST_CHECK_EQUAL(my_struct.m_val, float(i));
+			BOOST_CHECK(my_struct.m_textval == boost::lexical_cast<std::wstring>(i));
+			if ((i % 2) == 0)
+				BOOST_CHECK(my_struct.m_optional_val == boost::optional<float>(i + 2.0f));
+			else
+				BOOST_CHECK(my_struct.m_optional_val == boost::none);
+			if ((i % 3) == 0)
+				BOOST_CHECK(my_struct.m_optional_textval == boost::lexical_cast<std::string>(100 + i));
+			else
+				BOOST_CHECK(my_struct.m_optional_textval == boost::none);
+		}
+		++i;
+	}
+	BOOST_CHECK_EQUAL(i, 20);
 }
 
 BOOST_AUTO_TEST_CASE(simple_odbc_test)
 {
 	odbc_create_empty_table_test();
 	odbc_insert_rows();
+	odbc_verify_rows();
 }

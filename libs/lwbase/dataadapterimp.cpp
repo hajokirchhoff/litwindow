@@ -29,6 +29,7 @@ using namespace litwindow;
 
 //#pragma warning(disable: 4518) /* disable '__declspec(dllimport)' unexpected here */
 
+IMPLEMENT_ADAPTER_TYPE(int8_t)
 IMPLEMENT_ADAPTER_TYPE(int)
 IMPLEMENT_ADAPTER_TYPE(short)
 IMPLEMENT_ADAPTER_TYPE(float)
@@ -77,6 +78,32 @@ size_t litwindow::converter<uuid>::from_string(const litwindow::tstring &newValu
     return sizeof(v);
 }
 LWL_IMPLEMENT_ACCESSOR(uuid)
+#endif
+
+#define HAS_BOOST_TRIBOOL
+#ifdef HAS_BOOST_TRIBOOL
+#include "boost/logic/tribool.hpp"
+template <>
+litwindow::tstring litwindow::converter<boost::tribool>::to_string(const boost::tribool& t)
+{
+    if (t == true) return _T("true");
+    if (t == false) return _T("false");
+    return _T("indeterminate");
+}
+template <>
+size_t litwindow::converter<boost::tribool>::from_string(const litwindow::tstring& newValue, boost::tribool& v)
+{
+    if (newValue == _T("true"))
+        v = true;
+    else if (newValue == _T("false"))
+        v = false;
+    else if (newValue == _T("indeterminate"))
+        v = boost::indeterminate;
+    else
+        throw litwindow::lwbase_error("invalid value for tribool");
+    return sizeof(v);
+}
+LWL_IMPLEMENT_ACCESSOR(boost::tribool)
 #endif
 
 

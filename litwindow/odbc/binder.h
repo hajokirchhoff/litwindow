@@ -12,6 +12,7 @@
 #include <litwindow/lwbase.hpp>
 #include <litwindow/tstring.hpp>
 #include <litwindow/dataadapter.h>
+#include <boost/optional/optional_fwd.hpp>
 #include "lwodbc_def.h"
 #include "internals.h"
 
@@ -160,7 +161,7 @@ struct extended_bind_helper
 	/// get the data from the statement
 	virtual sqlreturn get_data(data_type_info &info, statement &s) const = 0;
 	/// copy data to the column buffer
-	virtual sqlreturn put_data(data_type_info &info) const = 0;
+	virtual sqlreturn put_data(data_type_info &info, statement &s) const = 0;
 	/// get the current length of the data
 	virtual SQLINTEGER get_length(data_type_info &info) const = 0;
 };
@@ -297,7 +298,7 @@ protected:
 
 	bool needs_put_columns() const throw() { return m_columns.m_needs_put; }
 	/// called before insert via SQLBulkOperations - copy the values of the bound column variables to the column buffer
-	sqlreturn do_put_columns() throw() { return m_columns.put(); }
+	sqlreturn do_put_columns(statement &s) throw() { return m_columns.put(s); }
 
 	void reset_column_bindings() { m_columns.reset(); }
 
@@ -356,7 +357,7 @@ protected:
 		binder_lists():m_needs_bind(false),m_needs_get(false),m_needs_put(false),m_version(0),m_use_cache(false) {}
 		sqlreturn prepare_binding(statement &s, bool bind_as_columns, size_t columns_to_expect=0) throw();
 		sqlreturn do_get_columns_or_parameters(statement &s, bool type_is_columns);
-		sqlreturn put() throw();
+		sqlreturn put(statement &stmt) throw();
 		size_t size() const { return m_elements.size(); }
 		sqlreturn set_column_state(SQLUSMALLINT col, SQLLEN len_ind) throw();
 
@@ -416,9 +417,100 @@ class register_data_type:public data_type_registrar
 {
 public:
 	register_data_type(SQLSMALLINT c_type, SQLSMALLINT sql_type, size_t col_size=sizeof(Value), extended_bind_helper *bhelper=0)
+		:m_bind_helper_wrapper(bhelper)
 	{
 		data_type_lookup().add(data_type_info(get_prop_type<Value>(), c_type, sql_type, col_size, bhelper), this);
+		data_type_lookup().add(data_type_info(get_prop_type<boost::optional<Value>>(), c_type, sql_type, col_size, &m_bind_helper_wrapper), this);
 	}
+protected:
+	class extended_optional_bind_helper :public extended_bind_helper
+	{
+	public:
+		extended_optional_bind_helper(extended_bind_helper* original_bind_helper)
+			:m_original_bind_helper(original_bind_helper)
+		{
+		}
+		SQLULEN prepare_bind_buffer(data_type_info& info, statement& s, bind_type bind_howto) const override
+		{
+			SQLULEN rc;
+			auto &a = dynamic_cast_accessor<boost::optional<Value>>(info.m_accessor).get_ref();
+			if (m_original_bind_helper) {
+				data_type_info original_info(info);
+				original_info.m_accessor = get_helper_accessor(a);
+				rc = info.m_target_size = m_original_bind_helper->prepare_bind_buffer(original_info, s, bind_howto);
+				info.m_target_ptr = original_info.m_target_ptr;
+			}
+			else {
+				info.m_target_ptr = 0;
+				rc = info.m_target_size = m_original_bind_helper ? 0 : sizeof(Value);
+			}
+			return rc;
+		}
+		sqlreturn get_data(data_type_info& info, statement& s) const override
+		{
+			sqlreturn rc(SQL_SUCCESS);
+			auto a = dynamic_cast_accessor<boost::optional<Value>>(info.m_accessor);
+			if (info.m_len_ind_p && *info.m_len_ind_p == SQL_NULL_DATA)
+				a.set(boost::optional<Value>());
+			else {
+				if (m_original_bind_helper) {
+					boost::optional<Value>& v_optional(a.get_ref());
+					if (!v_optional)
+						v_optional.emplace(Value());
+					data_type_info original_info(info);
+					original_info.m_accessor = litwindow::make_accessor(v_optional.get());
+					rc = m_original_bind_helper->get_data(original_info, s);
+				}
+				else {
+					const Value* g = reinterpret_cast<const Value*>(info.m_target_ptr);
+					a.set(boost::optional<Value>(*g));
+				}
+			}
+			return rc;
+		}
+		sqlreturn put_data(data_type_info& info, statement& s) const override
+		{
+			if (info.m_len_ind_p == nullptr)
+				return sqlreturn(_("boost::optional requires m_len_ind_p"), err_logic_error);
+			auto a = dynamic_cast_accessor<boost::optional<Value>>(info.m_accessor);
+			if (a.get_ptr() == nullptr)
+				return sqlreturn(_("boost::optional requires non-temporary"), err_logic_error);
+			boost::optional<Value>& optional_a(a.get_ref());
+			if (optional_a == boost::none) {
+				*info.m_len_ind_p = SQLLEN(SQL_NULL_DATA);
+				return sqlreturn(SQL_SUCCESS);
+			}
+			auto& v(optional_a.get());
+			if (m_original_bind_helper) {
+				data_type_info original_info(info);
+				original_info.m_accessor = litwindow::make_accessor(v);
+				return m_original_bind_helper->put_data(original_info, s);
+			}
+			*reinterpret_cast<Value*>(info.m_target_ptr) = v;
+			return sqlreturn(SQL_SUCCESS);
+		}
+		SQLINTEGER get_length(data_type_info& info) const override
+		{
+			if (m_original_bind_helper) {
+				data_type_info original_info(info);
+				boost::optional<Value>& v_optional = dynamic_cast_accessor<boost::optional<Value>>(info.m_accessor).get_ref();
+				original_info.m_accessor = get_helper_accessor(v_optional);
+				return m_original_bind_helper->get_length(original_info);
+			}
+			return sizeof(Value);
+		}
+	protected:
+		accessor get_helper_accessor(boost::optional<Value>& val) const
+		{
+			if (val) return litwindow::make_accessor(val.get());
+			if (!m_helper_value)
+				m_helper_value.emplace(Value());
+			return litwindow::make_accessor(m_helper_value.get());
+		}
+		extended_bind_helper* m_original_bind_helper;
+		mutable boost::optional<Value> m_helper_value;
+	};
+	extended_optional_bind_helper m_bind_helper_wrapper;
 };
 
 };

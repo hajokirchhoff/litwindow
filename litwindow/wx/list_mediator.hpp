@@ -23,16 +23,18 @@ namespace litwindow {
 			template <typename Mediator>
 			void connect(Mediator *m, uicontrol_type *v)
 			{
-				v->Connect(wxEventType(lwEVT_GET_LAYOUT_PERSPECTIVE), wxObjectEventFunction(&basic_wxcontrol_policies::OnGetLayoutPerspective), 0, this);
-				v->Connect(wxEventType(lwEVT_SET_LAYOUT_PERSPECTIVE), wxObjectEventFunction(&basic_wxcontrol_policies::OnSetLayoutPerspective), 0, this);
-				get_layout_perspective=boost::bind(&Mediator::get_layout_perspective, m, _1);
-				set_layout_perspective=boost::bind(&Mediator::set_layout_perspective, m, _1);
+				on_GetLayout = boost::bind(&basic_wxcontrol_policies::OnGetLayoutPerspective, this, _1);
+				v->Bind(lwEVT_GET_LAYOUT_PERSPECTIVE, on_GetLayout);
+				on_SetLayout = boost::bind(&basic_wxcontrol_policies::OnSetLayoutPerspective, this, _1);
+				v->Bind(lwEVT_SET_LAYOUT_PERSPECTIVE, on_SetLayout);
+				get_layout_perspective = boost::bind(&Mediator::get_layout_perspective, m, _1);
+				set_layout_perspective = boost::bind(&Mediator::set_layout_perspective, m, _1);
 			}
 			template <typename Mediator>
 			void disconnect(Mediator *m, uicontrol_type *v)
 			{
-				v->Disconnect(wxEventType(lwEVT_GET_LAYOUT_PERSPECTIVE), wxObjectEventFunction(&basic_wxcontrol_policies::OnGetLayoutPerspective), 0, this);
-				v->Disconnect(wxEventType(lwEVT_SET_LAYOUT_PERSPECTIVE), wxObjectEventFunction(&basic_wxcontrol_policies::OnSetLayoutPerspective), 0, this);
+				v->Unbind(lwEVT_GET_LAYOUT_PERSPECTIVE, on_GetLayout);
+				v->Unbind(lwEVT_SET_LAYOUT_PERSPECTIVE, on_SetLayout);
 				get_layout_perspective.clear();
 				set_layout_perspective.clear();
 			}
@@ -43,6 +45,7 @@ namespace litwindow {
 		private:
 			boost::function<void(wstring &)> get_layout_perspective;
 			boost::function<void(const wstring &)> set_layout_perspective;
+			boost::function<void(wxCommandEvent&)> on_GetLayout, on_SetLayout;
 			void OnGetLayoutPerspective(wxCommandEvent &evt)
 			{
 				wstring layout;
@@ -63,7 +66,7 @@ namespace litwindow {
 			void refresh_rows(Mediator &m, typename Mediator::uicontrol_type *ctrl)
 			{
 				This()->remove_all_rows(ctrl);
-				for (Mediator::const_iterator i=m.begin(); i!=m.end(); ++i) {
+				for (typename Mediator::const_iterator i=m.begin(); i!=m.end(); ++i) {
 					This()->append_row(m, ctrl, i);
 				}
 			}
@@ -72,6 +75,7 @@ namespace litwindow {
 			{
 
 			}
+			std::pair<int, int> get_cache_hint(uicontrol_type *) { return std::make_pair(-1, -1); }
 		};
 		template <typename UIControlPolicies>
 		class basic_wxcontrol_with_columns_policies:public basic_wxcontrol_with_rows_policies<UIControlPolicies>
@@ -81,7 +85,6 @@ namespace litwindow {
 			template <typename Mediator>
 			void refresh_columns(Mediator &m, typename Mediator::uicontrol_type *ctrl)
 			{
-				size_t idx=0;
 				typename Mediator::columns_type &c(m.columns());
 				wxArrayInt cols_order(c.size());
 /*
@@ -92,6 +95,9 @@ namespace litwindow {
 					ctrl->SetColumnsOrder(cdefault);
 				}
 */
+				while (This()->column_count(ctrl) > c.size())
+					This()->remove_column(ctrl, this->column_count(ctrl) - 1);
+				size_t idx=0;
 				while (idx<c.size()) {
 					if (idx>=This()->column_count(ctrl))
 						This()->insert_column(ctrl, idx, c.column_descriptor(idx));
@@ -104,8 +110,6 @@ namespace litwindow {
 						cols_order[idx]=cols_order[idx];
 					++idx;
 				}
-				while (column_count(ctrl)>c.size())
-					This()->remove_column(ctrl, column_count(ctrl)-1);
 				if (!c.empty())
 					This()->columns_order(ctrl, cols_order);
 			}
@@ -181,24 +185,28 @@ namespace litwindow {
 				v->Connect(wxEventType(wxEVT_COMMAND_LIST_COL_CLICK), wxListEventHandler(uicontrol_policies::OnListColClick), 0, this);
 				on_destroyed=boost::bind(&Mediator::clear_ui, md);
 				on_l_col_clicked = boost::bind(&Mediator::sort_by, md, _1, Mediator::sort_automatic);
-				v->Connect(wxEventType(wxEVT_DESTROY), wxObjectEventFunction(&uicontrol_policies::OnDestroy), 0, this);
+				v->Connect(wxEventType(wxEVT_DESTROY), wxEventHandler(uicontrol_policies::OnDestroy), 0, this);
 			}
 			template <typename Mediator>
 			void disconnect(Mediator *md, uicontrol_type *v)
 			{
 				if (!v->IsBeingDeleted()) {
 					v->Disconnect(wxEventType(wxEVT_COMMAND_LIST_COL_CLICK), wxListEventHandler(uicontrol_policies::OnListColClick), 0, this);
-					v->Disconnect(wxEventType(wxEVT_DESTROY), wxObjectEventFunction(&uicontrol_policies::OnDestroy), 0, this);
+					v->Disconnect(wxEventType(wxEVT_DESTROY), wxEventHandler(uicontrol_policies::OnDestroy), 0, this);
 				}
 				on_destroyed.clear();
 			}
-			void begin_update(uicontrol_type *c) { }
+			void begin_update(uicontrol_type *c)
+			{
+				c->Freeze();
+			}
 			void end_update(uicontrol_type *c)
 			{
 				int topItem=c->GetTopItem();
 				int perPage=c->GetCountPerPage();
 				int totalItems=c->GetItemCount();
 				int bottomItem=std::min(totalItems, topItem+perPage);
+				c->Thaw();
 				c->RefreshItems(topItem, bottomItem-1);
 			}
 			size_t column_count(uicontrol_type *c) const { return c->GetColumnCount(); }
@@ -207,6 +215,14 @@ namespace litwindow {
 				wxListItem it;
 				it.SetText(d.title());
 				it.SetWidth(d.visible() ? d.width() : 0);
+				wxListColumnFormat alg;
+				if (d.alignment() == ui::basic_column_label::center)
+					alg = wxLIST_FORMAT_CENTER;
+				else if (d.alignment() == ui::basic_column_label::right)
+					alg = wxLIST_FORMAT_RIGHT;
+				else
+					alg = wxLIST_FORMAT_LEFT;
+				it.SetAlign(alg);
 				c->InsertColumn(static_cast<long>(idx), it);
 			}
 			void set_column(uicontrol_type *c, size_t idx, const ui::basic_column_label &d) 
@@ -214,17 +230,30 @@ namespace litwindow {
 				wxListItem it;
 				it.SetText(d.title());
 				it.SetWidth(d.visible() ? d.width() : 0);
-				it.SetAlign(wxLIST_FORMAT_LEFT);
-				it.SetMask(wxLIST_MASK_TEXT | wxLIST_MASK_WIDTH | wxLIST_MASK_FORMAT);
+				wxListColumnFormat alg;
+				if (d.alignment() == ui::basic_column_label::center)
+					alg = wxLIST_FORMAT_CENTER;
+				else if (d.alignment() == ui::basic_column_label::right)
+					alg = wxLIST_FORMAT_RIGHT;
+				else
+					alg = wxLIST_FORMAT_LEFT;
+				it.SetAlign(alg);
 				c->SetColumn(static_cast<long>(idx), it);
 			}
 			void get_column(uicontrol_type *c, size_t idx, ui::basic_column_label &d)
 			{
 				wxListItem it;
-				it.SetMask(wxLIST_MASK_TEXT | wxLIST_MASK_WIDTH);
+				it.SetMask(wxLIST_MASK_TEXT | wxLIST_MASK_WIDTH | wxLIST_MASK_FORMAT);
 				c->GetColumn(static_cast<long>(idx), it);
+				int width = it.GetWidth();
+				if (it.GetAlign() == wxLIST_FORMAT_RIGHT)
+					d.alignment(ui::basic_column_label::right);
+				else if (it.GetAlign() == wxLIST_FORMAT_CENTER)
+					d.alignment(ui::basic_column_label::center);
+				else
+					d.alignment(ui::basic_column_label::left);
 				if (d.visible())
-					d.width(it.GetWidth());
+					d.width(width);
 			}
 			void remove_column(uicontrol_type *c, size_t idx) 
 			{
@@ -256,6 +285,10 @@ namespace litwindow {
 						ctrl->EnsureVisible(static_cast<long>(idx));
 					}
 				}
+			}
+			std::pair<int, int> get_cache_hint(uicontrol_type *ctrl)
+			{
+				return std::make_pair(ctrl->GetTopItem(), ctrl->GetCountPerPage());
 			}
 		protected:
 			boost::function<void()> on_destroyed;
@@ -321,11 +354,11 @@ namespace litwindow {
 				Inherited::connect(md, v);
 				v->on_get_item_text=boost::bind(&Mediator::get_item_text, md, _1, _2);
 				v->on_get_item_image=boost::bind(&Mediator::get_item_image, md, _1, _2);
-				v->Bind(wxEVT_COMMAND_LIST_COL_RIGHT_CLICK, boost::bind(&uicontrol_policies::OnColumnRightClick<typename Mediator>, this, md, _1));
+				v->Bind(wxEVT_COMMAND_LIST_COL_RIGHT_CLICK, boost::bind(&uicontrol_policies::OnColumnRightClick<Mediator>, this, md, _1));
 				//toggle_show_column=boost::bind(&Mediator::toggle_show_column, md, _1);
 				//v->Bind(wxEVT_COMMAND_MENU_SELECTED, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnRightClickMenu, this, _1));
-				v->Bind(wxEVT_COMMAND_MENU_SELECTED, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnRightClickMenu<typename Mediator>, this, md, _1));
-				v->Bind(wxEVT_ERASE_BACKGROUND, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnEraseBackground<typename Mediator>, this, _1));
+				v->Bind(wxEVT_COMMAND_MENU_SELECTED, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnRightClickMenu<Mediator>, this, md, _1));
+				v->Bind(wxEVT_ERASE_BACKGROUND, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnEraseBackground<Mediator>, this, md, _1));
 			}
 			template <typename Mediator>
 			void disconnect(Mediator *md, uicontrol_type *v)
@@ -337,12 +370,13 @@ namespace litwindow {
 			{
 				if (ctrl->GetItemCount() != (long)m.get_item_count())
 					ctrl->SetItemCount((long)m.get_item_count());
+				m.set_cache_hint(get_cache_hint(ctrl));
 			}
 			template <typename Mediator>
-			void OnEraseBackground(wxEraseEvent & event) {
+			void OnEraseBackground(Mediator *m, wxEraseEvent & event) {
 				// to prevent flickering, erase only content *outside* of the 
 				// actual list items stuff
-				typename Mediator::uicontrol_type *ctrl = dynamic_cast<Mediator::uicontrol_type*>(event.GetEventObject());
+				typename Mediator::uicontrol_type *ctrl = dynamic_cast<typename Mediator::uicontrol_type*>(event.GetEventObject());
 				if (ctrl && ctrl->GetItemCount() > 0) {
 					wxDC * dc = event.GetDC();
 					assert(dc);
@@ -356,7 +390,7 @@ namespace litwindow {
 					dc->GetClippingBox(&x, &y, &w, &h);
 
 					long top_item = ctrl->GetTopItem();
-					long bottom_item = top_item + ctrl->GetCountPerPage();
+					long bottom_item = top_item + ctrl->GetCountPerPage() + 1;
 					if (bottom_item >= ctrl->GetItemCount()) {
 						bottom_item = ctrl->GetItemCount() - 1;
 					}
@@ -383,6 +417,8 @@ namespace litwindow {
 					// restore old clipping region
 					dc->DestroyClippingRegion();
 					dc->SetDeviceClippingRegion(wxRegion(x, y, w, h));
+
+					m->set_cache_hint(get_cache_hint(ctrl));
 				}
 				else {
 					event.Skip();
