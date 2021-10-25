@@ -328,6 +328,16 @@ void RapidUI::NotifyChanged(const const_accessor &value, bool recursive, bool so
 	}
 }
 
+RapidUI* RapidUI::GetRapidUI(wxWindow* ui_window)
+{
+	for (const auto& j : g_rapidUISet) {
+		auto found = j->FindWindow(ui_window, ui_window->GetName(), true);
+		if (found == ui_window)
+			return j;
+	}
+	return nullptr;
+}
+
 RapidUI::RapidUI(void)
 :m_defaultRulesAdded(false)
 ,m_wndNamespace(wxT("wnd::"))

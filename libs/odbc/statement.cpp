@@ -228,6 +228,12 @@ const sqlreturn &statement::get_cursor_name(tstring &cursor_name)
 	return m_last_error;
 }
 
+const sqlreturn &statement::more_results()
+{
+	m_last_error = SQLMoreResults(handle());
+	return m_last_error;
+}
+
 const sqlreturn &statement::set_concurrency(concurrency_enum cy)
 {
 	m_last_error=set_attr(SQL_ATTR_CONCURRENCY, cy);

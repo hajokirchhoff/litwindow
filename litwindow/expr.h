@@ -375,13 +375,13 @@ inline expr_primary<expr_typed_accessor<Type> > make_expr(const const_accessor &
 template <class Type>
 inline expr_primary<expr_typed_accessor<Type> > _e(const accessor &e)
 {
-    return make_expr(e);
+    return make_expr<Type>(e);
 }
 
 template <class Type>
 inline expr_primary<expr_typed_accessor<Type> > _e(const const_accessor &e)
 {
-    return make_expr(e);
+    return make_expr<Type>(e);
 }
 
 template <class Type>
@@ -393,7 +393,7 @@ inline expr_primary<expr_variable<Type> > _e(variable_name_t name)
 template <class Type>
 inline expr_primary<expr_const<Type> > _c(Type v)
 {
-    return make_const(v);
+    return make_const<Type>(v);
 }
 
 inline variable_name_t _v(const TCHAR *name)

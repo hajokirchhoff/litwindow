@@ -1,17 +1,55 @@
 #include "stdafx.h"
 #define BOOST_TEST_MAIN
-#include <boost/test/auto_unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include "litwindow/logger.hpp"
 #include "litwindow/logger/sink.hpp"
 #include "boost/thread/thread.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/smart_ptr/make_shared_object.hpp"
 #include "boost/atomic/atomic.hpp"
+#include "litwindow/dataadapter.h"
+#include <set>
 
 #define new DEBUG_NEW
 
 using namespace litwindow;
 using namespace std;
+
+template <typename Value>
+struct mem_ptr_lvalue
+{
+	static const bool value = false;
+};
+
+template <typename RC, typename Ptr>
+struct mem_ptr_lvalue<RC (Ptr::*)()>
+{
+	static const bool value = true;
+	using type = RC;
+};
+
+struct scratch_test_pad
+{
+	int val = 0;
+	int& memfn()
+	{
+		return val;
+	}
+};
+
+BOOST_AUTO_TEST_CASE(CPP_Scratch_Pad)
+{
+	using getter = int& (scratch_test_pad::*)()const;
+	auto memptr = &scratch_test_pad::memfn;
+	using memptr_t = decltype(memptr);
+
+	BOOST_CHECK_EQUAL(mem_ptr_lvalue<memptr_t>::value, true);
+
+	using T = std::conditional_t<mem_ptr_lvalue<memptr_t>::value, mem_ptr_lvalue<memptr_t>::type, void>;
+
+	std::remove_reference_t<mem_ptr_lvalue<memptr_t>::type> v = 10;
+	BOOST_CHECK_EQUAL(v, 10);
+}
 
 BOOST_AUTO_TEST_CASE(simple_log_name)
 {
@@ -209,6 +247,53 @@ BOOST_AUTO_TEST_CASE(simple_memory_sink)
 {
 	simple_memory_sink_test("Event ", "long: ");
 	simple_memory_sink_test(L"Eventl ", L"longl: ");
+}
+
+struct a_test_struct
+{
+	std::string aString;
+	int anInt;
+	float someFloat;
+};
+
+LWL_BEGIN_AGGREGATE(a_test_struct)
+PROP(anInt)
+PROP(aString)
+PROP_ANN({ "aString_ann", "Test" }, { "SomeOtherString", "Test" }, "AnnoWithNoValue")
+PROP(someFloat, { "PrimaryKey" }, {"ODBC_TYPE", "SINGLE"})
+LWL_END_AGGREGATE()
+
+BOOST_AUTO_TEST_CASE(dataadapter_annotations)
+{
+	const auto& aSchem = litwindow::schema<a_test_struct>::get_schema();
+	const auto& aString_entry = aSchem["aString"];
+	BOOST_CHECK_EQUAL(std::string(aString_entry.m_class_name), "a_test_struct");
+	const auto& iann = aString_entry["aString_ann"];
+	BOOST_CHECK_EQUAL(iann.m_str_value, "Test");
+	BOOST_CHECK_EQUAL(aString_entry["AnnoWithNoValue"].str_value(), nullptr);
+	BOOST_CHECK_EQUAL(aString_entry["None"].is_valid(), false);
+
+	BOOST_CHECK_EQUAL(aSchem["aString"]["SomeOtherString"].str_value(), "Test");
+
+	BOOST_CHECK_EQUAL(aSchem["anInt"]["Annotation"].is_valid(), false);
+
+	const auto& someFloatSchemaEntry = aSchem["someFloat"];
+
+	BOOST_CHECK_EQUAL(someFloatSchemaEntry["PrimaryKey"].is_valid(), true);
+	BOOST_CHECK_EQUAL(someFloatSchemaEntry["ODBC_TYPE"].str_value(), "SINGLE");
+
+	std::set<std::string> annotations_found;
+	for (auto j : aString_entry.m_annotations) {
+		annotations_found.insert(j.m_name);
+	}
+	BOOST_CHECK_EQUAL(annotations_found.size(), 3);
+	auto expected = { "AnnoWithNoValue", "aString_ann", "SomeOtherString" };
+	for (auto j : expected) {
+		BOOST_CHECK_EQUAL(annotations_found.count(j), 1);
+	}
+
+	BOOST_CHECK(someFloatSchemaEntry.get_typeid() == typeid(float));
+	BOOST_CHECK(aString_entry.get_typeid() == typeid(std::string));
 }
 
 #ifdef _DEBUG

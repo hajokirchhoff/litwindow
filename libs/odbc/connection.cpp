@@ -219,8 +219,11 @@ namespace litwindow {
 					m_entries.emplace_back(name, entry());
 					i=m_entries.end()-1;
 				}
-				if (i->second.get()==nullptr)
+				if (i->second.get() == nullptr) {
 					i->second.reset(new connection);
+					if (name.empty() == false && m_entries.empty() == false)
+						i->second->set_connection_string(m_entries.front().second->get_connection_string());
+				}
 				return i->second;
 			}
 			void close_all() override

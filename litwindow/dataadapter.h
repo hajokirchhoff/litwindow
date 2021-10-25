@@ -147,6 +147,10 @@ namespace litwindow {
 		{
 			return member_ptr;
 		}
+		inline const_prop_ptr get_aggregate_ptr() const
+		{
+			return s_entry->aggregate_ptr(get_member_ptr());
+		}
 
 		///\name Misc.
 		//@{
@@ -276,6 +280,7 @@ namespace litwindow {
 		//@{
 		void *get_this_ptr() const { return const_cast<void*>(const_accessor::get_this_ptr()); }
 		prop_ptr get_member_ptr() const { return const_cast<prop_ptr>(const_accessor::get_member_ptr()); }
+		prop_ptr get_aggregate_ptr() const { return const_cast<prop_ptr>(const_accessor::get_aggregate_ptr()); }
 		//@}
 		/** assign the object a new value from a string representation
 		*/
@@ -913,7 +918,7 @@ namespace litwindow {
 
 	/// execute f() for each member of an aggregate including inherited members
 	template <class _A, class _F>
-	_F for_each_member(_A &a, _F &f)
+	_F for_each_member(const _A &a, const _F &f)
 	{
 		typename _A::iterator_type i;
 		for (i=a.begin(); i!=a.end(); ++i) {
@@ -996,7 +1001,7 @@ namespace litwindow {
 		const schema_base *theSchema=get_type()->get_schema();
 		if (theSchema==0)
 			return const_aggregate();
-		return const_aggregate(get_member_ptr(), *get_type()->get_schema());
+		return const_aggregate(get_aggregate_ptr(), *get_type()->get_schema());
 	}
 
 	inline aggregate accessor::get_aggregate() const
@@ -1004,7 +1009,7 @@ namespace litwindow {
 		const schema_base *theSchema=get_type()->get_schema();
 		if (theSchema==0)
 			return aggregate();
-		return aggregate(get_member_ptr(), *get_type()->get_schema());
+		return aggregate(get_aggregate_ptr(), *get_type()->get_schema());
 	}
 
 	inline accessor create_object(prop_t object_type)
@@ -1029,7 +1034,7 @@ namespace litwindow {
 	inline accessor converter_value_base<Value>::clone(const schema_entry *e, const_prop_ptr member_ptr) const
 	{
 		Value *v=new Value;
-		std::auto_ptr<Value> guard(v);
+		std::unique_ptr<Value> guard(v);
 		get_value(*v, e, member_ptr);
 		accessor rc=make_accessor(*v);
 		guard.release();
@@ -1275,6 +1280,34 @@ namespace litwindow {
 	}
 };
 
+
+template <class _Cont, class _Iter/*=typename _Cont::iterator*/, class _Value/*=typename _Cont::value_type */>
+bool litwindow::container_iterator<_Cont, _Iter, _Value>::erase_from(container& where)
+{
+	typed_accessor<_Cont> c = dynamic_cast_accessor<_Cont>(where);
+	if (c.is_valid() == false)
+		throw lwbase_error("container type and iterator do not match");
+	return eraser(c.get_ref(), i);
+}
+
+template <class _Cont, class _Iter/*=typename _Cont::iterator*/, class _Value/*=typename _Cont::value_type */>
+bool litwindow::container_iterator<_Cont, _Iter, _Value>::insert_into(container& where, const accessor& what)
+{
+	typed_accessor<_Cont> c = dynamic_cast_accessor<_Cont>(where);
+	typed_const_accessor<_Value> v = dynamic_cast_accessor<_Value>(what);
+	if (c.is_valid() == false)
+		throw lwbase_error("container type and iterator do not match");
+	if (v.is_valid() == false)
+		throw lwbase_error("container type and value type do not match");
+	return inserter(c.get_ref(), v, i);
+}
+
+template <class _Cont, class _Iter/*=typename _Cont::iterator*/, class _Value/*=typename _Cont::value_type */>
+void litwindow::container_iterator<_Cont, _Iter, _Value>::verify_valid_container(const container& where) const
+{
+	if (!where.is_type(get_prop_type<_Cont>()))
+		throw lwbase_error("container and iterator type mismatch.");
+}
 
 namespace litwindow {
 	tstring LWBASE_API accessor_as_debug(const const_accessor &a);
@@ -1595,7 +1628,22 @@ namespace litwindow {
 	{
 		set_value(a, e, member_ptr);
 	}
-
+	namespace detail {
+		template <typename Value>
+		struct member_function_pointer_return_type
+		{
+			using type = void;
+			static const bool value = false;
+			static const bool is_lvalue_reference = false;
+		};
+		template <typename RC, typename Ptr>
+		struct member_function_pointer_return_type<RC(Ptr::*)() const>
+		{
+			using type = RC;
+			static const bool value = true;
+			static const bool is_lvalue_reference = std::is_lvalue_reference_v<RC>;
+		};
+	}
 	/** converter class calling member functions to get or set a value. */
 	template <class Value, class PropClass, class GetPointer, class SetPointer>
 	class converter_with_getset:public converter_value_base<Value>
@@ -1649,22 +1697,85 @@ namespace litwindow {
 			GetPointer getter=GetterSetterPointer<GetPointer, SetPointer>::get_getter(entry->m_getter_setter);
 			v=(this_ptr(a_this_ptr)->*getter)();
 		}
-		virtual const Value *get_ptr(const schema_entry * /*entry*/, const_prop_ptr /*a_this_ptr*/) const
+
+		template <typename Ptr, typename std::enable_if_t<detail::member_function_pointer_return_type<Ptr>::is_lvalue_reference, Ptr>* = nullptr>
+		static inline const Value* do_get_ptr(const PropClass* This, Ptr getter)
+		{
+			return &(This->*getter)();
+		}
+		template <typename Ptr, typename std::enable_if_t<!detail::member_function_pointer_return_type<Ptr>::is_lvalue_reference, Ptr>* = nullptr>
+		static inline const Value* do_get_ptr(const PropClass* This, Ptr getter)
 		{
 			return 0;
 		}
-		virtual Value *get_ptr(const schema_entry * /*entry*/, prop_ptr /*a_this_ptr*/) const
+
+		virtual const Value* get_ptr(const schema_entry* entry, const_prop_ptr a_this_ptr) const
+		{
+			return do_get_ptr(this_ptr(a_this_ptr), GetterSetterPointer<GetPointer, SetPointer>::get_getter(entry->m_getter_setter));
+		}
+		virtual Value* get_ptr(const schema_entry* entry, prop_ptr a_this_ptr) const
 		{
 			return 0;
 		}
-		virtual size_t get_sizeof(const schema_entry *) const
+		virtual size_t get_sizeof(const schema_entry *entry) const
 		{
-			return 0;
+			return m_actual_type->get_sizeof(entry);
 		}
 		virtual void set_value(const Value &v, const schema_entry *entry, prop_ptr a_this_ptr)
 		{
 			SetPointer setter=GetterSetterPointer<GetPointer, SetPointer>::get_setter(entry->m_getter_setter);
 			(this_ptr(a_this_ptr)->*setter)(v);
+		}
+
+		bool is_enum() const override
+		{
+			return m_actual_type->is_enum();
+		}
+
+		bool is_c_vector() const override
+		{
+			return m_actual_type->is_c_vector();
+		}
+
+		bool is_container() const override
+		{
+			return m_actual_type->is_container();
+		}
+
+		bool is_const_container() const override
+		{
+			return m_actual_type->is_const_container();
+		}
+
+		const std::type_info& get_typeid() const override
+		{
+			return m_actual_type->get_typeid();
+		}
+
+		int to_int(const schema_entry* entry, const_prop_ptr a_this_ptr) override
+		{
+			GetPointer getter = GetterSetterPointer<GetPointer, SetPointer>::get_getter(entry->m_getter_setter);
+			Value v = (this_ptr(a_this_ptr)->*getter)();
+			return make_const_accessor(v).to_int();
+		}
+
+		void from_int(const schema_entry* entry, int value, prop_ptr a_this_ptr) override
+		{
+			SetPointer setter = GetterSetterPointer<GetPointer, SetPointer>::get_setter(entry->m_getter_setter);
+			Value v;
+			accessor a(make_accessor(v));
+			a.from_int(value);
+			(this_ptr(a_this_ptr)->*setter)(v);
+		}
+
+		bool has_schema() const override
+		{
+			return m_actual_type->has_schema();
+		}
+
+		const schema_base* get_schema() const override
+		{
+			return m_actual_type->get_schema();
 		}
 
 	};

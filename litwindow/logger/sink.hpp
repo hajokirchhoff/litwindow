@@ -131,7 +131,7 @@ namespace litwindow {
 			}
 			void format(const formatter_type &e) { m_formatter=e; }
 			formatter_type &format() { return m_formatter; }
-			using basic_logsink<typename _OStream::char_type>::entries;
+			using entries = typename basic_logsink<typename _OStream::char_type>::entries;
 		protected:
 			formatter_type m_formatter;
 			stream_type *m_out;

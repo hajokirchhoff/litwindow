@@ -125,8 +125,8 @@ namespace litwindow {
 			basic_column_descriptor(const tstring& title, int width, boost::function<Accessor(const Value&)> acc, const Formatter& fmt)
 				: basic_column_descriptor(title, width)
 			{
-				m_text_renderer = boost::bind(fmt, boost::bind(acc, _1), _2);
-				m_comparator = boost::bind(acc, _1) < boost::bind(acc, _2);
+				m_text_renderer = boost::bind(fmt, boost::bind(acc, boost::placeholders::_1), boost::placeholders::_2);
+				m_comparator = boost::bind(acc, boost::placeholders::_1) < boost::bind(acc, boost::placeholders::_2);
 			}
 */
 /*
@@ -135,7 +135,7 @@ namespace litwindow {
 				: basic_column_descriptor(title, width)
 			{
 				using ColType = typename std::result_of<Accessor(value_type)>::type;
-				m_text_renderer = boost::bind(&to_string<ColType>, acc, _1);
+				m_text_renderer = boost::bind(&to_string<ColType>, acc, boost::placeholders::_1);
 			}
 */
 
@@ -144,16 +144,16 @@ namespace litwindow {
 			basic_column_descriptor(const tstring &title, int width, Accessor acc)
 				:basic_column_label(title, width)
 			{
-				m_text_renderer = boost::bind<void>(&to_string<ColumnType>, boost::bind<ColumnType>(acc, _1), _2);
-				m_comparator = boost::bind<ColumnType>(acc, _1) < boost::bind<ColumnType>(acc, _2);
+				m_text_renderer = boost::bind<void>(&to_string<ColumnType>, boost::bind<ColumnType>(acc, boost::placeholders::_1), boost::placeholders::_2);
+				m_comparator = boost::bind<ColumnType>(acc, boost::placeholders::_1) < boost::bind<ColumnType>(acc, boost::placeholders::_2);
 			}
 			///! Constructor for accessor functor with separate formatter
 			template <typename Accessor, typename Formatter, typename ValueType = value_type, typename ColumnType = std::result_of<Accessor(const ValueType&)>::type>
 			basic_column_descriptor(const tstring &title, int width, Accessor acc, const Formatter &fmt)
 				:basic_column_label(title, width)
 			{
-				m_text_renderer = boost::bind<void>(fmt, boost::bind<ColumnType>(acc, _1), _2);
-				m_comparator = boost::bind<ColumnType>(acc, _1) < boost::bind<ColumnType>(acc, _2);
+				m_text_renderer = boost::bind<void>(fmt, boost::bind<ColumnType>(acc, boost::placeholders::_1), boost::placeholders::_2);
+				m_comparator = boost::bind<ColumnType>(acc, boost::placeholders::_1) < boost::bind<ColumnType>(acc, boost::placeholders::_2);
 			}
 
 			///! Constructor for text renderer functor
@@ -161,7 +161,7 @@ namespace litwindow {
 			basic_column_descriptor(const tstring &title, int width, Accessor acc)
 				: basic_column_label(title, width)
 			{
-				m_text_renderer = acc;// boost::bind<void>(acc, _1, _2);
+				m_text_renderer = acc;// boost::bind<void>(acc, boost::placeholders::_1, boost::placeholders::_2);
 			}
 
 			///! Constructor for pointer to member function
@@ -169,24 +169,24 @@ namespace litwindow {
 			basic_column_descriptor(const tstring &title, int width, ColumnType (Value::*acc)() const)
 				:basic_column_label(title, width)
 			{
-				m_text_renderer = boost::bind(&to_string<ColumnType>, boost::bind<ColumnType>(acc, _1), _2);
-				m_comparator = boost::bind<ColumnType>(acc, _1) < boost::bind<ColumnType>(acc, _2);
+				m_text_renderer = boost::bind(&to_string<ColumnType>, boost::bind<ColumnType>(acc, boost::placeholders::_1), boost::placeholders::_2);
+				m_comparator = boost::bind<ColumnType>(acc, boost::placeholders::_1) < boost::bind<ColumnType>(acc, boost::placeholders::_2);
 			}
 			///! Constructor for pointer to free function
 			template <typename ColumnType>
 			basic_column_descriptor(const tstring &title, int width, ColumnType (*acc)(const Value&))
 				: basic_column_label(title, width)
 			{
-				m_text_renderer = boost::bind(&to_string<ColumnType>, boost::bind<ColumnType>(acc, _1), _2);
-				m_comparator = boost::bind<ColumnType>(acc, _1) < boost::bind<ColumnType>(acc, _2);
+				m_text_renderer = boost::bind(&to_string<ColumnType>, boost::bind<ColumnType>(acc, boost::placeholders::_1), boost::placeholders::_2);
+				m_comparator = boost::bind<ColumnType>(acc, boost::placeholders::_1) < boost::bind<ColumnType>(acc, boost::placeholders::_2);
 			}
 			///! Constructor for pointer to boost::function
 			template <typename ColumnType>
 			basic_column_descriptor(const tstring &title, int width, boost::function<ColumnType(const Value&)> acc)
 				: basic_column_label(title, width)
 			{
-				m_text_renderer = boost::bind(&to_string<ColumnType>, boost::bind<ColumnType>(acc, _1), _2);
-				m_comparator = boost::bind<ColumnType>(acc, _1) < boost::bind<ColumnType>(acc, _2);
+				m_text_renderer = boost::bind(&to_string<ColumnType>, boost::bind<ColumnType>(acc, boost::placeholders::_1), boost::placeholders::_2);
+				m_comparator = boost::bind<ColumnType>(acc, boost::placeholders::_1) < boost::bind<ColumnType>(acc, boost::placeholders::_2);
 			}
 
 			basic_column_descriptor():basic_column_label(tstring(), -1, false, false){}
@@ -279,22 +279,22 @@ namespace litwindow {
 		basic_column_descriptor<RowValue> make_basic_column_descriptor(const wstring &title, int width, const ColumnAccessor &a, typename column_accessor<ColumnAccessor, RowValue>::formatter_type f=0)
 		{
 			typedef typename column_accessor<ColumnAccessor, RowValue>::column_value_type column_value_type;
-			//typedef BOOST_TYPEOF(boost::bind(a, _1)(*(const RowValue*)0)) column_value_type;
+			//typedef BOOST_TYPEOF(boost::bind(a, boost::placeholders::_1)(*(const RowValue*)0)) column_value_type;
 			basic_column_descriptor<RowValue> rc(title, width);
 			if (f==0)
-				rc.m_text_renderer=boost::bind(&to_string<column_value_type>, boost::bind(a, _1), _2);
+				rc.m_text_renderer=boost::bind(&to_string<column_value_type>, boost::bind(a, boost::placeholders::_1), boost::placeholders::_2);
 			else
-				rc.m_text_renderer=boost::bind(f, boost::bind(a, _1), _2);
-			rc.m_comparator=boost::bind(a, _1) < boost::bind(a, _2);
+				rc.m_text_renderer=boost::bind(f, boost::bind(a, boost::placeholders::_1), boost::placeholders::_2);
+			rc.m_comparator=boost::bind(a, boost::placeholders::_1) < boost::bind(a, boost::placeholders::_2);
 			return rc;
 		}
 
 		template <typename RowValue>
 		basic_column_descriptor<RowValue> make_basic_column_descriptor(const wstring &title, int width, boost::function<void(const RowValue&, wstring &)> fncObject)
 		{
-			//typedef BOOST_TYPEOF(boost::bind(a, _1)(*(const RowValue*)0)) column_value_type;
+			//typedef BOOST_TYPEOF(boost::bind(a, boost::placeholders::_1)(*(const RowValue*)0)) column_value_type;
 			basic_column_descriptor<RowValue> rc(title, width);
-			rc.m_text_renderer=boost::bind(fncObject, _1, _2);
+			rc.m_text_renderer=boost::bind(fncObject, boost::placeholders::_1, boost::placeholders::_2);
 			return rc;
 		}
 
@@ -304,10 +304,10 @@ namespace litwindow {
 			basic_column_descriptor<RowValue> rc(title, width);
 			typedef typename boost::remove_reference<R>::type column_value_type;
 			if (f==0)
-				rc.m_text_renderer=boost::bind(&to_string<column_value_type>, boost::bind(r, _1), _2);
+				rc.m_text_renderer=boost::bind(&to_string<column_value_type>, boost::bind(r, boost::placeholders::_1), boost::placeholders::_2);
 			else
-				rc.m_text_renderer=boost::bind(f, boost::bind(r, _1), _2);
-			rc.m_comparator=boost::bind(r, _1) < boost::bind(r, _2);
+				rc.m_text_renderer=boost::bind(f, boost::bind(r, boost::placeholders::_1), boost::placeholders::_2);
+			rc.m_comparator=boost::bind(r, boost::placeholders::_1) < boost::bind(r, boost::placeholders::_2);
 			return rc;
 		}
 
@@ -317,10 +317,10 @@ namespace litwindow {
 			basic_column_descriptor<RowValue> rc(title, width);
 			typedef typename boost::remove_reference<R>::type column_value_type;
 			if (f==0)
-				rc.m_text_renderer=boost::bind(&to_string<column_value_type>, boost::bind(r, _1), _2);
+				rc.m_text_renderer=boost::bind(&to_string<column_value_type>, boost::bind(r, boost::placeholders::_1), boost::placeholders::_2);
 			else
-				rc.m_text_renderer=boost::bind(f, boost::bind(r, _1), _2);
-			rc.m_comparator=boost::bind(r, _1) < boost::bind(r, _2);
+				rc.m_text_renderer=boost::bind(f, boost::bind(r, boost::placeholders::_1), boost::placeholders::_2);
+			rc.m_comparator=boost::bind(r, boost::placeholders::_1) < boost::bind(r, boost::placeholders::_2);
 			return rc;
 		}
 
@@ -424,7 +424,7 @@ namespace litwindow {
 
 			size_t get_column_index(const wstring &title) const
 			{
-				typename columns_t::const_iterator i=find_if(columns().begin(), columns().end(), boost::bind(&columns_t::value_type::title, _1)==title);
+				typename columns_t::const_iterator i=find_if(columns().begin(), columns().end(), boost::bind(&columns_t::value_type::title, boost::placeholders::_1)==title);
 				if (i==columns().end())
 					throw runtime_error("get_column_index: no such column");
 				return i-columns().begin();
@@ -491,7 +491,7 @@ namespace litwindow {
 					static void do_merge(columns_t &dest, const columns_t::value_type &src)
 					{
 						typename columns_t::iterator i;
-						i=std::find_if(dest.begin(), dest.end(), boost::bind(&columns_t::value_type::title, _1) == src.title());
+						i=std::find_if(dest.begin(), dest.end(), boost::bind(&columns_t::value_type::title, boost::placeholders::_1) == src.title());
 						if (i!=dest.end()) {
 							columns_t::value_type &current(*i);
 							current.width(src.width());
@@ -501,7 +501,7 @@ namespace litwindow {
 						}
 					}
 				};
-				for_each(in.begin(), in.end(), boost::bind(&merge_element::do_merge, boost::ref(m_column_data), _1));
+				for_each(in.begin(), in.end(), boost::bind(&merge_element::do_merge, boost::ref(m_column_data), boost::placeholders::_1));
 				m_dirty=true;
 			}
             //element_adapter m_element_adapter;
@@ -752,7 +752,7 @@ namespace litwindow {
 			template <typename Fnc>
 			void for_each_selected(Fnc f)
 			{
-				ui_adapter().for_each_selected(bind(&basic_list_mediator::visit, this, _1, f));
+				ui_adapter().for_each_selected(bind(&basic_list_mediator::visit, this, boost::placeholders::_1, f));
 			}
 #endif // not
 			template <typename ResultSet, typename Fnc>
@@ -764,7 +764,7 @@ namespace litwindow {
 			std::vector<typename boost::function_traits<Fnc>::result_type> get_selection(Fnc f)
 			{
 				std::vector<typename boost::function_traits<Fnc>::result_type> rc;
-				ui_adapter().for_each_selected(bind(&basic_list_mediator::visit, this, &rc, _1, f));
+				ui_adapter().for_each_selected(bind(&basic_list_mediator::visit, this, &rc, boost::placeholders::_1, f));
 				return rc;
 			}
 			void show_hide_column(int col, bool show_hide);

@@ -154,6 +154,8 @@ public:
 	/** notify all observers that this value has changed. */
 	static void NotifyChanged(const const_accessor &value, bool recursive=false, bool solve_immediately=true);
 
+	static RapidUI* GetRapidUI(wxWindow* ui_window);
+
 	accessor GetDataAccessor(const tstring &name, bool recursive=true) const;
 	wxWindow *FindWindow(const tstring &name, bool recursive=true) const;
 	wxWindow *FindWindow(wxWindow *searchThis, const wxString &name, bool recursive) const;
