@@ -171,6 +171,22 @@ namespace litwindow {
 		return rc;
 	}
 
+	//! This class encapsules a single 'annotation' item for a schema_entry
+	class schema_entry_annotation
+	{
+	public:
+		schema_entry_annotation() = default;
+		schema_entry_annotation(const char* name)
+			:m_name(name) {}
+		schema_entry_annotation(const char* name, const char* str_value)
+			:m_name(name), m_str_value(str_value) {}
+
+		bool is_valid() const { return m_name != nullptr; }
+		const char* str_value() const { return m_str_value; }
+		const char* m_name = nullptr;
+		const char* m_str_value = nullptr;
+	};
+
 	//! This structure holds the information for one member (property) of a class or struct or podt.
 	struct schema_entry
 	{
@@ -183,7 +199,8 @@ namespace litwindow {
 			inherited,
 			coobject,
 			getter_setter_func,
-			ext_getter_setter_func
+			ext_getter_setter_func,
+			annotation_entry
 		} m_entry_type;
 		//! pointer to a function that casts the parameter to a base this ptr
 		typedef void * (*cast_derived_to_base_t)(void* from_derived, void* to_base);
@@ -204,15 +221,18 @@ namespace litwindow {
 			getter_setter       m_getter_setter;
 			ext_getter_setter   m_ext_getter_setter;
 		};
-
+		std::vector<schema_entry_annotation> m_annotations = {};
 		/// Accept a plain entry.
-		schema_entry(size_t anOffset, prop_t aType, const char* const aName, const char* const aClassName="")
+		schema_entry(size_t anOffset, prop_t aType, const char* const aName, const char* const aClassName = "", const std::initializer_list<schema_entry_annotation>& ilist = {})
 			:m_type(aType)
 			,m_entry_type(plain_old_type)
 			,m_name(aName)
 			,m_class_name(aClassName)
 			,m_offset(anOffset)
+			,m_annotations(ilist)
 		{
+			if (anOffset == size_t(-1))
+				m_entry_type = annotation_entry;
 		}
 		/// Create an empty entry.
 		schema_entry(const char *propName=0)
@@ -277,22 +297,22 @@ namespace litwindow {
 		/// compares two member_ptr/entry combinations.
 		/// @returns 0 if they would return the same object (memory location)
 		/// -1 if a<b and 1 if b>a
-		int compare(const schema_entry &b) const
+		int compare(const schema_entry& b) const
 		{
-			if (m_type<b.m_type)
+			if (m_type < b.m_type)
 				return -1;
-			if (m_type>b.m_type)
+			if (m_type > b.m_type)
 				return 1;
-			if (m_entry_type<b.m_entry_type)
+			if (m_entry_type < b.m_entry_type)
 				return -1;
-			if (m_entry_type>b.m_entry_type)
+			if (m_entry_type > b.m_entry_type)
 				return 1;
 			switch (m_entry_type) {
-	case getter_setter_func:
-		return m_getter_setter.compare(b.m_getter_setter);
-	case ext_getter_setter_func:
-		return m_ext_getter_setter.compare(b.m_ext_getter_setter);
-		// the other types have already been tested via 'member_ptr'
+			case getter_setter_func:
+				return m_getter_setter.compare(b.m_getter_setter);
+			case ext_getter_setter_func:
+				return m_ext_getter_setter.compare(b.m_ext_getter_setter);
+				// the other types have already been tested via 'member_ptr'
 			}
 			return 0;
 		}
@@ -304,39 +324,8 @@ namespace litwindow {
 		/// calculate the memory address of the object that this schema_entry points to.
 		/// Input: Base address of the accessor/aggregate
 		/// Output: Address of the member
-		prop_ptr member_ptr(const void *t) const
-		{
-			void *aThisPtr=const_cast<void*>(t);
-			switch (m_entry_type) {
-	case inherited:
-		/// calculate base pointer from current address. Call conversion method stored in m_cast_derived_to_base
-		aThisPtr=m_cast_derived_to_base(aThisPtr, aThisPtr);
-		break;
-	case coobject:
-		{
-			static unsigned loop_detection=0;
-			// if this test fails, the coobject creation is caught in an endless loop.
-			// most likely case: the constructor of a coobject tries to access
-			// a property of the original object. the search for this property
-			// tries to create another coobject, since the first coobject has not yet
-			// been created. the other coobject constructor again tries to access
-			// the property and so on...
-			if (++loop_detection==100)
-				throw litwindow::lwbase_error("Coobject creation loop! See comments in " __FILE__);
-			aThisPtr=m_get_co_object(aThisPtr);
-			--loop_detection;
-		} break;
-	case plain_old_type:
-		/// plain old types are simply stored 'm_offset' bytes from the base pointer.
-		aThisPtr=reinterpret_cast<unsigned char*>(aThisPtr)+m_offset;
-		break;
-	case getter_setter_func:
-	case ext_getter_setter_func:
-		/// will never be called as get/set members use a different way of accessing the pointer
-		break;
-			}
-			return reinterpret_cast<prop_ptr>(aThisPtr);
-		}
+		inline prop_ptr member_ptr(const void* t) const;
+		inline prop_ptr aggregate_ptr(const void* t) const;
 		bool is_inherited() const
 		{
 			return m_entry_type==inherited;
@@ -349,6 +338,22 @@ namespace litwindow {
 		{
 			return is_inherited() || is_coobject();
 		}
+		using annotation_iterator = std::vector<schema_entry_annotation>::const_iterator;
+		annotation_iterator find_annotation(const char* name) const
+		{
+			auto rc = std::find_if(m_annotations.begin(), m_annotations.end(), [name](const auto& j) { return strcmp(j.m_name, name) == 0; });
+			return rc;
+		}
+		const schema_entry_annotation& operator[](const char* name) const
+		{
+			auto rc = find_annotation(name);
+			if (rc == m_annotations.end()) {
+				static const schema_entry_annotation no_annotation;
+				return no_annotation;
+			}
+			return *rc;
+		}
+		const std::type_info& get_typeid() const;
 	};
 
 	/*! @} */
@@ -443,9 +448,13 @@ namespace litwindow {
 
 		/// return the size of an object in bytes
 		virtual size_t get_sizeof(const schema_entry *e) const = 0;
+		/// get a const_prop_ptr (const void*) to the value - if possible
+		virtual const_prop_ptr get_prop_ptr(const schema_entry* e, const_prop_ptr member_ptr) const = 0;
 
         /// return enum access
         virtual const converter_enum_info *get_enum_info() const { return 0; }
+
+		virtual const std::type_info& get_typeid() const = 0;
 	};
 
 	/** converter for abstract aggregates. */
@@ -467,6 +476,7 @@ namespace litwindow {
 		{}
 		const prop_type_registrar *get_registrar() const { return registrar; }
 		std::string get_type_name() const { return type_name; }
+		const std::type_info& get_typeid() const override { return typeid(Value); }
 		virtual bool has_copy() const { return false; }
 		//virtual void get_value(Value &v, const schema_entry *e, const_prop_ptr member_ptr) const = 0;
 		//virtual const Value *get_ptr(const schema_entry *e, const_prop_ptr member_ptr) const = 0;
@@ -479,6 +489,10 @@ namespace litwindow {
 		//        throw litwindow::lwbase_error("type mismatch");
 		//     set_value(v.get(), e, member_ptr);
 		//}
+		[[noreturn]] const_prop_ptr get_prop_ptr(const schema_entry* e, const_prop_ptr member_ptr) const override
+		{
+			throw litwindow::lwbase_error("not implemented");
+		}
 
 		virtual bool is_int() const
 		{
@@ -571,9 +585,14 @@ namespace litwindow {
 		{}
 		//const prop_type_registrar *get_registrar() const { return registrar; }
 		std::string get_type_name() const { return type_name; }
+		const std::type_info& get_typeid() const { return typeid(Value); }
 		virtual bool has_copy() const { return value_traits_t<Value>().has_copy(); }
 		virtual void get_value(Value &v, const schema_entry *e, const_prop_ptr member_ptr) const = 0;
 		virtual const Value *get_ptr(const schema_entry *e, const_prop_ptr member_ptr) const = 0;
+		const_prop_ptr get_prop_ptr(const schema_entry* e, const_prop_ptr member_ptr) const override
+		{
+			return const_prop_ptr(get_ptr(e, member_ptr));
+		}
 		virtual size_t get_sizeof(const schema_entry *e) const = 0;
 		virtual Value *get_ptr(const schema_entry *e, prop_ptr member_ptr) const = 0;
 		virtual void set_value(const Value &v, const schema_entry *e, prop_ptr member_ptr) = 0;
@@ -743,6 +762,64 @@ namespace litwindow {
 			return tstring();
 		}
 	};
+
+
+	inline const std::type_info& schema_entry::get_typeid() const
+	{
+		return m_type->get_typeid();
+	}
+
+	inline prop_ptr schema_entry::member_ptr(const void* t) const
+	{
+		void* aThisPtr = const_cast<void*>(t);
+		switch (m_entry_type) {
+		case inherited:
+			/// calculate base pointer from current address. Call conversion method stored in m_cast_derived_to_base
+			aThisPtr = m_cast_derived_to_base(aThisPtr, aThisPtr);
+			break;
+		case coobject:
+		{
+			static unsigned loop_detection = 0;
+			// if this test fails, the coobject creation is caught in an endless loop.
+			// most likely case: the constructor of a coobject tries to access
+			// a property of the original object. the search for this property
+			// tries to create another coobject, since the first coobject has not yet
+			// been created. the other coobject constructor again tries to access
+			// the property and so on...
+			if (++loop_detection == 100)
+				throw litwindow::lwbase_error("Coobject creation loop! See comments in " __FILE__);
+			aThisPtr = m_get_co_object(aThisPtr);
+			--loop_detection;
+		} break;
+		case plain_old_type:
+			/// plain old types are simply stored 'm_offset' bytes from the base pointer.
+			aThisPtr = reinterpret_cast<unsigned char*>(aThisPtr) + m_offset;
+			break;
+		case getter_setter_func:
+		case ext_getter_setter_func:
+			/// will never be called as get/set members use a different way of accessing the pointer
+			// The getter needs to be passed the 'this' pointer of the aggregate, rather than
+			// the specific pointer to the member itself
+			auto this_rc = const_cast<prop_ptr>(m_type->get_prop_ptr(this, t));
+/*
+			if (this_rc != nullptr)
+				aThisPtr = this_rc;
+*/
+			break;
+		}
+		return reinterpret_cast<prop_ptr>(aThisPtr);
+	}
+
+	inline prop_ptr schema_entry::aggregate_ptr(const void* t) const
+	{
+		prop_ptr rc;
+		if (m_entry_type == getter_setter_func)
+			rc = const_cast<prop_ptr>(m_type->get_prop_ptr(this, t));
+		else
+			rc = prop_ptr(t);
+		return rc;
+	}
+
 
 	//-----------------------------------------------------------------------------------------------------------//
 	/** Base type object for old style c vector [] data types.
@@ -957,6 +1034,15 @@ namespace litwindow {
 		{
 			const_iterator rc=std::find(begin(), end(), name);
 			return rc;
+		}
+		const schema_entry& operator[](const char* name) const
+		{
+			auto rc = find(name);
+			if (rc == end()) {
+				static const schema_entry invalid_entry;
+				return invalid_entry;
+			}
+			return *rc;
 		}
 		concrete_factory_base *get_factory() const
 		{
@@ -1181,12 +1267,15 @@ litwindow::tstring litwindow::converter<boost::optional<tp>>::to_string(const bo
 #define PROPTYPE(variable) \
 	::litwindow::get_prop_type(&PROPVARIABLE(variable))
 
-#define PROPENTRY(offset, type, name)    \
-	::litwindow::schema_entry(offset, type, name),
+#define PROPENTRY(offset, type, name, ...)    \
+	::litwindow::schema_entry(offset, type, name, "", __VA_ARGS__),
 
 /** Define a schema entry for a member variable. */
-#define PROP(variable) \
-	PROPENTRY(offsetof(PROPCLASS, variable), PROPTYPE(variable), #variable)
+#define PROP(variable, ...) \
+	PROPENTRY(offsetof(PROPCLASS, variable), PROPTYPE(variable), #variable, { __VA_ARGS__ })
+
+#define PROP_ANN(...) \
+	PROPENTRY(size_t(-1), nullptr, nullptr, { __VA_ARGS__ })
 
 /** Define a schema entry for an old style C std::string (null terminated char*).
 This macro defines a null terminated C std::string as a property. @note std::string/wstring is strongly preferred to char[].
