@@ -242,6 +242,16 @@ public:
 		return &theConverter;    \
 	} \
 
+#define LWL_IMPLEMENT_NONCOPYABLE_CONTAINER(tp) \
+    LWL_IMPLEMENT_CONTAINER(tp) \
+    template <> \
+    void litwindow::converter< iztcpp::serialization::ObservableCollection<int>>::set_value(const iztcpp::serialization::ObservableCollection<int>& v, const schema_entry* e, prop_ptr member_ptr) override \
+    {} \
+        \
+    template <> \
+    void litwindow::converter< iztcpp::serialization::ObservableCollection<int>>::get_value(iztcpp::serialization::ObservableCollection<int>& v, const schema_entry*, const_prop_ptr) const override \
+    {}
+
 #define LWL_IMPLEMENT_CONST_CONTAINER(tp) \
 	template <> \
 	litwindow::prop_type_registrar litwindow::prop_type_object<tp >::____register_prop_t(litwindow::prop_type_object<tp >::get(0)); \
