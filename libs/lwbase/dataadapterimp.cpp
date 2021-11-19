@@ -120,7 +120,7 @@ using namespace std;
 template <>
 bool converter<accessor>::has_schema() const
 {
-    return true;
+    return false;
 }
 
 template <>

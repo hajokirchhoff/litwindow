@@ -128,7 +128,15 @@ struct read_from_config
 						    value.from_int(l);
 						    success=true;
 					    }
-				    } else {
+				    }
+					else if (value.is_type<double>()) {
+						double d;
+						if (m_cfg->Read(key, &d)) {
+							dynamic_cast_accessor<double>(value).set(d);
+							success=true;
+						}
+					}
+					else {
 					    wxString data;
 					    if (m_cfg->Read(key, &data)) {
 						    value.from_string((const TCHAR*)data.c_str());
@@ -186,11 +194,17 @@ struct write_to_config
             success=m_cfg->Write(key+wxT("/size"), count);
         } else {
             try {
-                if (value.is_int()) {
-                    if (m_cfg->Write(key, value.to_int())) {
-                        success=true;
-                    }
-                } else {
+				if (value.is_int()) {
+					if (m_cfg->Write(key, value.to_int())) {
+						success = true;
+					}
+				}
+				else if (value.is_type<double>()) {
+					if (m_cfg->Write(key, dynamic_cast_accessor<double>(value).get())) {
+						success = true;
+					}
+                }
+                else {
                     if (m_cfg->Write(key, value.to_string().c_str())) {
                         success=true;
                     }
