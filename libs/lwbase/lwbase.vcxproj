@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\..\build\packages\SignalSuite.1.10.1\build\native\SignalSuite.props" Condition="Exists('..\..\..\..\build\packages\SignalSuite.1.10.1\build\native\SignalSuite.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug Static|Win32">
       <Configuration>Debug Static</Configuration>
@@ -157,6 +156,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|x64'">
     <TargetName>lib$(ProjectName)-vc$(PlatformToolsetVersion)-mt-s-1_0_0</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -350,18 +352,6 @@
     </ClCompile>
     <ClCompile Include="tstring.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\..\build\packages\SignalSuite.1.10.1\build\native\SignalSuite.targets" Condition="Exists('..\..\..\..\build\packages\SignalSuite.1.10.1\build\native\SignalSuite.targets')" />
-  </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\build\packages\SignalSuite.1.10.1\build\native\SignalSuite.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\build\packages\SignalSuite.1.10.1\build\native\SignalSuite.props'))" />
-    <Error Condition="!Exists('..\..\..\..\build\packages\SignalSuite.1.10.1\build\native\SignalSuite.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\build\packages\SignalSuite.1.10.1\build\native\SignalSuite.targets'))" />
-  </Target>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

@@ -1,0 +1,13 @@
+{
+  "name": "litwindow",
+  "version": "1.5.0",
+  "dependencies": [
+    { "name": "boost-format" },
+    { "name": "boost-preprocessor" },
+    { "name": "boost-uuid" },
+    { "name": "boost-lexical-cast" },
+    { "name": "boost-bind" },
+    { "name": "boost-logic" },
+    { "name": "boost-test" }
+  ]
+}
