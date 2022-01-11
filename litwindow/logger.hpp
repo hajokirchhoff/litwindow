@@ -40,10 +40,17 @@
 #endif
 #include <limits>
 
+#include "tstring.hpp"
+
 template <typename _Elem, typename V>
 inline std::basic_ostream<_Elem> &litwindow_logger_find_all_namespaces_operator_insert_to_stream(std::basic_ostream<_Elem> &o, const V &v)
 {
 	return (o << v);
+}
+
+inline std::basic_ostream<wchar_t>& litwindow_logger_find_all_namespaces_operator_insert_to_stream(std::basic_ostream<wchar_t>& o, const std::string& v)
+{
+	return litwindow_logger_find_all_namespaces_operator_insert_to_stream(o, litwindow::s2wstring(v));
 }
 
 namespace litwindow {
