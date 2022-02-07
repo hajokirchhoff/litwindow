@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
   "name": "litwindow",
   "version": "1.5.0",
   "dependencies": [
@@ -9,5 +10,6 @@
     { "name": "boost-bind" },
     { "name": "boost-logic" },
     { "name": "boost-test" }
-  ]
+  ],
+  "$comment": "The last 1.78.0 boost version"
 }
