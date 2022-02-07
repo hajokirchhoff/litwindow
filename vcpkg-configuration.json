@@ -1,0 +1,7 @@
+{
+  "default-registry": {
+    "kind": "git",
+    "repository": "https://izts09.izt.loc/DefaultCollection/ext-libs/_git/vcpkg",
+    "baseline": "6603329f9700ca55210bd3a74a1077652adb62af"
+  }
+}
