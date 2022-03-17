@@ -96,7 +96,7 @@ public:
 	/** Tell the table to ignore the case in the column names. Default is false. Must call before 'open'. */
 	void set_ignore_case(bool do_ignore) { m_ignore_case = do_ignore; }
 protected:
-	void init(shared_connection &s);
+	void init(const shared_connection &s);
 	void init(connection &c);
 	const sqlreturn &build_update_statement(bool simulate_positioned_update);
 	const sqlreturn &build_delete_statement(bool simulate_positioned_delete);

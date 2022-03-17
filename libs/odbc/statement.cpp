@@ -176,7 +176,7 @@ void statement::set_connection(connection &c)
 	init(c, tstring());
 }
 
-void statement::set_connection(shared_connection &c)
+void statement::set_connection(const shared_connection &c)
 {
 	clear();
 	free_handle();
