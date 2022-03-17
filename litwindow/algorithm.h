@@ -62,11 +62,12 @@ namespace litwindow {
 		return visitor_fun_t<_Visitor>(_v);
 	}
 
+#if 0
 	/** visitor design pattern - template class to be used with for_each */
 	template <class _Visitor, class _Arg, class _Ret>
 	struct visitor_mem_fun_t:public std::unary_function<_Arg, _Ret>
 	{
-		typedef result_type (_Visitor::* _VisitorFunc)(const argument_type &);
+		typedef result_type (typename _Visitor::* _VisitorFunc)(const argument_type &);
 		_Visitor *visitor;
 		_VisitorFunc visitor_func;
 
@@ -88,6 +89,7 @@ namespace litwindow {
 	{
 		return visitor_mem_fun_t<_Visitor, _Arg, _Ret>(_v, f);
 	}
+#endif
 
 }
 #endif
