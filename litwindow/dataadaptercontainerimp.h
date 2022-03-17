@@ -61,7 +61,7 @@ public:
 
     //-----------------------------------------------------------------------------------------------------------//
     //-----------------------------------------------------------------------------------------------------------//
-template <class Container, class Iterator=Container::const_iterator>
+template <class Container, class Iterator=typename Container::const_iterator>
 class const_container_const_iterator:public const_container_iterator_imp_base
 {
 public:
