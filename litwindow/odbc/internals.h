@@ -36,12 +36,12 @@ struct scope {
 
 	tstring make_name(TCHAR separator_char=_T('.'), TCHAR quote_char=_T('"')) const;
 
-	bool operator < (const scope &s) const throw();
-	bool operator==(const scope &s) const throw()
+	bool operator < (const scope &s) const;
+	bool operator==(const scope &s) const
 	{
 		return table==s.table && schema==s.schema && catalog==s.catalog;
 	}
-	bool operator !=(const scope &s) const throw() { return !operator==(s); }
+	bool operator !=(const scope &s) const { return !operator==(s); }
 
 	bool partial_match(const tstring &to_match, const tstring &value) const
 	{
@@ -73,9 +73,9 @@ template <class Value>
 class scope_index
 {
 public:
-	bool add(const tstring &name, scope sc, const Value &v, bool set_if_exists=false) throw();
-	const Value &find(const tstring &name, const scope &sc, const Value &default_value) const throw();
-	const Value &find(const tstring &name, const tstring &table, const tstring &schema, const tstring &catalog, const Value &default_value) const throw()
+	bool add(const tstring &name, scope sc, const Value &v, bool set_if_exists=false);
+	const Value &find(const tstring &name, const scope &sc, const Value &default_value) const;
+	const Value &find(const tstring &name, const tstring &table, const tstring &schema, const tstring &catalog, const Value &default_value) const
 	{
 		return find(name, scope(table, schema, catalog), default_value);
 	}
@@ -97,7 +97,7 @@ protected:
 };
 
 template <class Value>
-bool scope_index<Value>::add(const tstring &name, scope sc, const Value &v, bool set_if_exists) throw()
+bool scope_index<Value>::add(const tstring &name, scope sc, const Value &v, bool set_if_exists)
 {
 	names_t &named_map(m_scope_map[sc]);
 	typename names_t::iterator name_i=named_map.find(name);
@@ -112,7 +112,7 @@ bool scope_index<Value>::add(const tstring &name, scope sc, const Value &v, bool
 }
 
 template <class Value>
-const Value &scope_index<Value>::find(const tstring &name, const scope &sc, const Value &default_value) const throw()
+const Value &scope_index<Value>::find(const tstring &name, const scope &sc, const Value &default_value) const
 {
 	typename scopes_t::const_iterator i=m_scope_map.find(sc);
 	bool find_any=false;

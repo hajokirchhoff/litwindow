@@ -81,7 +81,7 @@ struct sqldiag {
 	SQLINTEGER native_error;
 	tstring	msg;
 	sqldiag() {}
-	sqldiag(TCHAR p_state[5], SQLINTEGER p_native_error, const tstring &p_msg):native_error(p_native_error),msg(p_msg)
+	sqldiag(const TCHAR p_state[5], SQLINTEGER p_native_error, const tstring &p_msg):native_error(p_native_error),msg(p_msg)
 	{
 		memcpy(state, p_state, sizeof(state));
 	}
@@ -110,9 +110,9 @@ public:
 	void inc_ref() { ++m_ref_count; }
 	size_t dec_ref() { return --m_ref_count; }
 	bool is_last_ref() const { return m_ref_count==1; }
-	void log_to_stream(tostream &out) const throw();
+	void log_to_stream(tostream &out) const;
 	size_t size() const { return m_records.size(); }
-	const sqldiag &back() const throw() { return m_records.back(); }
+	const sqldiag &back() const { return m_records.back(); }
 	const sqldiag &get(size_t i) const { return m_records.at(i); }
 protected:
 	size_t	m_ref_count;
@@ -142,46 +142,46 @@ public:
 	LWODBC_API sqlreturn(const tstring &msg, error_code error, TCHAR state[5]=0);	///< create new object from error message, set code to SQL_ERROR, state to 'LWODB'
     LWODBC_API sqlreturn(const TCHAR *msg, error_code error, TCHAR state[5]=0);	///< create new object from error message, set code to SQL_ERROR, state to 'LWODB'
 
-	bool success() const throw()	 { return m_rc==SQL_SUCCESS || m_rc==SQL_SUCCESS_WITH_INFO; }	///< test for SQL_SUCCESS or SQL_SUCCESS_WITH_INFO
-	bool ok() const throw()						{ return success(); }
-	bool fail() const throw()						{ return !ok(); }
+	bool success() const	 { return m_rc==SQL_SUCCESS || m_rc==SQL_SUCCESS_WITH_INFO; }	///< test for SQL_SUCCESS or SQL_SUCCESS_WITH_INFO
+	bool ok() const						{ return success(); }
+	bool fail() const						{ return !ok(); }
 	void assert_success() const												///< throw runtime_error if not success
 	{
 		if (log_errors())
 			throw runtime_error("sqlreturn.ok()==false");
 	}
 
-	bool no_data() const throw()												///< test for SQL_NO_DATA
+	bool no_data() const												///< test for SQL_NO_DATA
 	{ return m_rc==SQL_NO_DATA; }
 	/// test for odbc state HYC00 - optional feature not implemented by driver
-	bool optional_feature_not_implemented() const throw() { return m_rc==SQL_ERROR && is_state(_T("HYC00")); }
-	bool option_value_changed() const throw() { return m_rc==SQL_SUCCESS_WITH_INFO && is_state(_T("01S02")); }
-	bool cursor_operation_conflict() const throw() { return (m_rc==SQL_SUCCESS_WITH_INFO || m_rc==SQL_ERROR) && is_state(_T("01001")); }
-	bool string_data_right_truncation() const throw() { return m_rc==SQL_ERROR && is_state(_T("22001")); }
-	bool driver_does_not_support_this_function() const throw() { return m_rc==SQL_ERROR && is_state(_T("IM001")); }
+	bool optional_feature_not_implemented() const { return m_rc==SQL_ERROR && is_state(_T("HYC00")); }
+	bool option_value_changed() const { return m_rc==SQL_SUCCESS_WITH_INFO && is_state(_T("01S02")); }
+	bool cursor_operation_conflict() const { return (m_rc==SQL_SUCCESS_WITH_INFO || m_rc==SQL_ERROR) && is_state(_T("01001")); }
+	bool string_data_right_truncation() const { return m_rc==SQL_ERROR && is_state(_T("22001")); }
+	bool driver_does_not_support_this_function() const { return m_rc==SQL_ERROR && is_state(_T("IM001")); }
 	/// constraints violation such as foreign key, NULL-nonNULLable etc...
-	bool constraints_violation() const throw() { return m_rc==SQL_ERROR && is_state(_T("23***")); }
+	bool constraints_violation() const { return m_rc==SQL_ERROR && is_state(_T("23***")); }
 	/// test for 'permission denied'. \todo Prüfen, ob dies für alle Datenbanken funktioniert, oder ob man pro Datenbank testen muß... Vermutlich pro Datenbank.
-	bool permission_denied() const throw() { return m_rc==SQL_ERROR && is_state(_T("42501")); }
+	bool permission_denied() const { return m_rc==SQL_ERROR && is_state(_T("42501")); }
     /// integrity constraint is usually returned by inserts and updates
-    bool integrity_constraint_violation() const throw() { return m_rc==SQL_ERROR && is_state(_T("23000")); }
+    bool integrity_constraint_violation() const { return m_rc==SQL_ERROR && is_state(_T("23000")); }
 	/// log any errors and return true if errors logged or false if ok()
-	bool LWODBC_API log_errors() const throw() { return success() ? false : do_log_errors(); }
+	bool LWODBC_API log_errors() const { return success() ? false : do_log_errors(); }
 	bool LWODBC_API ok_log() const { return log_errors()==false; }
 
 	const sqldiag LWODBC_API &diagnostics(size_t index) const;
 
-	bool operator==(SQLRETURN code) const throw()	{ return m_rc==code; }
-	bool operator!=(SQLRETURN code) const throw()	{ return !operator==(code); }
+	bool operator==(SQLRETURN code) const	{ return m_rc==code; }
+	bool operator!=(SQLRETURN code) const	{ return !operator==(code); }
 
 	const sqlreturn LWODBC_API &operator=(const sqlreturn &c);	///< copy code and diagnostics
 
-	void clear() throw()							{ set(SQL_SUCCESS); }
+	void clear()							{ set(SQL_SUCCESS); }
 
 	bool LWODBC_API	is_state(const TCHAR state[5]) const				///< test if the first sqlreturn diagnostics record has a given state
 	{ return m_diag && m_diag->is_state(state); }
 
-	tstring LWODBC_API as_string() const throw();					///< format the error as a string so that it can be shown to the user
+	tstring LWODBC_API as_string() const;					///< format the error as a string so that it can be shown to the user
 	void LWODBC_API append_diag(const sqldiag &r);
 
 	const sqlreturn LWODBC_API &set(SQLRETURN code);			///< set the return code, clear diagnostics
@@ -194,20 +194,20 @@ public:
 
 	bool has_diagnostics() const { return m_diag && m_diag->size()>0; }
 
-	SQLRETURN get_code() const throw() { return m_rc; }
+	SQLRETURN get_code() const { return m_rc; }
 	/// set the return code but leave diagnostic records unchanged
 	void set_code(SQLRETURN rc) { m_rc=rc; }
-	SQLINTEGER native_error() const throw() { return has_diagnostics() ? m_diag->back().native_error : err_logic_error; }
+	SQLINTEGER native_error() const { return has_diagnostics() ? m_diag->back().native_error : err_logic_error; }
 
 	static TCHAR g_lwodb_state[];
 protected:
 	//const sqlreturn LWODBC_API &operator=(SQLRETURN c);
 	SQLRETURN m_rc;
 	sql_diag_ptr_t	m_diag;
-	bool do_log_errors() const throw();
+	bool do_log_errors() const;
 
 	/// create a new copy of m_diag data and return it - if neccessary
-	sql_diagnostic_records *copy_on_write() throw();
+	sql_diagnostic_records *copy_on_write();
 };
 
 class sqlreturn_auto_set_diagnostics:public sqlreturn
@@ -225,17 +225,17 @@ public:
 	{
 		m_htype=0; m_handle=0;
 	}
-	void LWODBC_API set_throw_on_error(bool do_throw) throw() { m_throw_on_error=do_throw; }
-	bool LWODBC_API is_throw_on_error() const throw() { return m_throw_on_error; }
+	void LWODBC_API set_throw_on_error(bool do_throw) { m_throw_on_error=do_throw; }
+	bool LWODBC_API is_throw_on_error() const { return m_throw_on_error; }
 	bool LWODBC_API get_throw_on_error() const { return is_throw_on_error(); }
-	void LWODBC_API set_log_errors(bool do_log) throw() { m_log_errors=do_log; }
-	bool LWODBC_API is_log_errors() const throw() { return m_log_errors; }
+	void LWODBC_API set_log_errors(bool do_log) { m_log_errors=do_log; }
+	bool LWODBC_API is_log_errors() const { return m_log_errors; }
 	static void LWODBC_API set_log_diagnostics(bool do_log=true);
 	/// ignore a state once - do not log and do not throw if this state is detected
 	/// can be called multiple times to add ignore states and can contain a comma separated list of states
-	bool LWODBC_API ignore_once(const TCHAR *state) throw();
-	bool LWODBC_API is_ignored_state() const throw();
-	LWODBC_API const TCHAR *get_ignore_once() const throw();
+	bool LWODBC_API ignore_once(const TCHAR *state);
+	bool LWODBC_API is_ignored_state() const;
+	LWODBC_API const TCHAR *get_ignore_once() const;
 protected:
 	static bool g_log_diagnostics;
 	tstring m_ignore_once;

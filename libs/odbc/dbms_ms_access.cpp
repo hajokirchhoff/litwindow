@@ -38,7 +38,7 @@ namespace litwindow {
 		{
 			//TODO: Implement this: parse the connection string and set database file name and workgroup file name from it
 		}
-		sqlreturn dbms_access::get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw()
+		sqlreturn dbms_access::get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column)
 		{
 			statement s(_("SELECT @@IDENTITY"), *ds);
 			s.bind_column(1, target) && s.execute() && s.fetch();
