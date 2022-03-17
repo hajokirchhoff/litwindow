@@ -73,7 +73,7 @@ namespace litwindow {
 			}
 			bool find_render_object(const const_accessor &a, std::pair<render_object_t, tstring> &rc)
 			{
-				renderer_map_t::const_iterator i=m_objects.find(a.get_type());
+				auto i=m_objects.find(a.get_type());
 				bool found= i!=m_objects.end();
 				if (found)
 					rc=i->second;

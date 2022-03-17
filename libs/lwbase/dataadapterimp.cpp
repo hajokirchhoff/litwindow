@@ -636,9 +636,9 @@ void schema_base::init(const schema_entry *staticArray, const char *aClassName)
 template <class Aggregate>
 pair<typename Aggregate::_iter, bool> find_identifier(const Aggregate &a, const string &propName, bool search_member_aggregates)
 {
-    Aggregate::_iter rc=a.find(propName);
+    typename Aggregate::_iter rc=a.find(propName);
     if (rc==a.end()) {
-        Aggregate::_iter k;
+        typename Aggregate::_iter k;
         for (k=a.begin(); k!=a.end(); ++k) {
             if (k->is_nested() || search_member_aggregates && k->is_aggregate()) {
                 Aggregate nested=(*k).get_aggregate();
