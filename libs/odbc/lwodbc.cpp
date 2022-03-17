@@ -78,7 +78,7 @@ const tstring default_string(DEFAULT_STRING, sizeof(DEFAULT_STRING));
 static TCHAR ANY_STRING[]=_T("any//1AF0C300-46E3-43b8-8619-0271B5987F62//\x1\0\0");
 const tstring any_string(ANY_STRING, sizeof(ANY_STRING));
 
-sqlreturn::sqlreturn(const tstring &msg, error_code error, TCHAR state[5])
+sqlreturn::sqlreturn(const tstring &msg, error_code error, const TCHAR state[5])
 {
 	if (state==0)
 		state=g_lwodb_state;
@@ -86,7 +86,7 @@ sqlreturn::sqlreturn(const tstring &msg, error_code error, TCHAR state[5])
 	m_rc=SQL_ERROR;
 }
 
-sqlreturn::sqlreturn(const TCHAR *msg, error_code error, TCHAR state[5])
+sqlreturn::sqlreturn(const TCHAR *msg, error_code error, const TCHAR state[5])
 {
     if (state==0)
         state=g_lwodb_state;

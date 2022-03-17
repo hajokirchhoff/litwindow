@@ -139,8 +139,8 @@ public:
 	explicit LWODBC_API sqlreturn(SQLRETURN rc=SQL_SUCCESS)			///< create new object from SQLRETURN code
 		:m_rc(rc),m_diag(0)
 	{}
-	LWODBC_API sqlreturn(const tstring &msg, error_code error, TCHAR state[5]=0);	///< create new object from error message, set code to SQL_ERROR, state to 'LWODB'
-    LWODBC_API sqlreturn(const TCHAR *msg, error_code error, TCHAR state[5]=0);	///< create new object from error message, set code to SQL_ERROR, state to 'LWODB'
+	LWODBC_API sqlreturn(const tstring &msg, error_code error, const TCHAR state[5]=0);	///< create new object from error message, set code to SQL_ERROR, state to 'LWODB'
+    LWODBC_API sqlreturn(const TCHAR *msg, error_code error, const TCHAR state[5]=0);	///< create new object from error message, set code to SQL_ERROR, state to 'LWODB'
 
 	bool success() const	 { return m_rc==SQL_SUCCESS || m_rc==SQL_SUCCESS_WITH_INFO; }	///< test for SQL_SUCCESS or SQL_SUCCESS_WITH_INFO
 	bool ok() const						{ return success(); }
