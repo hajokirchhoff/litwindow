@@ -28,7 +28,7 @@ namespace litwindow {
         table::table(const tstring &table_name, connection &c) { init(c); set_table(table_name); }
         table::table(const tstring &table_name, shared_connection &s) { init(s); set_table(table_name); }
 
-        void table::init(shared_connection &s)
+        void table::init(const shared_connection &s)
         {
             set_connection(s);
             m_update_statement.set_connection(s);

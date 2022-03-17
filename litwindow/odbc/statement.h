@@ -123,7 +123,7 @@ public:
 
 	/// for statements that have been constructed with the default constructor
 	LWODBC_API void set_connection(connection &c);
-	LWODBC_API void set_connection(shared_connection &c);
+	LWODBC_API void set_connection(const shared_connection &c);
 	/// disconnect the statement from a connection
 	LWODBC_API void clear_connection();
     LWODBC_API void close() { clear_connection(); }
