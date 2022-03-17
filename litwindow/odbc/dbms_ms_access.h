@@ -70,7 +70,7 @@ namespace litwindow {
 			virtual sqlreturn use_database(connection *ds, const tstring &database_name);
 			virtual void set_database_name(const tstring &database);
 			virtual tstring get_database_name() const;
-			virtual sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw();
+			virtual sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column);
 
 			virtual tstring get_driver_name() const { return _T("Microsoft Access Driver (*.mdb)"); }
 

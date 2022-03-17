@@ -226,8 +226,7 @@ void sql_diagnostic_records::log_to_stream(tostream &out) const
 
 //-----------------------------------------------------------------------------------------------------------//
 
-sql_diagnostic_records *sqlreturn::copy_on_write() throw()
-// the only case this might still throw is out_of_memory_exception
+sql_diagnostic_records *sqlreturn::copy_on_write()
 {
 	if (m_diag==0)
 		m_diag=new sql_diagnostic_records;

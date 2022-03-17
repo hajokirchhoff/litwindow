@@ -249,7 +249,7 @@ bool catalog::has_table_privileges(const tstring &grantee, int privilege_bitmask
 	int privileges_set=0;
 	while (fetch()) {
 		if (grantee==rset.GRANTEE) {
-			static TCHAR *privs[]={_T("SELECT"), _T("UPDATE"), _T("DELETE"), _T("INSERT"), _T("REFERENCES")};
+			static const TCHAR *privs[]={_T("SELECT"), _T("UPDATE"), _T("DELETE"), _T("INSERT"), _T("REFERENCES")};
 			size_t i;
 			int mask=1;
 			for (i=0; i<sizeof(privs)/sizeof(*privs) && ((privilege_bitmask & mask)==0 || rset.PRIVILEGE!=privs[i]); ++i, mask<<=1)

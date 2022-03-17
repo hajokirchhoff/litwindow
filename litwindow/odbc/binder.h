@@ -227,26 +227,26 @@ public:
 
 	/// bind a parameter by position to a C variable.
 	sqlreturn LWODBC_API  bind_parameter( SQLUSMALLINT pposition, SQLSMALLINT in_out, SQLSMALLINT c_type, SQLSMALLINT sql_type, 
-		SQLULEN column_size, SQLSMALLINT decimal_digits, SQLPOINTER buffer, SQLLEN length, SQLLEN *len_ind) throw();
+		SQLULEN column_size, SQLSMALLINT decimal_digits, SQLPOINTER buffer, SQLLEN length, SQLLEN *len_ind);
 	/// bind a parameter accessor to a position
-	sqlreturn LWODBC_API bind_parameter(SQLUSMALLINT pposition, const accessor &a, SQLSMALLINT in_out=unknown_bind_type, SQLLEN *len_ind=0) throw();
+	sqlreturn LWODBC_API bind_parameter(SQLUSMALLINT pposition, const accessor &a, SQLSMALLINT in_out=unknown_bind_type, SQLLEN *len_ind=0);
 	/** bind a parameter by name - this requires a parameter marker in the sql statement. 
 
 	Example: SELECT * FROM my_table WHERE id=?<b><em>([in]variable)</em></b>
 	*/
-	sqlreturn	LWODBC_API	bind_parameter( const tstring &name, const accessor &a, SQLLEN *len_ind=0) throw();
+	sqlreturn	LWODBC_API	bind_parameter( const tstring &name, const accessor &a, SQLLEN *len_ind=0);
 	/** bind an aggregate as parameters */
-	sqlreturn	LWODBC_API	bind_parameter(const aggregate &a, solve_nested_names_enum solver=default_parameter_strategy) throw();
+	sqlreturn	LWODBC_API	bind_parameter(const aggregate &a, solve_nested_names_enum solver=default_parameter_strategy);
 	/** Bind a parameter using a bind_task object. */
 	sqlreturn	LWODBC_API	bind_parameter(const bind_task &task);
 	/// clear parameter bindings
-	sqlreturn LWODBC_API unbind_parameters() throw() 
+	sqlreturn LWODBC_API unbind_parameters() 
 	{ 
 		m_parameters.unbind();
 		return sqlreturn(SQL_SUCCESS);
 	}
 
-	sqlreturn   LWODBC_API  bind_column(SQLSMALLINT col, SQLSMALLINT c_type, SQLPOINTER target_ptr, SQLINTEGER size, SQLLEN* len_ind) throw();
+	sqlreturn   LWODBC_API  bind_column(SQLSMALLINT col, SQLSMALLINT c_type, SQLPOINTER target_ptr, SQLINTEGER size, SQLLEN* len_ind);
 	sqlreturn   LWODBC_API  bind_column(SQLSMALLINT col, const accessor &a, SQLLEN *len_ind=0);
 	/// bind an accessor adapter to a column
 	sqlreturn	LWODBC_API	bind_column(const tstring &column_name, const accessor &a, SQLLEN *len_ind=0);
@@ -254,26 +254,26 @@ public:
 	/// bind an aggregate adapter to the result columns
 	sqlreturn	LWODBC_API	bind_column(const aggregate &a, const tstring &table=_T(""), solve_nested_names_enum solver=default_column_strategy);
 
-	sqlreturn               unbind_columns() throw()        
+	sqlreturn               unbind_columns()        
 	{ 
 		m_columns.unbind();
 		return sqlreturn(SQL_SUCCESS);
 	}
 
-	sqlreturn unbind() throw() { unbind_parameters(); unbind_columns(); return sqlreturn(SQL_SUCCESS); }
+	sqlreturn unbind() { unbind_parameters(); unbind_columns(); return sqlreturn(SQL_SUCCESS); }
 
 	binder()
 		:m_aggregate_scope_separator_char(_T('_'))
 	{}
 
-	const data_type_info &get_column(SQLSMALLINT pos) const throw();
+	const data_type_info &get_column(SQLSMALLINT pos) const;
 	sqlreturn get_column_length(SQLSMALLINT pos, SQLLEN &value) const;
 	tstring dump_columns(TCHAR quote_char=_T('"')) const;
 
 	SQLSMALLINT LWODBC_API find_column_by_target(const const_accessor &a) const;
 
-	void set_use_cache(bool yes) throw() { m_columns.use_cache(yes); }
-	bool has_cache() const throw() { return m_columns.has_cache(); }
+	void set_use_cache(bool yes) { m_columns.use_cache(yes); }
+	bool has_cache() const { return m_columns.has_cache(); }
 	/// make a column name from a c identifier
 	static tstring make_column_name(const tstring &c_identifier);
 protected:
@@ -292,17 +292,17 @@ protected:
 	/// called after fetch/execute - copies data from the parameter buffers to variables
 	sqlreturn do_get_parameters(statement &s);
 
-	bool needs_bind_columns() const throw() { return m_columns.m_needs_bind; }
+	bool needs_bind_columns() const { return m_columns.m_needs_bind; }
 	/// called before the first fetch - bind all columns
 	sqlreturn do_bind_columns(statement &s);
 
-	bool needs_put_columns() const throw() { return m_columns.m_needs_put; }
+	bool needs_put_columns() const { return m_columns.m_needs_put; }
 	/// called before insert via SQLBulkOperations - copy the values of the bound column variables to the column buffer
-	sqlreturn do_put_columns(statement &s) throw() { return m_columns.put(s); }
+	sqlreturn do_put_columns(statement &s) { return m_columns.put(s); }
 
 	void reset_column_bindings() { m_columns.reset(); }
 
-	bool needs_get_columns() const throw() { return m_columns.m_needs_get; }
+	bool needs_get_columns() const { return m_columns.m_needs_get; }
 	/// called after each fetch - copies data from column buffers to variables
 	sqlreturn do_get_columns(statement &s);
 
@@ -316,7 +316,7 @@ protected:
 		set_length,
 		reset_length
 	};
-	void fix_SQL_NTS_len_ind_parameter_workaround(fix_workaround_enum action) throw();
+	void fix_SQL_NTS_len_ind_parameter_workaround(fix_workaround_enum action);
 
 	class binder_lists
 	{
@@ -327,7 +327,7 @@ protected:
 		SQLULEN m_intermediate_buffer_size;
 		boost::shared_array<unsigned char> m_intermediate_buffer;
 		/// reset the state of BIND_TASK (not COLUMN!!!) at 'pos'
-		sqlreturn reset_bind_task_state(size_t pos, SQLINTEGER len_ind) throw();
+		sqlreturn reset_bind_task_state(size_t pos, SQLINTEGER len_ind);
 	public:
 		bool m_needs_bind, m_needs_get, m_needs_put, m_use_cache;
 		void unbind()
@@ -342,7 +342,7 @@ protected:
 			m_needs_bind=m_elements.size()>0;
 			m_needs_get=m_needs_put=false;
 		}
-		sqlreturn reset_states(SQLINTEGER len_ind) throw();
+		sqlreturn reset_states(SQLINTEGER len_ind);
 		void add(const bind_task &b)
 		{
 			m_elements.push_back(b);
@@ -355,11 +355,11 @@ protected:
 		void use_cache(bool yes=true) { m_use_cache=yes; }
 		bool has_cache() const { return m_use_cache; }
 		binder_lists():m_needs_bind(false),m_needs_get(false),m_needs_put(false),m_version(0),m_use_cache(false) {}
-		sqlreturn prepare_binding(statement &s, bool bind_as_columns, size_t columns_to_expect=0) throw();
+		sqlreturn prepare_binding(statement &s, bool bind_as_columns, size_t columns_to_expect=0);
 		sqlreturn do_get_columns_or_parameters(statement &s, bool type_is_columns);
-		sqlreturn put(statement &stmt) throw();
+		sqlreturn put(statement &stmt);
 		size_t size() const { return m_elements.size(); }
-		sqlreturn set_column_state(SQLUSMALLINT col, SQLLEN len_ind) throw();
+		sqlreturn set_column_state(SQLUSMALLINT col, SQLLEN len_ind);
 
 		/// return the bind_task for the given column. db column offsets usually start at 1. 0 is reserved for the bookmark column, if there is one.
 		bool is_valid_column_index(SQLSMALLINT col) const { return col>=0 && col<(SQLSMALLINT)m_index.size() && m_index[col]!=0; }
@@ -381,10 +381,10 @@ protected:
 
 	sqlreturn get_bind_info(const accessor &a, data_type_info &p_desc);
 
-	sqlreturn reset_column_states(SQLINTEGER len_ind) throw() { return m_columns.reset_states(len_ind); }
-	sqlreturn set_column_state(SQLUSMALLINT col, SQLLEN len_ind) throw() { return m_columns.set_column_state(col, len_ind); }
-	sqlreturn reset_parameter_states(SQLINTEGER len_ind) throw() { return m_parameters.reset_states(len_ind); }
-	sqlreturn set_parameter_state(SQLUSMALLINT col, SQLLEN len_ind) throw() { return m_parameters.set_column_state(col, len_ind); }
+	sqlreturn reset_column_states(SQLINTEGER len_ind) { return m_columns.reset_states(len_ind); }
+	sqlreturn set_column_state(SQLUSMALLINT col, SQLLEN len_ind) { return m_columns.set_column_state(col, len_ind); }
+	sqlreturn reset_parameter_states(SQLINTEGER len_ind) { return m_parameters.reset_states(len_ind); }
+	sqlreturn set_parameter_state(SQLUSMALLINT col, SQLLEN len_ind) { return m_parameters.set_column_state(col, len_ind); }
 
 	sqlreturn do_bind_parameter(bind_task &t, statement  &s) const;
 	sqlreturn do_bind_column(bind_task &t, statement &s) const;
@@ -392,7 +392,7 @@ protected:
 	TCHAR m_aggregate_scope_separator_char;
 
 	/// build an 'INSERT INTO ...' statement and bind the current columns as parameters to the new statement
-	sqlreturn build_insert_statement_and_bind(tstring &sql, const tstring &table_name, statement *bind_to) const throw();
+	sqlreturn build_insert_statement_and_bind(tstring &sql, const tstring &table_name, statement *bind_to) const;
 };
 
 

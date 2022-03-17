@@ -314,31 +314,31 @@ public:
 	const sqlreturn LWODBC_API &set_updatable(bool yes=true) { return set_updatable(yes ? optimistic : none); }
 	bool LWODBC_API is_updatable();
 
-	SQLUINTEGER LWODBC_API current_cursor_attributes1() throw();
-	bool LWODBC_API has_POS_UPDATE() throw()							{ return (current_cursor_attributes1() & SQL_CA1_POS_UPDATE)!=0; }
-	bool LWODBC_API has_POS_DELETE() throw()							{ return (current_cursor_attributes1() & SQL_CA1_POS_DELETE)!=0; }
-	bool LWODBC_API has_POSITIONED_UPDATE() throw()				{ return (current_cursor_attributes1() & SQL_CA1_POSITIONED_UPDATE)!=0; }
-	bool LWODBC_API has_POSITIONED_DELETE() throw()				{ return (current_cursor_attributes1() & SQL_CA1_POSITIONED_DELETE)!=0; }
-	bool LWODBC_API has_BULK_ADD() throw()							{ return (current_cursor_attributes1() & SQL_CA1_BULK_ADD)!=0; }
+	SQLUINTEGER LWODBC_API current_cursor_attributes1();
+	bool LWODBC_API has_POS_UPDATE()							{ return (current_cursor_attributes1() & SQL_CA1_POS_UPDATE)!=0; }
+	bool LWODBC_API has_POS_DELETE()							{ return (current_cursor_attributes1() & SQL_CA1_POS_DELETE)!=0; }
+	bool LWODBC_API has_POSITIONED_UPDATE()				{ return (current_cursor_attributes1() & SQL_CA1_POSITIONED_UPDATE)!=0; }
+	bool LWODBC_API has_POSITIONED_DELETE()				{ return (current_cursor_attributes1() & SQL_CA1_POSITIONED_DELETE)!=0; }
+	bool LWODBC_API has_BULK_ADD()							{ return (current_cursor_attributes1() & SQL_CA1_BULK_ADD)!=0; }
 
 	///\ use a scrollable cursor.
 	///\note if the driver does not support SQL_ATTR_SCROLL_OPTIONS, calling set_scrollable(true) will choose a keyset or dynamic cursor instead
 	const sqlreturn LWODBC_API &set_scrollable(bool use_scrolling_cursor=true);
 	/// test if the current cursor is scrollable
-	bool LWODBC_API is_scrollable() throw();
+	bool LWODBC_API is_scrollable();
 
 	///\ cache values returned by fetch so that the statement can build a simulated update/delete statement later
-	bool set_use_cache(bool yes=true) throw() { m_binder.set_use_cache(yes); return true; }
-	bool has_cache() const throw() { return m_binder.has_cache(); }
+	bool set_use_cache(bool yes=true) { m_binder.set_use_cache(yes); return true; }
+	bool has_cache() const { return m_binder.has_cache(); }
 	//@}
 
 	static bool LWODBC_API g_use_SQLSetPos;
 	static bool LWODBC_API g_use_SQLBulkOperations;
 	/** \brief Check if the driver supports updating the row in the result set of this statement. */
 	//TODO: remove 'return false' again
-	bool has_update_row() throw() { return g_use_SQLSetPos && is_open() && has_POS_UPDATE(); }
-	bool has_delete_row() throw() { return g_use_SQLSetPos && is_open() && has_POS_DELETE(); }
-	bool has_insert_row() throw() { return g_use_SQLBulkOperations && is_open() && has_BULK_ADD(); }
+	bool has_update_row() { return g_use_SQLSetPos && is_open() && has_POS_UPDATE(); }
+	bool has_delete_row() { return g_use_SQLSetPos && is_open() && has_POS_DELETE(); }
+	bool has_insert_row() { return g_use_SQLBulkOperations && is_open() && has_BULK_ADD(); }
 	/** \brief Update the current row - write it back to the SQL data source using SQLSetPos.
 		This command attempts to update the values in the current row of the current
 		SELECT statement. Not all drivers support this. Check has_update()  before calling this.
@@ -443,7 +443,7 @@ public:
 	//@{
 	SQLSMALLINT get_column_count() const { return (SQLSMALLINT)m_column_list.size()-1; }	///< number of columns in the result set not counting the bookmark
 
-	//sqlreturn   LWODBC_API  bind_column(SQLSMALLINT col, const bind_descriptor &d) throw();
+	//sqlreturn   LWODBC_API  bind_column(SQLSMALLINT col, const bind_descriptor &d);
 	sqlreturn   LWODBC_API  bind_column(SQLSMALLINT col, SQLSMALLINT c_type, SQLPOINTER target_ptr, SQLINTEGER size, SQLLEN* len_ind);
 	/// bind an accessor to a column by position
 	sqlreturn   LWODBC_API  bind_column(SQLSMALLINT col, accessor a, SQLLEN *len_ind=0);
@@ -541,8 +541,8 @@ public:
 	bool LWODBC_API is_throw_on_error() const { return m_last_error.is_throw_on_error(); }
 	void LWODBC_API set_log_errors(bool do_log) { m_last_error.set_log_errors(do_log); }
 	bool LWODBC_API is_log_errors() const { return m_last_error.is_log_errors(); }
-	bool LWODBC_API ignore_once(const TCHAR *states_to_ignore) throw() { return m_last_error.ignore_once(states_to_ignore); }
-	bool LWODBC_API ignore_once() throw() { return ignore_once(_T("*")); }
+	bool LWODBC_API ignore_once(const TCHAR *states_to_ignore) { return m_last_error.ignore_once(states_to_ignore); }
+	bool LWODBC_API ignore_once() { return ignore_once(_T("*")); }
 	bool LWODBC_API get_throw_on_error() const { return m_last_error.get_throw_on_error(); }
 	LWODBC_API const TCHAR * get_ignore_once() const {return m_last_error.get_ignore_once(); }
 	struct throwing:boost::noncopyable
@@ -579,12 +579,12 @@ public:
 	sqlreturn get_column_size(SQLSMALLINT pos, SQLULEN &column_size) const;
 
 	/// Find a column named @p name and return its position.
-	SQLSMALLINT LWODBC_API find_column(const tstring &name) const throw();
-	SQLSMALLINT LWODBC_API find_column_by_target(const const_accessor &a) const throw() { return m_binder.find_column_by_target(a); }
+	SQLSMALLINT LWODBC_API find_column(const tstring &name) const;
+	SQLSMALLINT LWODBC_API find_column_by_target(const const_accessor &a) const { return m_binder.find_column_by_target(a); }
 	/// Find a parameter @p name and return its position
-	SQLSMALLINT find_parameter(const tstring &name) const throw();
+	SQLSMALLINT find_parameter(const tstring &name) const;
 	/// Get the parameter information for parameter at position @p pos
-	const parameter *get_parameter(SQLSMALLINT pos) const throw();
+	const parameter *get_parameter(SQLSMALLINT pos) const;
 
 	const sqlreturn &set_last_error(sqlreturn &e) { return m_last_error=e; }
 	const sqlreturn &set_last_error(SQLRETURN r) { return m_last_error=r; }
@@ -631,8 +631,8 @@ protected:
 			return m_last_error=SQL_SUCCESS;
 		return do_get_column_descriptors();
 	}
-//	const sqlreturn &get_parameter_descriptors() throw();
-//	const column_descriptor &get_parameter_descriptor(SQLSMALLINT pos) throw() { return m_parameter_list[pos]; }
+//	const sqlreturn &get_parameter_descriptors();
+//	const column_descriptor &get_parameter_descriptor(SQLSMALLINT pos) { return m_parameter_list[pos]; }
 
 	/// retrieve the columns from the current result set and store them
 	const sqlreturn	LWODBC_API	&do_get_column_descriptors();
@@ -677,13 +677,13 @@ protected:
 	bool do_parse_bindings();
 	void add_bind_marker(my_symbols &sym, parameter &p, size_t &next_col, size_t &next_param, const TCHAR*, const TCHAR*);       ///< add a bind marker
 
-	bool needs_bind_columns() const throw() { return m_binder.needs_bind_columns(); }
+	bool needs_bind_columns() const { return m_binder.needs_bind_columns(); }
 	const sqlreturn &bind_columns();
-	bool needs_put_columns() const throw() { return m_binder.needs_put_columns(); }
+	bool needs_put_columns() const { return m_binder.needs_put_columns(); }
 	const sqlreturn &put_columns();
-	bool needs_bind_parameters() const throw() { return m_binder.needs_bind_parameters(); }
+	bool needs_bind_parameters() const { return m_binder.needs_bind_parameters(); }
 	const sqlreturn &bind_parameters();
-	bool needs_put_parameters() const throw() { return m_binder.needs_put_parameters(); }
+	bool needs_put_parameters() const { return m_binder.needs_put_parameters(); }
 	const sqlreturn &put_parameters();
 
 	binder m_binder;

@@ -68,10 +68,10 @@ namespace litwindow {
 			LWODBC_API virtual ~dbms_base();
 
 			/// find a dbms strategy for the driver name and construct a new dbms_base object on the heap
-			static LWODBC_API sqlreturn construct_from_dbms_name(const tstring &name, const tstring &version, const tstring &odbc_connection_string, boost::shared_ptr<dbms_base> &ptr) throw();
+			static LWODBC_API sqlreturn construct_from_dbms_name(const tstring &name, const tstring &version, const tstring &odbc_connection_string, boost::shared_ptr<dbms_base> &ptr);
 
 			/// take a file name and build an odbc connection string for it
-			static LWODBC_API litwindow::tstring construct_odbc_connection_string_from_file_name(const tstring &file, const tstring &uid=tstring(), const tstring &pwd=tstring(), bool read_only=false, const tstring &file_type=tstring()) throw();
+			static LWODBC_API litwindow::tstring construct_odbc_connection_string_from_file_name(const tstring &file, const tstring &uid=tstring(), const tstring &pwd=tstring(), bool read_only=false, const tstring &file_type=tstring());
 
 			LWODBC_API virtual tstring get_dbms_name() const { return tstring(); }
             LWODBC_API virtual tstring get_driver_name() const { return tstring(); }
@@ -121,7 +121,7 @@ namespace litwindow {
 			virtual tstring get_sql_for(standard_sql_statement /*s*/) const { return tstring(); }
 			//@}
 
-			virtual sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw() = 0;
+			virtual sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) = 0;
 
 			/// use the following database from now on and also change the ODBC connection string to use it next time
 			virtual sqlreturn use_database(connection *ds, const tstring &database_name) = 0;
@@ -212,7 +212,7 @@ namespace litwindow {
 			sqlreturn create_schema(connection *ds, const tstring &schema_name) override;
 			sqlreturn drop_schema(connection *ds, const tstring &schema_name) override;
 			sqlreturn use_database(connection *ds, const tstring &database_name) override;
-			sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw() override;
+			sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) override;
 			void set_database_name(const tstring &database) override
 			{
 				m_database_name=database;
@@ -247,7 +247,7 @@ namespace litwindow {
 			sqlreturn create_user(connection *ds, const tstring &uid, const tstring &pwd) override;
 			sqlreturn add_user(connection *ds, const tstring &user, const tstring &group) override;
 			sqlreturn drop_user(connection *ds, const tstring &uid, const tstring &group) override;
-			sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw() override;
+			sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) override;
 			sqlreturn create_group(connection *ds, const tstring &gid) override;
 			sqlreturn drop_group(connection *ds, const tstring &gid) override;
 			bool has_capability(capabilities c) const override { return dbms_generic::has_capability(c) || c==has_get_current_sequence_value; }
@@ -275,7 +275,7 @@ namespace litwindow {
 			tstring get_dbms_name() const override { return _T("PostgreSQL"); }
 			static dbms_base *construct(const tstring &odbc_connection) { return new dbms_postgres(odbc_connection); }
 			bool has_capability(capabilities c) const override;
-			sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw() override;
+			sqlreturn get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) override;
 			static bool can_handle_(const tstring &name, const tstring &version, const tstring &odbc_connection_string);
 
 			sqlreturn add_user(connection *ds, const tstring &user, const tstring &group) override;
