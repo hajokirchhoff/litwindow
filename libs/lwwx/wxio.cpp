@@ -40,9 +40,9 @@ template <class Fnc, class _Ac>
 Fnc for_each_nested(_Ac a, Fnc f, tstring path=wxT(""), const tstring &separator=wxT("."), bool flatten_container=false)
 {
     if (a.is_aggregate()) {
-        _Ac::aggregate_type ag=a.get_aggregate();
-        _Ac::aggregate_type::iterator_type begin=ag.begin();
-        _Ac::aggregate_type::iterator_type end=ag.end();
+		typename _Ac::aggregate_type ag=a.get_aggregate();
+		typename _Ac::aggregate_type::iterator_type begin=ag.begin();
+		typename _Ac::aggregate_type::iterator_type end=ag.end();
         while (begin!=end) {
             f=for_each_nested(*begin, f, path + (path.length()>0 ? separator : wxT("")) + s2tstring(begin->name()), separator, flatten_container);
             ++begin;

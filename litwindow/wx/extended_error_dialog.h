@@ -118,7 +118,7 @@ public:
 	{
 		return show_error_dialog(make_extended_error<char>(e), context, can_retry);
 	}
-    static wxString extended_error_dialog::MakeHtml(const wxString &input);
+	static wxString MakeHtml(const wxString& input);
 	template <typename Fnc>
 	static int try_op(Fnc &fnc, const wxString &context=wxString(), bool can_retry=false)
 	{
