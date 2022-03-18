@@ -1,7 +1,7 @@
 // stdafx.cpp : source file that includes just the standard includes
 // src.pch will be the pre-compiled header
 // stdafx.obj will contain the pre-compiled type information
-
+#define wxNEEDS_DECL_BEFORE_TEMPLATE
 #include "stdwx.h"
 
 // TODO: reference any additional headers you need in STDAFX.H
