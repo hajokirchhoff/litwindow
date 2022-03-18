@@ -94,7 +94,7 @@ void odbc_insert_rows()
 	odbc::table t(L"test");
 
 	// Jetzt eine Variable für test_struct anlegen und mit Werten füllen.
-	test_struct my_struct{ 5, 9.5f, L"ein Test", 413.f, "optionaler string" };
+	test_struct my_struct{ 5, 9.5, L"ein Test", 413.f, string("optionaler string") };
 
 	// Hier wird die Tabelle geöffnet und an die Variable gebunden.
 	t.open(my_struct);
