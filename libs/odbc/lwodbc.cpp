@@ -174,7 +174,7 @@ bool LWODBC_API sql_diagnostic_records::is_state(const TCHAR state[5]) const
 //}
 
 #ifdef _DEBUG
-static TCHAR *debug_break_on_state=/*_T("HY010")*/_T("");
+static const TCHAR *debug_break_on_state=/*_T("HY010")*/_T("");
 #endif
 
 int sql_diagnostic_records::get_diagnostic_records(SQLSMALLINT htype, SQLHANDLE handle)
