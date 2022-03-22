@@ -32,7 +32,7 @@ namespace litwindow {
 		{
 		public:
 			typedef std::map<std::string, std::string> attributes_t;
-			__c_ContextObject(char* text);
+			__c_ContextObject(const char* text);
 			~__c_ContextObject();
 			std::string &operator[](const char *name)
 			{

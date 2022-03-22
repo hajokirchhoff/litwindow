@@ -38,7 +38,7 @@ public:
 	environment_imp();
 	~environment_imp();
 
-	SQLHANDLE handle() const throw() { return m_handle; }
+	SQLHANDLE handle() const { return m_handle; }
 private:
 	SQLHANDLE m_handle;
 };
@@ -73,7 +73,7 @@ public:
 	};
 
 	/// return the ODBC named connection pool
-	static pool_imp_base LWODBC_API& pool() throw();
+	static pool_imp_base LWODBC_API& pool();
 
 	enum cursor_implementation_enum {
 		//use_odbc_cursors = SQL_CUR_USE_ODBC,
@@ -85,57 +85,57 @@ public:
 	static void LWODBC_API set_default_cursor_implementation(cursor_implementation_enum default_crs);
 
 	/// Connect to a datasource via a DSN
-	const sqlreturn LWODBC_API &open(const litwindow::tstring &dsn, const litwindow::tstring &uid, const litwindow::tstring &pwd) throw();
+	const sqlreturn LWODBC_API &open(const litwindow::tstring &dsn, const litwindow::tstring &uid, const litwindow::tstring &pwd);
 
 	/// Connect to a datasource via a connection string
-	const sqlreturn LWODBC_API &open(const litwindow::tstring &connection_string, SQLHWND hwnd=0, SQLUSMALLINT completion=SQL_DRIVER_NOPROMPT) throw();
+	const sqlreturn LWODBC_API &open(const litwindow::tstring &connection_string, SQLHWND hwnd=0, SQLUSMALLINT completion=SQL_DRIVER_NOPROMPT);
 
 	/// Connect to a datasource via the current connection string/DSN
-	const sqlreturn LWODBC_API &open(SQLHWND hwnd=0, SQLUSMALLINT completion=SQL_DRIVER_NOPROMPT) throw();
+	const sqlreturn LWODBC_API &open(SQLHWND hwnd=0, SQLUSMALLINT completion=SQL_DRIVER_NOPROMPT);
 
 	/// Connect to a file based datasource. Iterate over all strategy objects to build a connection string, then open it.
 	/// \p dsn_addition is a string that will be appended to the dsn before opening it. It allows extras such as MS-Excels IMEX=1.
-	const sqlreturn LWODBC_API &open_file(const litwindow::tstring &file, const litwindow::tstring &uid, const litwindow::tstring &pwd, bool read_only=false, const litwindow::tstring &dsn_addition=litwindow::tstring(), const litwindow::tstring &file_type=litwindow::tstring()) throw();
+	const sqlreturn LWODBC_API &open_file(const litwindow::tstring &file, const litwindow::tstring &uid, const litwindow::tstring &pwd, bool read_only=false, const litwindow::tstring &dsn_addition=litwindow::tstring(), const litwindow::tstring &file_type=litwindow::tstring());
 
-	bool LWODBC_API				set_uid(const tstring &uid) throw();
-	const tstring LWODBC_API		&get_uid() const throw();
-	bool LWODBC_API				set_pwd(const tstring &pwd) throw();
-	const tstring LWODBC_API		&get_pwd() const throw();
-	bool LWODBC_API				set_dsn(const tstring &dsn) throw();
-	const tstring LWODBC_API		&get_dsn() const throw();
-	const sqlreturn LWODBC_API	&set_connection_string(const tstring &connection_string) throw();
-	tstring LWODBC_API			get_connection_string() const throw();
+	bool LWODBC_API				set_uid(const tstring &uid);
+	const tstring LWODBC_API		&get_uid() const;
+	bool LWODBC_API				set_pwd(const tstring &pwd);
+	const tstring LWODBC_API		&get_pwd() const;
+	bool LWODBC_API				set_dsn(const tstring &dsn);
+	const tstring LWODBC_API		&get_dsn() const;
+	const sqlreturn LWODBC_API	&set_connection_string(const tstring &connection_string);
+	tstring LWODBC_API			get_connection_string() const;
 	bool uses_connection_string() const { return m_remaining_connection_string.empty()==false; }
 	bool uses_dsn() const { return !uses_connection_string() && get_dsn().empty()==false; }
 
-	bool	LWODBC_API is_open_via_SQLConnect() const throw();
+	bool	LWODBC_API is_open_via_SQLConnect() const;
 
-	bool      LWODBC_API is_open() const throw() { return m_is_connected; }
+	bool      LWODBC_API is_open() const { return m_is_connected; }
 
 	/// get connection string returned by 'open'
-	tstring   LWODBC_API get_out_connection_string() const throw();
+	tstring   LWODBC_API get_out_connection_string() const;
 
 	/// Disconnect a connection
 	sqlreturn LWODBC_API close();
 
 	/// Set an 'SQLUINTEGER' attribute
-	const sqlreturn LWODBC_API &set_attribute(SQLINTEGER attribute, SQLUINTEGER value) throw();
+	const sqlreturn LWODBC_API &set_attribute(SQLINTEGER attribute, SQLUINTEGER value);
 
 	/// Set a 'SQLTCHAR*' attribute
-	const sqlreturn LWODBC_API &set_attribute(SQLINTEGER attribute, const tstring &value) throw();
+	const sqlreturn LWODBC_API &set_attribute(SQLINTEGER attribute, const tstring &value);
 
 	/// Get an 'SQLUINTEGER' attribute
-	sqlreturn LWODBC_API get_attribute(SQLINTEGER attribute, SQLUINTEGER &value) throw();
+	sqlreturn LWODBC_API get_attribute(SQLINTEGER attribute, SQLUINTEGER &value);
 
 	/// Get a 'SQLTCHAR*' attribute
-	sqlreturn LWODBC_API get_attribute(SQLINTEGER attribute, tstring &value) throw();
+	sqlreturn LWODBC_API get_attribute(SQLINTEGER attribute, tstring &value);
 
-	sqlreturn LWODBC_API set_read_only(bool yes=true) throw();
-	sqlreturn LWODBC_API set_read_write() throw()								{ return set_read_only(false); }
+	sqlreturn LWODBC_API set_read_only(bool yes=true);
+	sqlreturn LWODBC_API set_read_write()								{ return set_read_only(false); }
 
-	bool      LWODBC_API is_autocommit_on() throw();
-	const sqlreturn LWODBC_API &set_autocommit_on(bool yes=true) throw();
-	const sqlreturn LWODBC_API &set_autocommit_off() throw()							{ return set_autocommit_on(false); }
+	bool      LWODBC_API is_autocommit_on();
+	const sqlreturn LWODBC_API &set_autocommit_on(bool yes=true);
+	const sqlreturn LWODBC_API &set_autocommit_off()							{ return set_autocommit_on(false); }
 
 	const sqlreturn LWODBC_API &begin_transaction();
 	const sqlreturn LWODBC_API &end_transaction(SQLSMALLINT completion_type);
@@ -143,15 +143,15 @@ public:
 	const sqlreturn LWODBC_API &rollback_transaction() { return end_transaction(SQL_ROLLBACK); }
 	bool	LWODBC_API has_open_transaction() const { return m_nested_transactions>0; }
 
-	sqlreturn LWODBC_API set_current_catalog(const tstring &catalog) throw();
-	sqlreturn LWODBC_API get_current_catalog(tstring &catalog) throw();
-	sqlreturn LWODBC_API get_user_name(tstring &uid) throw();
+	sqlreturn LWODBC_API set_current_catalog(const tstring &catalog);
+	sqlreturn LWODBC_API get_current_catalog(tstring &catalog);
+	sqlreturn LWODBC_API get_user_name(tstring &uid);
 
 	/// execute an SQL script
 	sqlreturn LWODBC_API execute(const litwindow::tstring &script);
 
 	/// Ignore a list of states: do not log them or throw an exception
-	bool LWODBC_API ignore_once(const TCHAR *states_to_ignore) throw() { return m_last_error.ignore_once(states_to_ignore); }
+	bool LWODBC_API ignore_once(const TCHAR *states_to_ignore) { return m_last_error.ignore_once(states_to_ignore); }
 
 	//-----------------------------------------------------------------------------------------------------------//
 	/// Create a connection using the default environment
@@ -175,7 +175,7 @@ public:
 	SQLHANDLE LWODBC_API handle() const { touch(); return m_handle; }
 
 	/// Free the handle, reset the object, reallocate a new handle
-	const sqlreturn LWODBC_API &reset() throw();
+	const sqlreturn LWODBC_API &reset();
 
 	const sqlreturn LWODBC_API &alloc_handle(environment env);
 	const sqlreturn LWODBC_API &free_handle();
@@ -183,7 +183,7 @@ public:
 	inline void LWODBC_API touch() const { std::time(&m_last_time_handle_accessed); }
 
 	/// Get an 'SQLUINTEGER' info value
-	sqlreturn LWODBC_API get_info(SQLUSMALLINT info, SQLUINTEGER &value) throw();
+	sqlreturn LWODBC_API get_info(SQLUSMALLINT info, SQLUINTEGER &value);
 	/// Get a 'tstring' info value
 	sqlreturn get_info(SQLUSMALLINT info, tstring &value);
 
@@ -192,33 +192,33 @@ public:
 	const sqlreturn &get_driver_capabilities_and_parameters();
 
 	/// Get the DBMS strategy object used for this connection
-	dbms_base *get_dbms() const throw()                                                     { return m_dbms.get(); }
+	dbms_base *get_dbms() const                                                     { return m_dbms.get(); }
 
 	/// test capabilities of the DBMS
-	bool has_capability(dbms_base::capabilities c) const throw()                              { return m_dbms->has_capability(c); }
-	bool supports(dbms_base::capabilities c) const throw()                                    { return has_capability(c); }
-	bool has_schema() const throw() { return has_capability(dbms_base::has_schema); }
-	bool has_create_schema() const throw() { return has_capability(dbms_base::has_create_schema); }
-	bool has_user_accounts() const throw() { return has_capability(dbms_base::has_user_accounts); }
+	bool has_capability(dbms_base::capabilities c) const                              { return m_dbms->has_capability(c); }
+	bool supports(dbms_base::capabilities c) const                                    { return has_capability(c); }
+	bool has_schema() const { return has_capability(dbms_base::has_schema); }
+	bool has_create_schema() const { return has_capability(dbms_base::has_create_schema); }
+	bool has_user_accounts() const { return has_capability(dbms_base::has_user_accounts); }
 
 	///@name DBMS specific methods, creating users, groups, databases, schemas
 	//@{
-	sqlreturn LWODBC_API create_group(const tstring &group) throw()                         { return get_dbms()->create_group(this, group); }
-	sqlreturn LWODBC_API drop_group(const tstring &group) throw()                           { return get_dbms()->drop_group(this, group); }
-	sqlreturn LWODBC_API create_user(const tstring &user, const tstring &password) throw()  { return get_dbms()->create_user(this, user, password); }
-	sqlreturn LWODBC_API drop_user(const tstring &user) throw()                             { return get_dbms()->drop_user(this, user, tstring()); }
-	sqlreturn LWODBC_API add_user(const tstring &user, const tstring &to_group) throw()     { return get_dbms()->add_user(this, user, to_group); }
-	sqlreturn LWODBC_API drop_user(const tstring &user, const tstring &from_group) throw()  { return get_dbms()->drop_user(this, user, from_group); }
-	sqlreturn LWODBC_API create_database(const tstring &database) throw()                   { return get_dbms()->create_database(this, database); }
-	sqlreturn LWODBC_API use_database(const tstring &database) throw()                      { return get_dbms()->use_database(this, database); }
-	sqlreturn LWODBC_API drop_schema(const tstring &schema) throw()			{ return get_dbms()->drop_schema(this, schema); }
-	sqlreturn LWODBC_API create_schema(const tstring &schema) throw()			{ return get_dbms()->create_schema(this, schema); }
-	sqlreturn LWODBC_API change_password(const tstring &oldpw, const tstring &newpw, const tstring &uid=tstring()) throw() 
+	sqlreturn LWODBC_API create_group(const tstring &group)                         { return get_dbms()->create_group(this, group); }
+	sqlreturn LWODBC_API drop_group(const tstring &group)                           { return get_dbms()->drop_group(this, group); }
+	sqlreturn LWODBC_API create_user(const tstring &user, const tstring &password)  { return get_dbms()->create_user(this, user, password); }
+	sqlreturn LWODBC_API drop_user(const tstring &user)                             { return get_dbms()->drop_user(this, user, tstring()); }
+	sqlreturn LWODBC_API add_user(const tstring &user, const tstring &to_group)     { return get_dbms()->add_user(this, user, to_group); }
+	sqlreturn LWODBC_API drop_user(const tstring &user, const tstring &from_group)  { return get_dbms()->drop_user(this, user, from_group); }
+	sqlreturn LWODBC_API create_database(const tstring &database)                   { return get_dbms()->create_database(this, database); }
+	sqlreturn LWODBC_API use_database(const tstring &database)                      { return get_dbms()->use_database(this, database); }
+	sqlreturn LWODBC_API drop_schema(const tstring &schema)			{ return get_dbms()->drop_schema(this, schema); }
+	sqlreturn LWODBC_API create_schema(const tstring &schema)			{ return get_dbms()->create_schema(this, schema); }
+	sqlreturn LWODBC_API change_password(const tstring &oldpw, const tstring &newpw, const tstring &uid=tstring()) 
 	{ 
 		return get_dbms()->change_password(this, oldpw, newpw, uid.empty() ? get_uid() : uid);
 	}
 
-	sqlreturn LWODBC_API get_current_sequence_value(const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw()
+	sqlreturn LWODBC_API get_current_sequence_value(const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column)
 	{ 
 		return get_dbms()->get_current_sequence_value(this, target, sequence_name, expand_sequence_name_from_column);
 	}
@@ -253,7 +253,7 @@ public:
 	tstring capabilities_as_string();
 
 	/// Clear specific cursor_attributes1 flags. Prevent the lwodbc library from using specific cursor features (which may be broken for specific drivers such as MySQL).
-	void LWODBC_API clear_cursor_attributes1(SQLUINTEGER clear_flags) throw();
+	void LWODBC_API clear_cursor_attributes1(SQLUINTEGER clear_flags);
 
 	///\name: Macros
 	//@{
@@ -380,58 +380,58 @@ inline shared_connection LWODBC_API default_connection()
 	return named_connection(tstring());
 }
 
-inline sqlreturn connection::set_read_only(bool yes) throw()
+inline sqlreturn connection::set_read_only(bool yes)
 {
 	return set_attribute(SQL_ATTR_ACCESS_MODE, yes ? SQL_MODE_READ_ONLY : SQL_MODE_READ_WRITE);
 }
-inline const sqlreturn &connection::set_autocommit_on(bool yes) throw()
+inline const sqlreturn &connection::set_autocommit_on(bool yes)
 {
 	if (m_nested_transactions==0)
 		m_autocommit_state=yes;
 	return set_attribute(SQL_ATTR_AUTOCOMMIT, yes ? SQL_AUTOCOMMIT_ON : SQL_AUTOCOMMIT_OFF);
 }
-inline bool connection::is_autocommit_on() throw()
+inline bool connection::is_autocommit_on()
 {
 	SQLUINTEGER value;
 	get_attribute(SQL_ATTR_AUTOCOMMIT, value);
 	return value==SQL_AUTOCOMMIT_ON;
 }
-inline sqlreturn connection::set_current_catalog(const tstring &catalog) throw()
+inline sqlreturn connection::set_current_catalog(const tstring &catalog)
 {
 	return set_attribute(SQL_ATTR_CURRENT_CATALOG, catalog);
 }
-inline sqlreturn connection::get_current_catalog(tstring &catalog) throw()
+inline sqlreturn connection::get_current_catalog(tstring &catalog)
 {
 	return get_attribute(SQL_ATTR_CURRENT_CATALOG, catalog);
 }
-inline tstring connection::get_out_connection_string() const throw()
+inline tstring connection::get_out_connection_string() const
 {
 	return m_out_connection_string;
 }
-inline bool connection::set_uid(const tstring &uid) throw()
+inline bool connection::set_uid(const tstring &uid)
 {
 	m_uid=uid;
 	return true;
 }
-inline bool connection::set_pwd(const tstring &pwd) throw()
+inline bool connection::set_pwd(const tstring &pwd)
 {
 	m_pwd=pwd;
 	return true;
 }
-inline const tstring &connection::get_pwd() const throw()
+inline const tstring &connection::get_pwd() const
 {
 	return m_pwd;
 }
-inline const tstring &connection::get_uid() const throw()
+inline const tstring &connection::get_uid() const
 {
 	return m_uid;
 }
-inline const tstring& connection::get_dsn() const  throw()
+inline const tstring& connection::get_dsn() const 
 
 {
 	return m_dsn;
 }
-inline bool connection::is_open_via_SQLConnect() const throw()
+inline bool connection::is_open_via_SQLConnect() const
 {
 	return m_remaining_connection_string.length()==0;
 }

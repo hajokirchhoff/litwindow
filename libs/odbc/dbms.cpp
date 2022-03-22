@@ -73,7 +73,7 @@ namespace litwindow {
 			return fileformat;
 		}
 
-		LWODBC_API litwindow::tstring dbms_base::construct_odbc_connection_string_from_file_name( const tstring &file, const tstring &uid/*=tstring()*/, const tstring &pwd/*=tstring()*/, bool read_only/*=false*/, const tstring &file_type/*=tstring()*/ ) throw()
+		LWODBC_API litwindow::tstring dbms_base::construct_odbc_connection_string_from_file_name( const tstring &file, const tstring &uid/*=tstring()*/, const tstring &pwd/*=tstring()*/, bool read_only/*=false*/, const tstring &file_type/*=tstring()*/ )
 		{
 			//TODO: This code should be moved into the separate dbms objects
 #ifdef _WIN32
@@ -179,7 +179,7 @@ namespace litwindow {
 			return rc;
 		}
 
-		sqlreturn dbms_generic::get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw()
+		sqlreturn dbms_generic::get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column)
 		{
 			return sqlreturn(_("get_current_sequence_value is not supported"), odbc::err_not_supported_by_dbms);
 		}
@@ -302,7 +302,7 @@ namespace litwindow {
 				has_user_accounts |
 				has_get_current_sequence_value) ) == c;
 		}
-		sqlreturn dbms_postgres::get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw()
+		sqlreturn dbms_postgres::get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column)
 		{
 			tstring seq(sequence_name);
 			if (expand_sequence_name_from_column) {
@@ -584,7 +584,7 @@ namespace litwindow {
 		{
 			return ds->execute(_T("-EXEC sp_addrolemember '") + group + _T("', '") + user + _T("'"));
 		}
-		sqlreturn dbms_sql_server::get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column) throw()
+		sqlreturn dbms_sql_server::get_current_sequence_value(connection *ds, const accessor &target, const tstring &sequence_name, bool expand_sequence_name_from_column)
 		{
 			statement s(_("SELECT @@IDENTITY"), *ds);
 			s.bind_column(1, target) && s.execute() && s.fetch();

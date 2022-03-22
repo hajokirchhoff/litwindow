@@ -109,7 +109,7 @@ public:
 	catalog():statement(_T("")) {}
 	catalog(const tstring &named_connection):statement(_T(""), named_connection) {}
 
-	bool LWODBC_API has_table_privileges(const tstring &grantee, int privilege_bitmask, const tstring &table, const tstring &schema=odbc::default_string, const tstring &catalog=odbc::default_string) throw();
+	bool LWODBC_API has_table_privileges(const tstring &grantee, int privilege_bitmask, const tstring &table, const tstring &schema=odbc::default_string, const tstring &catalog=odbc::default_string);
 
 
 	sqlreturn using_schema_catalog(const tstring &schema, const tstring &catalog, TCHAR * &use_schema, SQLSMALLINT &use_schema_length, TCHAR * &use_catalog, SQLSMALLINT &use_catalog_length);

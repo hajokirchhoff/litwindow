@@ -695,7 +695,7 @@ namespace litwindow {
 		return m_last_error;
 	}
 
-	const sqlreturn LWODBC_API & connection::open_file( const litwindow::tstring &file, const litwindow::tstring &uid, const litwindow::tstring &pwd, bool read_only/*=false*/, const litwindow::tstring &dsn_addition/*=litwindow::tstring()*/, const litwindow::tstring &file_type/*=litwindow::tstring()*/ ) throw()
+	const sqlreturn LWODBC_API & connection::open_file( const litwindow::tstring &file, const litwindow::tstring &uid, const litwindow::tstring &pwd, bool read_only/*=false*/, const litwindow::tstring &dsn_addition/*=litwindow::tstring()*/, const litwindow::tstring &file_type/*=litwindow::tstring()*/ )
 	{
 		tstring odbc_connection_string=dbms_base::construct_odbc_connection_string_from_file_name(file, uid, pwd, read_only, file_type);
 		if (dsn_addition.empty()==false)

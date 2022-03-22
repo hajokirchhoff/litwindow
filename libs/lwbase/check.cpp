@@ -79,7 +79,7 @@ namespace litwindow {
 			}
 			delete m_attributes;
 		}
-		__c_ContextObject::__c_ContextObject(char* text)
+		__c_ContextObject::__c_ContextObject(const char* text)
 			:context(text), m_attributes(0),previous(get_top()) 
 		{ 
 			if (std::uncaught_exception()==false)
