@@ -62,8 +62,8 @@ namespace litwindow { namespace ui {
 		m_position_valid=true;
 		m_position=selection;
 		if (oldreadonly!=readonly())
-			enable_edit(!readonly());
-		begin_edit();
+			this->enable_edit(!readonly());
+		this->begin_edit();
 	}
 	template <typename ListMediator>
 	bool list_edit_mediator<ListMediator>::readonly() const
@@ -76,7 +76,7 @@ namespace litwindow { namespace ui {
 		bool oldreadonly(readonly());
 		m_readonly=do_readonly;
 		if (oldreadonly!=readonly())
-			enable_edit(!readonly());
+			this->enable_edit(!readonly());
 	}
 	template <typename ListMediator>
 	void list_edit_mediator<ListMediator>::selection_cleared(list_mediator_t *mediator)
@@ -84,7 +84,7 @@ namespace litwindow { namespace ui {
 		bool oldreadonly(readonly());
 		m_position_valid=false;
 		if (oldreadonly!=readonly())
-			enable_edit(!readonly());
+			this->enable_edit(!readonly());
 		m_mediator=mediator;
 	}
 	template <typename ListMediator>
@@ -92,7 +92,7 @@ namespace litwindow { namespace ui {
 	{
 		if (m_position_valid) {
 			if (m_mediator==mediator) {
-				end_edit();
+				this->end_edit();
 			}
 		}
 	}
@@ -101,7 +101,7 @@ namespace litwindow { namespace ui {
 	{
 		if (m_position_valid && m_mediator) {
 			m_mediator->value_at_handle(m_position)=v;
-			value_changed(v);
+			this->value_changed(v);
 			m_mediator->refresh();
 		}
 	}
