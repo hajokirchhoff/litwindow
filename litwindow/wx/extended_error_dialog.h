@@ -120,7 +120,7 @@ public:
 	}
 	static wxString MakeHtml(const wxString& input);
 	template <typename Fnc>
-	static int try_op(Fnc &fnc, const wxString &context=wxString(), bool can_retry=false)
+	static int try_op(const Fnc &fnc, const wxString &context=wxString(), bool can_retry=false)
 	{
 		int rc=can_retry ? wxYES : wxOK;
 		try {

@@ -20,12 +20,12 @@ namespace litwindow { namespace wx {
     public:
         void append(const Value &v, const wxString &label)
         {
-            m_values.push_back(make_pair(v, label));
+            m_values.push_back(std::make_pair(v, label));
             add_to_menu(m_values.size()-1);
         }
 		void set(size_t idx, const Value &v, const wxString &label)
 		{
-			m_values.at(idx)=make_pair(v, label);
+			m_values.at(idx) = std::make_pair(v, label);
 			add_to_menu(idx);
 		}
 		void resize(size_t new_size)

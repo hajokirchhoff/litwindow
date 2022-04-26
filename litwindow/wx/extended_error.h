@@ -37,14 +37,14 @@ namespace litwindow { namespace wx {
         err.details(diagnostic_information(e));
     }
 
-    template <typename Char, typename Exception>
-    extended_error<Char> make_extended_error(const Exception &e)
-    {
-        return extended_error<Char>(message(e), diagnostic_information(e));
-    }
-
     inline std::string diagnostic_information(const std::exception &e) { return "std::exception"; }
     inline std::string message(const std::exception &e) { return e.what(); }
+
+	template <typename Char, typename Exception>
+	extended_error<Char> make_extended_error(const Exception& e)
+	{
+		return extended_error<Char>(message(e), diagnostic_information(e));
+	}
 
     typedef boost::error_info<struct tag_what_info, std::string> what_info;
     typedef boost::error_info<struct tag_filename_info, std::string> filename_info;
