@@ -63,7 +63,7 @@ namespace litwindow {
 
 		renderer<tstring>::render_object_t get_default_tstring_render_object()
 		{
-			static renderer<tstring>::render_object_t g_default(boost::bind(&default_tstring_renderer_object, _1, _2, _3));
+			static renderer<tstring>::render_object_t g_default(boost::bind(&default_tstring_renderer_object, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
 			return g_default;
 		}
 

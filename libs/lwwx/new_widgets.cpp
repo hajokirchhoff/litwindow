@@ -13,7 +13,7 @@ using namespace std;
 #include "litwindow/dataadapter.h"
 #include "litwindow/wx/rapidUI.h"
 #include "litwindow/wx/new_widgets.h"
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <wx/renderer.h>
 #include <wx/treectrl.h>
 #include <wx/confbase.h>

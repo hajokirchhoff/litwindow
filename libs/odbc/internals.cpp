@@ -11,7 +11,7 @@
 #include <sqlext.h>
 #include <litwindow/dataadapter.h>
 #include <litwindow/logging.h>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include "litwindow/odbc/lwodbc.h"
 #include "litwindow/odbc/statement.h"
 

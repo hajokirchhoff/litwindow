@@ -10,7 +10,7 @@
 #include <sqlext.h>
 #include <litwindow/dataadapter.h>
 #include <litwindow/logging.h>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/spirit/include/classic.hpp>
 #include <boost/spirit/include/classic_actor.hpp>
 #include <set>
@@ -665,7 +665,7 @@ sqlreturn data_type_lookup::get(prop_t type, data_type_info &i)
 	data_type_info_register &the_map(get_data_type_info_register());
 	data_type_info_register::const_iterator data=find_data_type_info(type);
 	if (data==the_map.end())
-		data=find_if(the_map.begin(), the_map.end(), boost::bind(&data_type_info::can_handle, _1, type));
+		data=find_if(the_map.begin(), the_map.end(), boost::bind(&data_type_info::can_handle, boost::placeholders::_1, type));
 	if (data == the_map.end()) {
 		// Now see if this is an enum, which can be bound as an INT
 		if (type->is_enum()) {

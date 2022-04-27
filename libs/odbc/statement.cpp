@@ -10,7 +10,7 @@
 #include "stdafx.h"
 #include <malloc.h>
 #include <litwindow/logging.h>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include "litwindow/odbc/statement.h"
 #include "litwindow/check.hpp"
 

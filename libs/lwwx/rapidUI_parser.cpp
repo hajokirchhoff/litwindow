@@ -17,7 +17,7 @@
 #include "litwindow/check.hpp"
 #include <boost/spirit/include/classic.hpp>
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -101,7 +101,7 @@ namespace litwindow {
 		rules_parser(RapidUI *target, const tstring &default_group)
 			:m_target(target), m_default_group(default_group)
 		{
-			assign_action=boost::bind(&rules_parser::assign, *this, _1, _2, _3);
+			assign_action=boost::bind(&rules_parser::assign, *this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3);
 		}
 		void assign(const tstring &left, const tstring &right, assignment_type assign_type)
 		{

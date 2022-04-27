@@ -9,6 +9,7 @@
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/bind/protect.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/utility/result_of.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_member_function_pointer.hpp>
@@ -493,7 +494,7 @@ namespace litwindow {
 						typename columns_t::iterator i;
 						i=std::find_if(dest.begin(), dest.end(), boost::bind(&columns_t::value_type::title, boost::placeholders::_1) == src.title());
 						if (i!=dest.end()) {
-							columns_t::value_type &current(*i);
+							auto &current(*i);
 							current.width(src.width());
 							current.visible(src.visible());
 							current.position(src.position());

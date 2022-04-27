@@ -12,7 +12,7 @@
 #include <litwindow/logging.h>
 #include <boost/spirit/include/classic.hpp>
 #include <boost/spirit/include/classic_actor.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include "litwindow/odbc/connection.h"
 #include "litwindow/odbc/statement.h"
 
@@ -124,7 +124,7 @@ struct script_grammar:public grammar<script_grammar<Actions> >,boost::noncopyabl
 			identifier
 				=   (
                 (quoted_identifier | unquoted_identifier) 
-			% (skip_p >> _T('.') >> skip_p))[boost::bind(&Actions::log_, &actions, _1, _2, _T("identifier: "))]
+			% (skip_p >> _T('.') >> skip_p))[boost::bind(&Actions::log_, &actions, boost::placeholders::_1, boost::placeholders::_2, _T("identifier: "))]
 				;
 
 			uinteger
@@ -147,10 +147,10 @@ struct script_grammar:public grammar<script_grammar<Actions> >,boost::noncopyabl
 				|   confix_p(str_p("/*"), *anychar_p, str_p("*/"));
 
 			macro_name
-				= identifier[boost::bind(&Actions::macro, &actions, _1, _2)];
+				= identifier[boost::bind(&Actions::macro, &actions, boost::placeholders::_1, boost::placeholders::_2)];
 
 			macro_function
-				= (identifier >> skip_p >> *(~ch_p(')')))[boost::bind(&Actions::macro_fnc, &actions, _1, _2)];
+				= (identifier >> skip_p >> *(~ch_p(')')))[boost::bind(&Actions::macro_fnc, &actions, boost::placeholders::_1, boost::placeholders::_2)];
 
 			macro 
 				=   ( str_p(_T("$$")) >> macro_name )
@@ -185,7 +185,7 @@ struct script_grammar:public grammar<script_grammar<Actions> >,boost::noncopyabl
 				|   identifier
 				|   number
 				|   operator_token
-				|   ( (~ch_p(_T('}')))>> eps_p[boost::bind(&Actions::log_unknown_input, &actions, _1, _2)] )
+				|   ( (~ch_p(_T('}')))>> eps_p[boost::bind(&Actions::log_unknown_input, &actions, boost::placeholders::_1, boost::placeholders::_2)] )
 				) 
 				>> skip_p);
 
@@ -208,13 +208,13 @@ struct script_grammar:public grammar<script_grammar<Actions> >,boost::noncopyabl
 			token
 				=     ( macro
 				| repeat_value_marker               [boost::bind(&Actions::repeat_value_marker, &actions)]
-				| identifier                        [boost::bind(&Actions::out, &actions, _1, _2)]
-				| string_literal                    [boost::bind(&Actions::out, &actions, _1, _2)]
-				| number                            [boost::bind(&Actions::out, &actions, _1, _2)]
-				| odbc_escape                       [boost::bind(&Actions::out, &actions, _1, _2)]
-				| operator_token                    [boost::bind(&Actions::out, &actions, _1, _2)]
-				| unknown_token                     [boost::bind(&Actions::out, &actions, _1, _2)][boost::bind(&Actions::log_unknown_input, &actions, _1, _2)]
-				) >> skip_p                           [boost::bind(&Actions::out, &actions, _1, _2)];
+				| identifier                        [boost::bind(&Actions::out, &actions, boost::placeholders::_1, boost::placeholders::_2)]
+				| string_literal                    [boost::bind(&Actions::out, &actions, boost::placeholders::_1, boost::placeholders::_2)]
+				| number                            [boost::bind(&Actions::out, &actions, boost::placeholders::_1, boost::placeholders::_2)]
+				| odbc_escape                       [boost::bind(&Actions::out, &actions, boost::placeholders::_1, boost::placeholders::_2)]
+				| operator_token                    [boost::bind(&Actions::out, &actions, boost::placeholders::_1, boost::placeholders::_2)]
+				| unknown_token                     [boost::bind(&Actions::out, &actions, boost::placeholders::_1, boost::placeholders::_2)][boost::bind(&Actions::log_unknown_input, &actions, boost::placeholders::_1, boost::placeholders::_2)]
+				) >> skip_p                           [boost::bind(&Actions::out, &actions, boost::placeholders::_1, boost::placeholders::_2)];
 
 				tokens
 					=   +token;
@@ -222,7 +222,7 @@ struct script_grammar:public grammar<script_grammar<Actions> >,boost::noncopyabl
 				statement 
 					=   eps_p[boost::bind(&Actions::begin_statement, &actions)] >> skip_p
 					>>  (! ch_p('-')[boost::bind(&Actions::ignore_error, &actions, true)] >> skip_p )
-					>>  tokens[boost::bind(&Actions::statement, &actions, _1, _2)];
+					>>  tokens[boost::bind(&Actions::statement, &actions, boost::placeholders::_1, boost::placeholders::_2)];
 
 				script 
 					=   !( statement >> skip_p )

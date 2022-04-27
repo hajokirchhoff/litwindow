@@ -631,7 +631,7 @@ namespace litwindow {
 	}
 
 	template <>
-	int converter_value_base<int>::to_int(const schema_entry *propertyAccessInfo, const_prop_ptr member_ptr)
+	inline int converter_value_base<int>::to_int(const schema_entry *propertyAccessInfo, const_prop_ptr member_ptr)
 	{
 		int v;
 		get_value(v, propertyAccessInfo, member_ptr);
@@ -639,7 +639,7 @@ namespace litwindow {
 	}
 
 	template <>
-	void converter_value_base<int>::from_int(const schema_entry *e, int value, prop_ptr member_ptr)
+	inline void converter_value_base<int>::from_int(const schema_entry *e, int value, prop_ptr member_ptr)
 	{
 		set_value(value, e, member_ptr);
 	}
@@ -849,7 +849,7 @@ namespace litwindow {
 	/** Explicit converter::to_string specialization for c_str() types.
 	*/
 	template <>
-	tstring c_vector_type_base<TCHAR>::to_string(const schema_entry *e, const_prop_ptr member_ptr)
+	inline tstring c_vector_type_base<TCHAR>::to_string(const schema_entry *e, const_prop_ptr member_ptr)
 	{
 		const TCHAR *p=reinterpret_cast<const TCHAR*>(member_ptr);
 		return tstring(p);
@@ -858,7 +858,7 @@ namespace litwindow {
 	/** Explicit converter::from_string specialization for c_str() types.
 	*/
 	template <>
-	size_t c_vector_type_base<TCHAR>::from_string(const schema_entry *e, const tstring &value, prop_ptr member_ptr)
+	inline size_t c_vector_type_base<TCHAR>::from_string(const schema_entry *e, const tstring &value, prop_ptr member_ptr)
 	{
 		if (value.length()>=get_sizeof(e)/sizeof(TCHAR))
 			throw std::out_of_range(method_name("from_string")+ " input too long");

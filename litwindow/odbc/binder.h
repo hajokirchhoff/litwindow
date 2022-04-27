@@ -13,6 +13,7 @@
 #include <litwindow/tstring.hpp>
 #include <litwindow/dataadapter.h>
 #include <boost/optional/optional_fwd.hpp>
+#include <boost/none.hpp>
 #include "lwodbc_def.h"
 #include "internals.h"
 
