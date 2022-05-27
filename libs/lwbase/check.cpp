@@ -73,7 +73,7 @@ namespace litwindow {
 		__c_ContextObject::~__c_ContextObject()
 		{
 			top=previous;
-			if (std::uncaught_exception()) {
+			if (has_uncaught_exceptions()) {
 				if (m_attributes) AddToContextStack(m_attributes);
 				AddToContextStack(context);
 			}
@@ -82,7 +82,7 @@ namespace litwindow {
 		__c_ContextObject::__c_ContextObject(const char* text)
 			:context(text), m_attributes(0),previous(get_top()) 
 		{ 
-			if (std::uncaught_exception()==false)
+			if (has_uncaught_exceptions()==false)
 				ResetExceptionContext();
 			top=this; 
 		}

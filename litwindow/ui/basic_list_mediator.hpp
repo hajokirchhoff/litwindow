@@ -5,6 +5,8 @@
 #include "litwindow/dataadapter.h"
 #include <vector>
 #include <iterator>
+#include <iterator>
+#include <type_traits>
 #include <boost/ref.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
@@ -32,9 +34,15 @@
 #endif
 #endif
 
-#include <iterator>
-
 //#pragma optimize("ty", on)
+
+#ifndef __cpp_lib_is_invocable
+namespace std {
+	template <typename F, typename... A1>
+	struct invoke_result :public std::result_of<F(A1...)>
+	{};
+}
+#endif
 
 namespace litwindow {
     namespace ui {
@@ -135,13 +143,13 @@ namespace litwindow {
 			basic_column_descriptor(const tstring &title, int width, Accessor acc)
 				: basic_column_descriptor(title, width)
 			{
-				using ColType = typename std::result_of<Accessor(value_type)>::type;
+				using ColType = typename std::invoke_result<Accessor, value_type>::type;
 				m_text_renderer = boost::bind(&to_string<ColType>, acc, boost::placeholders::_1);
 			}
 */
 
 			///! Constructor for accessor functor
-			template <typename Accessor, typename ValueType = value_type, typename ColumnType = std::result_of<Accessor(const ValueType&)>::type>
+			template <typename Accessor, typename ValueType = value_type, typename ColumnType = std::invoke_result<Accessor, const ValueType&>::type>
 			basic_column_descriptor(const tstring &title, int width, Accessor acc)
 				:basic_column_label(title, width)
 			{
@@ -149,7 +157,7 @@ namespace litwindow {
 				m_comparator = boost::bind<ColumnType>(acc, boost::placeholders::_1) < boost::bind<ColumnType>(acc, boost::placeholders::_2);
 			}
 			///! Constructor for accessor functor with separate formatter
-			template <typename Accessor, typename Formatter, typename ValueType = value_type, typename ColumnType = std::result_of<Accessor(const ValueType&)>::type>
+			template <typename Accessor, typename Formatter, typename ValueType = value_type, typename ColumnType = std::invoke_result<Accessor, const ValueType&>::type>
 			basic_column_descriptor(const tstring &title, int width, Accessor acc, const Formatter &fmt)
 				:basic_column_label(title, width)
 			{
@@ -158,7 +166,7 @@ namespace litwindow {
 			}
 
 			///! Constructor for text renderer functor
-			template <typename Accessor, typename std::enable_if<std::is_void<typename std::result_of<Accessor(const value_type &, wstring&)>::type>::value, int>::type = 0 >
+			template <typename Accessor, typename std::enable_if<std::is_void<typename std::invoke_result<Accessor, const value_type &, wstring&>::type>::value, int>::type = 0 >
 			basic_column_descriptor(const tstring &title, int width, Accessor acc)
 				: basic_column_label(title, width)
 			{

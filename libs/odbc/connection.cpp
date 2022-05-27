@@ -49,7 +49,7 @@ namespace litwindow {
 	transaction::~transaction()
 	{
 		if (m_transaction_is_open) {
-			if (std::uncaught_exception())
+			if (has_uncaught_exceptions())
 				m_connection.rollback_transaction();
 			else
 				m_connection.commit_transaction();

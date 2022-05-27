@@ -50,7 +50,7 @@ public:
     /// Set the dumper function.
     LWBASE_API void set_dumper(get_dumper_t new_dumper)
     {
-        m_dump_function=std::auto_ptr<dumper_t>(new_dumper);
+        m_dump_function=std::unique_ptr<dumper_t>(new_dumper);
     }
     LWBASE_API wrapping_tstreambuf(std::streamsize _Count=0x10000, get_dumper_t dumper=0);
     LWBASE_API ~wrapping_tstreambuf();
@@ -61,7 +61,7 @@ protected:
         applications a chance to dump the contents of the
         wrap buffer to a file or debug channel.
         */
-    std::auto_ptr<dumper_t> m_dump_function;
+    std::unique_ptr<dumper_t> m_dump_function;
 };
 
 struct wrapping_base

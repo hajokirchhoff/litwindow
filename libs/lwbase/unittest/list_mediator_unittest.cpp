@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(columns_descriptor_test_new)
 
 	using Func = int(*)(const TestData&);
 
-	if (boost::is_void <std::result_of<Func(const TestData&)>>::value) {
+	if (boost::is_void <std::invoke_result<Func, const TestData&>>::value) {
 
 	}
 	using Func2 = functor_accessor<float>;

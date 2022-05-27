@@ -7,6 +7,7 @@
 * $Id: rapidUI.cpp,v 1.10 2007/12/11 11:28:15 Merry\Hajo Kirchhoff Exp $
 */
 #include "Stdwx.h"
+#include <memory>
 #include "litwindow/wx/rapidUI.h"
 #include "litwindow/algorithm.h"
 #include "litwindow/logging.h"
@@ -159,7 +160,7 @@ rule_base *RapidUI::Assign(const accessor &value, const const_accessor &data, co
 
 rule_base *RapidUI::Assign(rule_base *r, const tstring &group)
 {
-	auto_ptr<rule_base> _r(r);
+	unique_ptr<rule_base> _r(r);
 	if (!m_defaultRulesAdded)
 		AddDefaultRules();
 	m_solver.add_to_group(_r.release(), group);
