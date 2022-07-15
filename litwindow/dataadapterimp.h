@@ -800,8 +800,8 @@ namespace litwindow {
 			/// will never be called as get/set members use a different way of accessing the pointer
 			// The getter needs to be passed the 'this' pointer of the aggregate, rather than
 			// the specific pointer to the member itself
-			auto this_rc = const_cast<prop_ptr>(m_type->get_prop_ptr(this, t));
 /*
+			auto this_rc = const_cast<prop_ptr>(m_type->get_prop_ptr(this, t));
 			if (this_rc != nullptr)
 				aThisPtr = this_rc;
 */
