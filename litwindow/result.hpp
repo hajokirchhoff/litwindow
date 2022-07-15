@@ -12,6 +12,7 @@
 #ifdef _MSC_VER
 #pragma once
 #endif
+#include "check.hpp"
 
 namespace litwindow {
 
@@ -42,7 +43,7 @@ public:
 	}
 	~result_t(void)
 	{
-		if (!m_was_matched && !std::uncaught_exception())
+		if (!m_was_matched && !checks::has_uncaught_exceptions())
 			raise_exception_on_failure();
 	}
 	result_t& operator=(ResultCode _hr)

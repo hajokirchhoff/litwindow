@@ -11,7 +11,8 @@
 #pragma once
 
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+#include <boost/bind/placeholders.hpp>
 #include <map>
 #include "litwindow/dataadapter.h"
 
@@ -29,7 +30,7 @@ namespace litwindow {
 			{
 			}
 			render_object(void(*fnc)(TargetType&, const const_accessor &, const tstring &format))
-				:m_fnc(boost::bind(fnc, _1, _2, _3))
+				:m_fnc(boost::bind(fnc, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3))
 			{
 			}
 			render_object(){}
@@ -124,7 +125,7 @@ namespace litwindow {
 
 		extern LWBASE_API renderer<tstring>::render_object_t get_default_tstring_render_object();
 		template <>
-		renderer<tstring>::render_object_t renderer<tstring>::get_default_render_object()
+		inline renderer<tstring>::render_object_t renderer<tstring>::get_default_render_object()
 		{
 			return get_default_tstring_render_object();
 		}

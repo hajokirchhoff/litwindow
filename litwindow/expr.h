@@ -345,7 +345,7 @@ public:
 };
 
 template <>
-accessor expr_variable<accessor>::evaluate(symbol_table_interface *s) const
+inline accessor expr_variable<accessor>::evaluate(symbol_table_interface *s) const
 {
     return s->get(name);
 }

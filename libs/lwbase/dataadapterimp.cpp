@@ -642,7 +642,7 @@ pair<typename Aggregate::_iter, bool> find_identifier(const Aggregate &a, const 
         for (k=a.begin(); k!=a.end(); ++k) {
             if (k->is_nested() || search_member_aggregates && k->is_aggregate()) {
                 Aggregate nested=(*k).get_aggregate();
-                pair<Aggregate::_iter, bool> nested_rc=nested.find_scope(propName, search_member_aggregates);
+                pair<typename Aggregate::_iter, bool> nested_rc=nested.find_scope(propName, search_member_aggregates);
                 if (nested_rc.second)
                     return nested_rc;
             }
@@ -654,7 +654,7 @@ pair<typename Aggregate::_iter, bool> find_identifier(const Aggregate &a, const 
 template <class Aggregate>
 pair<typename Aggregate::_iter, bool> find_scope(const Aggregate &a, string propName, bool search_member_aggregates)
 {
-    pair<Aggregate::_iter, bool> found_rc;
+    pair<typename Aggregate::_iter, bool> found_rc;
     Aggregate currentAggregate=a;
     string identifier;
     while (propName.length()) {

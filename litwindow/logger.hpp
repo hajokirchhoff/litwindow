@@ -246,12 +246,12 @@ namespace litwindow {
 		};
 
 		template <>
-		char basic_tag<char>::tag_sep() { return '/'; }
+		inline char basic_tag<char>::tag_sep() { return '/'; }
 		template <>
-		wchar_t basic_tag<wchar_t>::tag_sep() { return L'/'; }
+		inline wchar_t basic_tag<wchar_t>::tag_sep() { return L'/'; }
 
 		template <typename _Elem>
-		std::basic_ostream<_Elem> &operator<<(std::basic_ostream<_Elem> &o, const basic_tag<_Elem> &n)
+		inline std::basic_ostream<_Elem> &operator<<(std::basic_ostream<_Elem> &o, const basic_tag<_Elem> &n)
 		{
 			return o << n.str();
 		}

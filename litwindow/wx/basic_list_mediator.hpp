@@ -7,7 +7,7 @@
 #include <wx/dataview.h>
 #include <boost/function.hpp>
 #include <boost/ref.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 class wxDataViewCtrl;
 class wxListBox;
@@ -117,8 +117,8 @@ namespace litwindow {
             template <typename Mediator>
             void connect_mediator(const Mediator &m)
             {
-                m_get_text=boost::bind(&Mediator::get_item_text, boost::cref(m), _1, _2, _3);
-                m_ctrl->on_get_item_text=boost::bind(&wxListCtrl_list_adapter::on_get_item_text, this, _1, _2);
+                m_get_text=boost::bind(&Mediator::get_item_text, boost::cref(m), boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3);
+                m_ctrl->on_get_item_text=boost::bind(&wxListCtrl_list_adapter::on_get_item_text, this, boost::placeholders::_1, boost::placeholders::_2);
             }
             //~wxListCtrl_list_adapter() { if (m_ctrl) m_ctrl->on_get_item_text.clear(); }
             size_t column_count() const { return wnd()->GetColumnCount(); }

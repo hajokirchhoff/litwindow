@@ -9,7 +9,6 @@
 #include "stdafx.h"
 #include "litwindow/lwbase.hpp"
 #include "litwindow/logging.h"
-#include <strstream>
 #include <iostream>
 #include <fstream>
 

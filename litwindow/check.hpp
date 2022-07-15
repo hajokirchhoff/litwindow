@@ -13,6 +13,7 @@
 #pragma once
 #endif
 
+#include <exception>
 #include <stdexcept>
 #include <map>
 #include <string>
@@ -27,6 +28,18 @@
 namespace litwindow {
 
 	namespace checks {
+
+#ifdef __cpp_lib_uncaught_exceptions
+		inline bool has_uncaught_exceptions()
+		{
+			return std::uncaught_exceptions() > 0;
+		}
+#else
+		inline bool has_uncaught_exceptions()
+		{
+			return std::uncaught_exception();
+		}
+#endif
 
 		class LWBASE_API __c_ContextObject
 		{

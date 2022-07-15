@@ -1,6 +1,8 @@
 #ifndef wx_list_mediator_h__31080910
 #define wx_list_mediator_h__31080910
 
+#include <boost/bind/bind.hpp>
+#include <boost/bind/placeholders.hpp>
 #include "../wx/basic_list_mediator.hpp"
 #include "../ui/list_mediator.hpp"
 
@@ -10,7 +12,7 @@ namespace litwindow {
 	namespace wx {
 
 		using litwindow::ui::list_mediator;
-
+		namespace bps = boost::placeholders;
 
 //------------------------------------------------------------------------------------------------------------------------------------
 		class basic_wxcontrol_policies:public wxEvtHandler
@@ -23,12 +25,12 @@ namespace litwindow {
 			template <typename Mediator>
 			void connect(Mediator *m, uicontrol_type *v)
 			{
-				on_GetLayout = boost::bind(&basic_wxcontrol_policies::OnGetLayoutPerspective, this, _1);
+				on_GetLayout = boost::bind(&basic_wxcontrol_policies::OnGetLayoutPerspective, this, bps::_1);
 				v->Bind(lwEVT_GET_LAYOUT_PERSPECTIVE, on_GetLayout);
-				on_SetLayout = boost::bind(&basic_wxcontrol_policies::OnSetLayoutPerspective, this, _1);
+				on_SetLayout = boost::bind(&basic_wxcontrol_policies::OnSetLayoutPerspective, this, bps::_1);
 				v->Bind(lwEVT_SET_LAYOUT_PERSPECTIVE, on_SetLayout);
-				get_layout_perspective = boost::bind(&Mediator::get_layout_perspective, m, _1);
-				set_layout_perspective = boost::bind(&Mediator::set_layout_perspective, m, _1);
+				get_layout_perspective = boost::bind(&Mediator::get_layout_perspective, m, bps::_1);
+				set_layout_perspective = boost::bind(&Mediator::set_layout_perspective, m, bps::_1);
 			}
 			template <typename Mediator>
 			void disconnect(Mediator *m, uicontrol_type *v)
@@ -184,7 +186,7 @@ namespace litwindow {
 				Inherited::connect(md, v);
 				v->Connect(wxEventType(wxEVT_COMMAND_LIST_COL_CLICK), wxListEventHandler(uicontrol_policies::OnListColClick), 0, this);
 				on_destroyed=boost::bind(&Mediator::clear_ui, md);
-				on_l_col_clicked = boost::bind(&Mediator::sort_by, md, _1, Mediator::sort_automatic);
+				on_l_col_clicked = boost::bind(&Mediator::sort_by, md, bps::_1, Mediator::sort_automatic);
 				v->Connect(wxEventType(wxEVT_DESTROY), wxEventHandler(uicontrol_policies::OnDestroy), 0, this);
 			}
 			template <typename Mediator>
@@ -279,7 +281,7 @@ namespace litwindow {
 			{
 				size_t current=get_selection_index(ctrl);
 				if (current!=idx) {
-					for_each_selected(ctrl, boost::bind(&uicontrol_type::SetItemState, ctrl, _1, 0, wxLIST_STATE_SELECTED));
+					for_each_selected(ctrl, boost::bind(&uicontrol_type::SetItemState, ctrl, bps::_1, 0, wxLIST_STATE_SELECTED));
 					if (idx<(size_t)ctrl->GetItemCount()) {
 						ctrl->SetItemState(static_cast<long>(idx), wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
 						ctrl->EnsureVisible(static_cast<long>(idx));
@@ -352,13 +354,13 @@ namespace litwindow {
 			{
 				m_right_click_in_progress=false;
 				Inherited::connect(md, v);
-				v->on_get_item_text=boost::bind(&Mediator::get_item_text, md, _1, _2);
-				v->on_get_item_image=boost::bind(&Mediator::get_item_image, md, _1, _2);
-				v->Bind(wxEVT_COMMAND_LIST_COL_RIGHT_CLICK, boost::bind(&uicontrol_policies::OnColumnRightClick<Mediator>, this, md, _1));
-				//toggle_show_column=boost::bind(&Mediator::toggle_show_column, md, _1);
-				//v->Bind(wxEVT_COMMAND_MENU_SELECTED, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnRightClickMenu, this, _1));
-				v->Bind(wxEVT_COMMAND_MENU_SELECTED, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnRightClickMenu<Mediator>, this, md, _1));
-				v->Bind(wxEVT_ERASE_BACKGROUND, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnEraseBackground<Mediator>, this, md, _1));
+				v->on_get_item_text=boost::bind(&Mediator::get_item_text, md, bps::_1, bps::_2);
+				v->on_get_item_image=boost::bind(&Mediator::get_item_image, md, bps::_1, bps::_2);
+				v->Bind(wxEVT_COMMAND_LIST_COL_RIGHT_CLICK, boost::bind(&uicontrol_policies::OnColumnRightClick<Mediator>, this, md, bps::_1));
+				//toggle_show_column=boost::bind(&Mediator::toggle_show_column, md, bps::1);
+				//v->Bind(wxEVT_COMMAND_MENU_SELECTED, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnRightClickMenu, this, bps::1));
+				v->Bind(wxEVT_COMMAND_MENU_SELECTED, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnRightClickMenu<Mediator>, this, md, bps::_1));
+				v->Bind(wxEVT_ERASE_BACKGROUND, boost::bind(&uicontrol_policies<VirtualListCtrl>::OnEraseBackground<Mediator>, this, md, bps::_1));
 			}
 			template <typename Mediator>
 			void disconnect(Mediator *md, uicontrol_type *v)

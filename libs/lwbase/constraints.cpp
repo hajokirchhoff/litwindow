@@ -157,7 +157,7 @@ void constraint_solver::unsolve_depencencies_of(const const_accessor &target, bo
 void constraint_solver::assign_value(value_assign_base *new_value)
 {
 	//lw_log() << _T("  assigning value for rule ") << m_current_rule_solved->name() << endl;
-	std::auto_ptr<value_assign_base> guard(new_value);
+	std::unique_ptr<value_assign_base> guard(new_value);
 
 	// Check for circular rules, i.e. if this target has already been changed. 
 	values_changed_t::const_iterator a_value=m_values_changed->find(new_value->target());
@@ -254,7 +254,7 @@ value_assign_base *rule_assign::evaluate(const constraint_solver *s) const
 
 void rule_base::execute_immediate(const constraint_solver *a_solver) const
 {
-	auto_ptr<value_assign_base> v(evaluate(a_solver));
+	unique_ptr<value_assign_base> v(evaluate(a_solver));
 	v->do_assign(a_solver->get_symbol_table());
 }
 

@@ -39,7 +39,7 @@ namespace litwindow {
 	This function object 'visits' each element in 'for_each'.
 	*/
 	template <class _Visitor, class _Arg=typename _Visitor::argument_type, class _Ret=typename _Visitor::result_type>
-	struct visitor_fun_t:public std::unary_function<_Arg, _Ret>
+	struct visitor_fun_t//:public std::unary_function<_Arg, _Ret>
 	{
 		visitor_fun_t(_Visitor &_v)
 			:visitor(&_v)

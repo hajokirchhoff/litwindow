@@ -16,7 +16,7 @@
 
 #include <boost/spirit/include/classic.hpp>
 #include <boost/spirit/include/classic_actor.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <malloc.h>
 #include <litwindow/logging.h>
 #include "litwindow/odbc/statement.h"
@@ -63,7 +63,7 @@ pair<scope, tstring> parse_scope(const tstring &full_name)
 
 	trule quoted_identifier_char =  (
 			str_p(_T("\"\""))[boost::bind(&add_char, boost::ref(last_identifier), _T('"'))]
-			| (~ch_p(_T('"')))[boost::bind(&add_char, boost::ref(last_identifier), _1)]
+			| (~ch_p(_T('"')))[boost::bind(&add_char, boost::ref(last_identifier), boost::placeholders::_1)]
 			);
 
 	trule quoted_identifier= eps_p[assign_a(last_identifier, _T(""))]
@@ -163,7 +163,7 @@ bool statement::do_parse_bindings()
 			|   as_lower_d[_("inout")]  [boost::bind(&parameter::set_bind_type, boost::ref(new_parameter), odbc::inout)] );
 
 			trule bound_to = (ch_p(_('(')) >> *space_p >> _('[') >> *space_p >> bound_type >> *space_p >> _(']') >> *space_p >> simple_id[assign_a(new_parameter.m_parameter_name)] >> *space_p>> _(')'))
-				[boost::bind(&statement::add_bind_marker, this, boost::ref(sym), boost::ref(new_parameter), boost::ref(next_column_number), boost::ref(next_parameter_number), _1, _2)];
+				[boost::bind(&statement::add_bind_marker, this, boost::ref(sym), boost::ref(new_parameter), boost::ref(next_column_number), boost::ref(next_parameter_number), boost::placeholders::_1, boost::placeholders::_2)];
 
 			trule column_separator = ch_p(_(','));
 
