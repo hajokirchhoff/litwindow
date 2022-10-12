@@ -3,9 +3,6 @@
 
 /// define this to use boost::mutex
 #define LITWINDOW_LOGGER_MUTEX
-/// define this to use hashmap for basic_tag
-#define _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
-#define LITWINDOW_LOGGER_HASHMAP
 
 #ifdef LWBASE_EXPORTS
 #define LITWINDOW_LOGGER_EXPORTS
@@ -24,9 +21,6 @@
 #include <iostream>
 #include <string>
 
-#ifdef LITWINDOW_LOGGER_HASHMAP
-#include <hash_map>
-#endif
 #ifdef LITWINDOW_LOGGER_MUTEX
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/lock_guard.hpp>
@@ -64,27 +58,23 @@ namespace litwindow {
 			template <typename _Val>
 			inline _Val *aligned_ptr(void *p)
 			{
-				char *ptr=reinterpret_cast<char*>(p);
+				auto *ptr=reinterpret_cast<char*>(p);
 				size_t misalign= (ptr-reinterpret_cast<char*>(0)) % word_alignment;
 				return reinterpret_cast<_Val*>( ptr + (misalign ? word_alignment-misalign : 0));
 			}
 			template <typename _Val>
 			inline const _Val *aligned_ptr(const void *p)
 			{
-				const char *ptr=reinterpret_cast<const char*>(p);
+				const auto *ptr=reinterpret_cast<const char*>(p);
 				size_t misalign= (ptr-reinterpret_cast<const char*>(0)) % word_alignment;
 				return reinterpret_cast<const _Val*>( ptr + (misalign ? word_alignment-misalign : 0));
 			}
 			template <typename _Elem>
 			struct defaults
 			{
-				typedef size_t index_type;
+				using index_type = size_t;
 				typedef std::basic_string<_Elem> string_type;
-#if defined(LITWINDOW_LOGGER_HASHMAP) 
-				typedef stdext::hash_map<string_type, index_type> basic_name_map;
-#else
-				typedef std::map<string_type, index_type> basic_name_map;
-#endif
+				typedef std::unordered_map<string_type, index_type> basic_name_map;
 #if defined(_MT) && defined(LITWINDOW_LOGGER_MUTEX)
 				typedef boost::mutex mutex_type;
 				template <typename _L>
@@ -131,14 +121,14 @@ namespace litwindow {
 			typename _Container=typename details::defaults<_Elem>::basic_name_map >
 		class basic_tag
 		{
-			typedef basic_tag<_Elem, _Index, _Lock, _Container> _Myt;
-			typedef _Container container_type;
-			typedef typename container_type::key_type name_type;
+			using _Myt = basic_tag<_Elem, _Index, _Lock, _Container>;
+			using container_type = _Container;
+			using name_type = typename container_type::key_type;
 			typedef std::vector<typename container_type::const_iterator> index_container_type;
 		public:
-			typedef _Index index_type;
+			using index_type = _Index;
 
-			typedef _Index const_iterator;
+			using const_iterator = _Index;
 			/// Default constructs an empty tag
 			basic_tag():m_index(std::numeric_limits<index_type>::max()){}
 			/// Construct from a pointer to char
@@ -268,9 +258,9 @@ namespace litwindow {
 		public:
 			struct thread_process_id
 			{
-				std::basic_string<_Elem> m_name;
-				unsigned int	m_thread_id;
-				unsigned int	m_process_id;
+				std::basic_string<_Elem> m_name{};
+				unsigned int	m_thread_id{};
+				unsigned int	m_process_id{};
 			};
 			static const thread_process_id *get_thread_process_id() { return 0; }
 			basic_instance()
@@ -324,14 +314,14 @@ namespace litwindow {
 			explicit basic_topic(const std::basic_string<_Elem> &s):basic_tag_with_category<cat::topic, _Elem>(s){}
 			explicit basic_topic(typename basic_tag_with_category<cat::topic, _Elem>::index_type i):basic_tag_with_category<cat::topic, _Elem>(i){}
 		};
-		typedef basic_component<char> component;
-		typedef basic_component<wchar_t> wcomponent;
-		typedef basic_topic<char> topic;
-		typedef basic_topic<wchar_t> wtopic;
+		using component = basic_component<char>;
+		using wcomponent = basic_component<wchar_t>;
+		using topic = basic_topic<char>;
+		using wtopic = basic_topic<wchar_t>;
 		template <typename _Elem>
 		class basic_level:public basic_tag_with_category<cat::level, _Elem> , public boost::less_than_comparable<basic_level<_Elem> >
 		{
-			typedef basic_tag_with_category<cat::level, _Elem> inherited;
+			using inherited = basic_tag_with_category<cat::level, _Elem>;
 		public:
 			enum preset {
 				unknown,
@@ -349,7 +339,7 @@ namespace litwindow {
 
 				end_marker_for_preset_levels
 			};
-			typedef inherited tag_type;
+			using tag_type = inherited;
 			inline static const tag_type &get(preset p);
 			basic_level(preset p):inherited(get(p)){}
 			explicit basic_level(const tag_type &t):inherited(t){}
@@ -379,7 +369,7 @@ namespace litwindow {
 		}
 
 		typedef basic_level<char> level;
-		typedef basic_level<wchar_t> wlevel;
+		using wlevel = basic_level<wchar_t>;
 
 		template <typename _Elem>
 		inline const basic_component<_Elem> &default_component();
@@ -402,8 +392,8 @@ namespace litwindow {
 		template <typename _Elem> class basic_logsink;
 		template <typename _Elem> inline basic_logsink<_Elem> *default_sink();
 
-		typedef basic_logsink<char> logsink;
-		typedef basic_logsink<wchar_t> wlogsink;
+		using logsink = basic_logsink<char>;
+		using wlogsink = basic_logsink<wchar_t>;
 
 		/// basic_logbuf is a streambuf accepting events and storing them in a logsink
 		template <typename _Elem, typename _Traits, typename _Alloc >
@@ -414,19 +404,19 @@ namespace litwindow {
 			enum {
 				_Allocated = 1  ///< set if character array storage has been allocated
 			};
-			typedef int _Strstate;
-			typedef typename _Traits::int_type int_type;
-			typedef typename _Traits::pos_type pos_type;
-			typedef typename _Traits::off_type off_type;
-			typedef std::basic_streambuf<_Elem, _Traits> _Mysb;
-			typedef _Alloc allocator_type;
-			typedef basic_level<_Elem> level_type;
-			typedef basic_component<_Elem> component_type;
-			typedef basic_topic<_Elem> topic_type;
-			typedef basic_logsink<_Elem> sink_type;
-			typedef basic_instance<_Elem> instance_type;
-			typedef time_t timestamp_type;
-			typedef typename _Mysb::char_type char_type;
+			using _Strstate = int;
+			using int_type = typename _Traits::int_type;
+			using pos_type = typename _Traits::pos_type;
+			using off_type = typename _Traits::off_type;
+			using _Mysb = std::basic_streambuf<_Elem, _Traits>;
+			using allocator_type = _Alloc;
+			using level_type = basic_level<_Elem>;
+			using component_type = basic_component<_Elem>;
+			using topic_type = basic_topic<_Elem>;
+			using sink_type = basic_logsink<_Elem>;
+			using instance_type = basic_instance<_Elem>;
+			using timestamp_type = time_t;
+			using char_type = typename _Mysb::char_type;
 
 			using _Mysb::traits_type;
 		private:
@@ -465,7 +455,7 @@ namespace litwindow {
 				bool validate() const
 				{
 #ifdef _DEBUG
-					if (length()>4096 || m_timestamp>time(0)+5 || m_index>100000 || m_index>10000 || m_component>10000 || m_topic>10000 || m_level>1000) {
+					if (length()>4096 || m_timestamp>time(nullptr)+5 || m_index>100000 || m_index>10000 || m_component>10000 || m_topic>10000 || m_level>1000) {
 						return false;
 					}
 #endif
@@ -475,7 +465,7 @@ namespace litwindow {
 			class entries
 			{
 			public:
-				typedef typename basic_logbuf<_Elem, _Traits, _Alloc>::entry entry;
+				using entry = typename basic_logbuf<_Elem, _Traits, _Alloc>::entry;
 				entries(const char_type *b, const char_type *e)
 					:m_begin(b), m_end(e)
 				{
@@ -530,7 +520,7 @@ namespace litwindow {
 				_Mysb::sputn((const char_type*)&v, (sizeof(v)+sizeof(char_type)-1)/sizeof(char_type));
 			}
 			size_t count() const { return pptr()-m_begin_data; }
-			timestamp_type timestamp() const { return time(0); }
+			timestamp_type timestamp() const { return time(nullptr); }
 
 			char_type	*m_begin_data;
 			entry		*m_current_entry;
@@ -538,13 +528,13 @@ namespace litwindow {
 			void		current_entry(entry * val) { m_current_entry = val; }
 			sink_type	*m_sink;
 			allocator_type m_allocator;
-			_Strstate m_state;
+			_Strstate m_state{};
 			int_type end_of_log_entry;
-			size_t		m_sync_frequency;
-			timestamp_type m_sync_period;
-			size_t		m_log_count_since_last_sync;
-			timestamp_type m_time_of_last_sync;
-			size_t		m_next_index;
+			size_t		m_sync_frequency{};
+			timestamp_type m_sync_period{};
+			size_t		m_log_count_since_last_sync{};
+			timestamp_type m_time_of_last_sync{};
+			size_t		m_next_index{};
 			bool		need_sync() const
 			{
 				return m_sync_frequency>0 && m_log_count_since_last_sync>=m_sync_frequency
@@ -645,7 +635,7 @@ namespace litwindow {
 			void end_entry()
 			{
 				if (m_current_entry) {
-					off_t total=(off_t)count();
+					auto total=(off_t)count();
 					if (total>0) {
 						++m_log_count_since_last_sync;
 						m_current_entry->m_length=(unsigned short)total;
@@ -665,16 +655,16 @@ namespace litwindow {
 		template <typename _Elem, typename _Traits=std::char_traits<_Elem>, typename _Alloc=std::allocator<_Elem> >
 		class basic_logstream:public std::basic_ostream<_Elem, _Traits>
 		{
-			typedef std::basic_ostream<_Elem, _Traits> inherited;
+			using inherited = std::basic_ostream<_Elem, _Traits>;
 		public:
-			typedef basic_logbuf<_Elem, _Traits, _Alloc> _Streambuf;
+			using _Streambuf = basic_logbuf<_Elem, _Traits, _Alloc>;
 			typedef basic_logstream<_Elem, _Traits> _Myt;
-			typedef basic_level<_Elem> level_type;
-			typedef basic_component<_Elem> component_type;
-			typedef basic_topic<_Elem> topic_type;
-			typedef basic_logsink<_Elem> sink_type;
-			typedef basic_instance<_Elem> instance_type;
-			typedef _Myt& (*logmanipulator)(_Myt&);
+			using level_type = basic_level<_Elem>;
+			using component_type = basic_component<_Elem>;
+			using topic_type = basic_topic<_Elem>;
+			using sink_type = basic_logsink<_Elem>;
+			using instance_type = basic_instance<_Elem>;
+			using logmanipulator = _Myt& (*)(_Myt&);
 			basic_logstream()
 				:inherited(&m_rdbuf)
 			{
@@ -723,13 +713,13 @@ namespace litwindow {
 		template <typename _Stream>
 		struct stream_traits
 		{
-			typedef _Stream stream_type;
-			typedef typename stream_type::char_type char_type;
-			typedef basic_level<char_type> level_type;
-			typedef basic_component<char_type> component_type;
-			typedef basic_topic<char_type> topic_type;
-			typedef basic_logsink<char_type> sink_type;
-			typedef basic_instance<char_type> instance_type;
+			using stream_type = _Stream;
+			using char_type = typename stream_type::char_type;
+			using level_type = basic_level<char_type>;
+			using component_type = basic_component<char_type>;
+			using topic_type = basic_topic<char_type>;
+			using sink_type = basic_logsink<char_type>;
+			using instance_type = basic_instance<char_type>;
 			void set_sink(_Stream &stream, basic_logsink<char_type> *s) { }
 			basic_logsink<char_type> *get_sink(const _Stream &) const { return 0; }
 			void lbegin(_Stream &stream) { }
@@ -773,19 +763,19 @@ namespace litwindow {
 		class basic_events:public _Outstream
 		{
 		public:
-			typedef _Outstream Inherited;
-			typedef basic_events<_Elem, _Outstream, _Streamtraits> _Myt;
-			typedef _Elem char_type;
-			typedef _Outstream outstream_type;
-			typedef _Streamtraits outstream_traits;
+			using Inherited = _Outstream;
+			using _Myt = basic_events<_Elem, _Outstream, _Streamtraits>;
+			using char_type = _Elem;
+			using outstream_type = _Outstream;
+			using outstream_traits = _Streamtraits;
 			typedef std::basic_ostream<char_type>& (*iomanipulator)(std::basic_ostream<char_type>&);
-			typedef _Myt& (*logmanipulator)(_Myt&);
+			using logmanipulator = _Myt& (*)(_Myt&);
 			typedef basic_tag<char_type> tag_type;
-			typedef basic_level<char_type> level_type;
-			typedef basic_component<char_type> component_type;
-			typedef basic_topic<char_type> topic_type;
-			typedef basic_logsink<char_type> sink_type;
-			typedef basic_instance<char_type> instance_type;
+			using level_type = basic_level<char_type>;
+			using component_type = basic_component<char_type>;
+			using topic_type = basic_topic<char_type>;
+			using sink_type = basic_logsink<char_type>;
+			using instance_type = basic_instance<char_type>;
 		private:
 			bool m_enabled;
 			outstream_traits m_stream_traits;
@@ -794,7 +784,7 @@ namespace litwindow {
 			{
 				const inserter &operator=(const inserter &i);
 			public:
-				typedef _Myt events_type;
+				using events_type = _Myt;
 				bool _enabled;
 				events_type &_owner;
 
@@ -1108,11 +1098,11 @@ namespace litwindow {
 			template <typename _Events>
 			struct basic_threadsafe_events
 			{
-				typedef _Events events_type;
-				typedef typename events_type::char_type char_type;
-				typedef typename events_type::sink_type sink_type;
-				typedef typename events_type::topic_type topic_type;
-				typedef typename events_type::component_type component_type;
+				using events_type = _Events;
+				using char_type = typename events_type::char_type;
+				using sink_type = typename events_type::sink_type;
+				using topic_type = typename events_type::topic_type;
+				using component_type = typename events_type::component_type;
 				boost::thread_specific_ptr<_Events> m_evt_ptr;
 				_Events m_default;
 				_Events &get_default() { return m_default; }
@@ -1216,8 +1206,8 @@ namespace litwindow {
 				void enable() { enabled(true); }
 				void disable() { enabled(false); }
 			};
-			typedef basic_threadsafe_events<events> events;
-			typedef basic_threadsafe_events<wevents> wevents;
+			using events = basic_threadsafe_events<events>;
+			using wevents = basic_threadsafe_events<wevents>;
 		}
 
 		/*!\page litwindow_logger Logging: recording events and states.
