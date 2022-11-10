@@ -127,7 +127,7 @@ struct read_from_config
 					    if (m_cfg->Read(key, &l)) {
 						    value.from_int(l);
 						    success=true;
-					    }
+						}
 				    }
 					else if (value.is_type<double>()) {
 						double d;
@@ -141,15 +141,19 @@ struct read_from_config
 					    if (m_cfg->Read(key, &data)) {
 						    value.from_string((const TCHAR*)data.c_str());
 						    success=true;
-					    }
+						}
 				    }
 			    }
 			    catch (lwbase_error &) {
 				    /// ignore errors
 			    }
 		    }
-		    if (!success)
-			    wxLogError(wxT("Reading %s from configuration storage failed!"), key.c_str());
+			if (!success) {
+				wxString data;
+				if (m_cfg->Read(key, &data) == false || data.Trim().empty() == false)
+					wxLogError(wxT("Reading %s from configuration storage failed!"), key.c_str());
+				// else ==> empty key entry, use default value
+			}
 	    }
     }
     wxConfigBase *m_cfg;
