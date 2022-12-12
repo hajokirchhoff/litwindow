@@ -38,7 +38,7 @@
     <ProjectGuid>{9E4BB233-D477-4FE7-94E6-C3319DD99C47}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>lwbase</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
