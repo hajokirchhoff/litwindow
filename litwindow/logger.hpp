@@ -951,6 +951,10 @@ namespace litwindow {
 				return (*l)(*this);
 				//return inserter(r, r.enabled());
 			}
+			_Myt& operator << (logmanipulator l)
+			{
+				return operator&&(l);
+			}
 			_Myt &operator && (const typename level_type::preset l)
 			{
 				return level(l);
@@ -964,6 +968,22 @@ namespace litwindow {
 				return this->level(l);
 			}
 			_Myt &operator &&(const topic_type &t)
+			{
+				return this->topic(t);
+			}
+			_Myt& operator << (const typename level_type::preset l)
+			{
+				return level(l);
+			}
+			_Myt& operator <<(const component_type& c)
+			{
+				return this->component(c);
+			}
+			_Myt& operator <<(const level_type& l)
+			{
+				return this->level(l);
+			}
+			_Myt& operator <<(const topic_type& t)
 			{
 				return this->topic(t);
 			}
@@ -1160,8 +1180,33 @@ namespace litwindow {
 				{
 					return get().topic(t);
 				}				
+				events_type& operator <<(typename events_type::logmanipulator l)
+				{
+					return get() && l;
+				}
+				events_type& operator <<(const typename events_type::component_type& c)
+				{
+					return get().component(c);
+				}
+				events_type& operator <<(const typename events_type::level_type& l)
+				{
+					return get().level(l);
+				}
+				events_type& operator << (const typename events_type::level_type::preset l)
+				{
+					return get().level(l);
+				}
+				events_type& operator <<(const typename events_type::topic_type& t)
+				{
+					return get().topic(t);
+				}
 				template <typename Value>
 				typename events_type::inserter operator &&(const Value &v)
+				{
+					return get() && v;
+				}
+				template <typename Value>
+				typename events_type::inserter operator <<(const Value& v)
 				{
 					return get() && v;
 				}
