@@ -19,6 +19,7 @@ IMPLEMENT_DYNAMIC_CLASS(litwindow::wx::VirtualListCtrl, wxListCtrl);
 
 void litwindow::wx::VirtualListCtrl::Create( wxWindow *parent, wxWindowID id, const wxPoint &pos/*=wxDefaultPosition*/, const wxSize &size/*=wxDefaultSize*/, long style/*=wxLC_ICON*/, const wxValidator &validator/*=wxDefaultValidator*/, const wxString &name/*=wxListCtrlNameStr*/ )
 {
+	SetDoubleBuffered(true);
 	wxListCtrl::Create(parent, id, pos, size, (style& ~ (wxLC_ICON|wxLC_LIST))|wxLC_VIRTUAL|wxLC_REPORT, validator, name);
 }
 
