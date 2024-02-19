@@ -43,21 +43,23 @@ namespace litwindow {
 
 		class LWBASE_API __c_ContextObject
 		{
+			using top_ptr = __c_ContextObject*;
 		public:
 			typedef std::map<std::string, std::string> attributes_t;
 			__c_ContextObject(const char* text);
 			~__c_ContextObject();
-			std::string &operator[](const char *name)
+			std::string& operator[](const char* name)
 			{
 				if (m_attributes==0) m_attributes=new attributes_t;
 				return (*m_attributes)[name];
 			}
 			const char *context;
 			attributes_t *m_attributes;
-			static __c_ContextObject *get_top() { return top; }
+			static top_ptr get_top();
 		protected:
-			__c_ContextObject *previous;
-			static __c_ContextObject *top;			
+			top_ptr previous;
+			static top_ptr& get_top_object();
+			void set_top(top_ptr new_top);
 		};
 
 		inline __c_ContextObject& Context() { return *__c_ContextObject::get_top(); }
@@ -133,45 +135,10 @@ namespace litwindow {
 
 		std::string LWBASE_API GetErrorMessage(std::exception &e);
 		std::string LWBASE_API GetErrorMessage(const char *);
-		std::string LWBASE_API GetExceptionContext(bool resetContext=true);
+		std::string LWBASE_API GetExceptionContext(bool resetContext = true);
 
-		class try_op_base_t
-		{
-		public:
-			virtual void operator() () = 0;
-		};
-
-		template <class Result, class T>
-		class try_mem_fun_t:public try_op_base_t
-		{
-		public:
-			try_mem_fun_t(T* pThis, Result (T::*pMemFun)()):thisPtr(pThis), memFunPtr(pMemFun) {}
-			void operator() ()
-			{
-				rc=(thisPtr->*memFunPtr)();
-			}
-			T* thisPtr;
-			Result (T::*memFunPtr)();
-			Result rc;
-		};
-
-		template <class Result, class T>
-		try_mem_fun_t<Result, T> try_mem_fun(T* pThis, Result (T::*pMemFun)())
-		{
-			return try_mem_fun_t<Result, T>(pThis, pMemFun);
-		}
-
-		int LWBASE_API TryOperation(try_op_base_t& tryOperation);
-
-		template <class Result, class T>
-		std::pair<int, Result> TryOperation(try_mem_fun_t<Result, T>& tryOperation)
-		{
-			int rc=TryOperation(static_cast<try_op_base_t&>(tryOperation));
-			return make_pair(rc, tryOperation.rc);
-		}
 	};
 	using namespace checks;
-    //namespace check = checks;
 
 #define MemFun(a) try_mem_fun(this, a)
 
