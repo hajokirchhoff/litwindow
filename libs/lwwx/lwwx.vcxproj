@@ -85,9 +85,7 @@
     <TargetName>$(ProjectName)-vc$(PlatformToolsetVersion)-mt-$(Platform)-1_0_0</TargetName>
     <OutDir>$(SolutionDir)..\stage64\lib\</OutDir>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg">
-    <VcpkgEnableManifest>true</VcpkgEnableManifest>
-  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" />
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <VcpkgTriplet>x64-windows-v143</VcpkgTriplet>
   </PropertyGroup>
@@ -120,7 +118,6 @@
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeaderFile>stdwx.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\..\..\wxwidgets\include\msvc;..\..\..\wxwidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -161,7 +158,6 @@
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeaderFile>stdwx.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\..\..\wxwidgets\include\msvc;..\..\..\wxwidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>

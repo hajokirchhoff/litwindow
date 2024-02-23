@@ -13,6 +13,10 @@
 #include "litwindow/logging.h"
 #include "litwindow/check.hpp"
 #include <wx/radiobox.h>
+#include <wx/stattext.h>
+#include <wx/listbox.h>
+#include <wx/textctrl.h>
+#include <wx/log.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -90,7 +94,7 @@ void RapidUI::UnsolveAllDataToWindowsRules()
 void RapidUI::AddDefaultRulesForWindow(wxWindow *w)
 {
 	if (w) {
-		tstring windowName=GetWindowName(w);
+		tstring windowName = litwindow::str2tstring(GetWindowName(w));
 		if (windowName==_T("LITWINDOW_RULES")) {
 			// this is a 'specially' reserved window name. it should be a wxTextCtrl containing window rules.
 			tstring rules;

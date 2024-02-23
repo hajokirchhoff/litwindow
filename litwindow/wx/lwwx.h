@@ -10,6 +10,8 @@
 #define _LWWX_H
 
 #include "litwindow/lwbase.hpp"
+#include "litwindow/tstring.hpp"
+#include <wx/string.h>
 
 /// major version number of the lwwx part of the library
 #define LWWX_VERSION_MAJOR LWBASE_VERSION_MAJOR
@@ -75,6 +77,13 @@ namespace litwindow {
 
 /// If enabled == true, output from wx_log() gets sent to wxLogDebug as well.
 extern void LWWX_API enable_log_to_wxdebug(bool enabled=true);
+
+
+#ifdef _MBCS
+inline tstring str2tstring(const wxString& str) { return str.ToStdString(); }
+#elif defined(_UNICODE) 
+inline tstring str2tstring(const wxString& str) { return str.ToStdWstring(); }
+#endif
 
 };
 

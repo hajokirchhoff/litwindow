@@ -7,7 +7,7 @@
 * $Id: lwwx.cpp,v 1.2 2006/04/04 09:21:33 Hajo Kirchhoff Exp $
 */
 #include "stdwx.h"
-
+#include <wx/log.h>
 #include "litwindow/wx/lwwx.h"
 #include "litwindow/logging.h"
 #include <fstream>

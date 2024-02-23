@@ -86,6 +86,9 @@ namespace litwindow {
 	inline const std::wstring &w2tstring(const std::wstring &a) { return a; }
 #endif
 
+	inline tstring str2tstring(const std::string& a) { return s2tstring(a); }
+	inline tstring str2tstring(const std::wstring& w) { return w2tstring(w); }
+
 	inline tstring &toupper(tstring &t)
 	{
 		tstring::iterator tou;

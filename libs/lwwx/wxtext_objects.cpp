@@ -7,6 +7,7 @@
 * $Id: wxtext_objects.cpp,v 1.10 2007/12/11 11:28:15 Merry\Hajo Kirchhoff Exp $
 */
 #include "stdwx.h"
+#include <wx/log.h>
 #include "wxtext_objects.h"
 #include "litwindow/dataadapter.h"
 #include "litwindow/wx/rapidui.h"
@@ -167,7 +168,7 @@ namespace litwindow {
 		if (m_is_null!=is_null) {
 			m_is_null=is_null;
 			++m_disable_on_text;
-			m_wnd->SetValue(m_is_null ? wxEmptyString : m_asString);
+			m_wnd->SetValue(m_is_null ? wxString() : m_asString);
 			--m_disable_on_text;
 			m_wnd->SetBackgroundColour(m_is_null ? wxColour(237, 255, 255) : wxColour(255, 255, 255));
 			m_wnd->SetForegroundColour(m_is_null ? m_wnd->GetBackgroundColour() : wxColour(0,0,0));

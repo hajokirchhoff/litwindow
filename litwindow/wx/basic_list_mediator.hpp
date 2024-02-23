@@ -5,6 +5,9 @@
 #include "lwwx.h"
 #include <wx/listctrl.h>
 #include <wx/dataview.h>
+#include <wx/ctrlsub.h>
+#include <wx/listbox.h>
+#include <wx/choice.h>
 #include <boost/function.hpp>
 #include <boost/ref.hpp>
 #include <boost/bind/bind.hpp>
@@ -256,7 +259,7 @@ namespace litwindow {
         {
             wxControlWithItems *m_ctrl;
         public:
-            wxControlWithItems_list_adapter(wxControlWithItems *l=0)
+			wxControlWithItems_list_adapter(wxControlWithItems* l = 0)
                 :m_ctrl(l){}
             void set_control(wxControlWithItems *l)
             {

@@ -12,6 +12,7 @@
 
 #include <litwindow/lwbase.hpp>
 #include <wx/listbox.h>
+#include <wx/combobox.h>
 #include "./base_objects.h"
 
 namespace litwindow {
