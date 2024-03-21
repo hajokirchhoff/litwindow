@@ -198,14 +198,14 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;__WXDEBUG__;_DEBUG;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswud;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/nologo /SUBSYSTEM:WINDOWS /machine:i386 /DEBUG %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>wxmsw29ud_richtext.lib;wxmsw29ud_aui.lib;wxmsw29ud_core.lib;wxbase29ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxmsw29ud_adv.lib;wxmsw29ud_html.lib;wxmsw29ud_xrc.lib;wxbase29ud_net.lib;wxbase29ud_xml.lib;wxexpatd.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>VCProjectUnicodeDebug\list_mediator.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../../../../wxwidgets/lib/vc_dll;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\lib;C:\Program Files\Microsoft SDKs\Windows\v6.0A\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\lib;C:\Program Files\Microsoft SDKs\Windows\v6.0A\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>VCProjectUnicodeDebug\list_mediator.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -227,7 +227,7 @@
     <ClCompile>
       <AdditionalOptions> /EHsc %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../../..;../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswud;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;__WXDEBUG__;_DEBUG;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -246,14 +246,14 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;__WXDEBUG__;_DEBUG;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswud;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/nologo /SUBSYSTEM:WINDOWS /machine:i386 /DEBUG %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>wxmsw29ud_richtext.lib;wxmsw29ud_aui.lib;wxmsw29ud_core.lib;wxbase29ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxmsw29ud_adv.lib;wxmsw29ud_html.lib;wxmsw29ud_xrc.lib;wxbase29ud_net.lib;wxbase29ud_xml.lib;wxexpatd.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>VCProjectUnicodeDebug\list_mediator.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../../../../wxwidgets/lib/vc_dll;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\lib;C:\Program Files\Microsoft SDKs\Windows\v6.0A\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\lib;C:\Program Files\Microsoft SDKs\Windows\v6.0A\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>VCProjectUnicodeDebug\list_mediator.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -276,7 +276,7 @@
       <AdditionalOptions> /EHsc %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MinSpace</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>../../../..;../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswu;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../..;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -295,14 +295,14 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswu;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/nologo /SUBSYSTEM:WINDOWS /machine:i386 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>wxmsw29u_richtext.lib;wxmsw29u_aui.lib;wxmsw29u_core.lib;wxbase29u.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxmsw29u_adv.lib;wxmsw29u_html.lib;wxmsw29u_xrc.lib;wxbase29u_net.lib;wxbase29u_xml.lib;wxexpat.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>VCProjectUnicodeRelease\list_mediator.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>../../../../../wxwidgets/lib/vc_lib;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\lib;C:\Program Files\Microsoft SDKs\Windows\v6.0A\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\lib;C:\Program Files\Microsoft SDKs\Windows\v6.0A\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ProgramDatabaseFile>VCProjectUnicodeRelease\list_mediator.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
     </Link>
@@ -323,7 +323,7 @@
       <AdditionalOptions> /EHsc %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MinSpace</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>../../../..;../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswu;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../..;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -342,7 +342,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswu;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/nologo /SUBSYSTEM:WINDOWS /machine:i386 %(AdditionalOptions)</AdditionalOptions>
@@ -370,7 +370,7 @@
     <ClCompile>
       <AdditionalOptions> /EHsc %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../../..;../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswud;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../..;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;__WXMSW__;_WINDOWS;__WXDEBUG__;_DEBUG;_UNICODE</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -389,7 +389,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;__WXDEBUG__;_DEBUG;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswud;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/nologo /SUBSYSTEM:WINDOWS /machine:i386 /DEBUG %(AdditionalOptions)</AdditionalOptions>
@@ -417,7 +417,7 @@
     <ClCompile>
       <AdditionalOptions> /EHsc %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../../..;../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswud;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../..;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;__WXDEBUG__;_DEBUG;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -436,7 +436,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;__WXDEBUG__;_DEBUG;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswud;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/nologo /SUBSYSTEM:WINDOWS /machine:i386 /DEBUG %(AdditionalOptions)</AdditionalOptions>
@@ -466,7 +466,7 @@
       <AdditionalOptions> /EHsc %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MinSpace</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>../../../..;../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswu;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../..;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -485,7 +485,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswu;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/nologo /SUBSYSTEM:WINDOWS /machine:i386 %(AdditionalOptions)</AdditionalOptions>
@@ -513,7 +513,7 @@
       <AdditionalOptions> /EHsc %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MinSpace</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>../../../..;../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswu;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../..;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -532,7 +532,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOPCH;WIN32;__WXMSW__;_WINDOWS;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>../../../../../wxwidgets/include;../../../../../wxwidgets/contrib/include;../../../../../wxwidgets/lib/vc_lib/mswu;C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft Visual Studio 9.0\vc\include;C:\Program Files\Microsoft SDKs\Windows\v6.0A\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/nologo /SUBSYSTEM:WINDOWS /machine:i386 %(AdditionalOptions)</AdditionalOptions>
