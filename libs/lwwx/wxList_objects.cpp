@@ -9,6 +9,7 @@
 #include "stdwx.h"
 using namespace std;
 #include <wx/event.h>
+#include <wx/log.h>
 #include "litwindow/lwbase.hpp"
 #include "litwindow/dataadapter.h"
 #include <litwindow/dataadapterenum.h>
@@ -31,7 +32,7 @@ void lwListAdapterBase::FillList()
 		GetWnd()->Disable();
 	} else if (m_items.is_container()) {
 		bool logWarningShown=false;
-		tstring currentSelection=GetStringSelection();
+		tstring currentSelection = litwindow::str2tstring(GetStringSelection());
 		ClearList();
 		GetWnd()->Enable();
 		const_container c(m_items.get_container());

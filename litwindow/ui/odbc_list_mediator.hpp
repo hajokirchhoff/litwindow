@@ -245,17 +245,17 @@ namespace litwindow { namespace ui {
 					if (cached_row >= cache_size() || cached_row < 0)
 						refresh_cache(static_cast<int>(row));
 					if (row < begin_cache() || row >= end_cache())
-						return _("nodata");
+						return L"nodata";
 					cached_row = static_cast<int>(row) - begin_cache();
 				}
 				else
 					cached_row = static_cast<int>(row);
 				auto rc = m_stmt.fetch_absolute(static_cast<SQLINTEGER>(cached_row) + 1);
 				if (rc.no_data()) {
-					return _("nodata");
+					return L"nodata";
 				}
 				else if (rc.fail()) {
-					return _("error");
+					return L"error";
 				}
 				else {
 					columns.render_element_at(column, rcstring, odbc_record{ m_stmt });

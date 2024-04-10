@@ -10,6 +10,7 @@
 #include "litwindow/wx/wxio.h"
 #include "litwindow/renderer.hpp"
 #include <wx/datetime.h>
+#include <wx/log.h>
 #include <sstream>
 #include <iomanip>
 using namespace std;

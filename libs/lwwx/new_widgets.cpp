@@ -17,6 +17,10 @@ using namespace std;
 #include <wx/renderer.h>
 #include <wx/treectrl.h>
 #include <wx/confbase.h>
+#include <wx/app.h>
+#include <wx/dcclient.h>
+#include <wx/dcmemory.h>
+#include <wx/sizer.h>
 
 #define new DEBUG_NEW
 

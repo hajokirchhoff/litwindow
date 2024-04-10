@@ -8,6 +8,10 @@
 
 #include <wx/listctrl.h>
 #include <wx/grid.h>
+#include <wx/menu.h>
+#include <wx/menuitem.h>
+#include <wx/dcmemory.h>
+
 namespace litwindow {
 	namespace wx {
 
@@ -413,7 +417,9 @@ namespace litwindow {
 					dc->SetDeviceClippingRegion(reg);
 
 					// do erasing
-					dc->SetBackground(wxBrush(ctrl->GetBackgroundColour(), wxSOLID));
+
+					auto b = wxTheBrushList->FindOrCreateBrush(ctrl->GetBackgroundColour(), wxBRUSHSTYLE_SOLID);
+					dc->SetBackground(*b);
 					dc->Clear();
 
 					// restore old clipping region

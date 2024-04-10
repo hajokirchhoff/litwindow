@@ -6,7 +6,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="../../../../../wxwidgets/include/msvc;&quot;$(RootDir)extlibs\boost&quot;;&quot;$(RootDir)extlibs\litwindow&quot;;&quot;$(LibsDir)litwindow&quot;;&quot;$(LibsDir)boost&quot;"
+		AdditionalIncludeDirectories="&quot;$(RootDir)extlibs\litwindow&quot;;&quot;$(LibsDir)litwindow&quot;"
 		PreprocessorDefinitions="BOOST_ALL_DYN_LINK;LITWINDOW_ALL_DYN_LINK;WXUSINGDLL"
 	/>
 	<UserMacro
@@ -19,10 +19,10 @@
 	/>
 	<UserMacro
 		Name="LIB_PATH"
-		Value="$(LibsDir)wxWidgets\lib\vc_dll;$(LibsDir)boost\stage\lib;$(LibsDir)litwindow\stage\lib"
+		Value="$(LibsDir)litwindow\stage\lib"
 	/>
 	<UserMacro
 		Name="INCLUDE_PATH"
-		Value="$(LibsDir)litwindow;$(LibsDir)boost"
+		Value="$(LibsDir)litwindow"
 	/>
 </VisualStudioPropertySheet>

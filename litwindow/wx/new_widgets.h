@@ -12,6 +12,10 @@
 #pragma once
 
 #include <wx/panel.h>
+#include <wx/toplevel.h>
+#include <wx/dialog.h>
+#include <wx/textctrl.h>
+#include <wx/bmpbuttn.h>
 #include "litwindow/wx/lwwx.h"
 #include "wx/xrc/xmlres.h"
 

@@ -14,6 +14,9 @@
 #include <litwindow/lwbase.hpp>
 #include <litwindow/dataadapter.h>
 #include <wx/checkbox.h>
+#include <wx/radiobox.h>
+#include <wx/radiobut.h>
+#include <wx/button.h>
 #include "./base_objects.h"
 #include "litwindow/wx/action_objects.h"
 

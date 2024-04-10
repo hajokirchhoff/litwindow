@@ -14,6 +14,7 @@
 #include <litwindow/dataadapter.h>
 #include <wx/textctrl.h>
 #include <wx/spinctrl.h>
+#include <wx/stattext.h>
 #include "./base_objects.h"
 
 #ifndef x_DOC_DEVELOPER

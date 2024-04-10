@@ -16,6 +16,7 @@ using namespace std;
 #include <wx/spinctrl.h>
 #include <wx/datectrl.h>
 #include <wx/calctrl.h>
+#include <wx/frame.h>
 #include "litwindow/dataadapter.h"
 #include "litwindow/wx/rapidUI.h"
 #include "litwindow/logging.h"
@@ -59,7 +60,7 @@ tstring litwindow::converter<wxSize>::to_string(const wxSize &v)
 template <>
 tstring converter<wxDateTime>::to_string(const wxDateTime &d)
 {
-    return tstring(d.IsValid() ? d.Format(wxT("%Y-%m-%d %H:%M:%S")) : wxT("invalid_date"));
+    return tstring(d.IsValid() ? d.Format(wxT("%Y-%m-%d %H:%M:%S")) : wxString(wxT("invalid_date")));
 }
 
 template <>

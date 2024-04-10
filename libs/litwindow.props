@@ -9,11 +9,11 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalLibraryDirectories>$(OutDir);$(ProjectDir)..\..\..\boost\stage\lib;$(ProjectDir)..\..\..\wxwidgets\lib\vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..;$(ProjectDir)..\..\..\boost;$(ProjectDir)..\..\..\wxWidgets\include\msvc;$(ProjectDir)..\..\..\wxWidgets\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />
