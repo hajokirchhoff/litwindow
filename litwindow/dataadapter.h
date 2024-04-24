@@ -945,6 +945,12 @@ namespace litwindow {
 		return const_accessor(&v, get_schema_entry(v));
 	}
 
+	inline const_accessor make_const_accessor_from_any(const std::any& v)
+	{
+		prop_t prop_type = get_prop_type_by_typeid(v.type());
+		return const_accessor(prop_type->get_any_data(v), *prop_type->get_schema_entry());
+	}
+
 	/** Create an accessor for an object.
 	@returns an accessor pointing to the object passed as parameter @p v.
 	accessor objects can read and write objects they point to.
