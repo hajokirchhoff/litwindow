@@ -82,9 +82,9 @@ namespace litwindow {
 	class schema_base;
 
 	/// A property type is defined as the pointer to a conversion object accepting this type.
-	typedef converter_base *prop_t;
-	typedef void *prop_ptr;
-	typedef const void *const_prop_ptr;
+	using prop_t = converter_base *;
+	using prop_ptr = void *;
+	using const_prop_ptr = const void *;
 
 	/// this structure holds enough bytes storage to store a member pointer
 	const size_t _member_pointer_size=sizeof (void (std::exception::*)(void));
@@ -204,9 +204,9 @@ namespace litwindow {
 			annotation_entry
 		} m_entry_type;
 		//! pointer to a function that casts the parameter to a base this ptr
-		typedef void * (*cast_derived_to_base_t)(void* from_derived, void* to_base);
+		using cast_derived_to_base_t = void * (*)(void* from_derived, void* to_base);
 		//! pointer to a function that returns a pointer to a co-object
-		typedef void * (*get_co_object_fnc_t)(void *original_object);
+		using get_co_object_fnc_t = void * (*)(void *original_object);
 		/** Name of the property. @note: only 'char' names are allowed. wchar_t is not supported.
 		*/
 		const char* m_name;
@@ -236,8 +236,8 @@ namespace litwindow {
 				m_entry_type = annotation_entry;
 		}
 		/// Create an empty entry.
-		schema_entry(const char *propName=0)
-			:m_type(0)
+		schema_entry(const char *propName=nullptr)
+			:m_type(nullptr)
 			,m_entry_type(invalid)
 			,m_name(propName)
 			,m_class_name("")
@@ -265,14 +265,14 @@ namespace litwindow {
 			:m_type(type)
 			,m_entry_type(inherited)
 			,m_name(aName)
-			,m_class_name(0)
+			,m_class_name(nullptr)
 			,m_cast_derived_to_base(fnc)
 		{}
 		schema_entry(get_co_object_fnc_t fnc, const prop_t type, const char * const aName)
 			:m_type(type)
 			,m_entry_type(coobject)
 			,m_name(aName)
-			,m_class_name(0)
+			,m_class_name(nullptr)
 			,m_get_co_object(fnc)
 		{
 		}
@@ -433,14 +433,14 @@ namespace litwindow {
 		virtual bool is_less_than(const schema_entry *s, const const_accessor &a, prop_ptr member_ptr) const = 0;
 		*/
 		virtual bool has_schema() const { return false; }
-		virtual const schema_base *get_schema() const { return 0; }
+		virtual const schema_base *get_schema() const { return nullptr; }
 
 		virtual bool is_container() const { return false; }
 		virtual bool is_const_container() const { return false; }
-		virtual const_container_iterator_imp_base *get_const_begin(const schema_entry *se, const_prop_ptr member_ptr) const { return 0; }
-		virtual const_container_iterator_imp_base *get_const_end(const schema_entry *se, const_prop_ptr member_ptr) const { return 0; }
-		virtual container_iterator_imp_base *get_begin(const schema_entry *se, prop_ptr member_ptr) const { return 0; }
-		virtual container_iterator_imp_base *get_end(const schema_entry *se, prop_ptr member_ptr) const { return 0; }
+		virtual const_container_iterator_imp_base *get_const_begin(const schema_entry *se, const_prop_ptr member_ptr) const { return nullptr; }
+		virtual const_container_iterator_imp_base *get_const_end(const schema_entry *se, const_prop_ptr member_ptr) const { return nullptr; }
+		virtual container_iterator_imp_base *get_begin(const schema_entry *se, prop_ptr member_ptr) const { return nullptr; }
+		virtual container_iterator_imp_base *get_end(const schema_entry *se, prop_ptr member_ptr) const { return nullptr; }
 
 		// factory methods
 		virtual prop_ptr create() const = 0;
@@ -455,7 +455,7 @@ namespace litwindow {
 		virtual const_prop_ptr get_prop_ptr(const schema_entry* e, const_prop_ptr member_ptr) const = 0;
 
         /// return enum access
-        virtual const converter_enum_info *get_enum_info() const { return 0; }
+        virtual const converter_enum_info *get_enum_info() const { return nullptr; }
 
 		virtual const std::type_info& get_typeid() const = 0;
 
@@ -480,14 +480,14 @@ namespace litwindow {
 			:type_name(_type_name), registrar(r)
 		{}
 		const prop_type_registrar *get_registrar() const { return registrar; }
-		std::string get_type_name() const { return type_name; }
+		std::string get_type_name() const override { return type_name; }
 		const std::type_info& get_typeid() const override { return typeid(Value); }
 		const_prop_ptr get_any_data(const std::any& v) const override
 		{
 			return nullptr;
 		}
 
-		virtual bool has_copy() const { return false; }
+		bool has_copy() const override { return false; }
 		//virtual void get_value(Value &v, const schema_entry *e, const_prop_ptr member_ptr) const = 0;
 		//virtual const Value *get_ptr(const schema_entry *e, const_prop_ptr member_ptr) const = 0;
 		//virtual Value *get_ptr(const schema_entry *e, prop_ptr member_ptr) const = 0;
@@ -504,48 +504,48 @@ namespace litwindow {
 			throw litwindow::lwbase_error("not implemented");
 		}
 
-		virtual bool is_int() const
+		bool is_int() const override
 		{
 			return false;
 		}
-		virtual int to_int(const schema_entry *propertyAccessInfo, const_prop_ptr member_ptr) { throw not_implemented_error("to_int"); }
-		virtual void from_int(const schema_entry *propertyAccessInfo, int value, prop_ptr member_ptr) { throw not_implemented_error("from_int"); }
+		int to_int(const schema_entry *propertyAccessInfo, const_prop_ptr member_ptr) override { throw not_implemented_error("to_int"); }
+		void from_int(const schema_entry *propertyAccessInfo, int value, prop_ptr member_ptr) override { throw not_implemented_error("from_int"); }
 
-		virtual const schema_entry *get_schema_entry()
+		const schema_entry *get_schema_entry() override
 		{
 			static schema_entry the_entry(size_t(0), this, "this");
 			return &the_entry;
 		}
 
-		virtual prop_ptr create() const
+		prop_ptr create() const override
 		{
 			// cannot create abstract objects
 			throw not_implemented_error("create (abstract class!)");
 		}
 		/// return the size of an object in bytes
-		virtual size_t get_sizeof(const schema_entry *e) const
+		size_t get_sizeof(const schema_entry *e) const override
 		{
 			throw not_implemented_error("get_sizeof (abstract class!)");
 		}
 
-		accessor clone(const schema_entry *e, const_prop_ptr member_ptr) const;
+		accessor clone(const schema_entry *e, const_prop_ptr member_ptr) const override;
 
-		virtual void destroy(const_prop_ptr p) const
+		void destroy(const_prop_ptr p) const override
 		{
 			throw not_implemented_error("destroy (abstract class!)");
 		}
 
-		virtual tstring to_string(const schema_entry *propertyAccessInfo, const_prop_ptr member_ptr)
+		tstring to_string(const schema_entry *propertyAccessInfo, const_prop_ptr member_ptr) override
 		{
 			throw not_implemented_error("to_string");
 		}
-		virtual size_t from_string(const schema_entry *propertyAccessInfo, const tstring &value, prop_ptr member_ptr)
+		size_t from_string(const schema_entry *propertyAccessInfo, const tstring &value, prop_ptr member_ptr) override
 		{
 			throw not_implemented_error("from_string");
 		}
 
-		virtual bool has_schema() const { return false; }
-		virtual const schema_base *get_schema() const { return 0; }
+		bool has_schema() const override { return false; }
+		const schema_base *get_schema() const override { return nullptr; }
 	};
 
 	/** Basic value characteristics, determine if it can be copied, compared etc...
@@ -594,45 +594,45 @@ namespace litwindow {
 			:type_name(_type_name), registrar(r)
 		{}
 		//const prop_type_registrar *get_registrar() const { return registrar; }
-		std::string get_type_name() const { return type_name; }
-		const std::type_info& get_typeid() const { return typeid(Value); }
+		std::string get_type_name() const override { return type_name; }
+		const std::type_info& get_typeid() const override { return typeid(Value); }
 		const_prop_ptr get_any_data(const std::any& v) const override
 		{
 			return std::any_cast<Value>(&v);
 		}
-		virtual bool has_copy() const { return value_traits_t<Value>().has_copy(); }
+		bool has_copy() const override { return value_traits_t<Value>().has_copy(); }
 		virtual void get_value(Value &v, const schema_entry *e, const_prop_ptr member_ptr) const = 0;
 		virtual const Value *get_ptr(const schema_entry *e, const_prop_ptr member_ptr) const = 0;
 		const_prop_ptr get_prop_ptr(const schema_entry* e, const_prop_ptr member_ptr) const override
 		{
 			return const_prop_ptr(get_ptr(e, member_ptr));
 		}
-		virtual size_t get_sizeof(const schema_entry *e) const = 0;
+		size_t get_sizeof(const schema_entry *e) const override = 0;
 		virtual Value *get_ptr(const schema_entry *e, prop_ptr member_ptr) const = 0;
 		virtual void set_value(const Value &v, const schema_entry *e, prop_ptr member_ptr) = 0;
-		virtual void from_accessor(const schema_entry *e, const const_accessor &a, prop_ptr member_ptr);
+		void from_accessor(const schema_entry *e, const const_accessor &a, prop_ptr member_ptr) override;
 
-		virtual bool is_int() const
+		bool is_int() const override
 		{
 			return false;
 		}
-		virtual int to_int(const schema_entry *propertyAccessInfo, const_prop_ptr member_ptr) { throw not_implemented_error("to_int"); }
-		virtual void from_int(const schema_entry *propertyAccessInfo, int value, prop_ptr member_ptr) { throw not_implemented_error("from_int"); }
+		int to_int(const schema_entry *propertyAccessInfo, const_prop_ptr member_ptr) override { throw not_implemented_error("to_int"); }
+		void from_int(const schema_entry *propertyAccessInfo, int value, prop_ptr member_ptr) override { throw not_implemented_error("from_int"); }
 
-		virtual const schema_entry *get_schema_entry()
+		const schema_entry *get_schema_entry() override
 		{
 			static schema_entry the_entry(size_t(0u), this, "this");
 			return &the_entry;
 		}
 
-		virtual prop_ptr create() const
+		prop_ptr create() const override
 		{
 			return new Value;
 		}
 
-		virtual accessor clone(const schema_entry *e, const_prop_ptr member_ptr) const;
+		accessor clone(const schema_entry *e, const_prop_ptr member_ptr) const override;
 
-		virtual void destroy(const_prop_ptr p) const
+		void destroy(const_prop_ptr p) const override
 		{
 			delete static_cast<Value*>(const_cast<void*>(p));
 		}
@@ -683,7 +683,7 @@ namespace litwindow {
 	template <class Value>
 	class converter:public converter_value_base<Value>
 	{
-		typedef converter_value_base<Value> inherited;
+		using inherited = converter_value_base<Value>;
 
 	protected:
 		//! cast the untyped pointer into a pointer to 'Value'
@@ -699,27 +699,27 @@ namespace litwindow {
 		converter(const std::string &_type_name, const prop_type_registrar *r)
 			:converter_value_base<Value>(_type_name, r)
 		{}
-		virtual void get_value(Value &v, const schema_entry *, const_prop_ptr member_ptr) const
+		void get_value(Value &v, const schema_entry *, const_prop_ptr member_ptr) const override
 		{
 			v=member(member_ptr);
 		}
-		virtual const Value *get_ptr(const schema_entry *, const_prop_ptr member_ptr) const
+		const Value *get_ptr(const schema_entry *, const_prop_ptr member_ptr) const override
 		{
 			return &member(member_ptr);
 		}
-		virtual size_t get_sizeof(const schema_entry *) const
+		size_t get_sizeof(const schema_entry *) const override
 		{
 			return sizeof(Value);
 		}
-		virtual Value *get_ptr(const schema_entry *, prop_ptr member_ptr) const
+		Value *get_ptr(const schema_entry *, prop_ptr member_ptr) const override
 		{
 			return &member(member_ptr);
 		}
-		virtual void set_value(const Value &v, const schema_entry *e, prop_ptr member_ptr)
+		void set_value(const Value &v, const schema_entry *e, prop_ptr member_ptr) override
 		{
 			member(member_ptr)=v;
 		}
-		bool is_int() const
+		bool is_int() const override
 		{
 			return false;
 		}
@@ -728,7 +728,7 @@ namespace litwindow {
 			not_implemented(inherited::method_name("to_int"));
 			return 0;
 		}
-		int to_int(const schema_entry *propertyAccessInfo, const_prop_ptr member_ptr)
+		int to_int(const schema_entry *propertyAccessInfo, const_prop_ptr member_ptr) override
 		{
 			return to_int(member(member_ptr));
 		}
@@ -736,19 +736,19 @@ namespace litwindow {
 		{
 			not_implemented(inherited::method_name("from_int"));
 		}
-		void from_int(const schema_entry *propertyAccessInfo, int value, prop_ptr member_ptr)
+		void from_int(const schema_entry *propertyAccessInfo, int value, prop_ptr member_ptr) override
 		{
 			from_int(value, member(member_ptr));
 		}
 
-		bool is_enum() const { return false; }
+		bool is_enum() const override { return false; }
 		//std::vector<tstring> get_enum_values() const
 		//{
 		//    not_implemented(inherited::method_name("get_enum_values"));
 		//    return std::vector<tstring>();
 		//}
 
-		tstring to_string(const schema_entry *entry, const_prop_ptr member_ptr)
+		tstring to_string(const schema_entry *entry, const_prop_ptr member_ptr) override
 		{
 			return to_string(member(member_ptr));
 		}
@@ -757,13 +757,13 @@ namespace litwindow {
 			not_implemented(inherited::method_name("from_string"));
 			return 0;
 		}
-		size_t from_string(const schema_entry *entry, const tstring &value, prop_ptr member_ptr)
+		size_t from_string(const schema_entry *entry, const tstring &value, prop_ptr member_ptr) override
 		{
 			return from_string(value, member(member_ptr));
 		}
 
-		bool has_schema() const { return false; }
-		const schema_base *get_schema() const { return 0; }
+		bool has_schema() const override { return false; }
+		const schema_base *get_schema() const override { return nullptr; }
 	private:
 		/** Convert the value @p v to a std::string.
 		@note THIS IS NOT A VIRTUAL FUNCTION! If you derive from converter and must override 'to_string',
@@ -841,23 +841,23 @@ namespace litwindow {
 	template <typename ELEMENT>
 	class c_vector_type_base:public converter<ELEMENT>
 	{
-		typedef converter<ELEMENT> inherited;
+		using inherited = converter<ELEMENT>;
 	public:
 		c_vector_type_base(const std::string &name, const prop_type_registrar *r)
 			:converter<ELEMENT>(name, r)
 		{
 		}
-		tstring to_string(const schema_entry *entry, const_prop_ptr member_ptr)
+		tstring to_string(const schema_entry *entry, const_prop_ptr member_ptr) override
 		{
 			throw not_implemented(inherited::method_name("to_string"));
 			return tstring();
 		}
-		size_t from_string(const schema_entry *, const tstring &, prop_ptr)
+		size_t from_string(const schema_entry *, const tstring &, prop_ptr) override
 		{
 			throw not_implemented(inherited::method_name("from_string"));
 			return tstring();
 		}
-		bool is_c_vector() const { return true; }
+		bool is_c_vector() const override { return true; }
 	};
 
 	/** Explicit converter::to_string specialization for c_str() types.
@@ -994,7 +994,7 @@ namespace litwindow {
 	class schema
 	{
 		static const char *sm_class_name;
-		typedef Value PROPCLASS;
+		using PROPCLASS = Value;
 		static schema_base LWBASE_DLL_EXPORT *_init_schema();
 	public:
 		static LWBASE_DLL_EXPORT const schema_base &get_schema();
@@ -1011,13 +1011,13 @@ namespace litwindow {
 	class schema_base
 	{
 		//friend class schema;
-		typedef std::vector<schema_entry> schema_vector;
+		using schema_vector = std::vector<schema_entry>;
 		mutable concrete_factory_base *the_factory;
 		/// schema hold the schema_entries for this aggregate only. Inherited members are not included.
 		schema_vector this_schema;
 		schema_entry this_schema_entry;
 	public:
-		schema_base(const schema_entry &e):this_schema_entry(e),classname(0),the_factory(0) {}
+		schema_base(const schema_entry &e):this_schema_entry(e),classname(nullptr),the_factory(nullptr) {}
 		~schema_base()
 		{
 			free_strings();
@@ -1032,7 +1032,7 @@ namespace litwindow {
 		}
 		void LWBASE_API init(const schema_entry *staticArray, const char *aClassName);
 
-		typedef schema_vector::const_iterator const_iterator;
+		using const_iterator = schema_vector::const_iterator;
 		const_iterator begin() const { return this_schema.begin(); }
 		const_iterator end() const { return this_schema.end(); }
 		size_t size() const { return this_schema.size(); }
