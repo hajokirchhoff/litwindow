@@ -102,7 +102,7 @@ namespace litwindow {
 			bool timestamp, level, component, topic;
 			typename _Stream::char_type sep;
 			entry_formatter()
-				:timestamp(true),level(true),component(true),topic(true),sep(details::sep<_Stream::char_type>())
+				:timestamp(true),level(true),component(true),topic(true),sep(details::sep<typename _Stream::char_type>())
 			{}
 			void operator()(_Stream &o, const _Entry &e) const
 			{
