@@ -220,11 +220,11 @@ public:
 	}
     container_iterator_imp_base *get_begin(const schema_entry *se, prop_ptr member_ptr) const
     {
-        return make_container_iterator<Container, Container::iterator, Container::value_type>(this->member(member_ptr).begin());
+        return make_container_iterator<Container, typename Container::iterator, typename Container::value_type>(this->member(member_ptr).begin());
     }
     container_iterator_imp_base *get_end(const schema_entry *se, prop_ptr member_ptr) const
     {
-        return make_container_iterator<Container, Container::iterator, Container::value_type>(this->member(member_ptr).end());
+        return make_container_iterator<Container, typename Container::iterator, typename Container::value_type>(this->member(member_ptr).end());
     }
 };
 

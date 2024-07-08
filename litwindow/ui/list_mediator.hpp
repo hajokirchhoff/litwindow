@@ -417,7 +417,7 @@ namespace litwindow {
 			template <typename Fnc>
 			void for_each_selected(Fnc f) const
 			{
-				m_uicontrol_policies.for_each_selected(m_uicontrol, bind(f, boost::placeholders::_1));
+				m_uicontrol_policies.for_each_selected(m_uicontrol, boost::bind(f, boost::placeholders::_1));
 			}
 			template <typename ResultSet, typename Fnc>
 			void visit(ResultSet* rc, size_t idx, Fnc f) const
