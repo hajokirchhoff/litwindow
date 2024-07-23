@@ -179,6 +179,12 @@ namespace litwindow {
         return i==g_prop_type_map().end() ? 0 : i->second;
     }
 
+    prop_t LWBASE_API get_prop_type_by_typeid(const std::type_info &id)
+    {
+        map<string, prop_t>::const_iterator i = std::find_if(g_prop_type_map().begin(), g_prop_type_map().end(), [&id](const auto& value) {return value.second->get_typeid() == id; });
+        return i==g_prop_type_map().end() ? 0 : i->second;
+    }
+
     bool LWBASE_API register_prop_type(prop_t type)
     {
         //litwindow::lw_log() << "registering " << type->get_type_name().c_str() << endl;
