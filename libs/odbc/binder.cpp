@@ -24,6 +24,15 @@ using boost::uuids::uuid;
 using namespace std;
 
 template <>
+litwindow::tstring litwindow::converter<TIMESTAMP_STRUCT>::to_string(const TIMESTAMP_STRUCT& v)
+{
+	tstringstream str;
+	str << setfill(_T('0')) << setw(4) << v.year << _T('-') << setw(2) << (unsigned)v.month << _T('-') << setw(2) << (unsigned)v.day << _T(' ') << setw(2) << (unsigned)v.hour << _T(':') << setw(2) << (unsigned)v.minute << _T(':') << setw(2) << (unsigned)v.second << _T('.') << v.fraction;
+	return str.str();
+}
+LWL_IMPLEMENT_ACCESSOR(TIMESTAMP_STRUCT);
+
+template <>
 litwindow::tstring litwindow::converter<TIME_STRUCT>::to_string(const TIME_STRUCT &v)
 {
 	basic_stringstream<TCHAR> out;
@@ -915,15 +924,6 @@ static register_data_type<wstring> tbind_wstring(SQL_C_WCHAR, SQL_WVARCHAR, 0, &
 
 };
 
-using namespace std;
-template <>
-litwindow::tstring litwindow::converter<TIMESTAMP_STRUCT>::to_string(const TIMESTAMP_STRUCT &v)
-{
-	tstringstream str;
-	str << setfill(_T('0')) << setw(4) << v.year << _T('-') << setw(2) << (unsigned)v.month << _T('-') << setw(2) << (unsigned)v.day << _T(' ') << setw(2) << (unsigned)v.hour << _T(':') << setw(2) << (unsigned)v.minute << _T(':') << setw(2) << (unsigned)v.second << _T('.') << v.fraction;
-	return str.str();
-}
-LWL_IMPLEMENT_ACCESSOR(TIMESTAMP_STRUCT);
 
 LWL_IMPLEMENT_OPTIONAL(double);
 LWL_IMPLEMENT_OPTIONAL(long);

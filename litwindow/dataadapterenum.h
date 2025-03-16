@@ -174,11 +174,12 @@ namespace litwindow {
     inline void _FORCE_DLL_EXPORT *::litwindow::prop_type_object<tp >::__return_registrar() { return (void*)&____register_prop_t; } \
     /*template <>    \
 the_decl_spec ::litwindow::prop_t     litwindow::prop_type_object<tp >::get(const tp *)*/    \
-    the_decl_spec ::litwindow::prop_t     get_prop_type_data_adapter_mechanism(const tp*)    \
-{    \
-    static litwindow::converter_enum<tp > theConverter(#tp, &litwindow::prop_type_object<tp>::____register_prop_t);    \
-    return &theConverter;    \
-}\
+    template <> litwindow::prop_t     the_decl_spec litwindow::get_prop_type_data_adapter_mechanism(const tp*)    \
+    {    \
+        static litwindow::converter_enum<tp > theConverter(#tp, &litwindow::prop_type_object<tp>::____register_prop_t);    \
+        return &theConverter;    \
+    }\
+	template litwindow::prop_t the_decl_spec litwindow::get_prop_type_data_adapter_mechanism<tp>(const tp*); \
     const litwindow::concrete_enum_adapter<tp> &litwindow::converter_enum<tp>::my_adapter() \
     {\
     static litwindow::concrete_enum_adapter<tp> adapter=litwindow::enum_adapter()+\
