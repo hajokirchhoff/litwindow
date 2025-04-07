@@ -86,6 +86,9 @@ namespace litwindow {
 	using prop_ptr = void *;
 	using const_prop_ptr = const void *;
 
+
+	template <typename T> prop_t get_prop_type_data_adapter_mechanism(const T*);
+
 	/// this structure holds enough bytes storage to store a member pointer
 	const size_t _member_pointer_size=sizeof (void (std::exception::*)(void));
 	struct _member_pointer_storage
@@ -903,15 +906,11 @@ namespace litwindow {
 	@returns A pointer to a static instance of a converter<Value> object.
 	*/
 
-	/** MSVC6 workaround struct to allow get_prop_type. See comment at the top of dataadapterimp.h for explanation.
-	*/
-	//extern ::litwindow::prop_t get_prop_type_data_adapter_mechanism(const tp*);
 	template <class Value>
 	struct prop_type_object
 	{
-		static prop_t get(const Value *t=0)
+		inline static prop_t get(const Value* t = 0)
 		{ 
-			extern prop_t get_prop_type_data_adapter_mechanism(const Value *);
 			return get_prop_type_data_adapter_mechanism(t); 
 		}
 		static prop_type_registrar ____register_prop_t;
@@ -1187,17 +1186,19 @@ namespace litwindow {
 //! \internal This macro is required to implement the neccessary logic so that a type
 //! is recognized by the litwindow mechanism.
 #define IMPLEMENT_ADAPTER_TYPE_ds(tp, the_decl_spec)    \
+	template <> litwindow::prop_t litwindow::get_prop_type_data_adapter_mechanism(const tp*)    \
+	{    \
+	static litwindow::converter<tp > theConverter(#tp, &litwindow::prop_type_object<tp>::____register_prop_t);    \
+	return &theConverter;    \
+	} \
+	template ::litwindow::prop_t the_decl_spec ::litwindow::get_prop_type_data_adapter_mechanism<tp>(const tp*);    \
 	template <> \
 	::litwindow::prop_type_registrar litwindow::prop_type_object<tp >::____register_prop_t(litwindow::prop_type_object<tp >::get(0)); \
 	template <> \
 	inline void _FORCE_DLL_EXPORT *::litwindow::prop_type_object<tp >::__return_registrar() { return (void*)&____register_prop_t; } \
 	/*template <>    \
-	the_decl_spec ::litwindow::prop_t     litwindow::prop_type_object<tp >::get(const tp *)*/    \
-	the_decl_spec ::litwindow::prop_t     get_prop_type_data_adapter_mechanism(const tp*)    \
-{    \
-	static litwindow::converter<tp > theConverter(#tp, &litwindow::prop_type_object<tp>::____register_prop_t);    \
-	return &theConverter;    \
-}
+	the_decl_spec ::litwindow::prop_t     litwindow::prop_type_object<tp >::get(const tp *)*/ \
+	template struct the_decl_spec litwindow::prop_type_object<tp>;
 
 //-----------------------------------------------------------------------------------------------------------//
 //-----------------------------------------------------------------------------------------------------------//
@@ -1205,7 +1206,7 @@ namespace litwindow {
 //! declare a data adapter for a type.
 //! Used to export a data adapter from a DLL. Not neccessary when working with static libraries.
 #define LWL_DECLARE_ACCESSOR(tp, the_decl_spec)    \
-	extern the_decl_spec ::litwindow::prop_t get_prop_type_data_adapter_mechanism(const tp*); \
+	/*extern the_decl_spec ::litwindow::prop_t get_prop_type_data_adapter_mechanism(const tp*);*/ \
 	/*template <> ::litwindow::prop_t litwindow::prop_type_object<tp >::get(const tp*) { return get_prop_type_data_adapter_mechanism(tp); }*/
 
 //! implement the data adapter for a type.
@@ -1236,7 +1237,7 @@ litwindow::tstring litwindow::converter<boost::optional<tp>>::to_string(const bo
 	::litwindow::prop_type_registrar litwindow::prop_type_object<tp >::____register_prop_t(litwindow::prop_type_object<tp >::get(0)); \
 	template <> \
 	void _FORCE_DLL_EXPORT *::litwindow::prop_type_object<tp >::__return_registrar() { return (void*)&____register_prop_t; } \
-	LWBASE_DLL_EXPORT ::litwindow::prop_t     get_prop_type_data_adapter_mechanism(const tp*)    \
+	template <> litwindow::prop_t     LWBASE_DLL_EXPORT litwindow::get_prop_type_data_adapter_mechanism(const tp*)    \
 	{    \
 		static litwindow::converter_abstract_base<tp > theConverter(#tp, &litwindow::prop_type_object<tp>::____register_prop_t);    \
 		return &theConverter;    \

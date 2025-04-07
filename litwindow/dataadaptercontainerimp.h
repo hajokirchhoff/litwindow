@@ -236,11 +236,12 @@ public:
 #define LWL_IMPLEMENT_CONTAINER(tp) \
     template <> \
     litwindow::prop_type_registrar litwindow::prop_type_object<tp >::____register_prop_t(litwindow::prop_type_object<tp >::get(0)); \
-	LWBASE_DLL_EXPORT ::litwindow::prop_t     get_prop_type_data_adapter_mechanism(const tp*)    \
+	template <> litwindow::prop_t     LWBASE_DLL_EXPORT litwindow::get_prop_type_data_adapter_mechanism(const tp*)    \
 	{    \
 		static litwindow::container_converter<tp > theConverter(#tp, &litwindow::prop_type_object<tp>::____register_prop_t);    \
 		return &theConverter;    \
 	} \
+	template litwindow::prop_t litwindow::get_prop_type_data_adapter_mechanism<tp>(const tp*);
 
 #define LWL_IMPLEMENT_NONCOPYABLE_CONTAINER(tp) \
     LWL_IMPLEMENT_CONTAINER(tp) \
@@ -255,17 +256,12 @@ public:
 #define LWL_IMPLEMENT_CONST_CONTAINER(tp) \
 	template <> \
 	litwindow::prop_type_registrar litwindow::prop_type_object<tp >::____register_prop_t(litwindow::prop_type_object<tp >::get(0)); \
-	LWBASE_DLL_EXPORT ::litwindow::prop_t     get_prop_type_data_adapter_mechanism(const tp*)    \
-{    \
-	static litwindow::const_container_converter<tp > theConverter(#tp, &litwindow::prop_type_object<tp>::____register_prop_t);    \
-	return &theConverter;    \
-} \
-/*template <> \
-::litwindow::prop_t LWBASE_DLL_EXPORT ::litwindow::prop_type_object<tp >::get(const tp *) \
-    { \
-        static litwindow::container_converter<tp > theConverter(#tp, &____register_prop_t); \
-        return &theConverter; \
-    }*/
+	template <> litwindow::prop_t     LWBASE_DLL_EXPORT litwindow::get_prop_type_data_adapter_mechanism(const tp*)    \
+    {    \
+	    static litwindow::const_container_converter<tp > theConverter(#tp, &litwindow::prop_type_object<tp>::____register_prop_t);    \
+	    return &theConverter;    \
+    } \
+	template litwindow::prop_t litwindow::get_prop_type_data_adapter_mechanism<tp>(const tp*);
 
 #define DECLARE_ADAPTER_CONTAINER         LWL_DECLARE_CONTAINER
 #define IMPLEMENT_ADAPTER_CONTAINER LWL_IMPLEMENT_CONTAINER
