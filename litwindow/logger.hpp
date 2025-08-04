@@ -525,7 +525,6 @@ namespace litwindow {
 			char_type	*m_begin_data;
 			entry		*m_current_entry;
 			entry		*current_entry() { if (m_current_entry==0) begin_entry(); return m_current_entry; }
-			void		current_entry(entry * val) { m_current_entry = val; }
 			sink_type	*m_sink;
 			allocator_type m_allocator;
 			_Strstate m_state{};
@@ -591,9 +590,13 @@ namespace litwindow {
 					_Mysb::setp(_Newptr, _Newptr+_Newsize);
 				} else {
 					_Elem *_Oldptr = _Mysb::pbase();
-					/* TODO: m_begin_data und m_current_entry müssen korrigiert werden,
-					* wenn der Speicher hier neu alloziert wird!!!!
+					/* m_begin_data and m_current_entry need to be corrected as well,
+					* because the memory is being reallocated and moved.
 					**/
+					auto new_begin_offset = (_Elem*)m_begin_data - _Oldptr;
+					auto new_current_entry_offset = (_Elem*)m_current_entry - _Oldptr;
+					m_begin_data = _Newptr + new_begin_offset;
+					m_current_entry = (entry*)(_Newptr + new_current_entry_offset);
 #if defined(_MSC_VER) && _MSC_VER<1700
 					std::_Traits_helper::copy_s<_Traits>(_Newptr, _Newsize, _Oldptr, _Oldsize);
 #else
