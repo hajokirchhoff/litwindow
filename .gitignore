@@ -101,3 +101,7 @@ litwindow/ui/list_mediator.cpp
 /libs/lwwx/samples/odbc_list_mediator/x64/Debug
 /libs/lwwx/samples/odbc_list_mediator/x64/Release
 /vcpkg_installed/*
+/.vs
+/libs/lwbase/.vs
+/libs/lwbase/out
+/out
