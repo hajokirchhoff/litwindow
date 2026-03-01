@@ -9,7 +9,9 @@
     { "name": "boost-lexical-cast" },
     { "name": "boost-bind" },
     { "name": "boost-logic" },
-    { "name": "boost-test" }
+    { "name": "boost-test" },
+    { "name": "boost-thread" },
+    { "name": "boost-serialization" }
   ],
   "$comment": "The last 1.78.0 boost version"
 }
