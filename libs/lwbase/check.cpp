@@ -15,7 +15,7 @@
 
 namespace litwindow {
 	namespace checks {
-		using std::endl;
+		using namespace std;
 
 		struct ExceptionContext
 		{
@@ -125,7 +125,7 @@ namespace litwindow {
 		}
 #endif
 
-		std::string LWBASE_API GetExceptionContext(bool resetContext/*=true*/)
+		string LWBASE_API GetExceptionContext(bool resetContext/*=true*/)
 		{
 			return theContext.GetExceptionContext(resetContext);
 		}
@@ -137,7 +137,7 @@ namespace litwindow {
 			return rc;
 		}
 
-		string GetErrorMessage(std::exception &e)
+		string GetErrorMessage(exception &e)
 		{
 			return GetErrorMessage(e.what());
 		}

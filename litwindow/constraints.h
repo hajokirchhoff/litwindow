@@ -70,8 +70,8 @@ public:
 		,m_source(source)
 	{
 	}
-	virtual void do_assign(symbol_table_interface *);
-	virtual value_assign_base *get_undo();
+	virtual void do_assign(symbol_table_interface *) override;
+	virtual value_assign_base *get_undo() override;
 	const_accessor &source()
 	{
 		return m_source;
@@ -80,7 +80,7 @@ public:
 	{
 		return m_source;
 	}
-	bool will_modify(symbol_table_interface *) const
+	bool will_modify(symbol_table_interface *) const override
 	{
 		return m_source.to_string()!=m_target.to_string();
 	}
@@ -89,7 +89,7 @@ protected:
 };
 
 /** Result object for rules that return the result in string form */
-class LWBASE_API value_assign_string:public value_assign_base
+class value_assign_string:public value_assign_base
 {
 public:
 	value_assign_string(const accessor &target, const tstring &value, const string &name=string())
@@ -100,20 +100,20 @@ public:
 	{
 		return m_value;
 	}
-	void do_assign(symbol_table_interface *)
+	void do_assign(symbol_table_interface *) override
 	{
 		m_target.from_string(m_value);
 	}
-	bool will_modify(symbol_table_interface *) const
+	bool will_modify(symbol_table_interface *) const override
 	{
 		return m_target.to_string()!=m_value;
 	}
 	/// return a value_assign_base object that can undo this object
-	value_assign_base *get_undo()
+	value_assign_base *get_undo() override
 	{
 		return new value_assign_string(m_target, m_target.to_string());
 	}
-	bool equal_to(const value_assign_base *v) const;
+	LWBASE_API bool equal_to(const value_assign_base *v) const;
 protected:
 	tstring m_value;
 	string m_name;
@@ -140,15 +140,15 @@ public:
 	{
 		m_undo_value.destroy();
 	}
-	void do_assign(symbol_table_interface *s)
+	void do_assign(symbol_table_interface *s) override
 	{
 		typed_target.set(the_expr.evaluate(s));
 	}
-	bool will_modify(symbol_table_interface *s) const
+	bool will_modify(symbol_table_interface *s) const override
 	{
 		return typed_target.get()!=the_expr.evaluate(s);
 	}
-	value_assign_base *get_undo()
+	value_assign_base *get_undo() override
 	{
 		m_undo_value=target().clone();
 		return new value_assign_accessor(target(), m_undo_value);
@@ -169,7 +169,6 @@ public:
 	}
 	rule_base(const accessor &t)
 		:m_target(t)
-		,m_mirror(0)
 	{
 		if (!t.is_valid())
 			throw lwbase_error("target accessor is not valid!");
@@ -225,7 +224,7 @@ public:
 
 protected:
 	accessor m_target;
-	rule_base *m_mirror;
+	rule_base* m_mirror{ nullptr };
 };
 
 /** Simple assign rules of the form  target = source.
@@ -244,16 +243,16 @@ public:
 	-   source is an accessor
 	-   neither target nor source is an accessor
 	*/
-	value_assign_base* evaluate(const constraint_solver *s) const;
+	value_assign_base* evaluate(const constraint_solver *s) const override;
 	const const_accessor &source() const
 	{
 		return m_source;
 	}
-	dependency_t is_dependent_on(const const_accessor &a, symbol_table_interface *) const
+	dependency_t is_dependent_on(const const_accessor &a, symbol_table_interface *) const override
 	{
 		return a.is_alias_of(source()) ? static_dependency : no_dependency;
 	}
-	tstring name() const;
+	tstring name() const override;
 protected:
 	const_accessor m_source;
 };
@@ -284,7 +283,7 @@ public:
 
 /** Rules containing expressions (expr.h)
 */
-class LWBASE_API rule_expr:public rule_base
+class rule_expr:public rule_base
 {
 	rule_expr_assign_abstract *the_rule;
 	rule_expr(const rule_expr &);
@@ -299,15 +298,15 @@ public:
 	{
 		delete the_rule;
 	}
-	virtual value_assign_base* evaluate(const constraint_solver *s) const
+	LWBASE_API virtual value_assign_base* evaluate(const constraint_solver *s) const override
 	{
 		return the_rule->evaluate(s);
 	}
-	dependency_t is_dependent_on(const const_accessor &a, symbol_table_interface *v) const
+	dependency_t is_dependent_on(const const_accessor &a, symbol_table_interface *v) const override
 	{
 		return the_rule->is_dependent_on(a, v);
 	}
-	tstring name() const
+	tstring name() const override
 	{
 		return m_name;
 	}
@@ -331,7 +330,7 @@ class rule
 {
 public:
 	rule(TargetValue &_target)
-		:target(make_accessor(_target)), _rule(0)
+		:target(make_accessor(_target)), _rule(nullptr)
 	{}
 	rule(const accessor &_target)
 		:target(_target), rule(0)
@@ -370,7 +369,7 @@ typedef set<const_accessor> set_of_accessors_t;
 typedef map<tstring, set_of_rules_t> group_map_t;
 
 
-class LWBASE_API constraint_solver
+class constraint_solver
 {
 public:
 
@@ -384,8 +383,8 @@ public:
 	}
 	//@{
 	/// add the rule to the specified group(s)
-	void add_to_group(rule_base *r, const tstring &group);
-	void add_to_group(rule_base *r, const tstring &group, const tstring &group2, const tstring &group3=tstring());
+	LWBASE_API void add_to_group(rule_base *r, const tstring &group);
+	LWBASE_API void add_to_group(rule_base *r, const tstring &group, const tstring &group2, const tstring &group3=tstring());
 	//@}
 	constraint_solver &operator << (rule_base *r)
 	{
@@ -419,31 +418,31 @@ public:
 	}
 
 	/// Set a value for a target of the solver and mark all dependent rules as unsolved.
-	void assign_value(value_assign_base *new_value);
+	LWBASE_API void assign_value(value_assign_base *new_value);
 	void assign_value(const accessor &target, const tstring &value)
 	{
 		assign_value(new value_assign_string(target, value));
 	}
 
 	/// evaluate the rule
-	value_assign_base *evaluate(rule_base *b);
+	LWBASE_API value_assign_base *evaluate(rule_base *b);
 	/// execute the rule unconditionally
-	void execute_immediate(rule_base *b);
+	LWBASE_API void execute_immediate(rule_base *b);
 
-	void mark_value_changed(const const_accessor &target, bool recursive);
-	void mark_group_changed(const tstring &group);
+	LWBASE_API void mark_value_changed(const const_accessor &target, bool recursive);
+	LWBASE_API void mark_group_changed(const tstring &group);
 
 	/// Solve the rule set.
-	void solve();
+	LWBASE_API void solve();
 
 	/// Execute all rules once, beginning with the first rule until the last rule.
-	void execute_all_immediate();
+	LWBASE_API void execute_all_immediate();
 
 	/// Clear the solver. Erase all rules, values etc...
-	void clear();
+	LWBASE_API void clear();
 
 	/// Reset all calculated values, but leave rules intact.
-	void reset();
+	LWBASE_API void reset();
 
 	/// disable the solver. Changes made to variables are not propagated.
 	void disable()
@@ -543,7 +542,7 @@ protected:
 		symbol_map_t m_map;
 	public:
 		/// Symbol table lookup implementation.
-		accessor            lookup_variable(const string &name);
+		accessor            lookup_variable(const string &name) override;
 	};
 	symbol_table_interface  *m_symbol_table;
 public:
@@ -567,19 +566,19 @@ public:
 		:typed_target(target), the_expr(e)
 	{
 	}
-	value_assign_base *evaluate(const constraint_solver *s) const
+	value_assign_base *evaluate(const constraint_solver *s) const override
 	{
 		if (typed_target.is_valid())
 			return new value_assign_expr<E>(typed_target, the_expr);
 		if (is_type<accessor>(typed_target.get_accessor())) {
 			// the target is itself an accessor
-			return 0;
+			return nullptr;
 		}
 		typename E::value_type v=the_expr.evaluate(s->get_symbol_table());
 		tstring value=make_const_accessor(v).to_string();
 		return new value_assign_string(typed_target.get_accessor(), value) ;
 	}
-	dependency_t is_dependent_on(const const_accessor &a, symbol_table_interface *v) const
+	dependency_t is_dependent_on(const const_accessor &a, symbol_table_interface *v) const override
 	{
 		return the_expr.is_dependent_on(a, v);
 	}
