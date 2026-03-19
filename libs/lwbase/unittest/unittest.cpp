@@ -11,6 +11,7 @@
 #define new DEBUG_NEW
 #endif
 
+#ifdef NOT
 int main( int argc, char **argv)
 {
 #ifdef _DEBUG
@@ -25,3 +26,4 @@ int main( int argc, char **argv)
 
   return success ? 0 : 1;
 }
+#endif

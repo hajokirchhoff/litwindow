@@ -7,7 +7,7 @@
  * $Id: wrapping_strstream_test.cpp,v 1.1.1.1 2006/01/16 14:36:45 Hajo Kirchhoff Exp $
  */
 #include "stdafx.h"
-
+#include <boost/test/unit_test.hpp>
 #include "litwindow/logging.h"
 #include "fixtures.h"
 
@@ -15,78 +15,72 @@
 #define new DEBUG_NEW
 #endif
 
-USING_LITWINDOW_NS
+using namespace litwindow;
 using namespace std;
 
-class WrappingTests:public CppUnit::TestFixture 
-{
-public:
-    TCHAR ten_chars[11];
-    void setUp()
-    {
-        _tcscpy(ten_chars, _T("0123456789"));
-    }
-    void tearDown()
-    {
-    }
-
-    void basicTests()
-    {
-        wrapping_tostrstream test_out;
-        test_out << _T("This is a test");
-        tstring result;
-        test_out.copy(result);
-        CPPUNIT_ASSERT_EQUAL(tstring(_T("This is a test")), result);
-    }
-
-    void wrapOnceTests()
-    {
-        wrapping_tostrstream test_out(32);
-        test_out << _T('A') << ten_chars << _T('B') << ten_chars << _T('C') << ten_chars << _T('D') << ten_chars << _T('E');
-        tstring result;
-        test_out.copy(result);
-        CPPUNIT_ASSERT_EQUAL(tstring(_T("123456789C0123456789D0123456789E")), result);
-    }
-
 static tstring last_line;
+
 static void printit(const TCHAR *line)
 {
     last_line=line;
 }
 
-    void redirectTests()
+struct WrappingTestsFixture
+{
+    TCHAR ten_chars[11];
+
+    WrappingTestsFixture()
     {
-        wrapping_tostrstream test_out(32);
-        static_redirect_tstreambuf rd(printit);
-        rd.insert(test_out);
-        last_line.erase();
-        test_out << _T("Hallo") << endl;
-        CPPUNIT_ASSERT_EQUAL(tstring(_T("Hallo")), last_line);
-        tstring result;
-        test_out.copy(result);
-        CPPUNIT_ASSERT_EQUAL(tstring(_T("Hallo\n")), result);
+        _tcscpy(ten_chars, _T("0123456789"));
     }
 
-    void testTypeRegistration()
+    ~WrappingTestsFixture()
     {
-        tstring result;
-        lw_log().copy(result);
-        lw_log().clear_buffer();
-        tstring expected(_T("registering "));
-        CPPUNIT_ASSERT_EQUAL(expected, result.substr(0, expected.length()));
-        lw_log().copy(result);
-        CPPUNIT_ASSERT_EQUAL(tstring(), result);
     }
-
-    CPPUNIT_TEST_SUITE(WrappingTests);
-        CPPUNIT_TEST(basicTests);
-        CPPUNIT_TEST(wrapOnceTests);
-        CPPUNIT_TEST(redirectTests);
-        CPPUNIT_TEST(testTypeRegistration);
-    CPPUNIT_TEST_SUITE_END();
-
 };
 
-tstring WrappingTests::last_line;
+BOOST_FIXTURE_TEST_SUITE(WrappingTests, WrappingTestsFixture)
 
-CPPUNIT_TEST_SUITE_REGISTRATION(WrappingTests);
+BOOST_AUTO_TEST_CASE(basicTests)
+{
+    wrapping_tostrstream test_out;
+    test_out << _T("This is a test");
+    tstring result;
+    test_out.copy(result);
+    BOOST_TEST(result == tstring(_T("This is a test")));
+}
+
+BOOST_AUTO_TEST_CASE(wrapOnceTests)
+{
+    wrapping_tostrstream test_out(32);
+    test_out << _T('A') << ten_chars << _T('B') << ten_chars << _T('C') << ten_chars << _T('D') << ten_chars << _T('E');
+    tstring result;
+    test_out.copy(result);
+    BOOST_TEST(result == tstring(_T("123456789C0123456789D0123456789E")));
+}
+
+BOOST_AUTO_TEST_CASE(redirectTests)
+{
+    wrapping_tostrstream test_out(32);
+    static_redirect_tstreambuf rd(printit);
+    rd.insert(test_out);
+    last_line.erase();
+    test_out << _T("Hallo") << endl;
+    BOOST_TEST(last_line == tstring(_T("Hallo")));
+    tstring result;
+    test_out.copy(result);
+    BOOST_TEST(result == tstring(_T("Hallo\n")));
+}
+
+BOOST_AUTO_TEST_CASE(testTypeRegistration)
+{
+    tstring result;
+    lw_log().copy(result);
+    lw_log().clear_buffer();
+    tstring expected(_T("registering "));
+    BOOST_TEST(result.substr(0, expected.length()) == expected);
+    lw_log().copy(result);
+    BOOST_TEST(result == tstring());
+}
+
+BOOST_AUTO_TEST_SUITE_END()

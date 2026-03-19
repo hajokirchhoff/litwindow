@@ -7,6 +7,7 @@
  * $Id: objectfactorytests.cpp,v 1.1.1.1 2006/01/16 14:36:45 Hajo Kirchhoff Exp $
  */
 #include "stdafx.h"
+#include <boost/test/unit_test.hpp>
 #include <litwindow/dataadapter.h>
 #include "fixtures.h"
 
@@ -14,46 +15,44 @@ using namespace litwindow;
 
 #define new DEBUG_NEW
 
-class ObjectFactoryTests:public CppUnit::TestFixture 
+struct ObjectFactoryTestFixture
 {
-    void testCreateNewObject()
-    {
-        accessor anIntAccessor=make_accessor(anInt);
-        accessor a=create_object(anIntAccessor.get_type());
-        CPPUNIT_ASSERT_EQUAL(true, a.is_int());
-        CPPUNIT_ASSERT_EQUAL(false, a.is_aggregate());
-        CPPUNIT_ASSERT_EQUAL(false, a.is_container());
-        a.from_int(anIntAccessor.to_int());
-        CPPUNIT_ASSERT_EQUAL(789, a.to_int());
-        destroy_object(a);
-    }
-    void testCloneObjects()
-    {
-        accessor a=anIntAccessor.clone();
-        CPPUNIT_ASSERT_EQUAL(789, a.to_int());
-        a.from_int(59);
-        CPPUNIT_ASSERT_EQUAL(59, a.to_int());
-        CPPUNIT_ASSERT_EQUAL(789, anIntAccessor.to_int());
-        a.destroy();
-    }
-public:
-    CPPUNIT_TEST_SUITE(ObjectFactoryTests);
-        CPPUNIT_TEST(testCreateNewObject);
-        CPPUNIT_TEST(testCloneObjects);
-    CPPUNIT_TEST_SUITE_END();
-
-public:
     int anInt;
     accessor anIntAccessor;
 
-    void setUp()
+    ObjectFactoryTestFixture()
     {
-        anInt=789;
-        anIntAccessor=make_accessor(anInt);
+        anInt = 789;
+        anIntAccessor = make_accessor(anInt);
     }
-    void tearDown()
+
+    ~ObjectFactoryTestFixture()
     {
     }
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(ObjectFactoryTests);
+BOOST_FIXTURE_TEST_SUITE(ObjectFactoryTests, ObjectFactoryTestFixture)
+
+BOOST_AUTO_TEST_CASE(testCreateNewObject)
+{
+    accessor anIntAccessor = make_accessor(anInt);
+    accessor a = create_object(anIntAccessor.get_type());
+    BOOST_TEST(a.is_int() == true);
+    BOOST_TEST(a.is_aggregate() == false);
+    BOOST_TEST(a.is_container() == false);
+    a.from_int(anIntAccessor.to_int());
+    BOOST_TEST(a.to_int() == 789);
+    destroy_object(a);
+}
+
+BOOST_AUTO_TEST_CASE(testCloneObjects)
+{
+    accessor a = anIntAccessor.clone();
+    BOOST_TEST(a.to_int() == 789);
+    a.from_int(59);
+    BOOST_TEST(a.to_int() == 59);
+    BOOST_TEST(anIntAccessor.to_int() == 789);
+    a.destroy();
+}
+
+BOOST_AUTO_TEST_SUITE_END()

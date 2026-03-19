@@ -174,7 +174,7 @@ class expr_binary
     E2 e2;
     Op op;
 public:
-    typedef typename Op::result_type value_type;
+    using value_type = typename Op::result_type;
     expr_binary(const E1 &_e1, const E2 &_e2, const Op &_op):e1(_e1),e2(_e2),op(_op) {}
     value_type evaluate(symbol_table_interface *s) const
     {
