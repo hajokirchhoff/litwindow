@@ -36,7 +36,11 @@ namespace {
 namespace {
     void OutputDebug(const TCHAR *str)
     {
-        cout << str << endl;
+#ifdef _UNICODE
+        std::wcout << str << std::endl;
+#else
+        std::cout << str << std::endl;
+#endif
     }
 };
 #pragma message("Modify 'OutputDebug' to send lw_log() messages to your debug device. Example: cout << str;")

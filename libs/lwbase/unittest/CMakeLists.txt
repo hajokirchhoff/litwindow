@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Find Boost Test framework
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+find_package(Boost REQUIRED COMPONENTS unit_test_framework thread serialization)
 
 # Gather all test source files
 file(GLOB TEST_SOURCES "*.cpp")
@@ -16,6 +16,8 @@ target_link_libraries(lwbase_tests
     PRIVATE 
         lwbase 
         Boost::unit_test_framework
+        Boost::thread
+        Boost::serialization
 )
 
 # Add compile definitions

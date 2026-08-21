@@ -50,9 +50,9 @@ struct column_access<RowValue, ColValue (RowValue::*)() const>
 template <typename RowValue, typename Accessor>
 void testtemplate(Accessor a)
 {
-	typedef column_access<RowValue, Accessor>::text_renderer_t text_renderer_t;
+	typedef typename column_access<RowValue, Accessor>::text_renderer_t text_renderer_t;
 	text_renderer_t t;
-	column_access<RowValue>().text(t, a);
+	column_access<RowValue, Accessor>().text(t, a);
 }
 template <typename RowValue, typename ColValue>
 void testtemplate(ColValue (RowValue::*a)() const)

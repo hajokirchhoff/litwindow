@@ -15,6 +15,12 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set(CMAKE_CXX_STANDARD 20)
 endif()
 
+# Enable CTest at the root so Visual Studio's Test Explorer (which discovers
+# tests starting from the top-level build directory) can find tests
+# registered by subdirectories (e.g. libs/lwbase/unittest).
+include(CTest)
+enable_testing()
+
 # Include subprojects
 add_subdirectory("libs/lwbase")
 

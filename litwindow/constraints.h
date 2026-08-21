@@ -333,7 +333,7 @@ public:
 		:target(make_accessor(_target)), _rule(nullptr)
 	{}
 	rule(const accessor &_target)
-		:target(_target), rule(0)
+		:target(_target), _rule(0)
 	{}
 	rule_base *get_rule() const { return _rule; }
 	operator rule_base*() const { return get_rule(); }

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include "litwindow/logger.hpp"
 #include "litwindow/logger/sink.hpp"
 #include "boost/thread/thread.hpp"
@@ -18,13 +18,13 @@ using namespace std;
 template <typename Value>
 struct mem_ptr_lvalue
 {
-	static const bool value = false;
+	static constexpr bool value = false;
 };
 
 template <typename RC, typename Ptr>
 struct mem_ptr_lvalue<RC (Ptr::*)()>
 {
-	static const bool value = true;
+	static constexpr bool value = true;
 	using type = RC;
 };
 

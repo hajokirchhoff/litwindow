@@ -152,8 +152,8 @@ namespace litwindow {
             static const size_t page_size=_Pagesize;
 		public:
 			typedef typename basic_logsink<_Elem>::entries entries;
-            typedef typename entries::entry entry;
-			using basic_logsink<_Elem>::mutex_lock_type;
+			typedef typename entries::entry entry;
+			using mutex_lock_type = typename basic_logsink<_Elem>::mutex_lock_type;
 			using basic_logsink<_Elem>::m_lock;
 
             basic_memory_logsink():m_page_count(0),m_first_entry_index(0),m_next_entry_index(0)
@@ -247,7 +247,7 @@ namespace litwindow {
 		public:
 			class const_iterator
 			{
-				friend class logsink_type;
+				friend logsink_type;
 				page_ptr m_page;
 				typename entries::const_iterator m_i;
 			public:
@@ -263,7 +263,7 @@ namespace litwindow {
 						if (m_page)
 							m_i=m_page->begin();
 						else
-							m_i=entries::const_iterator();
+							m_i=typename entries::const_iterator();
 					}
 					return *this;
 				}

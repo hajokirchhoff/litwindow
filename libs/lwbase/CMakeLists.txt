@@ -25,6 +25,14 @@ add_library(lwbase ${SOURCES})
 
 # Add compile definitions (only for shared builds)
 target_compile_definitions(lwbase 
+    PUBLIC
+        UNICODE
+        _UNICODE
+        # CMake's target_link_libraries already links lwbase explicitly, so
+        # suppress litwindow's boost-style auto-link #pragma comment(lib, ...)
+        # which otherwise looks for a lib named after the (VS-project-only)
+        # auto_link naming convention and fails to link (LNK1104).
+        LWL_LWBASE_NO_LIB
     PRIVATE 
         $<$<BOOL:${BUILD_SHARED_LIBS}>:LWBASE_EXPORTS>
         $<$<BOOL:${BUILD_SHARED_LIBS}>:BOOST_ALL_DYN_LINK>

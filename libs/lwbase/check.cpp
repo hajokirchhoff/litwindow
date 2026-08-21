@@ -12,6 +12,7 @@
 #include "litwindow/check.hpp"
 #include "litwindow/result.hpp"
 #include <stdexcept>
+#include <cstring>
 
 namespace litwindow {
 	namespace checks {

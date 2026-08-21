@@ -12,6 +12,7 @@
 
 #include <bitset>
 #include <list>
+#include <boost/test/unit_test.hpp>
 #include "litwindow/dataadapter.h"
 
 #if _USRDLL
@@ -34,6 +35,19 @@
 #endif
 
 using namespace std;
+
+// Under a Unicode build litwindow::tstring is std::wstring, which Boost.Test
+// cannot print via the default operator<<(std::ostream&, ...). Provide a
+// print_log_value specialization (as done in libs/lwbase/test/example1.cpp)
+// so BOOST_TEST/BOOST_CHECK on tstring values work in all test translation
+// units that include this header.
+#ifdef _UNICODE
+template<>
+inline void boost::test_tools::tt_detail::print_log_value<litwindow::tstring>::operator ()(std::ostream &ostr, const litwindow::tstring &t)
+{
+	ostr << litwindow::t2string(t);
+}
+#endif
 
 class Fix1
 {
@@ -132,10 +146,6 @@ public:
 
 };
 
-//DECLARE_ADAPTER_CONTAINER(vector<bool>, UNITTESTDLL_API)
-DECLARE_ADAPTER_CONTAINER(vector<litwindow::tstring>, UNITTESTDLL_API)
-DECLARE_ADAPTER_CONTAINER(std::list<int>, UNITTESTDLL_API)
-
 /// Test class for simple inheritance tests.
 
 class simpleInheritance:public WithGetterSetter
@@ -159,15 +169,6 @@ public:
     {
     }
 };
-
-#ifdef _UNICODE
-template <>
-std::string CppUnit::assertion_traits<wstring>::toString(const wstring &o)
-{
-	return litwindow::t2string(o);
-}
-#endif
-
 
 class ExternalAccessorTest:public Fix1
 {

@@ -19,6 +19,7 @@
 #include <vector>
 #include <stdexcept>
 #include <any>
+#include <cstring>
 //!@file
 ///Macros for defining data adapters
 //!@internal non-public declarations and implementation of dataadapter templates.
@@ -780,6 +781,19 @@ namespace litwindow {
 		}
 	};
 
+	/* Explicit specializations of converter<TCHAR>::to_string() and converter<wchar_t>::from_string()
+	are provided in dataadapterimp.cpp. In a Unicode build TCHAR and wchar_t are the same type, so
+	converter<wchar_t> ends up with explicit specializations for both to_string() and from_string().
+	Without forward-declaring them here, any other translation unit that references converter<TCHAR>
+	(e.g. via macros expanding to converter<TCHAR>) would implicitly instantiate its own (generic,
+	"not implemented") definitions of these same member functions, conflicting at link time with the
+	explicit specializations compiled into dataadapterimp.cpp (LNK2005). See the note above the
+	'converter' class template for background on this pitfall. */
+	template <> tstring converter<TCHAR>::to_string(const TCHAR &c);
+#if defined(_NATIVE_WCHAR_T_DEFINED) && defined(UNICODE)
+	template <> size_t converter<wchar_t>::from_string(const tstring &p, wchar_t &member);
+#endif
+
 
 	inline const std::type_info& schema_entry::get_typeid() const
 	{
@@ -858,7 +872,7 @@ namespace litwindow {
 		size_t from_string(const schema_entry *, const tstring &, prop_ptr) override
 		{
 			throw not_implemented(inherited::method_name("from_string"));
-			return tstring();
+			return 0;
 		}
 		bool is_c_vector() const override { return true; }
 	};
@@ -1158,6 +1172,8 @@ namespace litwindow {
 #define IMPLEMENT_ADAPTER_AGGREGATE(classname) \
 	LWL_IMPLEMENT_ACCESSOR(classname) \
 	template <> \
+	const ::litwindow::schema_base &::litwindow::schema<classname >::get_schema(); \
+	template <> \
 	bool ::litwindow::converter<classname >::has_schema() const { return true; } \
 	template <> \
 	const ::litwindow::schema_base *litwindow::converter<classname >::get_schema() const { return &litwindow::schema<classname >::get_schema(); }
@@ -1167,6 +1183,8 @@ namespace litwindow {
 #define BEGIN_ADAPTER_AGGREGATE(classname)    \
 	template <>    \
 	const char *::litwindow::schema<classname >::sm_class_name=#classname;    \
+	template <> \
+	::litwindow::schema_base *litwindow::schema<classname >::_init_schema(); \
 	template <> \
 	const ::litwindow::schema_base LWBASE_DLL_EXPORT &litwindow::schema<classname >::get_schema() \
 {   \

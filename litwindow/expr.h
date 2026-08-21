@@ -120,7 +120,7 @@ public:
     Used so it can be passed automatically to an expression<Type>
     object.
     */
-    operator expr_concrete_root<expr_primary<E> >*()
+    operator expr_concrete_root<expr_primary<E> >*() const
     {
         return make_wrapper(*this);
     }
@@ -163,18 +163,18 @@ public:
 template <class E, class Op>
 inline expr_unary<E, Op, typename E::value_type> make_unary(const E &e, const Op &op)
 {
-    return expr_unary<E, Op, E::value_type>(e, op);
+    return expr_unary<E, Op, typename E::value_type>(e, op);
 }
 
 /// Binary function expression object.
-template <class E1, class E2, class Op>
+template <class E1, class E2, class Op, class Result>
 class expr_binary
 {
     E1 e1;
     E2 e2;
     Op op;
 public:
-    using value_type = typename Op::result_type;
+    using value_type = Result;
     expr_binary(const E1 &_e1, const E2 &_e2, const Op &_op):e1(_e1),e2(_e2),op(_op) {}
     value_type evaluate(symbol_table_interface *s) const
     {
@@ -192,14 +192,20 @@ public:
     }
 };
 
-template <class E1, class E2, class Op>
-inline expr_binary<E1, E2, Op> make_binary(const E1 &e1, const E2 &e2, const Op &op)
+template <class E1, class E2, class Op, class Result>
+inline expr_binary<E1, E2, Op, Result> make_binary_with_result(const E1 &e1, const E2 &e2, const Op &op)
 {
-    return expr_binary<E1, E2, Op>(e1, e2, op);
+    return expr_binary<E1, E2, Op, Result>(e1, e2, op);
+}
+
+template <class E1, class E2, class Op>
+inline expr_binary<E1, E2, Op, typename E1::value_type> make_binary(const E1 &e1, const E2 &e2, const Op &op)
+{
+    return expr_binary<E1, E2, Op, typename E1::value_type>(e1, e2, op);
 }
 
 /// Ternary function expression object.
-template <class Condition, class Value1, class Value2, class Op>
+template <class Condition, class Value1, class Value2, class Op, class Result>
 class expr_ternary
 {
     Condition e1;
@@ -207,7 +213,7 @@ class expr_ternary
     Value2   e3;
     Op op;
 public:
-    typedef typename Op::result_type value_type;
+    typedef Result value_type;
     expr_ternary(const Condition &_e1, const Value1 &_e2, const Value2 &_e3, const Op &_op):e1(_e1),e2(_e2),e3(_e3),op(_op) {}
     value_type evaluate(symbol_table_interface *s) const
     {
@@ -229,9 +235,9 @@ public:
 };
 
 template <class E1, class V1, class V2, class Op>
-inline expr_ternary<E1, V1, V2, Op> make_ternary(const E1 &e1, const V1 &e2, const V2 &e3, const Op &op)
+inline expr_ternary<E1, V1, V2, Op, typename V1::value_type> make_ternary(const E1 &e1, const V1 &e2, const V2 &e3, const Op &op)
 {
-    return expr_ternary<E1, V1, V2, Op>(e1, e2, e3, op);
+    return expr_ternary<E1, V1, V2, Op, typename V1::value_type>(e1, e2, e3, op);
 }
 
 template <class Value>
@@ -401,11 +407,70 @@ inline variable_name_t _v(const TCHAR *name)
     return variable_name_t(name);
 }
 
+#ifdef _UNICODE
+inline variable_name_t _v(const char *name)
+{
+    return variable_name_t(name);
+}
+#endif
+
 #endif
 
 
 //#endregion
 //#region operators
+
+// Helper trait to determine the result type of a binary operation
+template <class Op, class ValueType>
+struct binary_op_result_type
+{
+    typedef ValueType type; // default: same as operand type
+};
+
+// Specializations for comparison operators that return bool
+template <class ValueType>
+struct binary_op_result_type<std::equal_to<ValueType>, ValueType>
+{
+    typedef bool type;
+};
+template <class ValueType>
+struct binary_op_result_type<std::not_equal_to<ValueType>, ValueType>
+{
+    typedef bool type;
+};
+template <class ValueType>
+struct binary_op_result_type<std::less<ValueType>, ValueType>
+{
+    typedef bool type;
+};
+template <class ValueType>
+struct binary_op_result_type<std::greater<ValueType>, ValueType>
+{
+    typedef bool type;
+};
+template <class ValueType>
+struct binary_op_result_type<std::less_equal<ValueType>, ValueType>
+{
+    typedef bool type;
+};
+template <class ValueType>
+struct binary_op_result_type<std::greater_equal<ValueType>, ValueType>
+{
+    typedef bool type;
+};
+
+// Specializations for logical operators that return bool
+template <class ValueType>
+struct binary_op_result_type<std::logical_and<ValueType>, ValueType>
+{
+    typedef bool type;
+};
+template <class ValueType>
+struct binary_op_result_type<std::logical_or<ValueType>, ValueType>
+{
+    typedef bool type;
+};
+
 //-----------------------------------------------------------------------------------------------------------//
 //-----------------------------------------------------------------------------------------------------------//
 ///@name expression operators
@@ -414,31 +479,35 @@ inline variable_name_t _v(const TCHAR *name)
     template <class E>    \
     inline expr_primary<expr_unary<E, OP<typename E::value_type>, typename E::value_type > > operator CH (const expr_primary<E> &e)    \
 {    \
-    return make_primary(make_unary(e.get(), OP<E::value_type>()));    \
+    return make_primary(make_unary(e.get(), OP<typename E::value_type>()));    \
 }
 
 DEFINE_OPERATOR1(!, std::logical_not)
 
 #define DEFINE_OPERATOR2(CH, OP) \
     template <class E1, class E2 >    \
-    inline expr_primary<expr_binary<E1, E2, OP<typename E1::value_type> > > operator CH (const expr_primary<E1> &e1, const expr_primary<E2> &e2)    \
+    inline expr_primary<expr_binary<E1, E2, OP<typename E1::value_type>, typename binary_op_result_type<OP<typename E1::value_type>, typename E1::value_type>::type > > operator CH (const expr_primary<E1> &e1, const expr_primary<E2> &e2)    \
 {    \
-    return make_primary(make_binary(e1.get(), e2.get(), OP<E1::value_type>()));    \
+    typedef typename binary_op_result_type<OP<typename E1::value_type>, typename E1::value_type>::type ResultType; \
+    return make_primary(make_binary_with_result<E1, E2, OP<typename E1::value_type>, ResultType>(e1.get(), e2.get(), OP<typename E1::value_type>()));    \
 } \
     template <class E1> \
-    inline expr_primary<expr_binary<E1, expr_const<typename E1::value_type>, OP<typename E1::value_type> > > operator CH (const expr_primary<E1> &e1, typename E1::value_type e2) \
+    inline expr_primary<expr_binary<E1, expr_const<typename E1::value_type>, OP<typename E1::value_type>, typename binary_op_result_type<OP<typename E1::value_type>, typename E1::value_type>::type > > operator CH (const expr_primary<E1> &e1, typename E1::value_type e2) \
 { \
-    return make_primary(make_binary(e1.get(), make_const(e2).get(), OP<E1::value_type>())); \
+    typedef typename binary_op_result_type<OP<typename E1::value_type>, typename E1::value_type>::type ResultType; \
+    return make_primary(make_binary_with_result<E1, expr_const<typename E1::value_type>, OP<typename E1::value_type>, ResultType>(e1.get(), make_const(e2).get(), OP<typename E1::value_type>())); \
 } \
     template <class E1> \
-    inline expr_primary<expr_binary<E1, expr_typed_accessor<typename E1::value_type>, OP<typename E1::value_type> > > operator CH (const expr_primary<E1> &e1, const const_accessor &e2) \
+    inline expr_primary<expr_binary<E1, expr_typed_accessor<typename E1::value_type>, OP<typename E1::value_type>, typename binary_op_result_type<OP<typename E1::value_type>, typename E1::value_type>::type > > operator CH (const expr_primary<E1> &e1, const const_accessor &e2) \
 { \
-    return make_primary(make_binary(e1.get(), make_expr<E1::value_type>(e2).get(), OP<E1::value_type>())); \
+    typedef typename binary_op_result_type<OP<typename E1::value_type>, typename E1::value_type>::type ResultType; \
+    return make_primary(make_binary_with_result<E1, expr_typed_accessor<typename E1::value_type>, OP<typename E1::value_type>, ResultType>(e1.get(), make_expr<typename E1::value_type>(e2).get(), OP<typename E1::value_type>())); \
 } \
     template <class E1> \
-    inline expr_primary<expr_binary<E1, expr_variable<typename E1::value_type>, OP<typename E1::value_type> > > operator CH (const expr_primary<E1> &e1, const variable_name_t e2) \
+    inline expr_primary<expr_binary<E1, expr_variable<typename E1::value_type>, OP<typename E1::value_type>, typename binary_op_result_type<OP<typename E1::value_type>, typename E1::value_type>::type > > operator CH (const expr_primary<E1> &e1, const variable_name_t e2) \
 { \
-    return make_primary(make_binary(e1.get(), expr_variable<E1::value_type>(e2), OP<E1::value_type>())); \
+    typedef typename binary_op_result_type<OP<typename E1::value_type>, typename E1::value_type>::type ResultType; \
+    return make_primary(make_binary_with_result<E1, expr_variable<typename E1::value_type>, OP<typename E1::value_type>, ResultType>(e1.get(), expr_variable<typename E1::value_type>(e2), OP<typename E1::value_type>())); \
 }
 
 DEFINE_OPERATOR2(-, std::minus)
@@ -455,14 +524,14 @@ DEFINE_OPERATOR2(>=, std::greater_equal)
 DEFINE_OPERATOR2(!=, std::not_equal_to)
 
 template <class Condition, class Value1, class Value2>
-inline expr_primary<expr_ternary<Condition, Value1, Value2, expr_op_if_else<typename Value1::value_type> > > if_else(const expr_primary<Condition> &e_if_expression, const expr_primary<Value1> &e_if_value, const expr_primary<Value2> &e_else_value)
+inline expr_primary<expr_ternary<Condition, Value1, Value2, expr_op_if_else<typename Value1::value_type>, typename Value1::value_type> > if_else(const expr_primary<Condition> &e_if_expression, const expr_primary<Value1> &e_if_value, const expr_primary<Value2> &e_else_value)
 {
-    return make_primary(make_ternary(e_if_expression.get(), e_if_value.get(), e_else_value.get(), expr_op_if_else<Value1::value_type>()));
+    return make_primary(make_ternary(e_if_expression.get(), e_if_value.get(), e_else_value.get(), expr_op_if_else<typename Value1::value_type>()));
 }
 template <class Condition, class Value>
-inline expr_primary<expr_ternary<Condition, Value, Value, expr_op_if_else<typename Value::value_type> > > if_else(const expr_primary<Condition> &e_if_expression, const expr_primary<Value> &e_if_value, const const_accessor &e_else_value)
+inline expr_primary<expr_ternary<Condition, Value, Value, expr_op_if_else<typename Value::value_type>, typename Value::value_type> > if_else(const expr_primary<Condition> &e_if_expression, const expr_primary<Value> &e_if_value, const const_accessor &e_else_value)
 {
-    return make_primary(make_ternary(e_if_expression.get(), e_if_value.get(), make_expr<Value::value_type>(e_else_value).get(), expr_op_if_else<Value::value_type>()));
+    return make_primary(make_ternary(e_if_expression.get(), e_if_value.get(), make_expr<typename Value::value_type>(e_else_value).get(), expr_op_if_else<typename Value::value_type>()));
 }
 ///@}
 
@@ -474,6 +543,13 @@ class expression
     expr_root<Type> *root;
 public:
     expression(expr_root<Type> *_root=0):root(_root) {}
+
+    // Template constructor to accept expr_primary with matching value type
+    template <class E>
+    expression(const expr_primary<E> &e) : root(e.operator expr_concrete_root<expr_primary<E> >*())
+    {
+    }
+
     void operator=(expr_root<Type> *_root)
     {
         delete root;
@@ -487,6 +563,15 @@ public:
     {
         delete root;
         root=c.root->clone();
+    }
+    // Directly accept expr_primary<E> to avoid ambiguity between the
+    // expr_root<Type>* overload (via expr_primary's conversion operator)
+    // and the expression<Type> overload (via the templated constructor above).
+    template <class E>
+    void operator=(const expr_primary<E> &e)
+    {
+        delete root;
+        root=e.operator expr_concrete_root<expr_primary<E> >*();
     }
     ~expression()
     {
@@ -505,7 +590,7 @@ public:
 template <class E>
 inline expression<typename E::value_type> make_expression(E e)
 {
-    return expression<E::value_type>(make_wrapper(e.get()));
+    return expression<typename E::value_type>(make_wrapper(e.get()));
 }
 
 ///@}

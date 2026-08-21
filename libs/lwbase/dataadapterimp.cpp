@@ -13,7 +13,8 @@
 #include <iostream>
 #include <iomanip>
 #include <limits>
-#include <boost/cstdint.hpp>
+#include <cstdint>
+#include <climits>
 #include <boost/lexical_cast.hpp>
 #ifdef max
 #undef max
@@ -49,11 +50,11 @@ IMPLEMENT_ADAPTER_TYPE(litwindow::container)
 IMPLEMENT_ADAPTER_TYPE(litwindow::aggregate)
 IMPLEMENT_ADAPTER_TYPE(litwindow::const_aggregate)
 
-#ifdef _WIN64
-IMPLEMENT_ADAPTER_TYPE(unsigned __int64)
-IMPLEMENT_ADAPTER_TYPE(signed __int64)
-#else
-IMPLEMENT_ADAPTER_TYPE(boost::uint64_t)
+#if UINT64_MAX != ULONG_MAX
+IMPLEMENT_ADAPTER_TYPE(std::uint64_t)
+#endif
+#if INT64_MAX != LONG_MAX
+IMPLEMENT_ADAPTER_TYPE(std::int64_t)
 #endif
 
 #define HAS_BOOST_UUID
@@ -107,7 +108,7 @@ LWL_IMPLEMENT_ACCESSOR(boost::tribool)
 #endif
 
 
-#ifdef _NATIVE_WCHAR_T_DEFINED
+#if defined(_NATIVE_WCHAR_T_DEFINED) || !defined(_MSC_VER)
 IMPLEMENT_ADAPTER_TYPE(wchar_t)
 #endif
 
@@ -187,7 +188,7 @@ namespace litwindow {
 
     bool LWBASE_API register_prop_type(prop_t type)
     {
-        //litwindow::lw_log() << "registering " << type->get_type_name().c_str() << endl;
+        litwindow::lw_log() << "registering " << type->get_type_name().c_str() << endl;
         return g_prop_type_map().insert(make_pair(type->get_type_name(), type)).second;
     }
 
@@ -252,33 +253,37 @@ void not_implemented(const string &what)
 // the following code fragment shall be invisible to doxygen
 #ifndef DOXYGEN_INVOKED
 
+#if UINT64_MAX != ULONG_MAX
 template<>
-size_t converter<unsigned __int64>::from_string(const tstring &newValue, unsigned __int64 &v)
-{
-    using namespace boost;
-    v=lexical_cast<unsigned __int64>(newValue);
-    return sizeof(v);
-}
-template<>
-litwindow::tstring converter<unsigned __int64>::to_string(const unsigned __int64 &v)
-{
-    using namespace boost;
-    return lexical_cast<litwindow::tstring>(v);
-}
-
-template<>
-size_t converter<signed __int64>::from_string(const tstring &newValue, signed __int64 &v)
+size_t converter<std::uint64_t>::from_string(const tstring &newValue, std::uint64_t &v)
 {
 	using namespace boost;
-	v=lexical_cast<signed __int64>(newValue);
+	v=lexical_cast<std::uint64_t>(newValue);
 	return sizeof(v);
 }
 template<>
-litwindow::tstring converter<signed __int64>::to_string(const signed __int64 &v)
+litwindow::tstring converter<std::uint64_t>::to_string(const std::uint64_t &v)
 {
 	using namespace boost;
 	return lexical_cast<litwindow::tstring>(v);
 }
+#endif
+
+#if INT64_MAX != LONG_MAX
+template<>
+size_t converter<std::int64_t>::from_string(const tstring &newValue, std::int64_t &v)
+{
+	using namespace boost;
+	v=lexical_cast<std::int64_t>(newValue);
+	return sizeof(v);
+}
+template<>
+litwindow::tstring converter<std::int64_t>::to_string(const std::int64_t &v)
+{
+	using namespace boost;
+	return lexical_cast<litwindow::tstring>(v);
+}
+#endif
 
 template <>
 tstring converter<int>::to_string(const int &i)
@@ -388,16 +393,20 @@ tstring converter<wstring>::to_string(const wstring &s)
 	return litwindow::w2tstring(s);
 }
 #endif
+#if UINT64_MAX != ULONG_MAX
 template <>
-int converter<unsigned __int64>::to_int(const unsigned __int64 &i)
+int converter<std::uint64_t>::to_int(const std::uint64_t &i)
 {
 	return static_cast<int>(i);
 }
+#endif
+#if INT64_MAX != LONG_MAX
 template <>
-int converter<signed __int64>::to_int(const signed __int64 &i)
+int converter<std::int64_t>::to_int(const std::int64_t &i)
 {
 	return static_cast<int>(i);
 }
+#endif
 template <>
 int converter<int>::to_int(const int &i)
 {
@@ -427,11 +436,13 @@ void converter<long>::from_int(int value, long &member)
       member=value;
 }
 
+#if UINT64_MAX != ULONG_MAX
 template <>
-void converter<unsigned __int64>::from_int(int value, unsigned __int64 &member)
+void converter<std::uint64_t>::from_int(int value, std::uint64_t &member)
 {
 	member=value;
 }
+#endif
 
 template <>
 void converter<int>::from_int(int value, int &member)
@@ -590,14 +601,18 @@ bool converter<short>::is_int() const
 {
 	return true;
 }
+#if UINT64_MAX != ULONG_MAX
 template <>
-bool converter<unsigned __int64>::is_int() const { return true; }
+bool converter<std::uint64_t>::is_int() const { return true; }
+#endif
+#if INT64_MAX != LONG_MAX
 template <>
-bool converter<signed __int64>::is_int() const { return true; }
+bool converter<std::int64_t>::is_int() const { return true; }
+#endif
 template <>
 bool converter<int>::is_int() const
 {
-    return true;
+	return true;
 }
 
 template <>
@@ -854,7 +869,7 @@ string LWBASE_API w2sstring(const wstring &w)
     memset(&state, 0, sizeof(state));
     const codecvt<wchar_t, char, mbstate_t> &cvt( use_facet<codecvt<wchar_t, char, mbstate_t> >( loc ));
     size_t buffer_length=cvt.max_length()*w.length();
-    char *buffer=(char*)_alloca(buffer_length*sizeof(char));
+    char *buffer=(char*)alloca(buffer_length*sizeof(char));
     cvt.out(state,
         w.data(), w.data()+w.length(), next_in,
         buffer, buffer+buffer_length, next_out);
@@ -870,7 +885,7 @@ wstring LWBASE_API s2wstring(const string &s)
     memset(&state, 0, sizeof(state));
     const codecvt<wchar_t, char, mbstate_t> &cvt(use_facet<codecvt<wchar_t, char, mbstate_t> >( loc ));
     size_t buffer_length=s.length();
-    wchar_t *buffer=(wchar_t*)_alloca(buffer_length*sizeof(wchar_t));
+    wchar_t *buffer=(wchar_t*)alloca(buffer_length*sizeof(wchar_t));
     cvt.in(state,
         s.data(), s.data()+s.length(), next_in,
         buffer, buffer+buffer_length, next_out);
