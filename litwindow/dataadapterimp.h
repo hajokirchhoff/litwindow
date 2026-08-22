@@ -788,10 +788,13 @@ namespace litwindow {
 	(e.g. via macros expanding to converter<TCHAR>) would implicitly instantiate its own (generic,
 	"not implemented") definitions of these same member functions, conflicting at link time with the
 	explicit specializations compiled into dataadapterimp.cpp (LNK2005). See the note above the
-	'converter' class template for background on this pitfall. */
-	template <> tstring converter<TCHAR>::to_string(const TCHAR &c);
+	'converter' class template for background on this pitfall.
+	LWBASE_API is required here (in addition to in dataadapterimp.cpp) so that these explicit
+	specializations are actually exported from the DLL in shared-library builds; without it, other
+	translation units linking against the DLL fail with unresolved externals (LNK2019). */
+	template <> LWBASE_API tstring converter<TCHAR>::to_string(const TCHAR &c);
 #if defined(_NATIVE_WCHAR_T_DEFINED) && defined(UNICODE)
-	template <> size_t converter<wchar_t>::from_string(const tstring &p, wchar_t &member);
+	template <> LWBASE_API size_t converter<wchar_t>::from_string(const tstring &p, wchar_t &member);
 #endif
 
 

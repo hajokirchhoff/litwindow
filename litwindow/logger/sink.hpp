@@ -189,14 +189,29 @@ namespace litwindow {
                 }
                 unsigned char *m_next;
 				const unsigned char *next_ptr() const { return m_next; }
-                unsigned char *increment(unsigned char *from, size_t offset)
+                // Rounds offset up to the required entry alignment. Used both to advance
+                // m_next after writing an entry and to determine, up front, how much room
+                // an entry actually needs (including alignment padding) so that the two
+                // computations never disagree. sizeof(unsigned long) differs between
+                // platforms (e.g. 4 bytes on Windows/LLP64 vs 8 bytes on Linux/LP64), which
+                // is exactly why the two computations must share this single implementation.
+                static size_t align_offset(size_t offset)
                 {
-                    // correct alignment if neccessary
                     size_t aligned_on=sizeof(unsigned long);
                     size_t mismatch=offset % aligned_on;
                     if (mismatch)
                         offset+=aligned_on-mismatch;
-                    return from+offset;
+                    return offset;
+                }
+                unsigned char *increment(unsigned char *from, size_t offset)
+                {
+                    return from+align_offset(offset);
+                }
+                // The number of bytes (including alignment padding) that writing entry e
+                // will actually consume, starting from the current (aligned) m_next.
+                size_t required_size_in_bytes(const entry &e) const
+                {
+                    return align_offset(e.full_size_in_bytes());
                 }
                 bool    put(const entry &e, size_t index)
                 {
@@ -344,7 +359,7 @@ namespace litwindow {
             }
             void put_entry(const entry &e)
             {
-                if (m_current->available()<e.full_size_in_bytes()) {
+                if (m_current->available()<m_current->required_size_in_bytes(e)) {
                     alloc_new_page();
                 }
                 m_current->put(e, m_next_entry_index++);

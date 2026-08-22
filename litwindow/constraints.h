@@ -532,8 +532,8 @@ private:
 	void operator=(const constraint_solver&);
 	void copy(const constraint_solver&);
 public:
-	constraint_solver();
-	virtual ~constraint_solver();
+	LWBASE_API constraint_solver();
+	LWBASE_API virtual ~constraint_solver();
 protected:
 	class symbol_table:public symbol_table_interface
 	{

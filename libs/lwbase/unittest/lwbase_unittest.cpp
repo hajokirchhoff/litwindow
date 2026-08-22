@@ -1,6 +1,13 @@
 #include "stdafx.h"
-#define BOOST_TEST_MAIN
-#include <boost/test/included/unit_test.hpp>
+// Use the standard (non-included) Boost.Test header, consistent with every other
+// test file in this project. BOOST_TEST_MODULE triggers automatic generation of a
+// main() function, backed by the separately linked Boost::unit_test_framework
+// library. Do NOT use <boost/test/included/unit_test.hpp> here: that variant embeds
+// the entire Boost.Test implementation directly into this translation unit, which
+// then collides (duplicate symbol definitions) with the linked
+// Boost::unit_test_framework library used by every other test file.
+#define BOOST_TEST_MODULE lwbase_unittest
+#include <boost/test/unit_test.hpp>
 #include "litwindow/logger.hpp"
 #include "litwindow/logger/sink.hpp"
 #include "boost/thread/thread.hpp"
@@ -195,7 +202,13 @@ template <class _Elem>
 void simple_memory_sink_test(const _Elem *prefix1, const _Elem *prefix2)
 {
 	using namespace logger;
-	basic_memory_logsink<_Elem, 1024> sink;
+	// Use a page size comfortably larger than the longest single entry this test
+	// generates (prefix + up to max_length digit characters). This must account for
+	// _Elem possibly being wchar_t, which is 4 bytes wide on platforms using the LP64
+	// data model (e.g. Linux), vs. 2 bytes on Windows. A too-small page size would
+	// cause a single entry to exceed the page capacity, triggering the (currently
+	// unimplemented) entry-truncation fallback in basic_memory_logsink.
+	basic_memory_logsink<_Elem, 4096> sink;
 	const size_t first_count=200;
 	const size_t second_count=900;
 	const size_t max_length=377;
@@ -214,10 +227,10 @@ void simple_memory_sink_test(const _Elem *prefix1, const _Elem *prefix2)
 		}
 	}
 	{
-		typename basic_memory_logsink<_Elem, 1024>::const_iterator i=sink.begin();
+		typename basic_memory_logsink<_Elem, 4096>::const_iterator i=sink.begin();
 		size_t count=1;
 		while (i!=sink.end() && count<first_count) {
-			const typename basic_memory_logsink<_Elem, 1024>::entry &current(*i);
+			const typename basic_memory_logsink<_Elem, 4096>::entry &current(*i);
 			basic_ostringstream<_Elem> str;
 			str << prefix1 << count;
 			BOOST_CHECK(str.str()==current.str());
