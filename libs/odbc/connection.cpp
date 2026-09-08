@@ -31,9 +31,9 @@ namespace litwindow {
 	//-----------------------------------------------------------------------------------------------------------//
 	//-----------------------------------------------------------------------------------------------------------//
 
-	connection::dbversion &connection::dbversion::operator=(std::wstring &new_version)
+	connection::dbversion &connection::dbversion::operator=(tstring &new_version)
 	{
-		std::wistringstream stream(new_version);
+		tistringstream stream(new_version);
 		stream >> major;
 		if (stream.peek() == '.') {
 			stream.ignore();
@@ -506,7 +506,7 @@ namespace litwindow {
 		get_info(SQL_DBMS_NAME, m_dbms_name).log_errors();
 		get_info(SQL_DBMS_VER, m_dbms_ver).log_errors();
 
-		std::wstring ver_string;
+		tstring ver_string;
 		get_info(SQL_DRIVER_ODBC_VER, ver_string);
 		m_dbms_odbc_ver = ver_string;
 		get_info(SQL_DRIVER_VER, ver_string);
@@ -554,7 +554,7 @@ namespace litwindow {
 		// Copy macros from dbms to connection
 		const dbms_base *const_dbms = m_dbms.get();
 		for (const auto & it : const_dbms->macros())
-			set_macro_value(L"$$" + it.first, it.second);
+			set_macro_value(_T("$$") + it.first, it.second);
 
 		return m_last_error;
 	}
@@ -700,7 +700,7 @@ namespace litwindow {
 		tstring odbc_connection_string=dbms_base::construct_odbc_connection_string_from_file_name(file, uid, pwd, read_only, file_type);
 		if (dsn_addition.empty()==false)
 			odbc_connection_string+=_T(';')+dsn_addition;
-		set_dsn(wstring());
+		set_dsn(tstring());
 		return open(odbc_connection_string);
 	}
 

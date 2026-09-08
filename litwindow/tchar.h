@@ -20,27 +20,43 @@
 #pragma message("Using internal TCHAR.H")
 #endif
 
+#include <cstring>
+#include <cwchar>
+#include <strings.h>
+
 #ifdef _UNICODE
 
 #ifndef TCHAR
-#define TCHAR wchar_t
+typedef wchar_t TCHAR;
 #endif
 #ifndef _T
 #define _T(a) L ## a
 #endif
 #define _tcscpy(a,b) wcscpy(a,b)
 #define _tsetlocale(a,b) wsetlocale(a,b)
+#define _tcscmp(a,b) wcscmp(a,b)
+#define _tcsicmp(a,b) wcscasecmp(a,b)
+#define _tcslen(a) wcslen(a)
 
 #else
 
 #ifndef TCHAR
-#define TCHAR char
+// unixODBC's sqltypes.h also typedefs TCHAR (to char in narrow/non-UNICODE
+// mode). Using a typedef here - rather than a #define macro - avoids blindly
+// substituting the TCHAR token inside sqltypes.h's own typedef, which would
+// otherwise corrupt it into "typedef char char;". Duplicate identical
+// typedefs are legal in C++, so this coexists safely regardless of include
+// order.
+typedef char TCHAR;
 #endif
 #ifndef _T
 #define _T(a) a
 #endif
 #define _tcscpy(a,b) strcpy(a,b)
 #define _tsetlocale(a,b) setlocale(a,b)
+#define _tcscmp(a,b) strcmp(a,b)
+#define _tcsicmp(a,b) strcasecmp(a,b)
+#define _tcslen(a) strlen(a)
 #endif
 
 #endif

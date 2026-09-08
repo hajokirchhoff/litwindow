@@ -267,7 +267,7 @@ public:
 
 		dbversion() : major(0), minor(0) {}
 		dbversion(int new_major, int new_minor) : major(new_major), minor(new_minor) {}
-		dbversion &operator =(std::wstring &new_version);
+		dbversion &operator =(tstring &new_version);
 	};
 	tstring get_dbms_name() { return m_dbms_name; }
 	dbversion get_odbc_version() { return m_dbms_odbc_ver; }

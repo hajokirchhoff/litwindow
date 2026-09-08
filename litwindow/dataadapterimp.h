@@ -1241,7 +1241,7 @@ template <> \
 litwindow::tstring litwindow::converter<boost::optional<tp>>::to_string(const boost::optional<tp>& v) \
 { \
 	if (!v) \
-		return L"<none>"; \
+		return _T("<none>"); \
 	return litwindow::make_const_accessor(v.get()).to_string(); \
 }
 

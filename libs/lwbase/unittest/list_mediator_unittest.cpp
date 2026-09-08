@@ -14,33 +14,33 @@ using namespace litwindow::ui;
 struct TestData
 {
 	int integer;
-	wstring name;
+	tstring name;
 	bool calc() const { return 5.9*integer>integer; }
 	void calc(const double &d) { integer=(int)ceil(d); }
 	int calc2() const { return 2*integer;}
 	TestData()
-		:integer(7),name(L"name"){}
+		:integer(7),name(_T("name")){}
 };
 
-wstring TestDataAccess(const TestData &a, int col)
+tstring TestDataAccess(const TestData &a, int col)
 {
-	return a.name+wstring(L"-TestDataAccess(int col)");
+	return a.name+tstring(_T("-TestDataAccess(int col)"));
 }
-wstring TestDataAccess(const TestData &a)
+tstring TestDataAccess(const TestData &a)
 {
-	return a.name+wstring(L"-TestDataAccess");
+	return a.name+tstring(_T("-TestDataAccess"));
 }
 
 template <typename RowValue, typename Accessor, typename Enabled = void>
 struct column_access
 {
-	typedef boost::function<void(const RowValue&, wstring&)> text_renderer_t;
+	typedef boost::function<void(const RowValue&, tstring&)> text_renderer_t;
 };
 
 template <typename RowValue, typename ColValue>
 struct column_access<RowValue, ColValue (RowValue::*)() const>
 {
-	typedef boost::function<void(const RowValue&, wstring&)> text_renderer_t;
+	typedef boost::function<void(const RowValue&, tstring&)> text_renderer_t;
 	typedef ColValue (RowValue::*accessor_type)() const;
 	void text(text_renderer_t &renderer, accessor_type a)
 	{
@@ -60,19 +60,19 @@ void testtemplate(ColValue (RowValue::*a)() const)
 
 }
 
-void TestDataAccess_renderer(const TestData &a, wstring &r)
+void TestDataAccess_renderer(const TestData &a, tstring &r)
 {
 	r=a.name;
 }
 
-void StringDataFormatter(const wstring &in, wstring &out)
+void StringDataFormatter(const tstring &in, tstring &out)
 {
-	out=in+L"--";
+	out=in+_T("--");
 }
 
-void DataFormatter(int i, wstring &r)
+void DataFormatter(int i, tstring &r)
 {
-	r=lexical_cast<wstring>(i*3);
+	r=lexical_cast<tstring>(i*3);
 }
 
 template <typename Value>
@@ -87,13 +87,13 @@ struct functor_accessor
 struct functor_object
 {
 	functor_object(const char* name) :m_name(name) {}
-	void operator()(const TestData& d, wstring& rc) {}
+	void operator()(const TestData& d, tstring& rc) {}
 	std::string m_name;
 };
 
-void fmt_float(float f, wstring &rc)
+void fmt_float(float f, tstring &rc)
 {
-	rc = L"test";
+	rc = _T("test");
 }
 
 BOOST_AUTO_TEST_CASE(columns_descriptor_test_new)
@@ -102,8 +102,8 @@ BOOST_AUTO_TEST_CASE(columns_descriptor_test_new)
 	using float_functor_accessor = functor_accessor<float>;
 	using bca_t = basic_columns_adapter<basic_column_descriptor<TestData> >;
 	bca_t cols;
-	cols.columns().emplace_back(L"end", 10);
-	cols.columns().emplace_back(L"integer", -1, &TestData::integer);
+	cols.columns().emplace_back(_T("end"), 10);
+	cols.columns().emplace_back(_T("integer"), -1, &TestData::integer);
 
 	using Func = int(*)(const TestData&);
 
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(columns_descriptor_test_new)
 
 	using call_type = decltype(functor_object("hallo"));
 
-	basic_column_descriptor<TestData> test_functor(L"testfunctor", 30, functor_object("hallo"));
+	basic_column_descriptor<TestData> test_functor(_T("testfunctor"), 30, functor_object("hallo"));
 
 	boost::function<float(const TestData&)> __fnc = float_functor_accessor("Hi", 4.f);
 
@@ -126,27 +126,27 @@ BOOST_AUTO_TEST_CASE(columns_descriptor_test_new)
 
 	boost::function<float(const TestData&)> accfnc = float_functor_accessor("test", 3.f);
 
-	testdatacolumn test_float_functor(L"testfunctor", 30, float_functor_accessor("test", 3.f));
+	testdatacolumn test_float_functor(_T("testfunctor"), 30, float_functor_accessor("test", 3.f));
 
-	testdatacolumn fmt_float_test(L"float_functor", 20, float_functor_accessor("test", 3.0f), &fmt_float );
-	testdatacolumn free_fnc(L"freefnc", 20, boost::bind(&TestDataAccess, boost::placeholders::_1, 9));
+	testdatacolumn fmt_float_test(_T("float_functor"), 20, float_functor_accessor("test", 3.0f), &fmt_float );
+	testdatacolumn free_fnc(_T("freefnc"), 20, boost::bind(&TestDataAccess, boost::placeholders::_1, 9));
 
 	cols.columns() = {
-		{ L"float_functor", 20, float_functor_accessor("test", 3.0f) },
-		{L"float_functor", 20, float_functor_accessor("test", 3.0f), &fmt_float},
+		{ _T("float_functor"), 20, float_functor_accessor("test", 3.0f) },
+		{_T("float_functor"), 20, float_functor_accessor("test", 3.0f), &fmt_float},
 	};
 
-	testdatacolumn t3(L"calc", 20, &TestData::calc);
+	testdatacolumn t3(_T("calc"), 20, &TestData::calc);
 
 	cols.columns() =
 	{
-	{L"integer", -1, &TestData::integer},
-	{L"calc", 20, &TestData::calc},
-	{L"calc2", 22, &TestData::calc2},
-	{L"functor", 30, functor_object("hallo")},
-	{L"freeFunction", 40, &TestDataAccess},
-	{L"bind", 99, boost::bind(&TestDataAccess, boost::placeholders::_1, 9)},
-	{L"free-renderer", 50, &TestDataAccess_renderer}
+	{_T("integer"), -1, &TestData::integer},
+	{_T("calc"), 20, &TestData::calc},
+	{_T("calc2"), 22, &TestData::calc2},
+	{_T("functor"), 30, functor_object("hallo")},
+	{_T("freeFunction"), 40, &TestDataAccess},
+	{_T("bind"), 99, boost::bind(&TestDataAccess, boost::placeholders::_1, 9)},
+	{_T("free-renderer"), 50, &TestDataAccess_renderer}
 	};
 }
 
@@ -156,73 +156,73 @@ BOOST_AUTO_TEST_CASE(columns_descriptor_test)
 	//te(&TestDataAccess);
 	using bca_t = basic_columns_adapter<basic_column_descriptor<TestData> >;
 	bca_t d;
-	d.add(L"integer", 10, &TestData::integer);	// ptr to member
-	d.add(L"calc", 20, &TestData::calc);			// ptr to member_function with overload
-	d.add(L"calc2", 100, &TestData::calc2);	// ptr to member without overload
-	d.add(L"TestDataAccess",	200,	&TestDataAccess)	// ptr to free function
+	d.add(_T("integer"), 10, &TestData::integer);	// ptr to member
+	d.add(_T("calc"), 20, &TestData::calc);			// ptr to member_function with overload
+	d.add(_T("calc2"), 100, &TestData::calc2);	// ptr to member without overload
+	d.add(_T("TestDataAccess"),	200,	&TestDataAccess)	// ptr to free function
 		;
 	d.add
-		(L"bind",		100,	boost::bind(&TestDataAccess, boost::placeholders::_1, 9)) // bind
-		(L"name",		100,	&TestData::name)	// ptr to member
+		(_T("bind"),		100,	boost::bind(&TestDataAccess, boost::placeholders::_1, 9)) // bind
+		(_T("name"),		100,	&TestData::name)	// ptr to member
 		;
 	bca_t::text_renderer_type renderer;
 	renderer=boost::bind(&TestDataAccess_renderer, boost::placeholders::_1, boost::placeholders::_2);
 	d.add
-		(L"function-renderer", 10,	renderer)
-		(L"free-renderer", 10,	&TestDataAccess_renderer)
-		(L"bind-renderer", 10, boost::bind(&TestDataAccess_renderer, boost::placeholders::_1, boost::placeholders::_2))
+		(_T("function-renderer"), 10,	renderer)
+		(_T("free-renderer"), 10,	&TestDataAccess_renderer)
+		(_T("bind-renderer"), 10, boost::bind(&TestDataAccess_renderer, boost::placeholders::_1, boost::placeholders::_2))
 		;
 
 	TestData t;
-	wstring r;
+	tstring r;
 	d.render_element_at(0, r, t);
-	BOOST_CHECK(r == L"7");
+	BOOST_CHECK(r == _T("7"));
 	d.render_element_at(1, r, t);
-	BOOST_CHECK(r == L"1");
+	BOOST_CHECK(r == _T("1"));
 	d.render_element_at(2, r, t);
-	BOOST_CHECK(r == L"14");
+	BOOST_CHECK(r == _T("14"));
 	d.render_element_at(3, r, t);
-	BOOST_CHECK(r == L"name-TestDataAccess");
+	BOOST_CHECK(r == _T("name-TestDataAccess"));
 
-	d.render_element_at(L"calc2", r, t);
-	BOOST_CHECK(r == L"14");
+	d.render_element_at(_T("calc2"), r, t);
+	BOOST_CHECK(r == _T("14"));
 
 	d.render_element_at(4, r, t);
-	BOOST_CHECK(r == L"name-TestDataAccess(int col)");
+	BOOST_CHECK(r == _T("name-TestDataAccess(int col)"));
 	d.render_element_at(5, r, t);
-	BOOST_CHECK(r == L"name");
+	BOOST_CHECK(r == _T("name"));
 
 	r.clear();
-	d.render_element_at(L"name", r, t);	// should be column 6
-	BOOST_CHECK(r == L"name");
+	d.render_element_at(_T("name"), r, t);	// should be column 6
+	BOOST_CHECK(r == _T("name"));
 	r.clear();
-	d.render_element_at(L"function-renderer", r, t);
-	BOOST_CHECK(r == L"name");
+	d.render_element_at(_T("function-renderer"), r, t);
+	BOOST_CHECK(r == _T("name"));
 	r.clear();
-	d.render_element_at(L"free-renderer", r, t);
-	BOOST_CHECK(r == L"name");
+	d.render_element_at(_T("free-renderer"), r, t);
+	BOOST_CHECK(r == _T("name"));
 	r.clear();
-	d.render_element_at(L"bind-renderer", r, t);
-	BOOST_CHECK(r == L"name");
+	d.render_element_at(_T("bind-renderer"), r, t);
+	BOOST_CHECK(r == _T("name"));
 
 	d.add
-		(L"formatter-renderer", 10, &TestData::integer, &DataFormatter)
-		(L"formatter-renderer-2", 10, &TestData::calc2, &DataFormatter)
-		(L"bind-formatter-renderer", 10, boost::bind(&TestDataAccess, boost::placeholders::_1, 9), &StringDataFormatter)
-		(L"free-function-formatter", 10, &TestDataAccess, &StringDataFormatter)
+		(_T("formatter-renderer"), 10, &TestData::integer, &DataFormatter)
+		(_T("formatter-renderer-2"), 10, &TestData::calc2, &DataFormatter)
+		(_T("bind-formatter-renderer"), 10, boost::bind(&TestDataAccess, boost::placeholders::_1, 9), &StringDataFormatter)
+		(_T("free-function-formatter"), 10, &TestDataAccess, &StringDataFormatter)
 		;
 	r.clear();
-	d.render_element_at(L"formatter-renderer", r, t);
-	BOOST_CHECK(r == L"21");
+	d.render_element_at(_T("formatter-renderer"), r, t);
+	BOOST_CHECK(r == _T("21"));
 	r.clear();
-	d.render_element_at(L"formatter-renderer-2", r, t);
-	BOOST_CHECK(r == L"42");
+	d.render_element_at(_T("formatter-renderer-2"), r, t);
+	BOOST_CHECK(r == _T("42"));
 	r.clear();
-	d.render_element_at(L"bind-formatter-renderer", r, t);
-	BOOST_CHECK(r == L"name-TestDataAccess(int col)--");
+	d.render_element_at(_T("bind-formatter-renderer"), r, t);
+	BOOST_CHECK(r == _T("name-TestDataAccess(int col)--"));
 	r.clear();
-	d.render_element_at(L"free-function-formatter", r, t);
-	BOOST_CHECK(r == L"name-TestDataAccess--");
+	d.render_element_at(_T("free-function-formatter"), r, t);
+	BOOST_CHECK(r == _T("name-TestDataAccess--"));
 }
 
 BOOST_AUTO_TEST_CASE(column_values_test)
@@ -232,19 +232,19 @@ BOOST_AUTO_TEST_CASE(column_values_test)
 	boost::function<int(const TestData&)> f0=boost::bind(&TestData::integer, boost::placeholders::_1);
 	boost::function<bool(const TestData&)> f1=boost::bind(&TestData::calc, boost::placeholders::_1);
 	testtemplate<TestData>(&TestData::calc);
-	boost::function<wstring(const TestData&)> f2=boost::bind(&TestDataAccess, boost::placeholders::_1);
-	boost::function<wstring(const TestData&)> f3=boost::bind(f2, boost::placeholders::_1);
+	boost::function<tstring(const TestData&)> f2=boost::bind(&TestDataAccess, boost::placeholders::_1);
+	boost::function<tstring(const TestData&)> f3=boost::bind(f2, boost::placeholders::_1);
 	BOOST_CHECK_EQUAL(f0(t), 7);
 	BOOST_CHECK_EQUAL(f1(t), true);
-	BOOST_CHECK(f2(t)==wstring(L"name-TestDataAccess"));
-	BOOST_CHECK(f3(t)==wstring(L"name-TestDataAccess"));
+	BOOST_CHECK(f2(t)==tstring(_T("name-TestDataAccess")));
+	BOOST_CHECK(f3(t)==tstring(_T("name-TestDataAccess")));
 
 	boost::function<int(const TestData&)> f4=boost::bind(&TestData::calc2, boost::placeholders::_1);
 	boost::function<bool(const TestData&, const TestData&)> c0=boost::bind(f0, t) < boost::bind(f4, t);
 	BOOST_CHECK(c0(t, t));
-	wstring rc;
+	tstring rc;
 	to_string(f0(t), rc);
-	BOOST_CHECK(rc==L"7");
-	boost::function<void(const TestData&, wstring&)> strg=boost::bind<void>(&to_string<int>, boost::bind(f0, boost::placeholders::_1), boost::placeholders::_2);
+	BOOST_CHECK(rc==_T("7"));
+	boost::function<void(const TestData&, tstring&)> strg=boost::bind<void>(&to_string<int>, boost::bind(f0, boost::placeholders::_1), boost::placeholders::_2);
 }
 

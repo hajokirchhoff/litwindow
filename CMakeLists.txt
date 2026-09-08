@@ -23,5 +23,6 @@ enable_testing()
 
 # Include subprojects
 add_subdirectory("libs/lwbase")
+add_subdirectory("libs/odbc")
 
 # TODO: Add tests and install targets if needed.

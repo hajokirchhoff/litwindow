@@ -26,8 +26,12 @@ add_library(lwbase ${SOURCES})
 # Add compile definitions (only for shared builds)
 target_compile_definitions(lwbase 
     PUBLIC
-        UNICODE
-        _UNICODE
+        # On Windows, wchar_t (16-bit) matches the platform's native wide-char
+        # ABI, so build in Unicode mode. On Linux, wchar_t is 32-bit (UCS-4)
+        # and does not match ODBC's 16-bit SQLWCHAR, so build narrow (char)
+        # to avoid silent string corruption and MSVC-only wchar_t code paths.
+        $<$<BOOL:${WIN32}>:UNICODE>
+        $<$<BOOL:${WIN32}>:_UNICODE>
         # CMake's target_link_libraries already links lwbase explicitly, so
         # suppress litwindow's boost-style auto-link #pragma comment(lib, ...)
         # which otherwise looks for a lib named after the (VS-project-only)

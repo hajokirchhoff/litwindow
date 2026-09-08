@@ -124,27 +124,27 @@ struct test_caller
 
 BOOST_AUTO_TEST_CASE(logging_syntax_check)
 {
-    logger::basic_events<wchar_t, basic_stringstream<wchar_t> > test;
-    {
-        test_caller a;
-        test && "Hello";
-        wstring rc=test.rdbuf()->str();
-        BOOST_CHECK(rc==wstring(L"debug\t\t\t0\tHello"));
-    }
-    {
-        // test contl immediately after level,component,topic
+	logger::basic_events<wchar_t, basic_stringstream<wchar_t> > test;
+	{
+		test_caller a;
+		test && "Hello";
+		std::wstring rc=test.rdbuf()->str();
+		BOOST_CHECK(rc==std::wstring(L"debug\t\t\t0\tHello"));
+	}
+	{
+		// test contl immediately after level,component,topic
 		test && logger::warning && logger::contl;
-        test && L"Ups";
-        wstring rc=test.rdbuf()->str();
-        BOOST_CHECK(rc==L"debug\t\t\t0\tHellowarning\t\t\t0\tUps");
-    }
-    {
-        // test contl after some text
-        test && logger::error && L"some text - " && logger::contl;
-        test && L"some more text";
-        wstring rc=test.rdbuf()->str();
+		test && L"Ups";
+		std::wstring rc=test.rdbuf()->str();
+		BOOST_CHECK(rc==L"debug\t\t\t0\tHellowarning\t\t\t0\tUps");
+	}
+	{
+		// test contl after some text
+		test && logger::error && L"some text - " && logger::contl;
+		test && L"some more text";
+		std::wstring rc=test.rdbuf()->str();
 		BOOST_CHECK(rc == L"debug\t\t\t0\tHellowarning\t\t\t0\tUpserror\t\t\t0\tsome text - some more text");
-    }
+	}
 }
 
 
@@ -163,15 +163,15 @@ BOOST_AUTO_TEST_CASE(simple_log_sink)
 
 BOOST_AUTO_TEST_CASE(simple_log_level)
 {
-    using namespace logger;
+	using namespace logger;
 	std::wstringstream s;
 	wostream_logsink sink(s);
 	sink.format().timestamp=false;
 	sink.format().level=false;
 	threadsafe::wevents e;
 	e.get_default().sink(&sink);
-    e && debug && L"This is a test with number " && 800;
-    e && warning && L"Some more tests.";
+	e && debug && L"This is a test with number " && 800;
+	e && warning && L"Some more tests.";
 	struct run_in_thread_t 
 	{
 		threadsafe::wevents m_e;
@@ -182,11 +182,11 @@ BOOST_AUTO_TEST_CASE(simple_log_level)
 		}
 	};
 	run_in_thread_t call_rit(e);
-	wstring rc_a(s.str());
+	std::wstring rc_a(s.str());
 	boost::thread trd(call_rit);
 	trd.join();
-	wstring rc(s.str());
-	BOOST_CHECK(rc==wstring(L"\t\tThis is a test with number 800\n\t\tSome more tests.\n\t\tThis from inside the thread900\n"));
+	std::wstring rc(s.str());
+	BOOST_CHECK(rc==std::wstring(L"\t\tThis is a test with number 800\n\t\tSome more tests.\n\t\tThis from inside the thread900\n"));
 }
 
 BOOST_AUTO_TEST_CASE(simple_stderr_log)
@@ -337,12 +337,12 @@ BOOST_AUTO_TEST_CASE(multithreading_logger)
 	boost::function<void()> work = [&internal_success]()
 	{
 		for (int repeat_count = 0; repeat_count < inner_repeat_count; ++repeat_count) {
-			std::wstring wcomp(L"comp-" + boost::lexical_cast<std::wstring>(repeat_count));
-			logger::threadsafe::wevents log(wcomp.c_str(), L"testlog");
+			tstring wcomp(_T("comp-") + boost::lexical_cast<tstring>(repeat_count));
+			logger::threadsafe::wevents log(wcomp.c_str(), _T("testlog"));
 			std::vector<boost::thread> internal_threads(inner_thread_count);
 			boost::function<void()> internal_work = [&log]() {
 				for (int i = 0; i < innermost_log_loop_count; ++i) {
-					log && L"Some Test with index " && i;
+					log && _T("Some Test with index ") && i;
 					boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
 				}
 			};
