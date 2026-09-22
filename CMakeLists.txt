@@ -21,8 +21,19 @@ endif()
 include(CTest)
 enable_testing()
 
+# Optional components. odbc is on by default (matches historical behaviour);
+# lwwx (wxWidgets UI integration) is opt-in since it pulls in wxWidgets, a
+# large dependency that most consumers of litwindow do not need.
+option(LITWINDOW_BUILD_ODBC "Build the litwindow ODBC data-access library" ON)
+option(LITWINDOW_BUILD_LWWX "Build the litwindow wxWidgets UI library (lwwx)" OFF)
+
 # Include subprojects
 add_subdirectory("libs/lwbase")
-add_subdirectory("libs/odbc")
+if(LITWINDOW_BUILD_ODBC)
+	add_subdirectory("libs/odbc")
+endif()
+if(LITWINDOW_BUILD_LWWX)
+	add_subdirectory("libs/lwwx")
+endif()
 
 # TODO: Add tests and install targets if needed.

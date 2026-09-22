@@ -13,5 +13,16 @@
     { "name": "boost-thread" },
     { "name": "boost-serialization" }
   ],
-  "$comment": "The last 1.78.0 boost version"
+  "features": {
+    "odbc": {
+      "description": "Build the litwindow ODBC data-access library. On Linux the ODBC driver manager (unixODBC) is expected to be installed via the system package manager (e.g. apt-get install unixodbc-dev), not vcpkg, so this feature adds no extra vcpkg dependencies of its own."
+    },
+    "wx": {
+      "description": "Build the lwwx wxWidgets UI integration library",
+      "dependencies": [
+        { "name": "wxwidgets" }
+      ]
+    }
+  }
 }
+
