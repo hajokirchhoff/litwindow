@@ -83,12 +83,27 @@ if (WIN32)
 	target_link_libraries(odbc PUBLIC legacy_stdio_definitions)
 endif()
 
-# Add include directories
-target_include_directories(odbc PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+# Add include directories. See libs/lwbase/CMakeLists.txt for why
+# BUILD_INTERFACE/INSTALL_INTERFACE are used instead of a plain path.
+target_include_directories(odbc PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET odbc PROPERTY CXX_STANDARD 20)
 endif()
+
+# Make odbc installable and exportable (see the top-level CMakeLists.txt for
+# the matching install(EXPORT ...) / package config generation).
+include(GNUInstallDirs)
+install(TARGETS odbc
+    EXPORT litwindowTargets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
 
 # Add unit tests (optional, controlled by BUILD_TESTING)
 include(CTest)

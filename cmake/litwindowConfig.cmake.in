@@ -1,0 +1,24 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(Boost)
+
+# LITWINDOW_BUILD_ODBC / LITWINDOW_BUILD_LWWX are baked in at the time this
+# package was built/installed (see the top-level CMakeLists.txt), so the
+# right find_dependency() calls run automatically for consumers - no need to
+# explicitly request the matching vcpkg feature(s) again in most cases.
+set(litwindow_ODBC_FOUND @LITWINDOW_BUILD_ODBC@)
+set(litwindow_LWWX_FOUND @LITWINDOW_BUILD_LWWX@)
+
+if(litwindow_ODBC_FOUND)
+	find_dependency(ODBC)
+endif()
+
+if(litwindow_LWWX_FOUND)
+	find_dependency(wxWidgets CONFIG COMPONENTS core base html adv)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/litwindowTargets.cmake")
+
+check_required_components(litwindow)

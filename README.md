@@ -26,6 +26,26 @@ Neither vcpkg feature is a default feature, so building this repo directly (e.g.
 
 Building `wxwidgets` from source via vcpkg the first time can take several minutes.
 
+## Testing vcpkg consumption
+
+litwindow is installable (`cmake --install`) and exports proper CMake package config (`litwindowConfig.cmake` + `litwindowTargets.cmake`), so downstream projects can do `find_package(litwindow REQUIRED)` and link `litwindow::lwbase`, `litwindow::odbc`, `litwindow::lwwx`. This is exercised end-to-end without publishing anything, using two extra pieces in this repo:
+
+- `vcpkg-overlay/ports/litwindow/` - a local vcpkg port (`vcpkg.json` + `portfile.cmake`) that builds directly from this checkout (not a fetched release archive) and maps the `odbc`/`wx` vcpkg features to `LITWINDOW_BUILD_ODBC`/`LITWINDOW_BUILD_LWWX` via `vcpkg_check_features`.
+- `examples/vcpkg-consumer/` - a tiny, completely separate CMake project (its own `vcpkg.json` depending on `litwindow[odbc]`) that only knows about litwindow through `find_package`, proving the port actually works for a consumer.
+
+To run it yourself:
+
+```powershell
+cmake -S examples/vcpkg-consumer -B examples/vcpkg-consumer/build -G Ninja `
+    -DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake `
+    -DVCPKG_OVERLAY_PORTS=(Resolve-Path vcpkg-overlay/ports)
+cmake --build examples/vcpkg-consumer/build
+```
+
+vcpkg's binary cache keys builds off `portfile.cmake`/`vcpkg.json`, not the actual source contents (since `SOURCE_PATH` here points straight at this checkout instead of a versioned archive). If you change litwindow's sources and want the consumer example to pick them up, force a clean rebuild of the cached port, e.g. delete `examples/vcpkg-consumer/build` and set `$env:VCPKG_FEATURE_FLAGS = "-binarycaching"` before reconfiguring.
+
+To turn `vcpkg-overlay/ports/litwindow` into a real, publishable port (e.g. for a PR to the vcpkg community registry), replace its `SOURCE_PATH` line with a `vcpkg_from_github()`/`vcpkg_from_git()` call pinned to a tagged release.
+
 ## Linux-specific ODBC requirements
 
 The `libs/odbc` library uses the system ODBC driver manager on Linux.
@@ -120,3 +140,5 @@ You can verify the driver registration with:
 - `libs/odbc` - ODBC wrapper library (optional, `LITWINDOW_BUILD_ODBC`, on by default)
 - `libs/odbc/odbc_unittest` - Boost.Test-based ODBC tests
 - `libs/lwwx` - wxWidgets UI integration library (optional, `LITWINDOW_BUILD_LWWX`, off by default)
+- `vcpkg-overlay/ports/litwindow` - local/dev vcpkg port used to test litwindow's vcpkg consumption (see "Testing vcpkg consumption" above)
+- `examples/vcpkg-consumer` - standalone sample project that consumes litwindow purely via vcpkg + `find_package`

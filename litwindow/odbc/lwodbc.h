@@ -14,6 +14,16 @@
 #include <litwindow/tstring.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/utility.hpp>
+#if defined(_WIN32) && !defined(_WINDOWS_)
+// <sqlext.h>/<sqltypes.h> rely on Windows types (INT64, DWORD, WCHAR, ...)
+// that are normally provided by <windows.h>. Inside this repo's own .cpp
+// files that's always already included via stdafx.h, but external consumers
+// including this public header directly would otherwise hit cascading parse
+// errors in the Windows ODBC headers. _WINDOWS_ is windows.h's own include
+// guard, so this is a no-op if it was already included.
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 #include <sqlext.h>
 #include <vector>
 #include "./lwodbc_def.h"

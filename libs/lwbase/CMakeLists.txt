@@ -59,8 +59,14 @@ target_compile_definitions(lwbase
 # Link Boost headers
 target_link_libraries(lwbase PUBLIC Boost::boost)
 
-# Add include directories
-target_include_directories(lwbase PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+# Add include directories. BUILD_INTERFACE is used while building this repo
+# (headers live at the repo root, two levels up); INSTALL_INTERFACE is used by
+# consumers after `cmake --install`, where headers are copied under the
+# install prefix's include dir (see the top-level CMakeLists.txt).
+target_include_directories(lwbase PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 # logger/default_sink.cpp includes "stdafx.h" via a relative (same-directory-first)
 # include, which otherwise only resolves for sources directly in this directory.
 target_include_directories(lwbase PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -68,6 +74,17 @@ target_include_directories(lwbase PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET lwbase PROPERTY CXX_STANDARD 20)
 endif()
+
+# Make lwbase installable and exportable (see the top-level CMakeLists.txt for
+# the matching install(EXPORT ...) / package config generation).
+include(GNUInstallDirs)
+install(TARGETS lwbase
+    EXPORT litwindowTargets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
 
 # Add unit tests (optional, controlled by BUILD_TESTING)
 include(CTest)

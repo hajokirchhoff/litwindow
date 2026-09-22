@@ -51,8 +51,24 @@ target_compile_definitions(lwwx
 
 target_link_libraries(lwwx PUBLIC lwbase Boost::boost wx::core wx::base wx::html wx::adv)
 
-target_include_directories(lwwx PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+# See libs/lwbase/CMakeLists.txt for why BUILD_INTERFACE/INSTALL_INTERFACE are
+# used instead of a plain path.
+target_include_directories(lwwx PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET lwwx PROPERTY CXX_STANDARD 20)
 endif()
+
+# Make lwwx installable and exportable (see the top-level CMakeLists.txt for
+# the matching install(EXPORT ...) / package config generation).
+include(GNUInstallDirs)
+install(TARGETS lwwx
+    EXPORT litwindowTargets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)

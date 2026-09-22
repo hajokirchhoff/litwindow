@@ -1,0 +1,38 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "litwindow",
+  "version": "1.5.0",
+  "description": "litwindow: a small C++ library collection (lwbase core utilities, optional ODBC data-access and wxWidgets UI integration).",
+  "homepage": "https://github.com/hajokirchhoff/litwindow",
+  "license": "MIT",
+  "dependencies": [
+    "boost-format",
+    "boost-preprocessor",
+    "boost-uuid",
+    "boost-lexical-cast",
+    "boost-bind",
+    "boost-logic",
+    "boost-test",
+    "boost-thread",
+    "boost-serialization",
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ],
+  "features": {
+    "odbc": {
+      "description": "Build the litwindow ODBC data-access library. On Linux the ODBC driver manager (unixODBC) is expected to be installed via the system package manager (e.g. apt-get install unixodbc-dev), not vcpkg, so this feature adds no extra vcpkg dependencies of its own."
+    },
+    "wx": {
+      "description": "Build the lwwx wxWidgets UI integration library",
+      "dependencies": [
+        "wxwidgets"
+      ]
+    }
+  }
+}
