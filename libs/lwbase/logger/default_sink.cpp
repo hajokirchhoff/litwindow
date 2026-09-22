@@ -18,6 +18,10 @@ namespace litwindow {
 		template global_sink_data<wchar_t> LITWINDOW_LOGGER_API &global_sink_data<wchar_t>::instance();
 		template basic_tag<char>::container_type LITWINDOW_LOGGER_API &basic_tag<char>::name_container();
 		template basic_tag<wchar_t>::index_container_type LITWINDOW_LOGGER_API &basic_tag<wchar_t>::index_container();
+		template basic_tag<char>::index_container_type LITWINDOW_LOGGER_API &basic_tag<char>::index_container();
+		template basic_tag<wchar_t>::container_type LITWINDOW_LOGGER_API &basic_tag<wchar_t>::name_container();
+		template boost::mutex LITWINDOW_LOGGER_API &basic_tag<char>::g_lock();
+		template boost::mutex LITWINDOW_LOGGER_API &basic_tag<wchar_t>::g_lock();
 	}
 }
 #endif

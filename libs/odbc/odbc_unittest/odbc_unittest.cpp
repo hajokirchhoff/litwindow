@@ -34,7 +34,7 @@ const tstring sqLite3Connection = _T("Driver={") + sqlite3_driver_name + _T("};D
 static std::string sqlite_odbc_driver_install_hint()
 {
 	std::ostringstream msg;
-	msg << "Could not open a connection using the ODBC driver \"" << sqlite3_driver_name << "\".\n"
+	msg << "Could not open a connection using the ODBC driver \"" << litwindow::t2string(sqlite3_driver_name) << "\".\n"
 		<< "This test requires a SQLite ODBC driver to be installed and registered with the ODBC driver manager\n"
 		<< "under exactly that name (the \"Driver=\" value in a connection string must match the driver's\n"
 		<< "registered/section name, not necessarily its human-readable description).\n"
@@ -72,7 +72,7 @@ static bool try_open_sqlite_connection(odbc::connection &c, odbc::sqlreturn &rc)
 		return false;
 	}
 	if (!rc.success()) {
-		BOOST_ERROR("Failed to open SQLite ODBC connection: " << rc.as_string() << "\n" << sqlite_odbc_driver_install_hint());
+		BOOST_ERROR("Failed to open SQLite ODBC connection: " << litwindow::t2string(rc.as_string()) << "\n" << sqlite_odbc_driver_install_hint());
 		return false;
 	}
 	return true;

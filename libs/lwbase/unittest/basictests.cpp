@@ -17,10 +17,6 @@ using ::std::runtime_error;
 using namespace litwindow;
 using namespace std;
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
-
 using namespace litwindow;
 
 void experimentWithStuff()

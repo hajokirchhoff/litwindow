@@ -52,13 +52,36 @@ target_compile_definitions(odbc
 		# which otherwise looks for a lib named after the (VS-project-only)
 		# auto_link naming convention and fails to link (LNK1104).
 		LITWINDOW_ODBC_NO_LIB
+		# Enables __declspec(dllexport)/dllimport via litwindow's LWBASE_API/
+		# LWBASE_DLL_EXPORT macros (see lw_pragma_import.h). Without this, those
+		# macros expand to nothing on MSVC shared builds and explicitly
+		# instantiated templates (e.g. get_prop_type_data_adapter_mechanism<T>)
+		# are compiled into lwbase.dll/odbc.dll but never added to their export
+		# table, causing LNK2019 unresolved externals in consumers. No effect
+		# on non-MSVC compilers (see lw_pragma_import.h).
+		$<$<BOOL:${BUILD_SHARED_LIBS}>:LITWINDOW_ALL_DYN_LINK>
+		# LWBASE_DYN_LINK (enabled above via LITWINDOW_ALL_DYN_LINK) requires
+		# BOOST_ALL_DYN_LINK on MSVC (see lw_pragma_import.h's #error check), and
+		# since LITWINDOW_ALL_DYN_LINK is now PUBLIC and propagates to consumers,
+		# this must be PUBLIC too so their compiles satisfy that check as well.
+		$<$<BOOL:${BUILD_SHARED_LIBS}>:BOOST_ALL_DYN_LINK>
 	PRIVATE
 		$<$<BOOL:${BUILD_SHARED_LIBS}>:LWODBC_EXPORTS>
-		$<$<BOOL:${BUILD_SHARED_LIBS}>:BOOST_ALL_DYN_LINK>
 )
 
 # Link Boost headers, lwbase and the ODBC driver manager
 target_link_libraries(odbc PUBLIC lwbase ODBC::ODBC Boost::boost)
+
+# dbms.cpp calls SQLConfigDataSourceW / SQLInstallerErrorW, which are part of the
+# Windows ODBC Installer API (odbccp32.lib), not the core driver manager import lib
+# (odbc32.lib). This library only exists on Windows.
+if (WIN32)
+	target_link_libraries(odbc PUBLIC odbccp32)
+	# odbccp32.lib references the legacy CRT symbol _vsnwprintf_s (via StringCchPrintfW),
+	# which was removed from the default UCRT import libs. legacy_stdio_definitions.lib
+	# re-exports it and must be linked explicitly on modern MSVC toolchains.
+	target_link_libraries(odbc PUBLIC legacy_stdio_definitions)
+endif()
 
 # Add include directories
 target_include_directories(odbc PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../..")

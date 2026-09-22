@@ -56,8 +56,10 @@ IMPLEMENT_ADAPTER_TYPE(std::uint64_t)
 #if INT64_MAX != LONG_MAX
 IMPLEMENT_ADAPTER_TYPE(std::int64_t)
 #endif
+#ifndef _WIN32
 IMPLEMENT_ADAPTER_TYPE(long long)
 IMPLEMENT_ADAPTER_TYPE(unsigned long long)
+#endif // _WIN32
 
 #define HAS_BOOST_UUID
 #ifdef HAS_BOOST_UUID
