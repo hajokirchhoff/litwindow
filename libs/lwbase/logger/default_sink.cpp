@@ -7,7 +7,7 @@
 */
 #include "stdafx.h"
 #if defined(LITWINDOW_LOGGER_EXPORTS) || defined(LWBASE_EXPORTS)
-#include "..\..\..\litwindow\logger\sink.hpp"
+#include "../../../litwindow/logger/sink.hpp"
 
 namespace litwindow {
 	namespace logger {

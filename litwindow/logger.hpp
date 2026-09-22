@@ -11,9 +11,19 @@
 #endif
 
 #ifdef LITWINDOW_LOGGER_EXPORTS
-#define LITWINDOW_LOGGER_API _declspec(dllexport)
+#if defined(_MSC_VER)
+#define LITWINDOW_LOGGER_API __declspec(dllexport)
+#else
+// No dllexport-equivalent needed here: GCC/Clang export all symbols by
+// default (this project does not build with -fvisibility=hidden).
+#define LITWINDOW_LOGGER_API
+#endif
 #elif defined(LITWINDOW_LOGGER_DYN_LINK)
-#define LITWINDOW_LOGGER_API _declspec(dllimport)
+#if defined(_MSC_VER)
+#define LITWINDOW_LOGGER_API __declspec(dllimport)
+#else
+#define LITWINDOW_LOGGER_API
+#endif
 #else
 #define LITWINDOW_LOGGER_API
 #endif
@@ -75,7 +85,7 @@ namespace litwindow {
 				using index_type = size_t;
 				typedef std::basic_string<_Elem> string_type;
 				typedef std::unordered_map<string_type, index_type> basic_name_map;
-#if defined(_MT) && defined(LITWINDOW_LOGGER_MUTEX)
+#if defined(LITWINDOW_LOGGER_MUTEX)
 				typedef boost::mutex mutex_type;
 				template <typename _L>
 				struct mutex_lock_type:public boost::lock_guard<_L>
