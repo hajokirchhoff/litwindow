@@ -1306,9 +1306,30 @@ litwindow::tstring litwindow::converter<boost::optional<tp>>::to_string(const bo
 #define PROPENTRY(offset, type, name, ...)    \
 	::litwindow::schema_entry(offset, type, name, "", __VA_ARGS__),
 
+#if defined(__GNUC__)
+// offsetof() on non-standard-layout reflection classes (e.g. test fixtures using multi-level
+// inheritance with data members at more than one level) is only "conditionally supported" by
+// the standard. GCC nonetheless computes a correct constant offset for these non-virtual
+// inheritance cases (Itanium C++ ABI), so the usage below is intentional and known-safe;
+// silence the resulting -Winvalid-offsetof warning rather than avoid offsetof entirely.
+#define LWL_BEGIN_SUPPRESS_INVALID_OFFSETOF \
+	_Pragma("GCC diagnostic push") \
+	_Pragma("GCC diagnostic ignored \"-Winvalid-offsetof\"")
+#define LWL_END_SUPPRESS_INVALID_OFFSETOF \
+	_Pragma("GCC diagnostic pop")
+#else
+#define LWL_BEGIN_SUPPRESS_INVALID_OFFSETOF
+#define LWL_END_SUPPRESS_INVALID_OFFSETOF
+#endif
+
 /** Define a schema entry for a member variable. */
 #define PROP(variable, ...) \
-	PROPENTRY(offsetof(PROPCLASS, variable), PROPTYPE(variable), #variable, { __VA_ARGS__ })
+	[]() -> ::litwindow::schema_entry { \
+		LWL_BEGIN_SUPPRESS_INVALID_OFFSETOF \
+		::litwindow::schema_entry lw_prop_entry(offsetof(PROPCLASS, variable), PROPTYPE(variable), #variable, "", { __VA_ARGS__ }); \
+		LWL_END_SUPPRESS_INVALID_OFFSETOF \
+		return lw_prop_entry; \
+	}(),
 
 #define PROP_ANN(...) \
 	PROPENTRY(size_t(-1), nullptr, nullptr, { __VA_ARGS__ })

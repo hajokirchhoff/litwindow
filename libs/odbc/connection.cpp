@@ -11,6 +11,8 @@
 
 #include <sqlext.h>
 #include <malloc.h>
+#include <cstdint>
+#include <bit>
 
 #include <boost/thread/mutex.hpp>
 
@@ -631,7 +633,9 @@ namespace litwindow {
 
 	const sqlreturn &connection::set_attribute(SQLINTEGER attribute, SQLUINTEGER value)
 	{
-		m_last_error=SQLSetConnectAttr(handle(), attribute, (SQLPOINTER)value, SQL_IS_UINTEGER);
+		// widen through uintptr_t first: SQLUINTEGER may be smaller than SQLPOINTER (e.g. LP64),
+		// so a direct cast to SQLPOINTER would trigger -Wint-to-pointer-cast.
+		m_last_error=SQLSetConnectAttr(handle(), attribute, reinterpret_cast<SQLPOINTER>(static_cast<std::uintptr_t>(value)), SQL_IS_UINTEGER);
 		return m_last_error;
 	}
 	const sqlreturn &connection::set_attribute(SQLINTEGER attribute, const tstring &value)
@@ -669,10 +673,14 @@ namespace litwindow {
 	{
 		SQLSMALLINT length;
 		value=0;
+		// Some ODBC info ids return a SQLUSMALLINT (2 bytes) rather than a full SQLUINTEGER
+		// (4 bytes); the driver then only writes the low 2 bytes of the buffer we pass here.
+		// Since value is zero-initialised, this only yields the correct result if those low
+		// bytes are the least-significant ones, i.e. on little-endian hosts.
+		static_assert(std::endian::native == std::endian::little,
+			"connection::get_info assumes little-endian (LSB) byte order; "
+			"this code path must be revised for big-endian platforms");
 		m_last_error=SQLGetInfo(handle(), info, &value, sizeof(SQLUINTEGER), &length);
-#if !defined(_WIN32)
-#pragma message("This code assumes LSB byte order!")
-#endif
 		return m_last_error;
 	}
 
@@ -745,7 +753,9 @@ namespace litwindow {
 		rc.assert_success();
 		rc.set_handles(SQL_HANDLE_ENV, m_handle);
 		SQLINTEGER version=SQL_OV_ODBC3;
-		rc=SQLSetEnvAttr(handle(), SQL_ATTR_ODBC_VERSION, (SQLPOINTER)version, SQL_IS_INTEGER);
+		// widen through uintptr_t first: SQLINTEGER may be smaller than SQLPOINTER (e.g. LP64),
+		// so a direct cast to SQLPOINTER would trigger -Wint-to-pointer-cast.
+		rc=SQLSetEnvAttr(handle(), SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(static_cast<std::uintptr_t>(version)), SQL_IS_INTEGER);
 		rc.assert_success();
 	}
 

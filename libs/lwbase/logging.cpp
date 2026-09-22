@@ -43,7 +43,6 @@ namespace {
 #endif
     }
 };
-#pragma message("Modify 'OutputDebug' to send lw_log() messages to your debug device. Example: cout << str;")
 #endif
 namespace litwindow {
 
