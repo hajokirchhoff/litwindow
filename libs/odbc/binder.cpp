@@ -71,12 +71,12 @@ namespace {
 template <>
 size_t litwindow::converter<TIME_STRUCT>::from_string(const litwindow::tstring &newValue, TIME_STRUCT &v)
 {
-	ios_base::iostate st = 0;
+	ios_base::iostate st = ios_base::goodbit;
 	struct tm t;
 	memset(&t, 0, sizeof(t));
 	{
 		basic_istringstream<TCHAR> in(newValue);
-		use_facet<time_get<TCHAR	> >(locale()).get_time(in.rdbuf(), basic_istream<TCHAR>::_Iter(0), in, st, &t);
+		use_facet<time_get<TCHAR> >(locale()).get_time(in.rdbuf(), std::istreambuf_iterator<TCHAR>(), in, st, &t);
 	}
 	if (st & ios_base::failbit) {
 		size_t hours=0, minutes=0, seconds=0;
@@ -408,7 +408,10 @@ struct reset_intermediate_buffer_pointers
 		if  ((const unsigned char*)p>=begin_ptr && (const unsigned char*)p<end_ptr)
 			p=0;
 	}
-#ifdef _WIN64
+#if defined(_WIN64) || (!defined(_WIN32) && (defined(__LP64__) || defined(_LP64)))
+	// On 64-bit platforms SQLLEN (64-bit) is a distinct type from SQLINTEGER (32-bit),
+	// so a dedicated overload is required. On 32-bit platforms SQLLEN and SQLINTEGER
+	// are the same type, so this overload would be a duplicate and must be omitted.
 	void operator()(SQLLEN * &p) const
 	{
 		if ((const unsigned char*)p>=begin_ptr && (const unsigned char*)p<end_ptr)

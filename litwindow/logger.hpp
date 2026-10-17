@@ -11,9 +11,19 @@
 #endif
 
 #ifdef LITWINDOW_LOGGER_EXPORTS
-#define LITWINDOW_LOGGER_API _declspec(dllexport)
+#if defined(_MSC_VER)
+#define LITWINDOW_LOGGER_API __declspec(dllexport)
+#else
+// No dllexport-equivalent needed here: GCC/Clang export all symbols by
+// default (this project does not build with -fvisibility=hidden).
+#define LITWINDOW_LOGGER_API
+#endif
 #elif defined(LITWINDOW_LOGGER_DYN_LINK)
-#define LITWINDOW_LOGGER_API _declspec(dllimport)
+#if defined(_MSC_VER)
+#define LITWINDOW_LOGGER_API __declspec(dllimport)
+#else
+#define LITWINDOW_LOGGER_API
+#endif
 #else
 #define LITWINDOW_LOGGER_API
 #endif
@@ -75,7 +85,7 @@ namespace litwindow {
 				using index_type = size_t;
 				typedef std::basic_string<_Elem> string_type;
 				typedef std::unordered_map<string_type, index_type> basic_name_map;
-#if defined(_MT) && defined(LITWINDOW_LOGGER_MUTEX)
+#if defined(LITWINDOW_LOGGER_MUTEX)
 				typedef boost::mutex mutex_type;
 				template <typename _L>
 				struct mutex_lock_type:public boost::lock_guard<_L>
@@ -348,7 +358,7 @@ namespace litwindow {
 			inline bool operator<(const basic_level &r) const { return this->m_index < r.m_index; }
 		};
 		template <>
-		inline static const typename basic_level<char>::tag_type &basic_level<char>::get(basic_level<char>::preset p)
+		inline const typename basic_level<char>::tag_type &basic_level<char>::get(basic_level<char>::preset p)
 		{
 			static const tag_type g_tags[]=
 			{
@@ -358,7 +368,7 @@ namespace litwindow {
 			return g_tags[p<sizeof(g_tags)/sizeof(g_tags[0]) ? p : 0];
 		}
 		template <>
-		inline static const typename basic_level<wchar_t>::tag_type &basic_level<wchar_t>::get(basic_level<wchar_t>::preset p)
+		inline const typename basic_level<wchar_t>::tag_type &basic_level<wchar_t>::get(basic_level<wchar_t>::preset p)
 		{
 			static const tag_type g_tags[]=
 			{
@@ -417,8 +427,7 @@ namespace litwindow {
 			using instance_type = basic_instance<_Elem>;
 			using timestamp_type = time_t;
 			using char_type = typename _Mysb::char_type;
-
-			using _Mysb::traits_type;
+			using traits_type = _Traits;
 		private:
 			using _Mysb::pptr;
 			using _Mysb::sputc;
@@ -566,7 +575,7 @@ namespace litwindow {
 				//TODO: Optimize this
 				if (sink()) {
 					sink()->put(entries(_Mysb::pbase(), _Mysb::pptr()));
-					_Mysb::setp(_Mysb::pbase(), _Mysb::pbase(), _Mysb::epptr());
+					_Mysb::setp(_Mysb::pbase(), _Mysb::epptr());
 					m_begin_data=0;
 					m_current_entry=0;
 				}
@@ -602,7 +611,9 @@ namespace litwindow {
 #else
 					std::copy(_Oldptr, _Oldptr+_Oldsize, _Newptr);
 #endif
-					_Mysb::setp(_Newptr, _Newptr + (_Mysb::pptr()-_Oldptr), _Newptr+_Newsize);
+					const auto old_pptr_offset = _Mysb::pptr()-_Oldptr;
+					_Mysb::setp(_Newptr, _Newptr+_Newsize);
+					_Mysb::pbump(static_cast<int>(old_pptr_offset));
 					if (m_state & _Allocated)
 						m_allocator.deallocate(_Oldptr, _Oldsize);
 				}

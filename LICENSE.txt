@@ -1,8 +1,6 @@
-	Use of any material from the Lit Window Library Version is subject to the following license:
-
 MIT License
 
-Copyright (c) 2026 Hajo Kirchhoff
+Copyright (c) 2004-2026, Hajo Kirchhoff, Kirchhoff IT-Consulting (Lit Window Productions), Germany, www.litwindow.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

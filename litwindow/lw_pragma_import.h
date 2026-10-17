@@ -23,8 +23,15 @@
 #define LWBASE_DYN_LINK
 #endif
 
+// This restriction only matters on MSVC, where mixing a DLL (dllimport/dllexport)
+// with a statically linked Boost can lead to inconsistent symbol visibility across
+// the DLL boundary. On other platforms (e.g. GCC/Clang on Linux), there is no such
+// DLL boundary concern, so a dynamically linked litwindow library can be built
+// against a statically linked Boost without issue.
+#if defined(_MSC_VER)
 #if defined(LWBASE_DYN_LINK) && !defined(BOOST_ALL_DYN_LINK)
 #error "litwindow dynamic linkage requires boost dynamic linkage"
+#endif
 #endif
 
 // do not include litwindow auto link info, use boost instead (see below)

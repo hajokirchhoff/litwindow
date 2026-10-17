@@ -149,7 +149,7 @@ namespace litwindow {
 */
 
 			///! Constructor for accessor functor
-			template <typename Accessor, typename ValueType = value_type, typename ColumnType = std::invoke_result<Accessor, const ValueType&>::type>
+			template <typename Accessor, typename ValueType = value_type, typename ColumnType = typename std::invoke_result<Accessor, const ValueType&>::type>
 			basic_column_descriptor(const tstring &title, int width, Accessor acc)
 				:basic_column_label(title, width)
 			{
@@ -157,7 +157,7 @@ namespace litwindow {
 				m_comparator = boost::bind<ColumnType>(acc, boost::placeholders::_1) < boost::bind<ColumnType>(acc, boost::placeholders::_2);
 			}
 			///! Constructor for accessor functor with separate formatter
-			template <typename Accessor, typename Formatter, typename ValueType = value_type, typename ColumnType = std::invoke_result<Accessor, const ValueType&>::type>
+			template <typename Accessor, typename Formatter, typename ValueType = value_type, typename ColumnType = typename std::invoke_result<Accessor, const ValueType&>::type>
 			basic_column_descriptor(const tstring &title, int width, Accessor acc, const Formatter &fmt)
 				:basic_column_label(title, width)
 			{
@@ -166,7 +166,7 @@ namespace litwindow {
 			}
 
 			///! Constructor for text renderer functor
-			template <typename Accessor, typename std::enable_if<std::is_void<typename std::invoke_result<Accessor, const value_type &, wstring&>::type>::value, int>::type = 0 >
+			template <typename Accessor, typename std::enable_if<std::is_void<typename std::invoke_result<Accessor, const value_type &, tstring&>::type>::value, int>::type = 0 >
 			basic_column_descriptor(const tstring &title, int width, Accessor acc)
 				: basic_column_label(title, width)
 			{
@@ -259,21 +259,21 @@ namespace litwindow {
 		{
 			typedef ColValue column_value_type;
 			typedef RowValue row_value_type;
-			typedef void (formatter_type)(column_value_type, wstring &);
+			typedef void (formatter_type)(column_value_type, tstring &);
 		};
 		template <typename ColValue, typename RowValue>
 		struct column_accessor<ColValue (RowValue::*)()const, RowValue>
 		{
 			typedef ColValue column_value_type;
 			typedef RowValue row_value_type;
-			typedef void (formatter_type)(column_value_type, wstring &);
+			typedef void (formatter_type)(column_value_type, tstring &);
 		};
 		template <typename ColValue, typename RowValue>
 		struct column_accessor<ColValue (*)(const RowValue&), RowValue>
 		{
 			typedef ColValue column_value_type;
 			typedef RowValue row_value_type;
-			typedef void (formatter_type)(const column_value_type&, wstring &);
+			typedef void (formatter_type)(const column_value_type&, tstring &);
 		};
 		template <typename ColumnAccessor, typename RowValue>
 		struct column_accessor<ColumnAccessor, RowValue, typename boost::disable_if<boost::is_void<typename ColumnAccessor::result_type> >::type >
@@ -281,11 +281,11 @@ namespace litwindow {
 			//typedef typename boost::remove_const<typename boost::remove_reference<typename ColumnAccessor::result_type>::type>::type column_value_type;
 			typedef typename ColumnAccessor::result_type column_value_type;
 			typedef RowValue row_value_type;
-			typedef void (formatter_type)(const column_value_type&, wstring &);
+			typedef void (formatter_type)(const column_value_type&, tstring &);
 		};
 
 		template <typename RowValue, typename ColumnAccessor>
-		basic_column_descriptor<RowValue> make_basic_column_descriptor(const wstring &title, int width, const ColumnAccessor &a, typename column_accessor<ColumnAccessor, RowValue>::formatter_type f=0)
+		basic_column_descriptor<RowValue> make_basic_column_descriptor(const tstring &title, int width, const ColumnAccessor &a, typename column_accessor<ColumnAccessor, RowValue>::formatter_type f=0)
 		{
 			typedef typename column_accessor<ColumnAccessor, RowValue>::column_value_type column_value_type;
 			//typedef BOOST_TYPEOF(boost::bind(a, boost::placeholders::_1)(*(const RowValue*)0)) column_value_type;
@@ -299,7 +299,7 @@ namespace litwindow {
 		}
 
 		template <typename RowValue>
-		basic_column_descriptor<RowValue> make_basic_column_descriptor(const wstring &title, int width, boost::function<void(const RowValue&, wstring &)> fncObject)
+		basic_column_descriptor<RowValue> make_basic_column_descriptor(const tstring &title, int width, boost::function<void(const RowValue&, tstring &)> fncObject)
 		{
 			//typedef BOOST_TYPEOF(boost::bind(a, boost::placeholders::_1)(*(const RowValue*)0)) column_value_type;
 			basic_column_descriptor<RowValue> rc(title, width);
@@ -308,7 +308,7 @@ namespace litwindow {
 		}
 
 		template <typename RowValue, typename R>
-		basic_column_descriptor<RowValue> make_basic_column_descriptor(const wstring &title, int width, R (RowValue::*r), typename column_accessor<R (RowValue::*), RowValue>::formatter_type f)
+		basic_column_descriptor<RowValue> make_basic_column_descriptor(const tstring &title, int width, R (RowValue::*r), typename column_accessor<R (RowValue::*), RowValue>::formatter_type f)
 		{
 			basic_column_descriptor<RowValue> rc(title, width);
 			typedef typename boost::remove_reference<R>::type column_value_type;
@@ -321,7 +321,7 @@ namespace litwindow {
 		}
 
 		template <typename RowValue, typename R>
-		basic_column_descriptor<RowValue> make_basic_column_descriptor_memfnc(const wstring &title, int width, R (RowValue::*r)() const, typename column_accessor<R (RowValue::*)() const, RowValue>::formatter_type f)
+		basic_column_descriptor<RowValue> make_basic_column_descriptor_memfnc(const tstring &title, int width, R (RowValue::*r)() const, typename column_accessor<R (RowValue::*)() const, RowValue>::formatter_type f)
 		{
 			basic_column_descriptor<RowValue> rc(title, width);
 			typedef typename boost::remove_reference<R>::type column_value_type;
@@ -372,7 +372,7 @@ namespace litwindow {
                     return add(d);
                 }
 
-				back_inserter operator()(const wstring &title, int width, void (fnc)(const value_type&, wstring&)) const
+				back_inserter operator()(const tstring &title, int width, void (fnc)(const value_type&, tstring&)) const
 				{
 					return operator()(column_descriptor_type(title, width, text_renderer_type(fnc)));
 				}
@@ -431,7 +431,7 @@ namespace litwindow {
             const column_descriptor_type &column_descriptor(size_t idx) const { return columns().at(idx); }
 			column_descriptor_type &column_descriptor(size_t idx) { return columns().at(idx); }
 
-			size_t get_column_index(const wstring &title) const
+			size_t get_column_index(const tstring &title) const
 			{
 				typename columns_t::const_iterator i=find_if(columns().begin(), columns().end(), boost::bind(&columns_t::value_type::title, boost::placeholders::_1)==title);
 				if (i==columns().end())
@@ -452,12 +452,12 @@ namespace litwindow {
 			{
 				return columns().at(col).render_element_image(rc, v);
 			}
-			bool render_element_at(const wstring &column, tstring &rc, const value_type &v) const
+			bool render_element_at(const tstring &column, tstring &rc, const value_type &v) const
 			{
 				return render_element_at(get_column_index(column), rc, v);
 			}
-            typename columns_t::value_type &at(size_t col) { return columns().at(col); }
-			typename const columns_t::value_type &at(size_t col) const { return columns().at(col); }
+			typename columns_t::value_type &at(size_t col) { return columns().at(col); }
+			const typename columns_t::value_type &at(size_t col) const { return columns().at(col); }
             //const value_type &column_description(size_t idx) const { return columns().at(idx); }
 
             //const element_value_type &get(const value_type &e, const column_position_type &pos) const
@@ -752,7 +752,7 @@ namespace litwindow {
                 dataset_adapter().append(data);
             }
 
-#ifdef not
+#if 0
 			template <typename Fnc>
 			void visit(size_t idx, Fnc f)
 			{
@@ -763,7 +763,7 @@ namespace litwindow {
 			{
 				ui_adapter().for_each_selected(bind(&basic_list_mediator::visit, this, boost::placeholders::_1, f));
 			}
-#endif // not
+#endif // 0
 			template <typename ResultSet, typename Fnc>
 			void visit(ResultSet* rc, size_t idx, Fnc f)
 			{
@@ -796,7 +796,7 @@ namespace litwindow {
 		//------------------------------------------------------------------------------------------------------------------------------------
 		//////////////////////////////////////////////////////////////////////////
         template <typename DatasetAdapter, typename UIControlAdapter, typename ColumnsAdapter>
-        void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, typename ColumnsAdapter>::refresh()
+        void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, ColumnsAdapter>::refresh()
         {
             begin_update();
             refresh_dataset();
@@ -806,7 +806,7 @@ namespace litwindow {
         }
 
         template <typename DatasetAdapter, typename UIControlAdapter, typename ColumnsAdapter>
-        void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, typename ColumnsAdapter>::refresh_columns(bool do_refresh)
+        void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, ColumnsAdapter>::refresh_columns(bool do_refresh)
         {
             if (do_refresh || columns_adapter().dirty()) {
                 begin_update();
@@ -824,13 +824,13 @@ namespace litwindow {
 		}
 
         template <typename DatasetAdapter, typename UIControlAdapter, typename ColumnsAdapter>
-        void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, typename ColumnsAdapter>::refresh_list()
+        void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, ColumnsAdapter>::refresh_list()
         {
             m_ui_control_adapter.refresh_list(m_dataset_adapter, m_columns_adapter);
         }
 
         template <typename DatasetAdapter, typename UIControlAdapter, typename ColumnsAdapter>
-        void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, typename ColumnsAdapter>::setup_columns()
+        void litwindow::ui::basic_list_mediator<DatasetAdapter, UIControlAdapter, ColumnsAdapter>::setup_columns()
         {
             m_ui_control_adapter.setup_columns(columns_adapter());
 			columns_adapter().clear_dirty();

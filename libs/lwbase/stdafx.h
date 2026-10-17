@@ -25,7 +25,9 @@
 //#define _GLIBCPP_USE_WCHAR_T	1
 //#endif
 
+#ifdef _WIN32
 #include "./targetver.h"
+#endif // _WIN32
 
 #ifdef wxUSE_GUI
 #include <wx/wxprec.h>

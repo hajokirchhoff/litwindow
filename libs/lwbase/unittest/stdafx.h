@@ -12,10 +12,12 @@
 #define _SCL_SECURE_NO_WARNINGS
 #endif
 
+#ifdef WIN32
 #include "targetver.h"
+#endif
 
 #include <stdio.h>
-#include <tchar.h>
+#include "litwindow/tchar.h"
 
 
 

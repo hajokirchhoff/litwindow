@@ -1,5 +1,12 @@
 #include "stdafx.h"
-#define BOOST_TEST_MAIN
+// Use the standard (non-included) Boost.Test header, consistent with every other
+// test file in this project. BOOST_TEST_MODULE triggers automatic generation of a
+// main() function, backed by the separately linked Boost::unit_test_framework
+// library. Do NOT use <boost/test/included/unit_test.hpp> here: that variant embeds
+// the entire Boost.Test implementation directly into this translation unit, which
+// then collides (duplicate symbol definitions) with the linked
+// Boost::unit_test_framework library used by every other test file.
+#define BOOST_TEST_MODULE lwbase_unittest
 #include <boost/test/unit_test.hpp>
 #include "litwindow/logger.hpp"
 #include "litwindow/logger/sink.hpp"
@@ -18,13 +25,13 @@ using namespace std;
 template <typename Value>
 struct mem_ptr_lvalue
 {
-	static const bool value = false;
+	static constexpr bool value = false;
 };
 
 template <typename RC, typename Ptr>
 struct mem_ptr_lvalue<RC (Ptr::*)()>
 {
-	static const bool value = true;
+	static constexpr bool value = true;
 	using type = RC;
 };
 
@@ -117,27 +124,27 @@ struct test_caller
 
 BOOST_AUTO_TEST_CASE(logging_syntax_check)
 {
-    logger::basic_events<wchar_t, basic_stringstream<wchar_t> > test;
-    {
-        test_caller a;
-        test && "Hello";
-        wstring rc=test.rdbuf()->str();
-        BOOST_CHECK(rc==wstring(L"debug\t\t\t0\tHello"));
-    }
-    {
-        // test contl immediately after level,component,topic
+	logger::basic_events<wchar_t, basic_stringstream<wchar_t> > test;
+	{
+		test_caller a;
+		test && "Hello";
+		std::wstring rc=test.rdbuf()->str();
+		BOOST_CHECK(rc==std::wstring(L"debug\t\t\t0\tHello"));
+	}
+	{
+		// test contl immediately after level,component,topic
 		test && logger::warning && logger::contl;
-        test && L"Ups";
-        wstring rc=test.rdbuf()->str();
-        BOOST_CHECK(rc==L"debug\t\t\t0\tHellowarning\t\t\t0\tUps");
-    }
-    {
-        // test contl after some text
-        test && logger::error && L"some text - " && logger::contl;
-        test && L"some more text";
-        wstring rc=test.rdbuf()->str();
+		test && L"Ups";
+		std::wstring rc=test.rdbuf()->str();
+		BOOST_CHECK(rc==L"debug\t\t\t0\tHellowarning\t\t\t0\tUps");
+	}
+	{
+		// test contl after some text
+		test && logger::error && L"some text - " && logger::contl;
+		test && L"some more text";
+		std::wstring rc=test.rdbuf()->str();
 		BOOST_CHECK(rc == L"debug\t\t\t0\tHellowarning\t\t\t0\tUpserror\t\t\t0\tsome text - some more text");
-    }
+	}
 }
 
 
@@ -156,15 +163,15 @@ BOOST_AUTO_TEST_CASE(simple_log_sink)
 
 BOOST_AUTO_TEST_CASE(simple_log_level)
 {
-    using namespace logger;
+	using namespace logger;
 	std::wstringstream s;
 	wostream_logsink sink(s);
 	sink.format().timestamp=false;
 	sink.format().level=false;
 	threadsafe::wevents e;
 	e.get_default().sink(&sink);
-    e && debug && L"This is a test with number " && 800;
-    e && warning && L"Some more tests.";
+	e && debug && L"This is a test with number " && 800;
+	e && warning && L"Some more tests.";
 	struct run_in_thread_t 
 	{
 		threadsafe::wevents m_e;
@@ -175,11 +182,11 @@ BOOST_AUTO_TEST_CASE(simple_log_level)
 		}
 	};
 	run_in_thread_t call_rit(e);
-	wstring rc_a(s.str());
+	std::wstring rc_a(s.str());
 	boost::thread trd(call_rit);
 	trd.join();
-	wstring rc(s.str());
-	BOOST_CHECK(rc==wstring(L"\t\tThis is a test with number 800\n\t\tSome more tests.\n\t\tThis from inside the thread900\n"));
+	std::wstring rc(s.str());
+	BOOST_CHECK(rc==std::wstring(L"\t\tThis is a test with number 800\n\t\tSome more tests.\n\t\tThis from inside the thread900\n"));
 }
 
 BOOST_AUTO_TEST_CASE(simple_stderr_log)
@@ -195,7 +202,13 @@ template <class _Elem>
 void simple_memory_sink_test(const _Elem *prefix1, const _Elem *prefix2)
 {
 	using namespace logger;
-	basic_memory_logsink<_Elem, 1024> sink;
+	// Use a page size comfortably larger than the longest single entry this test
+	// generates (prefix + up to max_length digit characters). This must account for
+	// _Elem possibly being wchar_t, which is 4 bytes wide on platforms using the LP64
+	// data model (e.g. Linux), vs. 2 bytes on Windows. A too-small page size would
+	// cause a single entry to exceed the page capacity, triggering the (currently
+	// unimplemented) entry-truncation fallback in basic_memory_logsink.
+	basic_memory_logsink<_Elem, 4096> sink;
 	const size_t first_count=200;
 	const size_t second_count=900;
 	const size_t max_length=377;
@@ -214,10 +227,10 @@ void simple_memory_sink_test(const _Elem *prefix1, const _Elem *prefix2)
 		}
 	}
 	{
-		typename basic_memory_logsink<_Elem, 1024>::const_iterator i=sink.begin();
+		typename basic_memory_logsink<_Elem, 4096>::const_iterator i=sink.begin();
 		size_t count=1;
 		while (i!=sink.end() && count<first_count) {
-			const typename basic_memory_logsink<_Elem, 1024>::entry &current(*i);
+			const typename basic_memory_logsink<_Elem, 4096>::entry &current(*i);
 			basic_ostringstream<_Elem> str;
 			str << prefix1 << count;
 			BOOST_CHECK(str.str()==current.str());
@@ -324,12 +337,12 @@ BOOST_AUTO_TEST_CASE(multithreading_logger)
 	boost::function<void()> work = [&internal_success]()
 	{
 		for (int repeat_count = 0; repeat_count < inner_repeat_count; ++repeat_count) {
-			std::wstring wcomp(L"comp-" + boost::lexical_cast<std::wstring>(repeat_count));
-			logger::threadsafe::wevents log(wcomp.c_str(), L"testlog");
+			tstring wcomp(_T("comp-") + boost::lexical_cast<tstring>(repeat_count));
+			logger::threadsafe::wevents log(wcomp.c_str(), _T("testlog"));
 			std::vector<boost::thread> internal_threads(inner_thread_count);
 			boost::function<void()> internal_work = [&log]() {
 				for (int i = 0; i < innermost_log_loop_count; ++i) {
-					log && L"Some Test with index " && i;
+					log && _T("Some Test with index ") && i;
 					boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
 				}
 			};

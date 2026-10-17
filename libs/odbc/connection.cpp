@@ -11,6 +11,8 @@
 
 #include <sqlext.h>
 #include <malloc.h>
+#include <cstdint>
+#include <bit>
 
 #include <boost/thread/mutex.hpp>
 
@@ -31,9 +33,9 @@ namespace litwindow {
 	//-----------------------------------------------------------------------------------------------------------//
 	//-----------------------------------------------------------------------------------------------------------//
 
-	connection::dbversion &connection::dbversion::operator=(std::wstring &new_version)
+	connection::dbversion &connection::dbversion::operator=(tstring &new_version)
 	{
-		std::wistringstream stream(new_version);
+		tistringstream stream(new_version);
 		stream >> major;
 		if (stream.peek() == '.') {
 			stream.ignore();
@@ -506,7 +508,7 @@ namespace litwindow {
 		get_info(SQL_DBMS_NAME, m_dbms_name).log_errors();
 		get_info(SQL_DBMS_VER, m_dbms_ver).log_errors();
 
-		std::wstring ver_string;
+		tstring ver_string;
 		get_info(SQL_DRIVER_ODBC_VER, ver_string);
 		m_dbms_odbc_ver = ver_string;
 		get_info(SQL_DRIVER_VER, ver_string);
@@ -554,7 +556,7 @@ namespace litwindow {
 		// Copy macros from dbms to connection
 		const dbms_base *const_dbms = m_dbms.get();
 		for (const auto & it : const_dbms->macros())
-			set_macro_value(L"$$" + it.first, it.second);
+			set_macro_value(_T("$$") + it.first, it.second);
 
 		return m_last_error;
 	}
@@ -631,7 +633,9 @@ namespace litwindow {
 
 	const sqlreturn &connection::set_attribute(SQLINTEGER attribute, SQLUINTEGER value)
 	{
-		m_last_error=SQLSetConnectAttr(handle(), attribute, (SQLPOINTER)value, SQL_IS_UINTEGER);
+		// widen through uintptr_t first: SQLUINTEGER may be smaller than SQLPOINTER (e.g. LP64),
+		// so a direct cast to SQLPOINTER would trigger -Wint-to-pointer-cast.
+		m_last_error=SQLSetConnectAttr(handle(), attribute, reinterpret_cast<SQLPOINTER>(static_cast<std::uintptr_t>(value)), SQL_IS_UINTEGER);
 		return m_last_error;
 	}
 	const sqlreturn &connection::set_attribute(SQLINTEGER attribute, const tstring &value)
@@ -669,10 +673,14 @@ namespace litwindow {
 	{
 		SQLSMALLINT length;
 		value=0;
+		// Some ODBC info ids return a SQLUSMALLINT (2 bytes) rather than a full SQLUINTEGER
+		// (4 bytes); the driver then only writes the low 2 bytes of the buffer we pass here.
+		// Since value is zero-initialised, this only yields the correct result if those low
+		// bytes are the least-significant ones, i.e. on little-endian hosts.
+		static_assert(std::endian::native == std::endian::little,
+			"connection::get_info assumes little-endian (LSB) byte order; "
+			"this code path must be revised for big-endian platforms");
 		m_last_error=SQLGetInfo(handle(), info, &value, sizeof(SQLUINTEGER), &length);
-#if !defined(_WIN32)
-#pragma message("This code assumes LSB byte order!")
-#endif
 		return m_last_error;
 	}
 
@@ -700,7 +708,7 @@ namespace litwindow {
 		tstring odbc_connection_string=dbms_base::construct_odbc_connection_string_from_file_name(file, uid, pwd, read_only, file_type);
 		if (dsn_addition.empty()==false)
 			odbc_connection_string+=_T(';')+dsn_addition;
-		set_dsn(wstring());
+		set_dsn(tstring());
 		return open(odbc_connection_string);
 	}
 
@@ -745,7 +753,9 @@ namespace litwindow {
 		rc.assert_success();
 		rc.set_handles(SQL_HANDLE_ENV, m_handle);
 		SQLINTEGER version=SQL_OV_ODBC3;
-		rc=SQLSetEnvAttr(handle(), SQL_ATTR_ODBC_VERSION, (SQLPOINTER)version, SQL_IS_INTEGER);
+		// widen through uintptr_t first: SQLINTEGER may be smaller than SQLPOINTER (e.g. LP64),
+		// so a direct cast to SQLPOINTER would trigger -Wint-to-pointer-cast.
+		rc=SQLSetEnvAttr(handle(), SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(static_cast<std::uintptr_t>(version)), SQL_IS_INTEGER);
 		rc.assert_success();
 	}
 

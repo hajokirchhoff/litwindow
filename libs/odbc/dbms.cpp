@@ -13,7 +13,9 @@
 #include <odbcinst.h>
 #include <litwindow/check.hpp>
 #include <litwindow/logging.h>
+#ifdef _WIN32
 #include <io.h>
+#endif
 #include "litwindow/odbc/dbms.h"
 #include "litwindow/odbc/statement.h"
 #include "litwindow/odbc/catalog.h"
@@ -78,11 +80,8 @@ namespace litwindow {
 			//TODO: This code should be moved into the separate dbms objects
 #ifdef _WIN32
 #define PATH_SEP _T('\\')
-#else
-#error define PATH_SEP appropriately, or better still: use boost::file once it works properly for unicode paths
-#endif
 			tstring rc;
-			tstring extension=file_type.empty() ? file.substr(max(0, file.length()-3)) : file_type;
+			tstring extension=file_type.empty() ? file.substr((std::max)((size_t)0, file.length()-3)) : file_type;
 			tstring file_path;
 			size_t file_sep=file.rfind(PATH_SEP);
 			if (file_sep!=tstring::npos)
@@ -102,6 +101,10 @@ namespace litwindow {
 				rc=_T("DRIVER={Microsoft Text Driver (*.txt; *.csv)};Format=TabDelimited;CHARACTERSET=\"ANSI\";DefaultDir=")+file_path;
 			}
 			return rc;
+#else
+			// MS-Access/Excel/text-driver file connections are Windows-only ODBC drivers.
+			throw std::runtime_error("construct_odbc_connection_string_from_file_name is only supported on Windows");
+#endif
 		}
 
 		sqlreturn dbms_base::register_dbms(can_handle_func_t can_handle, creator_func_t creator, void *)
@@ -155,6 +158,7 @@ namespace litwindow {
 		bool_result dbms_base::call_SQLConfigDataSource(SQLHWND hwnd, const tstring &command)
 		{
 			bool rc;
+#ifdef _WIN32
 			tstring the_command(command);
 			the_command.append(1, _T(';'));
 			size_t i;
@@ -176,6 +180,13 @@ namespace litwindow {
 					}
 				}
 			}
+#else
+			// SQLConfigDataSource/SQLInstallerError are Windows-only ODBC installer APIs.
+			(void)hwnd;
+			(void)command;
+			rc=false;
+			m_error_log+=_T("call_SQLConfigDataSource is only supported on Windows");
+#endif
 			return rc;
 		}
 
@@ -330,7 +341,7 @@ namespace litwindow {
 				boost::uuids::string_generator strgen;
 				bool remove_quotes = parameters.size() > 2 && parameters.front() == _T('\'') && parameters.back() == _T('\'');
 				auto uuid_val = strgen(remove_quotes ? parameters.substr(1, 36) : parameters);
-				static const _TCHAR hex_[] = _T("0123456789ABCDEF");
+				static const TCHAR hex_[] = _T("0123456789ABCDEF");
 				tstring rc(_T('#'), 35);
 				rc[0] = _T('X'); rc[1] = _T('\''); rc.back() = rc[1];
 				for (int idx = 0; idx <= 15; ++idx) {

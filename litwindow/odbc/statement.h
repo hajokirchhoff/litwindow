@@ -142,25 +142,21 @@ public:
         add_const_accessor(make_const_accessor(v));
         return *this;
     }
-	template <>
 	statement &operator << (accessor &v)
 	{
 		add_accessor(v);
 		return *this;
 	}
-	template <>
 	statement &operator << (const accessor &v)
 	{
 		add_accessor(v);
 		return *this;
 	}
-	template <>
 	statement &operator << (const_accessor &v)
 	{
 		add_const_accessor(v);
 		return *this;
 	}
-	template <>
 	statement &operator << (const const_accessor &v)
 	{
 		add_const_accessor(v);
@@ -493,10 +489,8 @@ public:
 	{
 		return	bind_column(make_aggregate(v));
 	}
-	template <> 
-		sqlreturn bind(const aggregate &a) { return bind_column(a); }
-	template <>
-		sqlreturn bind(aggregate &a) { return bind_column(a); }
+	sqlreturn bind(const aggregate &a) { return bind_column(a); }
+	sqlreturn bind(aggregate &a) { return bind_column(a); }
 	/// bind a single value to a column by name
 	template <class Value>
 		sqlreturn				bind(const tstring &name, Value &v)

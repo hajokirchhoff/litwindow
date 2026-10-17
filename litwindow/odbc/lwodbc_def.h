@@ -19,14 +19,24 @@
 #endif
 
 #if defined(LWODBC_EXPORTS)
-	#define LWODBC_API _declspec(dllexport)
+	#if defined(_MSC_VER)
+	#define LWODBC_API __declspec(dllexport)
+	#else
+	// No dllexport-equivalent needed here: GCC/Clang export all symbols by
+	// default (this project does not build with -fvisibility=hidden).
+	#define LWODBC_API
+	#endif
 #elif defined(_USRDLL) || defined(USING_DLL) || defined(LWODBC_DYN_LINK)
-	#define LWODBC_API _declspec(dllimport)
-    #ifndef LWODBC_DYN_LINK
-    #define LWODBC_DYN_LINK
-    #endif
+	#if defined(_MSC_VER)
+	#define LWODBC_API __declspec(dllimport)
+	#else
+	#define LWODBC_API
+	#endif
+	#ifndef LWODBC_DYN_LINK
+	#define LWODBC_DYN_LINK
+	#endif
 #else
-    #define LWODBC_API
+	#define LWODBC_API
 #endif
 
 #ifndef LWODBC_EXPORTS

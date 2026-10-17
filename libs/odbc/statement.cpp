@@ -332,7 +332,7 @@ const sqlreturn &statement::get_data_as_string(SQLUSMALLINT col, tstring &rc, SQ
 				rc.pop_back();
 		}
 		else
-			rc.resize(wcslen(const_cast<TCHAR*>(rc.data())));
+			rc.resize(_tcslen(const_cast<TCHAR*>(rc.data())));
 	}
 	return m_last_error;
 }
@@ -490,7 +490,7 @@ const sqlreturn &statement::execute()
 
 	// do NOT use this c["SQL_STATEMENT"] here, its verrrrrrry slow
 	//c["SQL_STATEMENT"]=t2string(m_sql_statement);
-	std::wstring current_ignore_once = m_last_error.get_ignore_once();
+	tstring current_ignore_once = m_last_error.get_ignore_once();
 	if (close_cursor().log_errors())
 		return m_last_error;
 	if (bind_parameters().fail() || put_parameters().fail())

@@ -5,7 +5,9 @@
 
 #pragma once
 
+#ifdef _WIN32
 #include "targetver.h"
+#endif
 // tell MS VC8 to stop issuing tons of (well meaning, but stupid) warnings
 #define _CRT_SECURE_NO_DEPRECATE
 #define _CRT_NONSTDC_NO_DEPRECATE
@@ -18,9 +20,17 @@
 #define DEBUG_NEW new
 #endif
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 // Windows Header Files:
 #include <windows.h>
+#else
+// Portable equivalents of MSVC-specific facilities used throughout libs/odbc
+#include <alloca.h>
+#include <csignal>
+#define _alloca(size) alloca(size)
+#define DebugBreak() raise(SIGTRAP)
+#endif
 
 
 

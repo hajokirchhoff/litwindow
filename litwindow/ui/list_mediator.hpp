@@ -41,7 +41,7 @@ namespace litwindow {
 		template <typename ColumnDescriptor, typename HandlePolicies>
 		struct basic_columns_sorter {
 			typedef typename ColumnDescriptor::value_type value_type;
-			typedef typename HandlePolicies handle_policies_type;
+			typedef HandlePolicies handle_policies_type;
 			typedef typename handle_policies_type::handle_type handle_type;
 			struct sort_column:public basic_columns_sort_index
 			{
@@ -60,7 +60,7 @@ namespace litwindow {
 			{
 				std::fill(m_sort_columns.begin(), m_sort_columns.end(), sort_column());
 			}
-			void push_sort(int new_column, const ColumnDescriptor &d, basic_columns_sort_index::sort_type_enum t=sort_automatic)
+			void push_sort(int new_column, const ColumnDescriptor &d, basic_columns_sort_index::sort_type_enum t=basic_columns_sort_index::sort_automatic)
 			{
 				typename sort_columns_t::iterator i=find_if(m_sort_columns.begin(), m_sort_columns.end(), boost::bind(&sort_column::m_column_index, boost::placeholders::_1)==new_column);
 				bool sortascending;
@@ -92,7 +92,7 @@ namespace litwindow {
 			{
 				typename sort_columns_t::const_iterator i=m_sort_columns.begin();
 				while (i!=m_sort_columns.end() && i->is_valid()) {
-					const sort_columns_t::value_type &current(*i);
+					const typename sort_columns_t::value_type &current(*i);
 					const value_type *l, *r;
 					if (i->m_sort_ascending) { l=&left; r=&right; } else { l=&right; r=&left; }
 					if (i->m_column_descriptor->compare(*l, *r, i->m_column_index))
@@ -126,7 +126,7 @@ namespace litwindow {
 		class handle_policies
 		{
 		public:
-			typedef typename Container container_type;
+			typedef Container container_type;
 			typedef typename container_type::value_type value_type;
 			typedef typename container_type::iterator handle_type;
 			value_type &handle_to_value(handle_type &h) const { return *h; }
@@ -138,7 +138,7 @@ namespace litwindow {
 		{
 		public:
 			typedef std::vector<boost::shared_ptr<Value> > container_type;
-			typedef typename Value value_type;
+			typedef Value value_type;
 			typedef typename container_type::iterator handle_type;
 			value_type &handle_to_value(handle_type &h) const { return **h; }
 			const value_type &handle_to_value(const handle_type &h) const { return **h; }
@@ -299,7 +299,9 @@ namespace litwindow {
 		};
 		
 		//------------------------------------------------------------------------------------------------------------------------------------
-		
+		template <typename UIControl>
+		class uicontrol_policies;
+
 		template <typename Container, typename UIControl, typename ContainerPolicies=container_policies<Container>, typename UIControlPolicies=uicontrol_policies<UIControl> >
 		class list_mediator
 		{

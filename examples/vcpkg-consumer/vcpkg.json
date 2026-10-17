@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "litwindow-consumer-example",
+  "version": "0.1.0",
+  "description": "Minimal standalone project used to test consuming litwindow as a vcpkg package (see ../../vcpkg-overlay/ports/litwindow and the 'Testing vcpkg consumption' section of the top-level README).",
+  "dependencies": [
+    {
+      "name": "litwindow",
+      "features": [ "odbc" ]
+    }
+  ]
+}

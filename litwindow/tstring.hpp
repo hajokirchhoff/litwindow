@@ -93,7 +93,7 @@ namespace litwindow {
 	{
 		tstring::iterator tou;
 		for (tou=t.begin(); tou!=t.end(); ++tou)
-			*tou=std::toupper(*tou, locale());
+			*tou=std::toupper(*tou, std::locale());
 		return t;
 	}
 

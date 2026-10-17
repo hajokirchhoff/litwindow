@@ -13,6 +13,7 @@
 
 #include "lwbase.hpp"
 #include <string>
+#include <memory>
 #include "dataadapterimp.h"
 
 /** @file
@@ -329,7 +330,6 @@ namespace litwindow {
 		void assign_value(const const_accessor &source);
 		template <typename Value>
 		void assign_value(const Value &v);
-		template <>
 		void assign_value(const int &i);
 
 		template <typename Value>
@@ -1162,6 +1162,13 @@ namespace litwindow {
 		{
 			return i.insert_into(*this, p);
 		}
+		// Overload for rvalue iterators (e.g. c.insert(c.end(), ...)). Note this intentionally
+		// does not propagate the post-insert position back to the caller since there is no
+		// lvalue to update; use the lvalue overload above if that is required.
+		bool insert(iterator &&i, const accessor &p)
+		{
+			return i.insert_into(*this, p);
+		}
 		bool erase(iterator &i)
 		{
 			return i.erase_from(*this);
@@ -1794,7 +1801,7 @@ namespace litwindow {
     template <typename AggregateType, typename ValueType>
     ValueType get_value(AggregateType &ag, const char *member_name)
     {
-        dynamic_cast_accessor<ValueType>(make_const_aggregate(ag)[member_name]).get<ValueType>();
+        return dynamic_cast_accessor<ValueType>(make_const_aggregate(ag)[member_name]).template get<ValueType>();
     }
 
 	/** converter class calling external (non-member) functions to get or set a value. */

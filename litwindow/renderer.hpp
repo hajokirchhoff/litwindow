@@ -115,11 +115,11 @@ namespace litwindow {
 		public:
 			register_renderer(const RenderObject &ro, renderer<TargetType>&render=default_renderer<TargetType>().get())
 			{
-				render.add<SourceType>(ro);
+				render.template add<SourceType>(ro);
 			}
 			register_renderer(const RenderObject &ro, const tstring &default_format, renderer<TargetType>&render=default_renderer<TargetType>().get())
 			{
-				render.add<SourceType>(ro, default_format);
+				render.template add<SourceType>(ro, default_format);
 			}
 		};
 
