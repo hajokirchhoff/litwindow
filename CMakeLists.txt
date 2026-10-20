@@ -9,7 +9,7 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-project ("litwindow" VERSION 1.5.2 LANGUAGES CXX)
+project ("litwindow" VERSION 1.5.3 LANGUAGES CXX)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set(CMAKE_CXX_STANDARD 20)
