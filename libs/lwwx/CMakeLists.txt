@@ -62,6 +62,10 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET lwwx PROPERTY CXX_STANDARD 20)
 endif()
 
+if(BUILD_TESTING)
+    add_subdirectory(policies_test)
+endif()
+
 # Make lwwx installable and exportable (see the top-level CMakeLists.txt for
 # the matching install(EXPORT ...) / package config generation).
 include(GNUInstallDirs)

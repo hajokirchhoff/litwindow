@@ -14,6 +14,7 @@
 #include "lwbase.hpp"
 #include <string>
 #include <memory>
+#include <type_traits>
 #include "dataadapterimp.h"
 
 /** @file
@@ -330,7 +331,6 @@ namespace litwindow {
 		void assign_value(const const_accessor &source);
 		template <typename Value>
 		void assign_value(const Value &v);
-		void assign_value(const int &i);
 
 		template <typename Value>
 		void set(const Value &v)
@@ -981,24 +981,22 @@ namespace litwindow {
 		return aggregate(&v, get_schema(v));
 	}
 
-	template <>
-	inline void accessor::assign_value(const int &i)
-	{
-		if (is_int())
-			from_int(i);
-		else
-			assign_value(make_const_accessor(i));
-	}
-
-
 	template <typename Value>
 	void accessor::assign_value(const Value &v)
 	{
-		typed_accessor<Value> t(dynamic_cast_accessor<Value>(*this));
-		if (t.is_valid())
-			t.set(v);
-		else {
+		if constexpr (std::is_same_v<Value, int>) {
+			if (is_int()) {
+				from_int(v);
+				return;
+			}
 			assign_value(make_const_accessor(v));
+		}
+		else {
+			typed_accessor<Value> t(dynamic_cast_accessor<Value>(*this));
+			if (t.is_valid())
+				t.set(v);
+			else
+				assign_value(make_const_accessor(v));
 		}
 	}
 

@@ -13,6 +13,10 @@
 #include "boost/algorithm/string/predicate.hpp"
 
 namespace litwindow {
+	namespace wx {
+		template <typename UIControl>
+		class uicontrol_policies;
+	}
 	namespace ui {
 
 		typedef litwindow::tstring ui_string;
@@ -299,8 +303,7 @@ namespace litwindow {
 		};
 		
 		//------------------------------------------------------------------------------------------------------------------------------------
-		template <typename UIControl>
-		class uicontrol_policies;
+		using wx::uicontrol_policies;
 
 		template <typename Container, typename UIControl, typename ContainerPolicies=container_policies<Container>, typename UIControlPolicies=uicontrol_policies<UIControl> >
 		class list_mediator
