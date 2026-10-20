@@ -45,11 +45,26 @@ endif()
 # Install the litwindow/*.hpp headers shared by every library above (each
 # target's INSTALL_INTERFACE include dir points at ${CMAKE_INSTALL_INCLUDEDIR},
 # i.e. exactly where this lands).
+# litwindow/build_config.h is excluded here: the in-tree default is empty and
+# is replaced by the generated version below, which describes the installed
+# libraries for consumers that do not use CMake (e.g. MSBuild projects).
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/litwindow"
 	DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 	FILES_MATCHING
 		PATTERN "*.h"
 		PATTERN "*.hpp"
+		PATTERN "build_config.h" EXCLUDE
+)
+if(BUILD_SHARED_LIBS)
+	set(LITWINDOW_INSTALLED_SHARED 1)
+else()
+	set(LITWINDOW_INSTALLED_SHARED 0)
+endif()
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/build_config.h.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/generated/litwindow/build_config.h"
+	@ONLY)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/litwindow/build_config.h"
+	DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/litwindow"
 )
 
 # Generate and install the litwindow package config, so consumers (including

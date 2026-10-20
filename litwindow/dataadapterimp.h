@@ -897,7 +897,7 @@ namespace litwindow {
 		if (value.length()>=get_sizeof(e)/sizeof(TCHAR))
 			throw std::out_of_range(method_name("from_string")+ " input too long");
 		TCHAR *p=reinterpret_cast<TCHAR *>(member_ptr);
-		_tcscpy(p, value.c_str());
+		std::char_traits<TCHAR>::copy(p, value.c_str(), value.length() + 1);
 		return value.length()*sizeof(TCHAR);
 	}
 

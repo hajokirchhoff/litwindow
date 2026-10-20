@@ -15,6 +15,7 @@
 #define LWBASE_VERSION ((LWBASE_VERSION_MAJOR << 16) | LWBASE_VERSION_MINOR)
 #define LWBASE_LIB_VERSION_STRING "1_0_0"
 
+#include "./build_config.h"
 #include "./platform_toolset.hpp"
 
 #endif

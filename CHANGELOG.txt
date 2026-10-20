@@ -1,3 +1,13 @@
+October 2026 - version 1.5.3
+	Installed headers no longer request the boost-style auto link names
+	(e.g. lwbase-vc143-mt-gd-x64-1_0_0.lib) and describe the installed
+	libraries (shared or static) themselves, so MSBuild/vcxproj consumers
+	of the vcpkg package need no extra defines or linker settings.
+	cmake --install now installs a generated litwindow/build_config.h
+	(from cmake/build_config.h.in) over the empty in-tree default.
+	Fixed C4996 (wcscpy) in dataadapterimp.h for consumers.
+	Known: including litwindow/odbc headers before wx headers gives C4005
+	for the _() macro; include the wx headers first.
 January 2009
 	Restarted litwindow development on sourceforge.
 	The library has been improved over the years, but the development was
