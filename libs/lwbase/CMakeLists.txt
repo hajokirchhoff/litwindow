@@ -39,6 +39,10 @@ target_compile_definitions(lwbase
         # which otherwise looks for a lib named after the (VS-project-only)
         # auto_link naming convention and fails to link (LNK1104).
         LWL_LWBASE_NO_LIB
+        # Same for all other litwindow libraries (odbc, lwwx): their headers honor
+        # LITWINDOW_ALL_NO_LIB / LWL_ALL_NO_LIB, and every consumer links lwbase.
+        LITWINDOW_ALL_NO_LIB
+        LWL_ALL_NO_LIB=1
         # Enables __declspec(dllexport)/dllimport via litwindow's LWBASE_API/
         # LWBASE_DLL_EXPORT macros (see lw_pragma_import.h). Without this, those
         # macros expand to nothing on MSVC shared builds and explicitly

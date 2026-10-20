@@ -64,7 +64,7 @@ With the vcpkg toolchain configured, manifest mode restores these dependencies d
 
 Building a library is not enough for vcpkg: a downstream project needs installed headers, libraries, dependency information, and stable target names. The CMake targets therefore gained install rules and share a `litwindowTargets` export. The root project installs the public `litwindow` headers and generates `litwindowConfig.cmake` plus a same-major-compatible version file.
 
-The installed target names use the `litwindow::` namespace: `litwindow::lwbase`, `litwindow::odbc`, and, when included, `litwindow::lwwx`. The package config loads the exported targets and calls `find_dependency()` for Boost and whichever optional dependencies were used to build that package. Consumers can consequently use the normal CMake pattern:
+The installed target names use the `litwindow::` namespace: `litwindow::lwbase`, `litwindow::lwodbc`, and, when included, `litwindow::lwwx`. The package config loads the exported targets and calls `find_dependency()` for Boost and whichever optional dependencies were used to build that package. Consumers can consequently use the normal CMake pattern:
 
 ```cmake
 find_package(litwindow REQUIRED)

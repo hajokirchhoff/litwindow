@@ -12,6 +12,6 @@ add_executable(litwindow_consumer_example main.cpp)
 target_link_libraries(litwindow_consumer_example PRIVATE litwindow::lwbase)
 
 if(litwindow_ODBC_FOUND)
-	target_link_libraries(litwindow_consumer_example PRIVATE litwindow::odbc)
+	target_link_libraries(litwindow_consumer_example PRIVATE litwindow::lwodbc)
 	target_compile_definitions(litwindow_consumer_example PRIVATE LITWINDOW_CONSUMER_HAS_ODBC)
 endif()

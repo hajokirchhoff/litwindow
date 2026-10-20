@@ -42,6 +42,8 @@ target_compile_definitions(lwwx
 		# decides wxWidgets' own linkage; kept in sync with BUILD_SHARED_LIBS
 		# for simplicity since both are normally chosen together.
 		$<$<BOOL:${BUILD_SHARED_LIBS}>:WXUSINGDLL>
+		# Suppress the header-embedded auto-link pragma; CMake links lwwx itself.
+		LITWINDOW_LWWX_NO_LIB
 		# See libs/odbc/CMakeLists.txt for why these two are PUBLIC.
 		$<$<BOOL:${BUILD_SHARED_LIBS}>:LITWINDOW_ALL_DYN_LINK>
 		$<$<BOOL:${BUILD_SHARED_LIBS}>:BOOST_ALL_DYN_LINK>
@@ -64,6 +66,7 @@ endif()
 
 if(BUILD_TESTING)
     add_subdirectory(policies_test)
+    add_subdirectory(link_test)
 endif()
 
 # Make lwwx installable and exportable (see the top-level CMakeLists.txt for

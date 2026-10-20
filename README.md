@@ -28,7 +28,7 @@ Building `wxwidgets` from source via vcpkg the first time can take several minut
 
 ## Testing vcpkg consumption
 
-litwindow is installable (`cmake --install`) and exports proper CMake package config (`litwindowConfig.cmake` + `litwindowTargets.cmake`), so downstream projects can do `find_package(litwindow REQUIRED)` and link `litwindow::lwbase`, `litwindow::odbc`, `litwindow::lwwx`. This is exercised end-to-end without publishing anything, using two extra pieces in this repo:
+litwindow is installable (`cmake --install`) and exports proper CMake package config (`litwindowConfig.cmake` + `litwindowTargets.cmake`), so downstream projects can do `find_package(litwindow REQUIRED)` and link `litwindow::lwbase`, `litwindow::lwodbc`, `litwindow::lwwx`. This is exercised end-to-end without publishing anything, using two extra pieces in this repo:
 
 - `vcpkg-overlay/ports/litwindow/` - a local vcpkg port (`vcpkg.json` + `portfile.cmake`) that builds directly from this checkout (not a fetched release archive) and maps the `odbc`/`wx` vcpkg features to `LITWINDOW_BUILD_ODBC`/`LITWINDOW_BUILD_LWWX` via `vcpkg_check_features`.
 - `examples/vcpkg-consumer/` - a tiny, completely separate CMake project (its own `vcpkg.json` depending on `litwindow[odbc]`) that only knows about litwindow through `find_package`, proving the port actually works for a consumer.

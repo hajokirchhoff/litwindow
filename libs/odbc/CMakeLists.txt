@@ -1,8 +1,8 @@
-# CMakeLists.txt for the lwodbc (odbc) library
+# CMakeLists.txt for the lwodbc library
 #
 cmake_minimum_required (VERSION 3.10)
 
-project ("odbc")
+project ("lwodbc")
 
 # Option to build shared or static (defaults to STATIC)
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
@@ -37,17 +37,17 @@ if (NOT WIN32)
 endif()
 
 # Add library target (type controlled by BUILD_SHARED_LIBS)
-add_library(odbc ${SOURCES})
+add_library(lwodbc ${SOURCES})
 
 # Add compile definitions (only for shared builds)
-target_compile_definitions(odbc
+target_compile_definitions(lwodbc
 	PUBLIC
 		# UNICODE/_UNICODE select TCHAR=wchar_t and are only meaningful on Windows,
 		# where wchar_t is UTF-16. On Linux, wchar_t is 4 bytes and impractical for
 		# ODBC/UTF-8 interop, so TCHAR=char (narrow, UTF-8 encoded) is used instead.
 		$<$<BOOL:${WIN32}>:UNICODE>
 		$<$<BOOL:${WIN32}>:_UNICODE>
-		# CMake's target_link_libraries already links odbc explicitly, so
+		# CMake's target_link_libraries already links lwodbc explicitly, so
 		# suppress litwindow's boost-style auto-link #pragma comment(lib, ...)
 		# which otherwise looks for a lib named after the (VS-project-only)
 		# auto_link naming convention and fails to link (LNK1104).
@@ -56,7 +56,7 @@ target_compile_definitions(odbc
 		# LWBASE_DLL_EXPORT macros (see lw_pragma_import.h). Without this, those
 		# macros expand to nothing on MSVC shared builds and explicitly
 		# instantiated templates (e.g. get_prop_type_data_adapter_mechanism<T>)
-		# are compiled into lwbase.dll/odbc.dll but never added to their export
+		# are compiled into lwbase.dll/lwodbc.dll but never added to their export
 		# table, causing LNK2019 unresolved externals in consumers. No effect
 		# on non-MSVC compilers (see lw_pragma_import.h).
 		$<$<BOOL:${BUILD_SHARED_LIBS}>:LITWINDOW_ALL_DYN_LINK>
@@ -70,34 +70,34 @@ target_compile_definitions(odbc
 )
 
 # Link Boost headers, lwbase and the ODBC driver manager
-target_link_libraries(odbc PUBLIC lwbase ODBC::ODBC Boost::boost)
+target_link_libraries(lwodbc PUBLIC lwbase ODBC::ODBC Boost::boost)
 
 # dbms.cpp calls SQLConfigDataSourceW / SQLInstallerErrorW, which are part of the
 # Windows ODBC Installer API (odbccp32.lib), not the core driver manager import lib
 # (odbc32.lib). This library only exists on Windows.
 if (WIN32)
-	target_link_libraries(odbc PUBLIC odbccp32)
+	target_link_libraries(lwodbc PUBLIC odbccp32)
 	# odbccp32.lib references the legacy CRT symbol _vsnwprintf_s (via StringCchPrintfW),
 	# which was removed from the default UCRT import libs. legacy_stdio_definitions.lib
 	# re-exports it and must be linked explicitly on modern MSVC toolchains.
-	target_link_libraries(odbc PUBLIC legacy_stdio_definitions)
+	target_link_libraries(lwodbc PUBLIC legacy_stdio_definitions)
 endif()
 
 # Add include directories. See libs/lwbase/CMakeLists.txt for why
 # BUILD_INTERFACE/INSTALL_INTERFACE are used instead of a plain path.
-target_include_directories(odbc PUBLIC
+target_include_directories(lwodbc PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET odbc PROPERTY CXX_STANDARD 20)
+  set_property(TARGET lwodbc PROPERTY CXX_STANDARD 20)
 endif()
 
-# Make odbc installable and exportable (see the top-level CMakeLists.txt for
+# Make lwodbc installable and exportable (see the top-level CMakeLists.txt for
 # the matching install(EXPORT ...) / package config generation).
 include(GNUInstallDirs)
-install(TARGETS odbc
+install(TARGETS lwodbc
     EXPORT litwindowTargets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
