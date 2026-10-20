@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
   "name": "litwindow",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "litwindow: a small C++ library collection (lwbase core utilities, optional ODBC data-access and wxWidgets UI integration).",
   "homepage": "https://github.com/hajokirchhoff/litwindow",
   "license": "MIT",
