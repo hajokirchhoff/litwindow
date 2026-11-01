@@ -70,12 +70,12 @@ template <typename Container, typename UIControl, typename ContainerPolicies/*=c
 template <typename Archive>
 void litwindow::ui::list_mediator<Container, UIControl, ContainerPolicies, UIControlPolicies>::serialize( Archive &ar, const unsigned int version )
 {
-	if (Archive::is_saving()) {
+	if (typename Archive::is_saving()) {
 		m_uicontrol_policies.get_columns(*this, m_uicontrol);
 	}
 	ar & BOOST_SERIALIZATION_NVP(m_columns);
 	std::vector<basic_columns_sort_index> sortorder;
-	if (Archive::is_loading()) {
+	if (typename Archive::is_loading()) {
 		ar & boost::serialization::make_nvp("sort-order", sortorder);
 		set_sort_order(sortorder);
 	} else {

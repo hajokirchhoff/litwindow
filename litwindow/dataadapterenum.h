@@ -180,6 +180,7 @@ the_decl_spec ::litwindow::prop_t     litwindow::prop_type_object<tp >::get(cons
         return &theConverter;    \
     }\
 	template litwindow::prop_t the_decl_spec litwindow::get_prop_type_data_adapter_mechanism<tp>(const tp*); \
+	template <> \
     const litwindow::concrete_enum_adapter<tp> &litwindow::converter_enum<tp>::my_adapter() \
     {\
     static litwindow::concrete_enum_adapter<tp> adapter=litwindow::enum_adapter()+\

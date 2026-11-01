@@ -931,7 +931,11 @@ namespace litwindow {
 			return get_prop_type_data_adapter_mechanism(t); 
 		}
 		static prop_type_registrar ____register_prop_t;
+#if defined(__clang__)
+		void *__return_registrar();
+#else
 		void _FORCE_DLL_EXPORT *__return_registrar();
+#endif
 	};
 
 #if LITWINDOW_USES_RTTI_LOOKUP==1
@@ -1207,16 +1211,16 @@ namespace litwindow {
 //! \internal This macro is required to implement the neccessary logic so that a type
 //! is recognized by the litwindow mechanism.
 #define IMPLEMENT_ADAPTER_TYPE_ds(tp, the_decl_spec)    \
+	template <> \
+	::litwindow::prop_type_registrar litwindow::prop_type_object<tp >::____register_prop_t(litwindow::prop_type_object<tp >::get(0)); \
+	template <> \
+	inline void _FORCE_DLL_EXPORT *::litwindow::prop_type_object<tp >::__return_registrar() { return (void*)&____register_prop_t; } \
 	template <> litwindow::prop_t litwindow::get_prop_type_data_adapter_mechanism(const tp*)    \
 	{    \
 	static litwindow::converter<tp > theConverter(#tp, &litwindow::prop_type_object<tp>::____register_prop_t);    \
 	return &theConverter;    \
 	} \
 	template ::litwindow::prop_t the_decl_spec ::litwindow::get_prop_type_data_adapter_mechanism<tp>(const tp*);    \
-	template <> \
-	::litwindow::prop_type_registrar litwindow::prop_type_object<tp >::____register_prop_t(litwindow::prop_type_object<tp >::get(0)); \
-	template <> \
-	inline void _FORCE_DLL_EXPORT *::litwindow::prop_type_object<tp >::__return_registrar() { return (void*)&____register_prop_t; } \
 	/*template <>    \
 	the_decl_spec ::litwindow::prop_t     litwindow::prop_type_object<tp >::get(const tp *)*/ \
 	template struct the_decl_spec litwindow::prop_type_object<tp>;

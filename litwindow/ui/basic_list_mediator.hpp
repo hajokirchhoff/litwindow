@@ -79,12 +79,12 @@ namespace litwindow {
 				ar & BOOST_SERIALIZATION_NVP(m_title) & BOOST_SERIALIZATION_NVP(m_width) & BOOST_SERIALIZATION_NVP(m_visible);
 				if (version >= 1)
 					ar & BOOST_SERIALIZATION_NVP(m_position);
-				else if (Archive::is_loading())
+				else if (typename Archive::is_loading())
 					m_position = -1;
 				if (version >= 2)
 					ar & BOOST_SERIALIZATION_NVP(m_align);
 				else {
-					if (Archive::is_loading()) {
+					if (typename Archive::is_loading()) {
 						if (m_width < 0) {
 							m_align = right;
 							m_width = -m_width;
@@ -480,7 +480,7 @@ namespace litwindow {
             template <typename Archive>
             void serialize(Archive &ar, const unsigned int version)
             {
-				if (Archive::is_loading()) {
+				if (typename Archive::is_loading()) {
 					columns_t temp;
 					ar & boost::serialization::make_nvp("m_column_data", temp);
 					merge_in(temp);
