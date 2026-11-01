@@ -1,3 +1,9 @@
+November 2026 - version 1.5.4
+	Headers now parse with clang/clang-cl (template<> for converter_enum::my_adapter,
+	specialisation order in IMPLEMENT_ADAPTER_TYPE_ds, no dllexport on
+	prop_type_object::__return_registrar under clang, typename in list mediators).
+	Debug builds no longer write dump_lwlog.txt into the current directory;
+	set the environment variable LWL_LOG_DUMP_FILE to a file name to enable it.
 October 2026 - version 1.5.3
 	Installed headers no longer request the boost-style auto link names
 	(e.g. lwbase-vc143-mt-gd-x64-1_0_0.lib) and describe the installed
