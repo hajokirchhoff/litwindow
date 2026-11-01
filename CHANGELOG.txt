@@ -1,3 +1,6 @@
+November 2026 - version 1.5.5
+	list mediator columns().add() accepts pointers to data members and const member
+	functions of a base class of the value type (previously not deducible, also on MSVC).
 November 2026 - version 1.5.4
 	Headers now parse with clang/clang-cl (template<> for converter_enum::my_adapter,
 	specialisation order in IMPLEMENT_ADAPTER_TYPE_ds, no dllexport on
