@@ -11,6 +11,7 @@
 #include "litwindow/logging.h"
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
 
 using namespace std;
 
@@ -132,7 +133,9 @@ struct get_lw_log_dumper:public wrapping_tstreambuf::dumper_t
 {
     tostream &get()
     {
-        m_out.open("dump_lwlog.txt");
+        // Only dump to a file when requested, so no file litters the working directory.
+        if (const char *file_name = std::getenv("LWL_LOG_DUMP_FILE"))
+            m_out.open(file_name);
         return m_out;
     }
     tofstream m_out;

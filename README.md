@@ -134,6 +134,10 @@ You can verify the driver registration with:
 - `odbcinst -j`
 - `odbcinst -q -d`
 
+## Debug log dump file
+
+Debug builds of lwbase can mirror the in-memory log (`lw_log()`) to a file. No file is written by default; set the environment variable `LWL_LOG_DUMP_FILE` to the desired file name to enable it. Release builds never write the file.
+
 ## Project layout
 
 - `libs/lwbase` - core library
