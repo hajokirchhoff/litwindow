@@ -391,6 +391,17 @@ namespace litwindow {
 				{
 					return add(make_basic_column_descriptor_memfnc<value_type>(title, width, ptr_mem_fnc, f));
 				}
+				// Member pointers of a base class do not deduce against value_type::*, so convert explicitly.
+				template <typename ValueMember, typename Base>
+				back_inserter operator()(const tstring &title, int width, ValueMember (Base::*ptr_to_member), typename column_accessor<ValueMember (value_type::*), value_type>::formatter_type f=0, typename boost::enable_if_c<std::is_base_of<Base, value_type>::value && !std::is_same<Base, value_type>::value && !std::is_function<ValueMember>::value>::type *dmy=0) const
+				{
+					return operator()(title, width, static_cast<ValueMember (value_type::*)>(ptr_to_member), f);
+				}
+				template <typename ValueMember, typename Base>
+				back_inserter operator()(const tstring &title, int width, ValueMember (Base::*ptr_mem_fnc)() const, typename column_accessor<ValueMember (value_type::*)() const, value_type>::formatter_type f=0, typename boost::enable_if_c<std::is_base_of<Base, value_type>::value && !std::is_same<Base, value_type>::value>::type *dmy=0) const
+				{
+					return operator()(title, width, static_cast<ValueMember (value_type::*)() const>(ptr_mem_fnc), f);
+				}
 				template <typename T1>
 				back_inserter operator()(const tstring &title, int width, const T1 &v, typename column_accessor<T1, value_type>::formatter_type f=0, typename boost::disable_if<boost::is_void<typename T1::result_type> >::type *dmy=0) const
 				{

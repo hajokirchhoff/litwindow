@@ -150,6 +150,46 @@ BOOST_AUTO_TEST_CASE(columns_descriptor_test_new)
 	};
 }
 
+struct BaseData
+{
+	int base_int = 3;
+	int base_calc() const { return 2 * base_int; }
+};
+struct DerivedData : BaseData
+{
+	int own_int = 4;
+	int own_calc() const { return 3 * own_int; }
+};
+
+void fmt_int(int i, tstring &rc)
+{
+	rc = _T("int");
+}
+
+BOOST_AUTO_TEST_CASE(columns_add_base_class_member_test)
+{
+	using bca_t = basic_columns_adapter<basic_column_descriptor<DerivedData> >;
+	bca_t cols;
+	cols.add(_T("own"), 10, &DerivedData::own_int);
+	cols.add(_T("own fmt"), 10, &DerivedData::own_int, &fmt_int);
+	cols.add(_T("own fnc"), 10, &DerivedData::own_calc);
+	cols.add(_T("base"), 10, &DerivedData::base_int);
+	cols.add(_T("base fmt"), 10, &DerivedData::base_int, &fmt_int);
+	cols.add(_T("base fnc"), 10, &DerivedData::base_calc);
+	cols.add(_T("base fnc fmt"), 10, &DerivedData::base_calc, &fmt_int);
+	BOOST_REQUIRE_EQUAL(cols.columns().size(), 7u);
+	DerivedData d;
+	tstring s;
+	cols.columns()[0].m_text_renderer(d, s);
+	BOOST_CHECK(s == _T("4"));
+	cols.columns()[3].m_text_renderer(d, s);
+	BOOST_CHECK(s == _T("3"));
+	cols.columns()[4].m_text_renderer(d, s);
+	BOOST_CHECK(s == _T("int"));
+	cols.columns()[5].m_text_renderer(d, s);
+	BOOST_CHECK(s == _T("6"));
+}
+
 BOOST_AUTO_TEST_CASE(columns_descriptor_test)
 {
 	//te(bind(&TestDataAccess_renderer, boost::placeholders::_1, boost::placeholders::_2));
