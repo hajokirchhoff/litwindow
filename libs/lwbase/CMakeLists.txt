@@ -79,6 +79,10 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET lwbase PROPERTY CXX_STANDARD 20)
 endif()
 
+# Debug and Release libraries must not share a file name (a Debug DLL would
+# overwrite the Release DLL in a shared output folder); follow the vcpkg 'd' convention.
+set_target_properties(lwbase PROPERTIES DEBUG_POSTFIX d)
+
 # Make lwbase installable and exportable (see the top-level CMakeLists.txt for
 # the matching install(EXPORT ...) / package config generation).
 include(GNUInstallDirs)

@@ -10,7 +10,7 @@
 // same macros from the target's INTERFACE_COMPILE_DEFINITIONS and the guards
 // avoid redefinition warnings.
 
-// The installed libraries are plain lwbase.lib, lwodbc.lib, lwwx.lib; they
+// The installed libraries are plain lwbase.lib, lwodbc.lib, lwwx.lib (Debug: lwbased.lib, ...); they
 // do not follow the boost auto link naming scheme. Linking is done by the
 // build system (CMake targets, or vcpkg's MSBuild integration).
 #ifndef LITWINDOW_ALL_NO_LIB
