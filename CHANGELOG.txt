@@ -1,3 +1,6 @@
+November 2026 - version 1.5.6
+	Debug libraries get a 'd' postfix (lwbased.dll/.lib, lwodbcd.*, lwwxd.*) so that
+	Debug and Release builds no longer overwrite each other. Release names unchanged.
 November 2026 - version 1.5.5
 	list mediator columns().add() accepts pointers to data members and const member
 	functions of a base class of the value type (previously not deducible, also on MSVC).
